@@ -9,8 +9,8 @@ Card IDE (CIDEr) - Design playing cards using HTML, CSS, and tabular data
 4. Export cards (PDF/PNG)
 
 Web Application
-Angular
-PrimeNG
+- Angular
+- PrimeNG
 
 
 ## Database/Local Storage
