@@ -1,5 +1,6 @@
 <p-table [columns]="columns" [value]="records" responsiveLayout="scroll"
-        selectionMode="single" [(selection)]="selectedEntity" dataKey="id" >
+        selectionMode="single" [(selection)]="selection" dataKey="id" 
+        (selectionChange)="selectionChange.emit($event)">
     <ng-template pTemplate="header" let-columns>
         <tr>
             <th *ngFor="let col of columns">

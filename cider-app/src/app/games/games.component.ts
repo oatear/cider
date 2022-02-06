@@ -16,7 +16,7 @@ export class GamesComponent implements OnInit {
   games: Game[];
   selectedGame: Game | undefined;
 
-  constructor(private gamesService: GamesService, 
+  constructor(public gamesService: GamesService, 
     private router: Router) {
     this.cols = [];
     this.games = [];
