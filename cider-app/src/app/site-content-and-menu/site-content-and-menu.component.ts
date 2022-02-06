@@ -25,29 +25,33 @@ export class SiteContentAndMenuComponent implements OnInit {
         this.items = [
           {
             label: 'Games',
-            icon: 'pi pi-pw pi-file',
+            icon: 'pi pi-pw pi-play',
             routerLink: ['/games']
           }, {
             label: 'Cards',
-            icon: 'pi pi-pw pi-file',
+            icon: 'pi pi-pw pi-tablet',
             routerLink: [`/games/${selectedGame?.id}/cards`]
           }, {
             label: 'Templates',
-            icon: 'pi pi-pw pi-file',
+            icon: 'pi pi-pw pi-id-card',
             items: [
               {
                 label: 'Card Templates',
-                icon: 'pi pi-pw pi-file',
+                icon: 'pi pi-pw pi-id-card',
                 routerLink: [`/games/${selectedGame?.id}/card-templates`]
               }, {
                 label: 'Print Templates',
-                icon: 'pi pi-pw pi-file',
+                icon: 'pi pi-pw pi-id-card',
                 routerLink: [`/games/${selectedGame?.id}/print-templates`]
               }
             ]
           }, {
+            label: 'Assets',
+            icon: 'pi pi-pw pi-table',
+            routerLink: [`/games/${selectedGame?.id}/assets`]
+          }, {
             label: 'Export',
-            icon: 'pi pi-pw pi-file'
+            icon: 'pi pi-pw pi-file-pdf'
           }
         ]
       }

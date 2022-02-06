@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import {ButtonModule} from 'primeng/button';
 import { GamesService } from '../data-services/services/games.service';
+import { EntityField, FieldType } from '../data-services/types/entity-field.type';
 import { Game } from '../data-services/types/game.type';
 
 @Component({
@@ -11,7 +12,7 @@ import { Game } from '../data-services/types/game.type';
 })
 export class GamesComponent implements OnInit {
 
-  cols: any[];
+  cols: EntityField<Game>[];
   games: Game[];
   selectedGame: Game | undefined;
 
@@ -23,14 +24,8 @@ export class GamesComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.cols = [
-      {field: 'name', header: 'Name'}
-    ];
-    //this.gamesService.getAll().subscribe({next: (games) => this.games = games});
-    this.gamesService.getAll().subscribe({next: (games) => {
-      console.log('games: ', games);
-      this.games = games
-    }});
+    this.gamesService.getAll().then(games => this.games = games);
+    this.gamesService.getFields().then(fields => this.cols = fields);
     this.gamesService.getSelectedGame().subscribe({next: (game) => this.selectedGame = game});
   }
 

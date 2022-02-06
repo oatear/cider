@@ -68,8 +68,8 @@ Card IDE (CIDEr) - Design playing cards using HTML, CSS, and tabular data
 ### Cards Table
 - ID
 - Game ID
-- Front Template
-- Back Template
+- Front Card Template ID
+- Back Card Template ID
 - Attributes (JSON)
 ```
   [{
@@ -94,4 +94,29 @@ Card IDE (CIDEr) - Design playing cards using HTML, CSS, and tabular data
 - ID
 - Game ID
 - File Name
+
+## Generics
+
+### Entity fields definition
+```
+  fields = [
+    {
+      field: 'title',
+      header: 'Title',
+      type: 'string',
+      required: true,
+      conversion: (entity) => entity.title
+    }
+  ]
+
+```
+
+### Generic Table (Create/Read/Update/Delete)
+Search/sort/filter on a table of entities
+Optionally allow CRUD operations
+The fields definition from the entity can be overwritten with custom fields
+
+### Generic Editor Modal (Create/Read/Update)
+Edit/create new entity dialog
+
 

@@ -1,31 +1,23 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
+import { EntityField, FieldType } from '../types/entity-field.type';
 import { Game } from '../types/game.type';
+import { InMemoryService } from './in-memory.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class GamesService {
+export class GamesService extends InMemoryService<Game, number> {
   selectedGame: Subject<Game | undefined>;
-  games: BehaviorSubject<Game[]>;
-
-  private readonly defaultGames : Game[] = [
-    {name: 'Apple Cider Game', id: 1},
-    {name: 'Crazy Game', id: 2}
-  ];
 
   constructor() {
+    super([
+      {field: 'name', header: 'Name', type: FieldType.string}
+    ], [
+      {name: 'Apple Cider Game', id: 1},
+      {name: 'Crazy Game', id: 2}
+    ]);
     this.selectedGame = new Subject<Game | undefined>();
-    this.games = new BehaviorSubject<Game[]>(this.defaultGames);
-  }
-
-  /**
-   * Get all games
-   * 
-   * @returns 
-   */
-  public getAll() {
-    return this.games.asObservable();
   }
 
   /**

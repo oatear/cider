@@ -19,6 +19,9 @@ import { SiteHeaderComponent } from './site-header/site-header.component';
 import { SiteFooterComponent } from './site-footer/site-footer.component';
 import { SiteContentComponent } from './site-content/site-content.component';
 import { SiteContentAndMenuComponent } from './site-content-and-menu/site-content-and-menu.component';
+import { AssetsComponent } from './assets/assets.component';
+import { EntityTableComponent } from './entity-table/entity-table.component';
+import { EntityDialogComponent } from './entity-dialog/entity-dialog.component';
 
 @NgModule({
   declarations: [
@@ -30,7 +33,10 @@ import { SiteContentAndMenuComponent } from './site-content-and-menu/site-conten
     SiteHeaderComponent,
     SiteFooterComponent,
     SiteContentComponent,
-    SiteContentAndMenuComponent
+    SiteContentAndMenuComponent,
+    AssetsComponent,
+    EntityTableComponent,
+    EntityDialogComponent
   ],
   imports: [
     BrowserModule,

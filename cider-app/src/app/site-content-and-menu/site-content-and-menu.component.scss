@@ -13,8 +13,10 @@
         }
     }
     .site-content {
+        flex: 1;
     }
 }
 :host ::ng-deep .p-menubar {
     height: 58px;
+    border-radius: 0px;
 }

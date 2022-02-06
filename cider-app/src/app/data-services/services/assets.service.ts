@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-import { Card } from 'primeng/card';
+import { Asset } from '../types/asset.type';
 import { InMemoryService } from './in-memory.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class CardsService extends InMemoryService<Card, number> {
+export class AssetsService extends InMemoryService<Asset, number> {
 
   constructor() {
     super();
