@@ -1,0 +1,17 @@
+
+
+:host ::ng-deep .game-card {
+    width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 25px;
+    margin-bottom: 25px;
+}
+
+:host ::ng-deep button {
+    margin-right: .5em;
+}
+
+.games-table {
+    margin-bottom: 32px;
+}

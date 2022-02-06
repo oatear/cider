@@ -7,32 +7,36 @@ Card IDE (CIDEr) - Design playing cards using HTML, CSS, and tabular data
 
 ## Interface
 
-### 1. Define card template (HTML, CSS)
+### 1. Define game
+- Display existing games
+- Create new game
+
+### 2. Define card template (HTML, CSS)
 - Display existing templates
 - Create new template option
 - Edit template HTML
 - Edit template CSS
 - Display template live preview
 
-### 2. Edit tabular card data (CSV, XLSX)
+### 3. Edit tabular card data (CSV, XLSX)
 - Display table of existing card data
 - Create new field/column option
 - Remove existing field/column option
 - Inline table row editor
 - Remove existing card/row
 
-### 3. Select/Define Print Template (HTML, CSS)
+### 4. Select/Define Print Template (HTML, CSS)
 - Display existing templates
 - Edit template HTML
 - Edit template CSS
 - Display template live preview (first x cards)
 
-### 4. Export cards (PDF/PNG)
+### 5. Export cards (PDF/PNG)
 - Select print template
 - Select cards to template
 - Export as pdf/png
 
-### 5. Preview cards
+### 6. Preview cards
 - Scrollable listing of cards
 - Cards all rendered
 

@@ -1,0 +1,25 @@
+.header {
+    background-color: var(--surface-a);
+    height: 70px;
+    box-shadow: 0 0 4px #00000040;
+    border-left: 1px solid var(--surface-d);
+    border-right: 1px solid var(--surface-d);
+    display: flex;
+    align-items: center;
+    padding: 0 35px;
+
+    .mainheader {
+        font-size: 2em;
+        font-weight: bold;
+        line-height: 70px;
+        vertical-align: middle;
+        padding-right: 35px;
+        border-right: 1px solid var(--surface-d);
+        height: 100%;
+    }
+    .subheader {
+        line-height: 70px;
+        vertical-align: middle;
+        padding-left: 35px;
+    }
+}
