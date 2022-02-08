@@ -12,6 +12,7 @@ export class GamesService extends InMemoryService<Game, number> {
 
   constructor() {
     super([
+      {field: 'id', header: 'ID', type: FieldType.number, hidden: true},
       {field: 'name', header: 'Name', type: FieldType.string}
     ], [
       {id: 1, name: 'Apple Cider Game'},
