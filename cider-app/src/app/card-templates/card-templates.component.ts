@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-card-templates',
@@ -6,10 +7,16 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./card-templates.component.scss']
 })
 export class CardTemplatesComponent implements OnInit {
+  html: string = '';
+  css: string = '';
 
-  constructor() { }
+  constructor(private domSanitizer: DomSanitizer) { }
 
   ngOnInit(): void {
+  }
+
+  safeCss(style: string) {
+    return this.domSanitizer.bypassSecurityTrustStyle(style);
   }
 
 }

@@ -1,1 +1,21 @@
-<p>card-templates works!</p>
+<p-splitter [style]="{'height': 'calc(100vh - 198px)'}" 
+        [panelSizes]="[40,60]" 
+        layout="horizontal">
+    <ng-template pTemplate>
+        Preview
+        <div class="preview" [innerHtml]="html" [style]="safeCss(this.css)">
+
+        </div>
+    </ng-template>
+    <ng-template pTemplate>
+        <p-splitter [style]="" layout="vertical"
+            [panelSizes]="[50,50]" >
+            <ng-template pTemplate>
+                <textarea pInputTextarea [(ngModel)]="css"></textarea>
+            </ng-template>
+            <ng-template pTemplate>
+                <textarea pInputTextarea [(ngModel)]="html"></textarea>
+            </ng-template>
+        </p-splitter>
+    </ng-template>
+</p-splitter>

@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { FormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -17,8 +18,9 @@ import { PanelMenuModule } from 'primeng/panelmenu';
 import { MenubarModule } from 'primeng/menubar';
 import { ToolbarModule } from 'primeng/toolbar';
 import { DialogModule } from 'primeng/dialog';
-import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
+import { InputTextareaModule } from 'primeng/inputtextarea';
+import { SplitterModule } from 'primeng/splitter';
 
 import { SiteHeaderComponent } from './site-header/site-header.component';
 import { SiteFooterComponent } from './site-footer/site-footer.component';
@@ -56,7 +58,9 @@ import { EntityDialogComponent } from './entity-dialog/entity-dialog.component';
     ToolbarModule,
     DialogModule,
     FormsModule,
-    InputTextModule
+    InputTextModule,
+    InputTextareaModule,
+    SplitterModule
   ],
   providers: [],
   bootstrap: [AppComponent]

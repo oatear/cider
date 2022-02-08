@@ -2,5 +2,5 @@
     <div class="games-table">
         <app-entity-table [service]="gamesService" [(selection)]="selectedGame" selectionMode="single"></app-entity-table>
     </div>
-    <p-button label="Select Game" (click)="selectGame()"></p-button>
+    <p-button label="Select Game" (click)="selectGame()" [disabled]="selectedGame === undefined"></p-button>
 </p-card>

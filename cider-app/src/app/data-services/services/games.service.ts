@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { EntityField, FieldType } from '../types/entity-field.type';
 import { Game } from '../types/game.type';
 import { InMemoryService } from './in-memory.service';
@@ -8,7 +8,7 @@ import { InMemoryService } from './in-memory.service';
   providedIn: 'root'
 })
 export class GamesService extends InMemoryService<Game, number> {
-  selectedGame: Subject<Game | undefined>;
+  selectedGame: BehaviorSubject<Game | undefined>;
 
   constructor() {
     super([
@@ -18,7 +18,7 @@ export class GamesService extends InMemoryService<Game, number> {
       {id: 1, name: 'Apple Cider Game'},
       {id: 2, name: 'Crazy Game'}
     ]);
-    this.selectedGame = new Subject<Game | undefined>();
+    this.selectedGame = new BehaviorSubject<Game | undefined>(this.records[0]);
   }
 
   /**
