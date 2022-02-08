@@ -14,9 +14,11 @@ export class EntityTableComponent<Entity, Identifier> implements OnInit {
   @Input() columns: EntityField<Entity>[] = [];
   @Input() service: EntityService<Entity, Identifier> | undefined;
   @Input() selection: Entity | undefined;
+  @Input() selectionMode: string | undefined;
   @Output() selectionChange: EventEmitter<Entity | undefined> = new EventEmitter<Entity | undefined>();
   total: number = 0;
   loading: boolean = false;
+  dialogVisible: boolean = false;
 
   constructor() { }
 
@@ -39,5 +41,9 @@ export class EntityTableComponent<Entity, Identifier> implements OnInit {
       this.total = result.total;
       this.records = result.records;
     });
+  }
+
+  public openCreateNew() {
+    this.dialogVisible = true;
   }
 }

@@ -42,11 +42,12 @@ export class InMemoryService<Entity, Identity> implements EntityService<Entity, 
 
   create(entity: Entity) {
     return new Promise<Entity>((resolve, reject) => {
-      resolve(this.records[0]);
+      this.records.push(entity);
+      resolve(entity);
     });
   }
 
-  update(entity: Entity) {
+  update(id: Identity, entity: Entity) {
     return new Promise<Entity>((resolve, reject) => {
       resolve(this.records[0]);
     });

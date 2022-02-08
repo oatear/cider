@@ -14,8 +14,8 @@ export class GamesService extends InMemoryService<Game, number> {
     super([
       {field: 'name', header: 'Name', type: FieldType.string}
     ], [
-      {name: 'Apple Cider Game', id: 1},
-      {name: 'Crazy Game', id: 2}
+      {id: 1, name: 'Apple Cider Game'},
+      {id: 2, name: 'Crazy Game'}
     ]);
     this.selectedGame = new Subject<Game | undefined>();
   }

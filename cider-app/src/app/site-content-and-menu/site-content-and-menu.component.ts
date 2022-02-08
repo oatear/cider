@@ -11,16 +11,16 @@ import { Game } from '../data-services/types/game.type';
 })
 export class SiteContentAndMenuComponent implements OnInit {
 
-  selectedGame: Observable<Game | undefined>;
+  selectedGame$: Observable<Game | undefined>;
   items: MenuItem[];
 
   constructor(private gamesService : GamesService) { 
     this.items = [];
-    this.selectedGame = this.gamesService.getSelectedGame();
+    this.selectedGame$ = this.gamesService.getSelectedGame();
   }
 
   ngOnInit(): void {
-    this.selectedGame.subscribe({
+    this.selectedGame$.subscribe({
       next: (selectedGame) => {
         this.items = [
           {

@@ -2,12 +2,12 @@
     <div class="site-menu">
         <p-menubar [model]="items">
             <ng-template pTemplate="start">
-                <div class="game-name">{{(selectedGame | async)?.name}}</div>
+                <div class="game-name">{{(selectedGame$ | async)?.name}}</div>
             </ng-template>
         </p-menubar>
     </div>
     <div class="site-content">
-        <ng-content *ngIf="selectedGame | async; else elseBlock" ></ng-content>
+        <ng-content *ngIf="selectedGame$ | async; else elseBlock" ></ng-content>
         <ng-template #elseBlock>
             <app-games></app-games>
         </ng-template>

@@ -3,5 +3,4 @@ export interface Card {
     gameId: number;
     frontCardTemplateId: number;
     backCardTemplateId: number;
-    css: string;
 }

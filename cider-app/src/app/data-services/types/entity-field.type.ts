@@ -3,7 +3,7 @@
  * Defines an entity field
  */
 export interface EntityField<Entity> {
-    field: string;
+    field: keyof Entity;
     header: string;
     type: FieldType;
     required?: boolean;

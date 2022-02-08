@@ -1,24 +1,6 @@
 <p-card styleClass="game-card" header="Games" subheader="Select an existing game to edit, or create a new one">
     <div class="games-table">
-        <!-- <p-table [columns]="cols" [value]="games" responsiveLayout="scroll"
-                selectionMode="single" [(selection)]="selectedGame" dataKey="id" >
-            <ng-template pTemplate="header" let-columns>
-                <tr>
-                    <th *ngFor="let col of columns">
-                        {{col.header}}
-                    </th>
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="body" let-rowData let-columns="columns">
-                <tr [pSelectableRow]="rowData">
-                    <td *ngFor="let col of columns">
-                        {{rowData[col.field]}}
-                    </td>
-                </tr>
-            </ng-template>
-        </p-table> -->
-        <app-entity-table [service]="gamesService" [(selection)]="selectedGame"></app-entity-table>
+        <app-entity-table [service]="gamesService" [(selection)]="selectedGame" selectionMode="single"></app-entity-table>
     </div>
     <p-button label="Select Game" (click)="selectGame()"></p-button>
-    <p-button label="Create New Game" (click)="openCreateGameDialog()"></p-button>
 </p-card>

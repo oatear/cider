@@ -15,6 +15,6 @@ export interface EntityService<E, I> {
     getAll: () => Promise<E[]>;
     get: (id: I) => Promise<E>;
     create: (entity: E) => Promise<E>;
-    update: (entity: E) => Promise<E>;
+    update: (id: I, entity: E) => Promise<E>;
     delete: (id: I) => Promise<boolean>;
 }

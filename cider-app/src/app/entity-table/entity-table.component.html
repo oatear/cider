@@ -1,5 +1,12 @@
+<p-toolbar styleClass="p-mb-4">
+    <ng-template pTemplate="left">
+    </ng-template>
+    <ng-template pTemplate="right">
+        <button pButton pRipple label="New" icon="pi pi-plus" class="p-button p-mr-2" (click)="openCreateNew()"></button>
+    </ng-template>
+</p-toolbar>
 <p-table [columns]="columns" [value]="records" responsiveLayout="scroll"
-        selectionMode="single" [(selection)]="selection" dataKey="id" 
+        [selectionMode]="selectionMode || 'none'" [(selection)]="selection" dataKey="id" 
         (selectionChange)="selectionChange.emit($event)">
     <ng-template pTemplate="header" let-columns>
         <tr>
@@ -9,10 +16,11 @@
         </tr>
     </ng-template>
     <ng-template pTemplate="body" let-rowData let-columns="columns">
-        <tr [pSelectableRow]="rowData">
+        <tr [pSelectableRow]="rowData" [pSelectableRowDisabled]="!selectionMode">
             <td *ngFor="let col of columns">
                 {{rowData[col.field]}}
             </td>
         </tr>
     </ng-template>
 </p-table>
+<app-entity-dialog [service]="service" [(visible)]='dialogVisible'></app-entity-dialog>
