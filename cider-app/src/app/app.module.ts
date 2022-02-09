@@ -14,6 +14,7 @@ import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
+import { PanelModule } from 'primeng/panel';
 import { PanelMenuModule } from 'primeng/panelmenu';
 import { MenubarModule } from 'primeng/menubar';
 import { ToolbarModule } from 'primeng/toolbar';
@@ -21,6 +22,8 @@ import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { SplitterModule } from 'primeng/splitter';
+
+import { MonacoEditorModule } from 'ngx-monaco-editor';
 
 import { SiteHeaderComponent } from './site-header/site-header.component';
 import { SiteFooterComponent } from './site-footer/site-footer.component';
@@ -53,6 +56,7 @@ import { EntityDialogComponent } from './entity-dialog/entity-dialog.component';
     RippleModule,
     CardModule,
     TableModule,
+    PanelModule,
     PanelMenuModule,
     MenubarModule,
     ToolbarModule,
@@ -60,7 +64,8 @@ import { EntityDialogComponent } from './entity-dialog/entity-dialog.component';
     FormsModule,
     InputTextModule,
     InputTextareaModule,
-    SplitterModule
+    SplitterModule,
+    MonacoEditorModule.forRoot()
   ],
   providers: [],
   bootstrap: [AppComponent]

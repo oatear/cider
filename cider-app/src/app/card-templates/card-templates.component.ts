@@ -7,8 +7,10 @@ import { DomSanitizer } from '@angular/platform-browser';
   styleUrls: ['./card-templates.component.scss']
 })
 export class CardTemplatesComponent implements OnInit {
-  html: string = '';
-  css: string = '';
+  htmlEditorOptions: any = {theme: 'vs-dark', language: 'html', automaticLayout: true};
+  cssEditorOptions: any = {theme: 'vs-dark', language: 'css', automaticLayout: true};
+  html: string = '<h2>Poison Apple</h2>\n<div>Activate this card now.</div>';
+  css: string = 'padding: 25px;';
 
   constructor(private domSanitizer: DomSanitizer) { }
 

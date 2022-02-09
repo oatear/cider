@@ -19,6 +19,8 @@
     "@angular/platform-browser": "~13.2.0",
     "@angular/platform-browser-dynamic": "~13.2.0",
     "@angular/router": "~13.2.0",
+    "monaco-editor": "^0.32.1",
+    "ngx-monaco-editor": "^12.0.0",
     "primeflex": "^2.0.0",
     "primeicons": "^5.0.0",
     "primeng": "^13.1.0",
