@@ -22,7 +22,7 @@ export class CardTemplatesComponent implements OnInit {
   }
 
   safeHtmlAndStyle(html: string, css: string) {
-    let sanitizedStyle = css.replace(/([^{}]*\{)/g, '.card-preview $1');
+    let sanitizedStyle = css.replace(/([^{}]*\{)/g, '.card-preview $1').replace(/\!important/g, '');
     let safeStyle = this.domSanitizer.sanitize(SecurityContext.STYLE, sanitizedStyle);
     let safeHtml = this.domSanitizer.sanitize(SecurityContext.HTML, html);
     return this.domSanitizer.bypassSecurityTrustHtml(`${safeHtml}<style>${safeStyle}</style>`);
