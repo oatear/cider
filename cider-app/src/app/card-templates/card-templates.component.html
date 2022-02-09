@@ -30,8 +30,8 @@
     <div class="left-panel">
         <p-panel header="Preview">
             <div class="preview-space">
-                <div class="card-preview" [innerHtml]="html" [style]="safeCss(this.css)">
-                </div>
+                <!-- <div class="card-preview" [innerHtml]="html" [style]="safeCss(this.css)"></div> -->
+                <div class="card-preview" [innerHtml]="safeHtmlAndStyle(this.html, this.css)"></div>
             </div>
         </p-panel>
     </div>
