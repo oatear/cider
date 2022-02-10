@@ -29,7 +29,6 @@ export class IndexedDbService<Entity, Identity extends string | number> implemen
   }
 
   search(searchParameters: SearchParameters) {
-    console.log('search params: ', searchParameters);
     let query = db.table(this.tableName).toCollection();
     if (searchParameters.sorting && searchParameters.sorting.length > 0) {
       if (searchParameters.sorting[0].direction == SortDirection.desc) {

@@ -5,10 +5,10 @@
         (onLazyLoad)="loadData($event)" [lazy]="true"
         [totalRecords]="total" [loading]="loading">
     <ng-template pTemplate="caption">
-        <div class="flex">
+        <div class="p-d-flex">
             <button pButton pRipple label="Clear" icon="pi pi-filter-slash" class="p-button p-mr-2" (click)="clear(dt)"></button>
             <button pButton pRipple label="New" icon="pi pi-plus" class="p-button p-mr-2" (click)="openCreateNew()"></button>
-            <span class="p-input-icon-left ml-auto">
+            <span class="p-input-icon-left p-ml-auto">
                 <i class="pi pi-search"></i>
                 <input pInputText type="text" (input)="filterGlobal(dt, $event)" placeholder="Search keyword" />
             </span>

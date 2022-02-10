@@ -45,7 +45,6 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
    * @param event 
    */
   public loadData(event: LazyLoadEvent) {
-    console.log('load event: ', event);
     this.service?.search({
       offset: 0, 
       limit: 100,
