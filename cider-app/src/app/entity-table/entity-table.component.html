@@ -10,16 +10,16 @@
         (selectionChange)="selectionChange.emit($event)">
     <ng-template pTemplate="header" let-columns>
         <tr>
-            <th *ngFor="let col of columns">
-                {{col.header}}
-            </th>
+            <ng-container *ngFor="let col of columns">
+                <th *ngIf="!col.hidden">{{col.header}}</th>
+            </ng-container>
         </tr>
     </ng-template>
     <ng-template pTemplate="body" let-rowData let-columns="columns">
         <tr [pSelectableRow]="rowData" [pSelectableRowDisabled]="!selectionMode">
-            <td *ngFor="let col of columns">
-                {{rowData[col.field]}}
-            </td>
+            <ng-container *ngFor="let col of columns">
+                <td *ngIf="!col.hidden">{{rowData[col.field]}}</td>
+            </ng-container>
         </tr>
     </ng-template>
 </p-table>

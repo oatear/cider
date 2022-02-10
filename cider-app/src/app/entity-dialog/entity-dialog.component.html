@@ -1,10 +1,12 @@
 <p-dialog [(visible)]="visible" (visibleChange)="visibleChange.emit($event)" (onHide)="hideDialog()"
     [style]="{width: '450px'}" header="Create/Edit" [modal]="true" styleClass="p-fluid">
     <ng-template pTemplate="content">
-        <div *ngFor="let col of columns" class="p-field">
-            <label [for]="col.field">{{col.header}}</label>
-            <input type="text" pInputText [id]="col.field" [(ngModel)]="entity[col.field]" required autofocus />
-        </div>
+        <ng-container *ngFor="let col of columns">
+            <div *ngIf="!col.hidden" class="p-field">
+                <label [for]="col.field">{{col.header}}</label>
+                <input type="text" pInputText [id]="col.field" [(ngModel)]="entity[col.field]" required autofocus />
+            </div>
+        </ng-container>
     </ng-template>
     <ng-template pTemplate="footer">
         <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>

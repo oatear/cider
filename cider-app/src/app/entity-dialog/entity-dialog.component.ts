@@ -7,7 +7,7 @@ import { EntityService } from '../data-services/types/entity-service.type';
   templateUrl: './entity-dialog.component.html',
   styleUrls: ['./entity-dialog.component.scss']
 })
-export class EntityDialogComponent<Entity, Identifier> implements OnInit {
+export class EntityDialogComponent<Entity, Identifier extends string | number> implements OnInit {
   @Input() service: EntityService<Entity, Identifier> | undefined;
   @Input() columns: EntityField<Entity>[] = [];
   @Input() visible: boolean = false;

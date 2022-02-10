@@ -3,7 +3,7 @@ import { EntityService } from '../types/entity-service.type';
 import { SearchParameters } from '../types/search-parameters.type';
 import { SearchResult } from '../types/search-result.type';
 
-export class InMemoryService<Entity, Identity> implements EntityService<Entity, Identity>{
+export class InMemoryService<Entity, Identity extends string | number> implements EntityService<Entity, Identity>{
 
   protected fields: EntityField<Entity>[];
   protected records: Entity[];

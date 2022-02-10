@@ -8,7 +8,7 @@ import { EntityService } from '../data-services/types/entity-service.type';
   templateUrl: './entity-table.component.html',
   styleUrls: ['./entity-table.component.scss']
 })
-export class EntityTableComponent<Entity, Identifier> implements OnInit {
+export class EntityTableComponent<Entity, Identifier extends string | number> implements OnInit {
 
   @Input() records: Entity[] = [];
   @Input() columns: EntityField<Entity>[] = [];
