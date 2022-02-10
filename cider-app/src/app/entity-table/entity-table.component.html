@@ -7,14 +7,22 @@
     </ng-template>
 </p-toolbar>
 <p-table [columns]="columns" [value]="records" responsiveLayout="scroll"
-        [selectionMode]="selectionMode || 'none'" [(selection)]="selection" dataKey="id" 
-        (selectionChange)="selectionChange.emit($event)">
+        [selectionMode]="selectionMode || 'none'" [(selection)]="selection" 
+        (selectionChange)="selectionChange.emit($event)" [dataKey]="idField || ''"
+        (onLazyLoad)="loadData($event)" [lazy]="true"
+        [totalRecords]="total" [loading]="loading">
     <ng-template pTemplate="header" let-columns>
         <tr>
             <ng-container *ngFor="let col of columns">
-                <th *ngIf="!col.hidden">{{col.header}}</th>
+                <th *ngIf="!col.hidden" [pSortableColumn]="col.field">{{col.header}} <p-sortIcon [field]="col.field"></p-sortIcon></th>
             </ng-container>
-            <th></th>
+            <th class="action-col"></th>
+        </tr>
+        <tr>
+            <ng-container *ngFor="let col of columns">
+                <th *ngIf="!col.hidden"><p-columnFilter type="text" [field]="col.field"></p-columnFilter></th>
+            </ng-container>
+            <th class="action-col"></th>
         </tr>
     </ng-template>
     <ng-template pTemplate="body" let-rowData let-columns="columns">
@@ -22,9 +30,9 @@
             <ng-container *ngFor="let col of columns">
                 <td *ngIf="!col.hidden">{{rowData[col.field]}}</td>
             </ng-container>
-            <td>
-                <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="openEditDialog(rowData)"></button>
-                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="openDeleteDialog(rowData)"></button>
+            <td class="action-col">
+                <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button p-mr-2" (click)="openEditDialog(rowData)"></button>
+                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger" (click)="openDeleteDialog(rowData)"></button>
             </td>
         </tr>
     </ng-template>

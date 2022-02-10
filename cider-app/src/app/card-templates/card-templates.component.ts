@@ -10,7 +10,9 @@ export class CardTemplatesComponent implements OnInit {
   htmlEditorOptions: any = {theme: 'vs-dark', language: 'html', automaticLayout: true};
   cssEditorOptions: any = {theme: 'vs-dark', language: 'css', automaticLayout: true};
   html: string = '<div>\n\t<h2>Poison Apple</h2>\n\t<p>Activate this card now.</p>\n</div>';
-  css: string = 'div {\n\tpadding: 25px;\n}\nh2 {\n\tcolor: rgb(129, 156, 89);\n}';
+  css: string = 'div {\n\twidth: 300px;\n\theight: 400px;\n\t'
+    + 'background-color: rgb(37, 37, 37);\n\tborder: 1px solid black;\n\tpadding: 25px;\n}\n'
+    + 'h2 {\n\tcolor: rgb(129, 156, 89);\n}';
 
   constructor(private domSanitizer: DomSanitizer) { }
 

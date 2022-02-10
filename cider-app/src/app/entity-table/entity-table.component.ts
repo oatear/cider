@@ -21,6 +21,7 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
   loading: boolean = false;
   dialogVisible: boolean = false;
   entity: Entity = {} as Entity;
+  idField?: string;
 
   constructor(private messageService: MessageService, 
     private confirmationService: ConfirmationService) { }
@@ -31,6 +32,7 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
       this.total = result.total;
       this.records = result.records;
     });
+    this.idField = this.service?.getIdField();
   }
 
   /**
@@ -40,7 +42,7 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
    * @param event 
    */
   public loadData(event: LazyLoadEvent) {
-    this.service?.search({offset: 0, limit: 10}).then(result => {
+    this.service?.search({offset: 0, limit: 100}).then(result => {
       this.total = result.total;
       this.records = result.records;
     });
