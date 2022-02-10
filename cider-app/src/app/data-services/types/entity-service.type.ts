@@ -11,6 +11,7 @@ import { SearchResult } from "./search-result.type";
  */
 export interface EntityService<E, I extends string | number> {
     getFields: () => Promise<EntityField<E>[]>;
+    getIdField: () => string;
     search: (searchParameters: SearchParameters) => Promise<SearchResult<E>>;
     getAll: () => Promise<E[]>;
     get: (id: I) => Promise<E>;

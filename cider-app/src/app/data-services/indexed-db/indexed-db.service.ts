@@ -17,6 +17,10 @@ export class IndexedDbService<Entity, Identity extends string | number> implemen
     this.records = records || [];
   }
 
+  getIdField() : string {
+    return 'id';
+  }
+
   getFields() {
     return new Promise<EntityField<Entity>[]>((resolve, reject) => {
       resolve(this.fields);

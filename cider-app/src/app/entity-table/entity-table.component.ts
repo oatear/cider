@@ -1,12 +1,13 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { LazyLoadEvent } from 'primeng/api';
+import { ConfirmationService, LazyLoadEvent, MessageService } from 'primeng/api';
 import { EntityField } from '../data-services/types/entity-field.type';
 import { EntityService } from '../data-services/types/entity-service.type';
 
 @Component({
   selector: 'app-entity-table',
   templateUrl: './entity-table.component.html',
-  styleUrls: ['./entity-table.component.scss']
+  styleUrls: ['./entity-table.component.scss'],
+  providers: [MessageService, ConfirmationService]
 })
 export class EntityTableComponent<Entity, Identifier extends string | number> implements OnInit {
 
@@ -19,8 +20,10 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
   total: number = 0;
   loading: boolean = false;
   dialogVisible: boolean = false;
+  entity: Entity = {} as Entity;
 
-  constructor() { }
+  constructor(private messageService: MessageService, 
+    private confirmationService: ConfirmationService) { }
 
   ngOnInit(): void {
     this.service?.getFields().then(fields => this.columns = fields);
@@ -44,6 +47,25 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
   }
 
   public openCreateNew() {
+    this.entity = {} as Entity;
     this.dialogVisible = true;
+  }
+
+  public openEditDialog(entity : Entity) {
+    this.entity = entity;
+    this.dialogVisible = true;
+  }
+
+  public openDeleteDialog(entity : Entity) {
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to delete?',
+      header: 'Confirm',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.service?.delete((<any>entity)[this.service?.getIdField()]).then(deleted => {
+          this.messageService.add({severity:'success', summary: 'Successful', detail: 'Entity Deleted', life: 3000});
+        });
+      }
+  });
   }
 }

@@ -13,6 +13,10 @@ export class InMemoryService<Entity, Identity extends string | number> implement
     this.records = records || [];
   }
 
+  getIdField() : string {
+    return 'id';
+  }
+
   getFields() {
     return new Promise<EntityField<Entity>[]>((resolve, reject) => {
       resolve(this.fields);
