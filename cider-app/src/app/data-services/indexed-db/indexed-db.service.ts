@@ -3,6 +3,7 @@ import { EntityField } from '../types/entity-field.type';
 import { EntityService } from '../types/entity-service.type';
 import { SearchParameters } from '../types/search-parameters.type';
 import { SearchResult } from '../types/search-result.type';
+import { SortDirection } from '../types/search-sort.type';
 import { db } from './db';
 
 export class IndexedDbService<Entity, Identity extends string | number> implements EntityService<Entity, Identity>{
@@ -27,8 +28,28 @@ export class IndexedDbService<Entity, Identity extends string | number> implemen
     });
   }
 
-   search(searchParameters: SearchParameters) {
-    return db.table(this.tableName).toArray().then(records => {
+  search(searchParameters: SearchParameters) {
+    console.log('search params: ', searchParameters);
+    let query = db.table(this.tableName).toCollection();
+    if (searchParameters.sorting && searchParameters.sorting.length > 0) {
+      if (searchParameters.sorting[0].direction == SortDirection.desc) {
+        query = query.reverse();
+      }
+    }
+    if (searchParameters.query) {
+      query = query.filter(record => JSON.stringify(record).toLowerCase()
+      .includes(searchParameters.query?.toLowerCase() || ''));
+    }
+    if (searchParameters.filters && searchParameters.filters.length > 0) {
+      query = query.filter(record => 
+        searchParameters.filters?.find(filter => 
+          JSON.stringify(record[filter.field]).toLowerCase()
+          .includes(filter.filter.toLowerCase())) !== undefined);
+    }
+
+    return query
+    .sortBy(searchParameters.sorting?.map(filter => filter.field)[0] || this.getIdField())
+    .then(records => {
       return {
         records: records,
         total: records.length

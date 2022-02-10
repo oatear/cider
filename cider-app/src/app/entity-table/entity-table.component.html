@@ -1,16 +1,19 @@
 <p-toast></p-toast>
-<p-toolbar styleClass="p-mb-4">
-    <ng-template pTemplate="left">
-    </ng-template>
-    <ng-template pTemplate="right">
-        <button pButton pRipple label="New" icon="pi pi-plus" class="p-button p-mr-2" (click)="openCreateNew()"></button>
-    </ng-template>
-</p-toolbar>
-<p-table [columns]="columns" [value]="records" responsiveLayout="scroll"
+<p-table #dt [columns]="columns" [value]="records" responsiveLayout="scroll"
         [selectionMode]="selectionMode || 'none'" [(selection)]="selection" 
         (selectionChange)="selectionChange.emit($event)" [dataKey]="idField || ''"
         (onLazyLoad)="loadData($event)" [lazy]="true"
         [totalRecords]="total" [loading]="loading">
+    <ng-template pTemplate="caption">
+        <div class="flex">
+            <button pButton pRipple label="Clear" icon="pi pi-filter-slash" class="p-button p-mr-2" (click)="clear(dt)"></button>
+            <button pButton pRipple label="New" icon="pi pi-plus" class="p-button p-mr-2" (click)="openCreateNew()"></button>
+            <span class="p-input-icon-left ml-auto">
+                <i class="pi pi-search"></i>
+                <input pInputText type="text" (input)="filterGlobal(dt, $event)" placeholder="Search keyword" />
+            </span>
+        </div>
+    </ng-template>
     <ng-template pTemplate="header" let-columns>
         <tr>
             <ng-container *ngFor="let col of columns">
@@ -18,12 +21,12 @@
             </ng-container>
             <th class="action-col"></th>
         </tr>
-        <tr>
+        <!-- <tr>
             <ng-container *ngFor="let col of columns">
                 <th *ngIf="!col.hidden"><p-columnFilter type="text" [field]="col.field"></p-columnFilter></th>
             </ng-container>
             <th class="action-col"></th>
-        </tr>
+        </tr> -->
     </ng-template>
     <ng-template pTemplate="body" let-rowData let-columns="columns">
         <tr [pSelectableRow]="rowData" [pSelectableRowDisabled]="!selectionMode">

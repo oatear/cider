@@ -1,7 +1,10 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ConfirmationService, LazyLoadEvent, MessageService } from 'primeng/api';
+import { Table } from 'primeng/table';
 import { EntityField } from '../data-services/types/entity-field.type';
 import { EntityService } from '../data-services/types/entity-service.type';
+import { SearchFilter } from '../data-services/types/search-filter.type';
+import { SortDirection } from '../data-services/types/search-sort.type';
 
 @Component({
   selector: 'app-entity-table',
@@ -42,10 +45,33 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
    * @param event 
    */
   public loadData(event: LazyLoadEvent) {
-    this.service?.search({offset: 0, limit: 100}).then(result => {
+    console.log('load event: ', event);
+    this.service?.search({
+      offset: 0, 
+      limit: 100,
+      sorting: !event.sortField ? undefined : [{
+        field: event.sortField,
+        direction: event.sortOrder !== undefined && event.sortOrder > 0 
+          ? SortDirection.asc : SortDirection.desc
+      }],
+      filters: Object.entries(event.filters || {})
+        .filter(([key, value]) => value.value !== null && key !== 'global')
+        .map(([key, value]) => {
+          return {field: key, filter: value.value}
+        }),
+      query: event.globalFilter
+    }).then(result => {
       this.total = result.total;
       this.records = result.records;
     });
+  }
+
+  public filterGlobal(table: Table, event: any) {
+    table.filterGlobal(event.target.value, 'contains');
+  }
+
+  public clear(table: Table) {
+    table.clear();
   }
 
   public openCreateNew() {
