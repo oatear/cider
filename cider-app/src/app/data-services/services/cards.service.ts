@@ -12,12 +12,11 @@ export class CardsService extends IndexedDbService<Card, number> {
 
   constructor() {
     super(AppDB.CARDS_TABLE, [
-      {field: 'id', header: 'ID', type: FieldType.number},
+      {field: 'id', header: 'ID', type: FieldType.number, hidden: true},
+      {field: 'gameId', header: 'Game ID', type: FieldType.number, hidden: true},
+      {field: 'name', header: 'Name', type: FieldType.string},
       {field: 'frontCardTemplateId', header: 'Front Template', type: FieldType.number},
       {field: 'backCardTemplateId', header: 'Back Template', type: FieldType.number}
-    ], [
-      {id: 1, gameId: 1, frontCardTemplateId: 1, backCardTemplateId: 1},
-      {id: 2, gameId: 1, frontCardTemplateId: 1, backCardTemplateId: 1}
     ]);
   }
 }

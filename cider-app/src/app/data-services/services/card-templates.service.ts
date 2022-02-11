@@ -3,6 +3,7 @@ import { CardTemplate } from '../types/card-template.type';
 import { InMemoryService } from '../in-memory/in-memory.service';
 import { IndexedDbService } from '../indexed-db/indexed-db.service';
 import { AppDB } from '../indexed-db/db';
+import { FieldType } from '../types/entity-field.type';
 
 @Injectable({
   providedIn: 'root'
@@ -10,6 +11,13 @@ import { AppDB } from '../indexed-db/db';
 export class CardTemplatesService extends IndexedDbService<CardTemplate, number> {
 
   constructor() {
-    super(AppDB.CARD_TEMPLATES_TABLE);
+    super(AppDB.CARD_TEMPLATES_TABLE, [
+      {field: 'id', header: 'ID', type: FieldType.number, hidden: true},
+      {field: 'gameId', header: 'Game ID', type: FieldType.number},
+      {field: 'name', header: 'Name', type: FieldType.string},
+      {field: 'description', header: 'Description', type: FieldType.string},
+      {field: 'html', header: 'HTML', type: FieldType.string},
+      {field: 'css', header: 'CSS', type: FieldType.string}
+    ]);
   }
 }

@@ -10,12 +10,10 @@ export class IndexedDbService<Entity, Identity extends string | number> implemen
 
   protected tableName: string;
   protected fields: EntityField<Entity>[];
-  protected records: Entity[];
 
-  constructor(tableName: string, fields?: EntityField<Entity>[], records?: Entity[]) {
+  constructor(tableName: string, fields?: EntityField<Entity>[]) {
     this.tableName = tableName;
     this.fields = fields || [];
-    this.records = records || [];
   }
 
   getIdField() : string {

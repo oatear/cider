@@ -12,11 +12,8 @@ export class AssetsService extends IndexedDbService<Asset, number> {
 
   constructor() {
     super(AppDB.ASSETS_TABLE, [
-      {field: 'id', header: 'ID', type: FieldType.number},
+      {field: 'id', header: 'ID', type: FieldType.number, hidden: true},
       {field: 'filename', header: 'Filename', type: FieldType.string}
-    ], [
-      {id: 1, filename: 'File Asset 1'},
-      {id: 2, filename: 'File Asset 2'}
     ]);
   }
 }
