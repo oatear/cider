@@ -58,12 +58,12 @@ export class AppDB extends Dexie {
                 gameId: gameId,
                 frontCardTemplateId: frontCardTemplateId,
                 backCardTemplateId: backCardTemplateId,
-                title: 'Poison Apple'
+                name: 'Poison Apple'
             }, {
                 gameId: gameId,
                 frontCardTemplateId: frontCardTemplateId,
                 backCardTemplateId: backCardTemplateId,
-                title: 'Healthy Apple'
+                name: 'Healthy Apple'
             }
         ]);
     }

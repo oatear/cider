@@ -16,11 +16,8 @@ export class GamesService extends IndexedDbService<Game, number> {
     super(AppDB.GAMES_TABLE, [
       {field: 'id', header: 'ID', type: FieldType.number, hidden: true},
       {field: 'name', header: 'Name', type: FieldType.string}
-    ], [
-      {id: 1, name: 'Apple Cider Game'},
-      {id: 2, name: 'Crazy Game'}
     ]);
-    this.selectedGame = new BehaviorSubject<Game | undefined>(this.records[0]);
+    this.selectedGame = new BehaviorSubject<Game | undefined>({id: 1, name: 'Apple Cider Game'});
   }
 
   /**
