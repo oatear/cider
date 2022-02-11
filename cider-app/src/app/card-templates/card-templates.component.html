@@ -1,36 +1,22 @@
-<!-- <p-splitter [style]="{'height': 'calc(100vh - 198px)'}" 
-        [panelSizes]="[40,60]" 
-        layout="horizontal">
-    <ng-template pTemplate>
-        <p-panel header="Preview">
-            <div class="preview" [innerHtml]="html" [style]="safeCss(this.css)">
-            </div>
-        </p-panel>
+
+<p-toolbar styleClass="mb-4">
+    <ng-template pTemplate="left">
+        <p-dropdown [options]="templates" [(ngModel)]="selectedTemplate" 
+            optionLabel="name" class="p-mr-2"></p-dropdown>
+        <button pButton pRipple label="Edit" icon="pi pi-pencil" class="p-button p-mr-2"></button>
+        <button pButton pRipple label="New" icon="pi pi-plus" class="p-button"></button>
     </ng-template>
-    <ng-template pTemplate>
-        <p-splitter [style]="" layout="vertical"
-            [panelSizes]="[50,50]" >
-            <ng-template pTemplate>
-                <p-panel style="height: 100%; width: 100%;" header="CSS">
-                    <ngx-monaco-editor style="height: 100%; width: 100%;" 
-                        [options]="cssEditorOptions" [(ngModel)]="css"></ngx-monaco-editor>
-                </p-panel>
-            </ng-template>
-            <ng-template pTemplate>
-                <p-panel style="height: 100%; width: 100%;" header="HTML">
-                    <ngx-monaco-editor style="height: 100%; width: 100%;" 
-                        [options]="htmlEditorOptions" [(ngModel)]="html"></ngx-monaco-editor>
-                </p-panel>
-            </ng-template>
-        </p-splitter>
+
+    <ng-template pTemplate="right">
+        <button pButton pRipple label="Delete" icon="pi pi-trash" class="p-button-danger p-mr-2"></button>
+        <button pButton pRipple label="Save" icon="pi pi-save" class="p-button"></button>
     </ng-template>
-</p-splitter> -->
+</p-toolbar>
 
 <div class="wrapper">
     <div class="left-panel">
         <p-panel header="Preview">
             <div class="preview-space">
-                <!-- <div class="card-preview" [innerHtml]="html" [style]="safeCss(this.css)"></div> -->
                 <div class="card-preview" [innerHtml]="safeHtmlAndStyle(this.html, this.css)"></div>
             </div>
         </p-panel>
@@ -50,3 +36,5 @@
         </div>
     </div>
 </div>
+
+<!-- <app-entity-dialog [service]="service" [(visible)]="dialogVisible" [entity]="entity"></app-entity-dialog> -->

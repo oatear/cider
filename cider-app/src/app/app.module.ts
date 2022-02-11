@@ -24,6 +24,7 @@ import { InputTextareaModule } from 'primeng/inputtextarea';
 import { SplitterModule } from 'primeng/splitter';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
+import { DropdownModule } from 'primeng/dropdown';
 
 import { MonacoEditorModule } from 'ngx-monaco-editor';
 
@@ -69,7 +70,8 @@ import { EntityDialogComponent } from './entity-dialog/entity-dialog.component';
     InputTextareaModule,
     SplitterModule,
     ConfirmDialogModule,
-    ToastModule
+    ToastModule,
+    DropdownModule
   ],
   providers: [],
   bootstrap: [AppComponent]
