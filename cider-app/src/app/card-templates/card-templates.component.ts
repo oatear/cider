@@ -35,7 +35,6 @@ export class CardTemplatesComponent implements OnInit {
   }
 
   safeHtmlAndStyle(html: string, css: string) {
-    console.log('html, css', html, css);
     if (!html || !css) {
       return '';
     }

@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import {ButtonModule} from 'primeng/button';
 import { Subject, take, takeUntil } from 'rxjs';
 import { GamesService } from '../data-services/services/games.service';
-import { EntityField, FieldType } from '../data-services/types/entity-field.type';
+import { EntityField } from '../data-services/types/entity-field.type';
 import { Game } from '../data-services/types/game.type';
 
 @Component({

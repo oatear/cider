@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { CardAttributesService } from '../data-services/services/card-attributes.service';
 import { CardsService } from '../data-services/services/cards.service';
 
 @Component({
@@ -8,7 +9,8 @@ import { CardsService } from '../data-services/services/cards.service';
 })
 export class CardsComponent implements OnInit {
 
-  constructor(public cardsService: CardsService) { }
+  constructor(public cardsService: CardsService,
+    public attributesService: CardAttributesService) { }
 
   ngOnInit(): void {
   }

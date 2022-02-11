@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { EntityField, FieldType } from '../types/entity-field.type';
 import { Game } from '../types/game.type';
 import { InMemoryService } from '../in-memory/in-memory.service';
 import { IndexedDbService } from '../indexed-db/indexed-db.service';
 import { AppDB } from '../indexed-db/db';
+import { FieldType } from '../types/field-type.type';
 
 @Injectable({
   providedIn: 'root'
@@ -18,6 +18,10 @@ export class GamesService extends IndexedDbService<Game, number> {
       {field: 'name', header: 'Name', type: FieldType.string}
     ]);
     this.selectedGame = new BehaviorSubject<Game | undefined>({id: 1, name: 'Apple Cider Game'});
+  }
+
+  override getEntityName(entity: Game) {
+    return entity.name;
   }
 
   /**

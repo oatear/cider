@@ -65,6 +65,13 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
     });
   }
 
+  public async getEntityNameFromService(entityId: string | number, service: EntityService<any, any>) {
+    return service.get(entityId).then(entity => service.getEntityName(entity)).then(name => {
+      console.log('name: ', name);
+      return name;
+    });
+  }
+
   public filterGlobal(table: Table, event: any) {
     table.filterGlobal(event.target.value, 'contains');
   }

@@ -13,6 +13,10 @@ export class InMemoryService<Entity, Identity extends string | number> implement
     this.records = records || [];
   }
 
+  getEntityName(entity: Entity) {
+    return '' + (<any>entity)[this.getIdField()];
+  }
+
   getIdField() : string {
     return 'id';
   }

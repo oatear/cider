@@ -16,6 +16,10 @@ export class IndexedDbService<Entity, Identity extends string | number> implemen
     this.fields = fields || [];
   }
 
+  getEntityName(entity: Entity) {
+    return '' + (<any>entity)[this.getIdField()];
+  }
+
   getIdField() : string {
     return 'id';
   }

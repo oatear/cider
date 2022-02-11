@@ -10,6 +10,7 @@ import { SearchResult } from "./search-result.type";
  * I - ID Type
  */
 export interface EntityService<E, I extends string | number> {
+    getEntityName: (entity: E) => string;
     getFields: () => Promise<EntityField<E>[]>;
     getIdField: () => string;
     search: (searchParameters: SearchParameters) => Promise<SearchResult<E>>;

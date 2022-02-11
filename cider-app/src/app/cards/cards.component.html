@@ -13,5 +13,12 @@
                 <span>Thumbnails</span>
             </ng-template>
         </p-tabPanel>
+        <p-tabPanel>
+            <ng-template pTemplate="header">
+                <i class="pi pi-caret-up"></i>
+                <span>Attributes</span>
+            </ng-template>
+            <app-entity-table [service]="attributesService"></app-entity-table>
+        </p-tabPanel>
     </p-tabView>
 </p-card>

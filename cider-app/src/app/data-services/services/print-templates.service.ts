@@ -3,7 +3,7 @@ import { PrintTemplate } from '../types/print-template.type';
 import { InMemoryService } from '../in-memory/in-memory.service';
 import { IndexedDbService } from '../indexed-db/indexed-db.service';
 import { AppDB } from '../indexed-db/db';
-import { FieldType } from '../types/entity-field.type';
+import { FieldType } from '../types/field-type.type';
 
 @Injectable({
   providedIn: 'root'
@@ -19,5 +19,9 @@ export class PrintTemplatesService extends IndexedDbService<PrintTemplate, numbe
       {field: 'html', header: 'HTML', type: FieldType.string},
       {field: 'css', header: 'CSS', type: FieldType.string}
     ]);
+  }
+
+  override getEntityName(entity: PrintTemplate) {
+    return entity.name;
   }
 }

@@ -1,3 +1,5 @@
+import { IndexedDbService } from "../indexed-db/indexed-db.service";
+import { FieldType } from "./field-type.type";
 
 /**
  * Defines an entity field
@@ -8,13 +10,6 @@ export interface EntityField<Entity> {
     type: FieldType;
     hidden?: boolean;
     required?: boolean;
+    service?: IndexedDbService<any, string | number>;
     conversion?: (entity: Entity) => any;
-}
-
-/**
- * Field Type
- */
-export enum FieldType {
-    string,
-    number
 }
