@@ -13,11 +13,11 @@ export class CardTemplatesService extends IndexedDbService<CardTemplate, number>
   constructor() {
     super(AppDB.CARD_TEMPLATES_TABLE, [
       {field: 'id', header: 'ID', type: FieldType.number, hidden: true},
-      {field: 'gameId', header: 'Game ID', type: FieldType.number},
+      {field: 'gameId', header: 'Game ID', type: FieldType.number, hidden: true},
       {field: 'name', header: 'Name', type: FieldType.string},
       {field: 'description', header: 'Description', type: FieldType.string},
-      {field: 'html', header: 'HTML', type: FieldType.string},
-      {field: 'css', header: 'CSS', type: FieldType.string}
+      {field: 'html', header: 'HTML', type: FieldType.string, hidden: true},
+      {field: 'css', header: 'CSS', type: FieldType.string, hidden: true}
     ]);
   }
 }

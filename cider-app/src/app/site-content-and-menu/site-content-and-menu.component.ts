@@ -47,7 +47,7 @@ export class SiteContentAndMenuComponent implements OnInit {
             ]
           }, {
             label: 'Assets',
-            icon: 'pi pi-pw pi-table',
+            icon: 'pi pi-pw pi-folder',
             routerLink: [`/games/${selectedGame?.id}/assets`]
           }, {
             label: 'Export',

@@ -1,23 +1,21 @@
-
+<p-toast></p-toast>
 <p-toolbar styleClass="mb-4">
     <ng-template pTemplate="left">
         <p-dropdown [options]="templates" [(ngModel)]="selectedTemplate" 
             optionLabel="name" class="p-mr-2"></p-dropdown>
-        <button pButton pRipple label="Edit" icon="pi pi-pencil" class="p-button p-mr-2"></button>
-        <button pButton pRipple label="New" icon="pi pi-plus" class="p-button"></button>
+        <button pButton pRipple label="Edit" icon="pi pi-pencil" class="p-button p-mr-2" (click)="openEditDialog(selectedTemplate)"></button>
+        <button pButton pRipple label="New" icon="pi pi-plus" class="p-button" (click)="openCreateNew()"></button>
     </ng-template>
-
     <ng-template pTemplate="right">
-        <button pButton pRipple label="Delete" icon="pi pi-trash" class="p-button-danger p-mr-2"></button>
-        <button pButton pRipple label="Save" icon="pi pi-save" class="p-button"></button>
+        <button pButton pRipple label="Delete" icon="pi pi-trash" class="p-button-danger p-mr-2" (click)="openDeleteDialog(selectedTemplate)"></button>
+        <button pButton pRipple label="Save" icon="pi pi-save" class="p-button" (click)="save(selectedTemplate)"></button>
     </ng-template>
 </p-toolbar>
-
 <div class="wrapper">
     <div class="left-panel">
         <p-panel header="Preview">
             <div class="preview-space">
-                <div class="card-preview" [innerHtml]="safeHtmlAndStyle(this.html, this.css)"></div>
+                <div class="card-preview" [innerHtml]="safeHtmlAndStyle(selectedTemplate.html, selectedTemplate.css)"></div>
             </div>
         </p-panel>
     </div>
@@ -25,16 +23,16 @@
         <div class="top-panel">
             <p-panel style="height: 100%; width: 100%;" header="CSS">
                 <ngx-monaco-editor style="height: 100%;" 
-                    [options]="cssEditorOptions" [(ngModel)]="css"></ngx-monaco-editor>
+                    [options]="cssEditorOptions" [(ngModel)]="selectedTemplate.css"></ngx-monaco-editor>
             </p-panel>
         </div>
         <div class="bottom-panel">
             <p-panel style="height: 100%; width: 100%;" header="HTML">
                 <ngx-monaco-editor style="height: 100%;" 
-                    [options]="htmlEditorOptions" [(ngModel)]="html"></ngx-monaco-editor>
+                    [options]="htmlEditorOptions" [(ngModel)]="selectedTemplate.html"></ngx-monaco-editor>
             </p-panel>
         </div>
     </div>
 </div>
-
-<!-- <app-entity-dialog [service]="service" [(visible)]="dialogVisible" [entity]="entity"></app-entity-dialog> -->
+<app-entity-dialog [service]="service" [(visible)]="dialogVisible" [entity]="editTemplate"></app-entity-dialog>
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>

@@ -93,6 +93,6 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
           this.messageService.add({severity:'success', summary: 'Successful', detail: 'Entity Deleted', life: 3000});
         });
       }
-  });
+    });
   }
 }

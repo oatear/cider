@@ -2,3 +2,14 @@
     margin: 25px;
     min-height: calc(100vh - 140px - 58px - 50px);
 }
+
+:host ::ng-deep .p-tabview {
+    .p-tabview-nav-content {
+        i, span {
+            vertical-align: middle;
+        }
+        span {
+            margin: 0 .5rem;
+        }
+    }
+}

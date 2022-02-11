@@ -1,3 +1,17 @@
 <p-card styleClass="page-card" header="Cards" subheader="List of all the cards in the game">
-    <app-entity-table [service]="cardsService"></app-entity-table>
+    <p-tabView>
+        <p-tabPanel>
+            <ng-template pTemplate="header">
+                <i class="pi pi-list"></i>
+                <span>Listing</span>
+            </ng-template>
+            <app-entity-table [service]="cardsService"></app-entity-table>
+        </p-tabPanel>
+        <p-tabPanel>
+            <ng-template pTemplate="header">
+                <i class="pi pi-th-large"></i>
+                <span>Thumbnails</span>
+            </ng-template>
+        </p-tabPanel>
+    </p-tabView>
 </p-card>
