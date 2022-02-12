@@ -25,7 +25,7 @@ export class CardsService extends IndexedDbService<Card, number> {
   override getFields() {
     return this.attributesService.getAll().then(attributes => this.fields.concat(attributes.map(attribute => {
       return {
-        field: attribute.name,
+        field: attribute.name.replace(/ /g, '').toLowerCase(),
         header: attribute.name,
         type: attribute.type
       };
