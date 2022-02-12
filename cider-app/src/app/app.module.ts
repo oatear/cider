@@ -37,6 +37,8 @@ import { AssetsComponent } from './assets/assets.component';
 import { EntityTableComponent } from './entity-table/entity-table.component';
 import { EntityDialogComponent } from './entity-dialog/entity-dialog.component';
 import { DataServicesModule } from './data-services/data-services.module';
+import { CardPreviewComponent } from './card-preview/card-preview.component';
+import { SharedModule } from './shared/shared.module';
 
 @NgModule({
   declarations: [
@@ -51,7 +53,8 @@ import { DataServicesModule } from './data-services/data-services.module';
     SiteContentAndMenuComponent,
     AssetsComponent,
     EntityTableComponent,
-    EntityDialogComponent
+    EntityDialogComponent,
+    CardPreviewComponent
   ],
   imports: [
     BrowserModule,
@@ -75,7 +78,8 @@ import { DataServicesModule } from './data-services/data-services.module';
     ToastModule,
     DropdownModule,
     TabViewModule,
-    DataServicesModule
+    DataServicesModule,
+    SharedModule
   ],
   providers: [],
   bootstrap: [AppComponent]

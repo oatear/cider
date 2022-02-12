@@ -13,3 +13,12 @@
         }
     }
 }
+
+:host ::ng-deep .card-thumbnails {
+    display: flex;
+    flex-wrap: wrap;
+    app-card-preview {
+        margin: 10px;
+        float: left;
+    }
+}

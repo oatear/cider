@@ -3,9 +3,15 @@
     [style]="{width: '450px'}" header="Create/Edit" [modal]="true" styleClass="p-fluid">
     <ng-template pTemplate="content">
         <ng-container *ngFor="let col of columns">
-            <div *ngIf="!col.hidden" class="p-field">
+            <div *ngIf="!col.hidden && !col.service" class="p-field">
                 <label [for]="col.field">{{col.header}}</label>
                 <input type="text" pInputText [id]="col.field" [(ngModel)]="entity[col.field]" required autofocus />
+            </div>
+            <div *ngIf="!col.hidden && col.service" class="p-field">
+                <label [for]="col.field">{{col.header}}</label>
+                    <p-dropdown [options]="(col.service | entityList | async) || []" [(ngModel)]="entity[col.field]" 
+                    optionLabel="name" [optionValue]="col.service.getIdField()" class="p-mr-2"></p-dropdown>
+                    
             </div>
         </ng-container>
     </ng-template>

@@ -2,7 +2,7 @@
 <p-toolbar styleClass="mb-4">
     <ng-template pTemplate="left">
         <p-dropdown [options]="templates" [(ngModel)]="selectedTemplate" 
-            optionLabel="name" class="p-mr-2"></p-dropdown>
+            optionLabel="name"  styleClass="template-dropdown" class="p-mr-2"></p-dropdown>
         <button pButton pRipple label="Edit" icon="pi pi-pencil" class="p-button p-mr-2" (click)="openEditDialog(selectedTemplate)"></button>
         <button pButton pRipple label="New" icon="pi pi-plus" class="p-button" (click)="openCreateNew()"></button>
     </ng-template>
@@ -14,8 +14,10 @@
 <div class="wrapper">
     <div class="left-panel">
         <p-panel header="Preview">
+            <p-dropdown [options]="cards" [(ngModel)]="selectedCard" 
+                optionLabel="name" styleClass="card-dropdown"></p-dropdown>
             <div class="preview-space">
-                <div class="card-preview" [innerHtml]="safeHtmlAndStyle(selectedTemplate.html, selectedTemplate.css)"></div>
+                <app-card-preview [card]="selectedCard" [template]="selectedTemplate"></app-card-preview>
             </div>
         </p-panel>
     </div>

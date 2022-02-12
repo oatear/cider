@@ -23,26 +23,28 @@ textarea {
         height: 100%;
     }
 }
-
-:host ::ng-deep p-dropdown .p-dropdown {
-    width: 250px;
+:host ::ng-deep p-toolbar p-dropdown {
+    .p-dropdown {
+        width: 250px;
+    }
 }
-
-.preview-space {
-    height: 100%;
-    display: flex;
-    align-items: center;
-    .card-preview {
-        margin: auto;
+:host ::ng-deep p-panel p-dropdown {
+    display: block;
+    margin: 15px;
+    .p-dropdown {
+        width: 100%;
     }
 }
 
-// .card-preview {
-//     background-color: rgb(37, 37, 37);
-//     border: 1px solid black;
-//     width: 300px;
-//     height: 400px;
-// }
+.preview-space {
+    height: calc(100% - 70px);
+    display: flex;
+    align-items: center;
+}
+
+:host ::ng-deep app-card-preview {
+    margin: auto;
+}
 
 .wrapper {
     display: flex;

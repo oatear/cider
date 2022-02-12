@@ -2,7 +2,9 @@ import { Component, OnInit, SecurityContext } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { CardTemplatesService } from '../data-services/services/card-templates.service';
+import { CardsService } from '../data-services/services/cards.service';
 import { CardTemplate } from '../data-services/types/card-template.type';
+import { Card } from '../data-services/types/card.type';
 
 @Component({
   selector: 'app-card-templates',
@@ -18,30 +20,22 @@ export class CardTemplatesComponent implements OnInit {
 
   htmlEditorOptions: any = {theme: 'vs-dark', language: 'html', automaticLayout: true};
   cssEditorOptions: any = {theme: 'vs-dark', language: 'css', automaticLayout: true};
-  html: string = CardTemplatesComponent.DEFAULT_HTML;
-  css: string = CardTemplatesComponent.DEFAULT_CSS;
   templates: CardTemplate[] = [];
+  cards: Card[] = [];
+  selectedCard: Card = {} as Card;
   selectedTemplate: CardTemplate = {} as CardTemplate;
   editTemplate: CardTemplate = {} as CardTemplate;
   dialogVisible: boolean = false;
 
   constructor(private domSanitizer: DomSanitizer, 
     public service: CardTemplatesService,
+    private cardsService: CardsService,
     private messageService: MessageService, 
     private confirmationService: ConfirmationService) { }
 
   ngOnInit(): void {
     this.service.getAll().then(templates => this.templates = templates);
-  }
-
-  safeHtmlAndStyle(html: string, css: string) {
-    if (!html || !css) {
-      return '';
-    }
-    let sanitizedStyle = css.replace(/([^{}]*\{)/g, '.card-preview $1').replace(/\!important/g, '');
-    let safeStyle = this.domSanitizer.sanitize(SecurityContext.STYLE, sanitizedStyle);
-    let safeHtml = this.domSanitizer.sanitize(SecurityContext.HTML, html);
-    return this.domSanitizer.bypassSecurityTrustHtml(`${safeHtml}<style>${safeStyle}</style>`);
+    this.cardsService.getAll().then(cards => this.cards = cards);
   }
   
   public save(entity : CardTemplate) {

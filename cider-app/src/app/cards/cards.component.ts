@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CardAttributesService } from '../data-services/services/card-attributes.service';
+import { CardTemplatesService } from '../data-services/services/card-templates.service';
 import { CardsService } from '../data-services/services/cards.service';
+import { Card } from '../data-services/types/card.type';
 
 @Component({
   selector: 'app-cards',
@@ -9,10 +11,14 @@ import { CardsService } from '../data-services/services/cards.service';
 })
 export class CardsComponent implements OnInit {
 
+  cards: Card[] = [];
+
   constructor(public cardsService: CardsService,
-    public attributesService: CardAttributesService) { }
+    public attributesService: CardAttributesService,
+    public templatesService: CardTemplatesService) { }
 
   ngOnInit(): void {
+    this.cardsService.getAll().then(cards => this.cards = cards);
   }
 
 }

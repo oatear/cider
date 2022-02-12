@@ -12,6 +12,11 @@
                 <i class="pi pi-th-large"></i>
                 <span>Thumbnails</span>
             </ng-template>
+            <div class="card-thumbnails">
+                <ng-container *ngFor="let card of cards">
+                    <app-card-preview [card]="card" [template]="card.frontCardTemplateId | entity: templatesService | async"></app-card-preview>
+                </ng-container>
+            </div>
         </p-tabPanel>
         <p-tabPanel>
             <ng-template pTemplate="header">
