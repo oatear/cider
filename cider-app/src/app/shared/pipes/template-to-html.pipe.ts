@@ -16,7 +16,7 @@ export class CardToHtmlPipe implements PipeTransform {
   }
 
   transform(card: Card, template: CardTemplate): SafeHtml {
-    return this.safeHtmlAndStyle(
+    return this.safeHtmlAndStyle(card, 
       this.injectVariables(card, template.html), 
       this.injectVariables(card, template.css));
   }
@@ -28,11 +28,11 @@ export class CardToHtmlPipe implements PipeTransform {
     return text.replace(/\{\{([^}]+)\}\}/g, (match, p1) => (<any>card)[p1]);
   }
 
-  private safeHtmlAndStyle(html: string, css: string): SafeHtml {
+  private safeHtmlAndStyle(card: Card, html: string, css: string): SafeHtml {
     if (!html || !css) {
       return '';
     }
-    let sanitizedStyle = css.replace(/([^{}]*\{)/g, '.card-preview $1').replace(/\!important/g, '');
+    let sanitizedStyle = css.replace(/([^{}]*\{)/g, `.card-preview.card-${card.id} $1`).replace(/\!important/g, '');
     let safeStyle = this.domSanitizer.sanitize(SecurityContext.STYLE, sanitizedStyle);
     let safeHtml = this.domSanitizer.sanitize(SecurityContext.HTML, html);
     return this.domSanitizer.bypassSecurityTrustHtml(`${safeHtml}<style>${safeStyle}</style>`);
