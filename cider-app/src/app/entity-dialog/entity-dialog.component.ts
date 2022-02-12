@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { EntityField } from '../data-services/types/entity-field.type';
 import { EntityService } from '../data-services/types/entity-service.type';
+import { FieldType } from '../data-services/types/field-type.type';
 
 @Component({
   selector: 'app-entity-dialog',
@@ -16,6 +17,7 @@ export class EntityDialogComponent<Entity, Identifier extends string | number> i
   @Input() entity: Entity = {} as Entity;
   @Output() visibleChange: EventEmitter<boolean> = new EventEmitter<boolean>();
   loading: boolean = false;
+  FieldType = FieldType;
 
   constructor(private messageService: MessageService) { }
 
@@ -55,6 +57,13 @@ export class EntityDialogComponent<Entity, Identifier extends string | number> i
     }).catch(error => {
       this.loading = false;
     });
+  }
+
+  public uploadFile(entity: Entity, field: string | number | symbol, event: any) {
+    if (event?.currentFiles?.length) {
+      (<any>entity)[field] = event.currentFiles[0];
+      console.log('upload file: ', (<any>entity)[field]);
+    }
   }
 
   public hideDialog() {

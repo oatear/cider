@@ -9,14 +9,14 @@ import { SearchResult } from "./search-result.type";
  * E - Entity Type
  * I - ID Type
  */
-export interface EntityService<E, I extends string | number> {
-    getEntityName: (entity: E) => string;
-    getFields: () => Promise<EntityField<E>[]>;
+export interface EntityService<Entity, Identity extends string | number> {
+    getEntityName: (entity: Entity) => string;
+    getFields: () => Promise<EntityField<Entity>[]>;
     getIdField: () => string;
-    search: (searchParameters: SearchParameters) => Promise<SearchResult<E>>;
-    getAll: () => Promise<E[]>;
-    get: (id: I) => Promise<E>;
-    create: (entity: E) => Promise<E>;
-    update: (id: I, entity: E) => Promise<E>;
-    delete: (id: I) => Promise<boolean>;
+    search: (searchParameters: SearchParameters) => Promise<SearchResult<Entity>>;
+    getAll: () => Promise<Entity[]>;
+    get: (id: Identity) => Promise<Entity>;
+    create: (entity: Entity) => Promise<Entity>;
+    update: (id: Identity, entity: Entity) => Promise<Entity>;
+    delete: (id: Identity) => Promise<boolean>;
 }

@@ -6,7 +6,7 @@ import { SearchResult } from '../types/search-result.type';
 import { SortDirection } from '../types/search-sort.type';
 import { db } from './db';
 
-export class IndexedDbService<Entity, Identity extends string | number> implements EntityService<Entity, Identity>{
+export class IndexedDbService<Entity, Identity extends string | number> implements EntityService<Entity, Identity> {
 
   protected tableName: string;
   protected fields: EntityField<Entity>[];
@@ -16,11 +16,11 @@ export class IndexedDbService<Entity, Identity extends string | number> implemen
     this.fields = fields || [];
   }
 
-  getEntityName(entity: Entity) {
+  getEntityName(entity: Entity): string {
     return '' + (<any>entity)[this.getIdField()];
   }
 
-  getIdField() : string {
+  getIdField(): string {
     return 'id';
   }
 
@@ -30,8 +30,9 @@ export class IndexedDbService<Entity, Identity extends string | number> implemen
     });
   }
 
-  search(searchParameters: SearchParameters) {
-    let query = db.table(this.tableName).toCollection();
+  search(searchParameters: SearchParameters, equalityCriterias?: {[key: string]: any;}): Promise<SearchResult<Entity>> {
+    let query = equalityCriterias ? db.table(this.tableName).where(equalityCriterias) 
+      : db.table(this.tableName).toCollection();
     if (searchParameters.sorting && searchParameters.sorting.length > 0) {
       if (searchParameters.sorting[0].direction == SortDirection.desc) {
         query = query.reverse();
@@ -58,25 +59,26 @@ export class IndexedDbService<Entity, Identity extends string | number> implemen
     });
   }
 
-  getAll() {
-    return db.table(this.tableName).toArray();
+  getAll(equalityCriterias?: {[key: string]: any;}): Promise<Entity[]> {
+    return equalityCriterias ? db.table(this.tableName).where(equalityCriterias).toArray()
+      : db.table(this.tableName).toArray();
   }
 
-  get(id: Identity) {
+  get(id: Identity): Promise<Entity> {
     return db.table(this.tableName).get(id);
   }
 
-  create(entity: Entity) {
+  create(entity: Entity): Promise<Entity> {
     return db.table(this.tableName).add(entity).then(entityId => 
       db.table(this.tableName).get(entityId));
   }
 
-  update(id: Identity, entity: Entity) {
+  update(id: Identity, entity: Entity): Promise<Entity> {
     return db.table(this.tableName).put(entity, id).then(entityId => 
       db.table(this.tableName).get(entityId));
   }
 
-  delete(id: Identity) {
+  delete(id: Identity): Promise<boolean> {
     return db.table(this.tableName).delete(id).then(() => true);
   }
 

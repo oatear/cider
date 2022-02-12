@@ -13,11 +13,13 @@ export class AssetsService extends IndexedDbService<Asset, number> {
   constructor() {
     super(AppDB.ASSETS_TABLE, [
       {field: 'id', header: 'ID', type: FieldType.number, hidden: true},
-      {field: 'filename', header: 'Filename', type: FieldType.string}
+      {field: 'gameId', header: 'Game ID', type: FieldType.number, hidden: true},
+      {field: 'name', header: 'Name', type: FieldType.string},
+      {field: 'file', header: 'File', type: FieldType.file}
     ]);
   }
   
   override getEntityName(entity: Asset) {
-    return entity.filename;
+    return entity.name;
   }
 }

@@ -26,7 +26,7 @@ export class AppDB extends Dexie {
         this.version(1).stores({
             games: '++id, name',
             cards: '++id, gameId, frontCardTemplateId, backCardTemplateId',
-            assets: '++id, filename',
+            assets: '++id, gameId, name',
             cardTemplates: '++id, gameId, name, description, html, css',
             printTemplates: '++id, gameId, name, description, html, css',
             cardAttributes: '++id, gameId, name, type'

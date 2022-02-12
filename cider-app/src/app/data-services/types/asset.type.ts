@@ -1,4 +1,6 @@
 export interface Asset {
     id: number;
-    filename: string;
+    gameId: number;
+    name: string;
+    file: Blob;
 }

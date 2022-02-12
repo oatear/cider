@@ -2,6 +2,7 @@
  * Field Type
  */
  export enum FieldType {
-    string,
-    number
+    string = 'string',
+    number = 'number',
+    file = 'file'
 }

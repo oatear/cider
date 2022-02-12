@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -27,6 +28,7 @@ import { ToastModule } from 'primeng/toast';
 import { DropdownModule } from 'primeng/dropdown';
 import { TabViewModule } from 'primeng/tabview';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
+import { FileUploadModule } from 'primeng/fileupload';
 
 import { MonacoEditorModule } from 'ngx-monaco-editor';
 
@@ -61,6 +63,7 @@ import { SharedModule } from './shared/shared.module';
     BrowserModule,
     BrowserAnimationsModule,
     AppRoutingModule,
+    HttpClientModule,
     MonacoEditorModule.forRoot(),
     ButtonModule,
     RippleModule,
@@ -81,7 +84,8 @@ import { SharedModule } from './shared/shared.module';
     TabViewModule,
     DataServicesModule,
     SharedModule,
-    ScrollPanelModule
+    ScrollPanelModule,
+    FileUploadModule
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -5,6 +5,7 @@ import { AppDB } from '../indexed-db/db';
 import { FieldType } from '../types/field-type.type';
 import { CardAttributesService } from './card-attributes.service';
 import { CardTemplatesService } from './card-templates.service';
+import { EntityField } from '../types/entity-field.type';
 
 @Injectable({
   providedIn: 'root'
@@ -28,7 +29,7 @@ export class CardsService extends IndexedDbService<Card, number> {
         field: attribute.name.replace(/ /g, '').toLowerCase(),
         header: attribute.name,
         type: attribute.type
-      };
+      } as EntityField<Card>;
     })));
   }
 
