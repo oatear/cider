@@ -36,6 +36,7 @@ import { SiteContentAndMenuComponent } from './site-content-and-menu/site-conten
 import { AssetsComponent } from './assets/assets.component';
 import { EntityTableComponent } from './entity-table/entity-table.component';
 import { EntityDialogComponent } from './entity-dialog/entity-dialog.component';
+import { DataServicesModule } from './data-services/data-services.module';
 
 @NgModule({
   declarations: [
@@ -73,7 +74,8 @@ import { EntityDialogComponent } from './entity-dialog/entity-dialog.component';
     ConfirmDialogModule,
     ToastModule,
     DropdownModule,
-    TabViewModule
+    TabViewModule,
+    DataServicesModule
   ],
   providers: [],
   bootstrap: [AppComponent]

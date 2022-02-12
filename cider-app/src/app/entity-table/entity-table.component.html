@@ -31,8 +31,9 @@
     <ng-template pTemplate="body" let-rowData let-columns="columns">
         <tr [pSelectableRow]="rowData" [pSelectableRowDisabled]="!selectionMode">
             <ng-container *ngFor="let col of columns">
-                <!-- <td *ngIf="col.service">{{getEntityNameFromService(rowData[col.field], col.service) | async}}</td> -->
-                <td *ngIf="!col.hidden">{{rowData[col.field]}}</td>
+                <td *ngIf="!col.hidden">{{
+                    col.service ? (rowData[col.field] | entityName: col.service | async) 
+                    : rowData[col.field]}}</td>
             </ng-container>
             <td class="action-col">
                 <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button p-mr-2" (click)="openEditDialog(rowData)"></button>
