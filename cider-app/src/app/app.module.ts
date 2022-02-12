@@ -26,6 +26,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { DropdownModule } from 'primeng/dropdown';
 import { TabViewModule } from 'primeng/tabview';
+import { ScrollPanelModule } from 'primeng/scrollpanel';
 
 import { MonacoEditorModule } from 'ngx-monaco-editor';
 
@@ -79,7 +80,8 @@ import { SharedModule } from './shared/shared.module';
     DropdownModule,
     TabViewModule,
     DataServicesModule,
-    SharedModule
+    SharedModule,
+    ScrollPanelModule
   ],
   providers: [],
   bootstrap: [AppComponent]

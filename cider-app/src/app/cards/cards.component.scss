@@ -22,3 +22,10 @@
         float: left;
     }
 }
+
+:host ::ng-deep p-scrollPanel {
+    div.p-scrollpanel {
+        width: 100%;
+        height: calc(100vh - 470px);
+    }
+}
