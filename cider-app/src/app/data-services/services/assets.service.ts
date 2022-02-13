@@ -22,4 +22,11 @@ export class AssetsService extends GamesChildService<Asset, number> {
   override getEntityName(entity: Asset) {
     return entity.name;
   }
+
+  getByName(name: string): Promise<Asset> {
+    return this.getAll().then(assets => {
+      let filteredAssets = assets.filter(asset => asset.name && asset.name.replace(/ /g, '').toLowerCase() === name);
+      return filteredAssets && filteredAssets.length > 0 ? filteredAssets[0] : {} as Asset;
+    });
+  }
 }

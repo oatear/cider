@@ -47,7 +47,7 @@ export class AppDB extends Dexie {
                 + 'background-color: rgb(37, 37, 37);\n\tborder: 1px solid black;\n\tpadding: 25px;'
                 + '\n\ttext-align: center;\n}\n'
                 + 'h2 {\n\tcolor: rgb(129, 156, 89);\n}',
-            html: '<div>\n\t<h2>Poison Apple</h2>\n\t<p>Activate this card now.</p>\n</div>'
+            html: '<div>\n\t<h2>{{name}}</h2>\n\t<p>{{description}}</p>\n</div>'
         });
 
         const backCardTemplateId : IndexableType = await db.table(AppDB.CARD_TEMPLATES_TABLE).add({

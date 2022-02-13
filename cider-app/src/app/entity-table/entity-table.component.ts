@@ -3,7 +3,7 @@ import { ConfirmationService, LazyLoadEvent, MessageService } from 'primeng/api'
 import { Table } from 'primeng/table';
 import { EntityField } from '../data-services/types/entity-field.type';
 import { EntityService } from '../data-services/types/entity-service.type';
-import { SearchFilter } from '../data-services/types/search-filter.type';
+import { FieldType } from '../data-services/types/field-type.type';
 import { SortDirection } from '../data-services/types/search-sort.type';
 
 @Component({
@@ -20,6 +20,7 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
   @Input() selection: Entity | undefined;
   @Input() selectionMode: string | undefined;
   @Output() selectionChange: EventEmitter<Entity | undefined> = new EventEmitter<Entity | undefined>();
+  FieldType = FieldType;
   total: number = 0;
   loading: boolean = false;
   dialogVisible: boolean = false;

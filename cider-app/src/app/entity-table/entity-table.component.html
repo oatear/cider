@@ -31,9 +31,18 @@
     <ng-template pTemplate="body" let-rowData let-columns="columns">
         <tr [pSelectableRow]="rowData" [pSelectableRowDisabled]="!selectionMode">
             <ng-container *ngFor="let col of columns">
-                <td *ngIf="!col.hidden">{{
-                    col.service ? (rowData[col.field] | entityName: col.service | async) 
-                    : rowData[col.field]}}</td>
+                <ng-container [ngSwitch]="true">
+                    <ng-container *ngSwitchCase="col.hidden"></ng-container>
+                    <ng-container *ngSwitchCase="!col.hidden && col.service !== undefined">
+                        <td>{{rowData[col.field] | entityName: col.service | async}}</td>
+                    </ng-container>
+                    <ng-container *ngSwitchCase="!col.hidden && col.type === FieldType.file">
+                        <td class="preview-image"><img [src]="rowData[col.field] | fileUrl"/></td>
+                    </ng-container>
+                    <ng-container *ngSwitchDefault>
+                        <td>{{rowData[col.field]}}</td>
+                    </ng-container>
+                </ng-container>
             </ng-container>
             <td class="action-col">
                 <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button p-mr-2" (click)="openEditDialog(rowData)"></button>

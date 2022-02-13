@@ -3,3 +3,11 @@
 :host ::ng-deep th.action-col, td.action-col {
     width: 120px;
 }
+
+:host ::ng-deep .p-datatable .p-datatable-tbody > tr > td.preview-image {
+    padding-top: 0;
+    padding-bottom: 0;
+    img {
+        height: 60px;
+    }
+}

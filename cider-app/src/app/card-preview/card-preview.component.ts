@@ -1,4 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { AssetsService } from '../data-services/services/assets.service';
+import { Asset } from '../data-services/types/asset.type';
 import { CardTemplate } from '../data-services/types/card-template.type';
 import { Card } from '../data-services/types/card.type';
 
@@ -11,9 +13,12 @@ export class CardPreviewComponent implements OnInit {
   @Input() card: Card = {} as Card;
   @Input() template: CardTemplate = {} as CardTemplate;
 
-  constructor() { }
+  assets: Asset[] = [];
+
+  constructor(private assetsService: AssetsService) { }
 
   ngOnInit(): void {
+    this.assetsService.getAll().then(assets => this.assets = assets);
   }
 
 }

@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { MessageService } from 'primeng/api';
 import { EntityField } from '../data-services/types/entity-field.type';
 import { EntityService } from '../data-services/types/entity-service.type';
@@ -19,7 +20,7 @@ export class EntityDialogComponent<Entity, Identifier extends string | number> i
   loading: boolean = false;
   FieldType = FieldType;
 
-  constructor(private messageService: MessageService) { }
+  constructor(private messageService: MessageService, private domSanitizer: DomSanitizer) { }
 
   ngOnInit(): void {
     this.service?.getFields().then(fields => this.columns = fields);
@@ -61,8 +62,7 @@ export class EntityDialogComponent<Entity, Identifier extends string | number> i
 
   public uploadFile(entity: Entity, field: string | number | symbol, event: any) {
     if (event?.currentFiles?.length) {
-      (<any>entity)[field] = event.currentFiles[0];
-      console.log('upload file: ', (<any>entity)[field]);
+      (<any>entity)[field] = event.files[0];
     }
   }
 
