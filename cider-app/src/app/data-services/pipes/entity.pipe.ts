@@ -10,6 +10,11 @@ import { EntityService } from '../types/entity-service.type';
 export class EntityPipe implements PipeTransform {
 
   transform(entityId: unknown, service: EntityService<any, any>): Promise<any> {
+    if (!entityId || !service) {
+      return new Promise<any>((resolve, reject) => {
+        resolve({});
+      });
+    }
     return service.get(entityId);
   }
 

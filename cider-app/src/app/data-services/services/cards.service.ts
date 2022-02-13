@@ -1,20 +1,22 @@
 import { Injectable } from '@angular/core';
 import { Card } from '../types/card.type';
-import { IndexedDbService } from '../indexed-db/indexed-db.service';
 import { AppDB } from '../indexed-db/db';
 import { FieldType } from '../types/field-type.type';
 import { CardAttributesService } from './card-attributes.service';
 import { CardTemplatesService } from './card-templates.service';
 import { EntityField } from '../types/entity-field.type';
+import { GamesChildService } from '../indexed-db/games-child.service';
+import { GamesService } from './games.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class CardsService extends IndexedDbService<Card, number> {
+export class CardsService extends GamesChildService<Card, number> {
 
   constructor(private attributesService: CardAttributesService,
-    private cardTemplatesService: CardTemplatesService) {
-    super(AppDB.CARDS_TABLE, [
+    private cardTemplatesService: CardTemplatesService,
+    gamesService: GamesService) {
+    super(gamesService, AppDB.CARDS_TABLE, [
       {field: 'id', header: 'ID', type: FieldType.number, hidden: true},
       {field: 'gameId', header: 'Game ID', type: FieldType.number, hidden: true},
       {field: 'name', header: 'Name', type: FieldType.string},

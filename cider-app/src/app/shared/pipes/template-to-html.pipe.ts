@@ -16,6 +16,9 @@ export class CardToHtmlPipe implements PipeTransform {
   }
 
   transform(card: Card, template: CardTemplate): SafeHtml {
+    if (!card || !template) {
+      return '';
+    }
     return this.safeHtmlAndStyle(card, 
       this.injectVariables(card, template.html), 
       this.injectVariables(card, template.css));
