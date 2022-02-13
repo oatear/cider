@@ -31,33 +31,32 @@ export class CardToHtmlPipe implements PipeTransform {
     });
   }
 
-  transform(template: CardTemplate, card: Card, assets?: Asset[]): SafeHtml {
+  transform(template: CardTemplate, card: Card, assetUrls?: any): SafeHtml {
     if (!card || !template) {
       return '';
     }
-    console.log('cardToHtml: ', card, template);
+    // console.log('cardToHtml: ', card, template);
     return this.safeHtmlAndStyle(card, 
-      this.executeHandlebars(template.html, card, assets), 
-      this.executeHandlebars(template.css, card, assets));
-      // this.injectVariables(template.css, card, assets));
+      this.executeHandlebars(template.html, card, assetUrls), 
+      this.executeHandlebars(template.css, card, assetUrls));
   }
 
-  private executeHandlebars(htmlTemplate: string, card: Card, assets?: Asset[]): string {
+  private executeHandlebars(htmlTemplate: string, card: Card, assetUrls?: any): string {
     let template = Handlebars.compile(htmlTemplate);
-    return template({card: card, assets: assets});
+    return template({card: card, assets: assetUrls});
   }
 
-  private injectVariables(text: string, card: Card, assets?: Asset[]) {
-    if (!card || !text) {
-      return text;
-    }
-    let injectedText = text;
-    if (assets) {
-      // text.replace(/\{\{asset:([^}]+)\}\}/g, (match, p1) => await this.assetsService.getByName(p1));
-      injectedText = injectedText.replace(/\{\{asset:([^}]+)\}\}/g, (match, p1) => this.assetToUrl(this.getAssetByName(assets, p1)));
-    }
-    return injectedText.replace(/\{\{([^}]+)\}\}/g, (match, p1) => (<any>card)[p1]);
-  }
+  // private injectVariables(text: string, card: Card, assetUrls?: any) {
+  //   if (!card || !text) {
+  //     return text;
+  //   }
+  //   let injectedText = text;
+  //   if (assets) {
+  //     // text.replace(/\{\{asset:([^}]+)\}\}/g, (match, p1) => await this.assetsService.getByName(p1));
+  //     injectedText = injectedText.replace(/\{\{asset:([^}]+)\}\}/g, (match, p1) => this.assetToUrl(this.getAssetByName(assets, p1)));
+  //   }
+  //   return injectedText.replace(/\{\{([^}]+)\}\}/g, (match, p1) => (<any>card)[p1]);
+  // }
 
   private getAssetByName(assets: Asset[], name: string): Asset {
     if (!assets || !name) {

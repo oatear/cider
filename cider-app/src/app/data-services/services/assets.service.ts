@@ -9,6 +9,7 @@ import { GamesService } from './games.service';
   providedIn: 'root'
 })
 export class AssetsService extends GamesChildService<Asset, number> {
+  assetUrls: any = {};
 
   constructor(gamesService: GamesService) {
     super(gamesService, AppDB.ASSETS_TABLE, [
@@ -17,10 +18,31 @@ export class AssetsService extends GamesChildService<Asset, number> {
       {field: 'name', header: 'Name', type: FieldType.string},
       {field: 'file', header: 'File', type: FieldType.file}
     ]);
+    // update the asset urls whenever a new game is selected
+    gamesService.getSelectedGame().subscribe(game => this.updateAssetUrls());
+  }
+
+  private updateAssetUrls() {
+    this.getAll().then(assets => {
+      let assetUrls = {} as any;
+      assets.forEach(asset => assetUrls[this.convertNameToField(asset.name)] = URL.createObjectURL(asset.file));
+      console.log('assetUrls: ', assetUrls);
+      return assetUrls;
+    }).then(assetUrls => this.assetUrls = assetUrls);
+  }
+
+  private convertNameToField(name: string): string {
+    return name.replace(/ /g, '').toLowerCase();
   }
   
   override getEntityName(entity: Asset) {
     return entity.name;
+  }
+
+  getAssetUrls(): Promise<any> {
+    return new Promise<any>((resolve, reject) => {
+      resolve(this.assetUrls);
+    });
   }
 
   getByName(name: string): Promise<Asset> {

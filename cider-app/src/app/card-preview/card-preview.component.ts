@@ -13,12 +13,12 @@ export class CardPreviewComponent implements OnInit {
   @Input() card: Card = {} as Card;
   @Input() template: CardTemplate = {} as CardTemplate;
 
-  assets: Asset[] = [];
+  assetUrls: any;
 
   constructor(private assetsService: AssetsService) { }
 
   ngOnInit(): void {
-    this.assetsService.getAll().then(assets => this.assets = assets);
+    this.assetsService.getAssetUrls().then(assetUrls => this.assetUrls = assetUrls);
   }
 
 }
