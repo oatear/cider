@@ -8,6 +8,11 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
+  "browser": {
+    "fs": false,
+    "path": false,
+    "os": false
+  },
   "private": true,
   "dependencies": {
     "@angular/animations": "^13.2.1",
@@ -20,6 +25,7 @@
     "@angular/platform-browser-dynamic": "~13.2.0",
     "@angular/router": "~13.2.0",
     "dexie": "^3.2.0",
+    "handlebars": "^4.7.7",
     "monaco-editor": "^0.32.1",
     "ngx-monaco-editor": "^12.0.0",
     "primeflex": "^2.0.0",

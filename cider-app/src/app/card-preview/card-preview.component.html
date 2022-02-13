@@ -1,1 +1,1 @@
-<div class="card-preview card-{{card.id}}" [innerHtml]="card | cardToHtml: template: assets"></div>
+<div class="card-preview card-{{card.id}}" [innerHtml]="template | cardToHtml: card: assets"></div>

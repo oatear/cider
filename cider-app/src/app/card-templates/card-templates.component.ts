@@ -18,7 +18,7 @@ export class CardTemplatesComponent implements OnInit {
     + 'background-color: rgb(37, 37, 37);\n\tborder: 1px solid black;\n\tpadding: 25px;\n}\n'
     + 'h2 {\n\tcolor: rgb(129, 156, 89);\n}';
 
-  htmlEditorOptions: any = {theme: 'vs-dark', language: 'html', automaticLayout: true};
+  htmlEditorOptions: any = {theme: 'vs-dark', language: 'handlebars', automaticLayout: true};
   cssEditorOptions: any = {theme: 'vs-dark', language: 'css', automaticLayout: true};
   templates: CardTemplate[] = [];
   cards: Card[] = [];

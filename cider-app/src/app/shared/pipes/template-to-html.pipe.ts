@@ -1,5 +1,6 @@
 import { Pipe, PipeTransform, SecurityContext } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import * as Handlebars from 'handlebars';
 import { Asset } from 'src/app/data-services/types/asset.type';
 import { CardTemplate } from 'src/app/data-services/types/card-template.type';
 import { Card } from 'src/app/data-services/types/card.type';
@@ -14,19 +15,38 @@ import { Card } from 'src/app/data-services/types/card.type';
 export class CardToHtmlPipe implements PipeTransform {
   
   constructor(private domSanitizer: DomSanitizer) {
+
+    /**
+     * Usage:
+     * 
+     * {{#times 10}}
+     *    <span>{{this}}</span>
+     * {{/times}}
+     */
+    Handlebars.registerHelper('times', function(n, block) {
+        var accum = '';
+        for(var i = 0; i < n; ++i)
+            accum += block.fn(i);
+        return accum;
+    });
   }
 
-  transform(card: Card, template: CardTemplate, assets?: Asset[]): SafeHtml {
+  transform(template: CardTemplate, card: Card, assets?: Asset[]): SafeHtml {
     if (!card || !template) {
       return '';
     }
     console.log('cardToHtml: ', card, template);
     return this.safeHtmlAndStyle(card, 
-      this.injectVariables(card, template.html, assets), 
-      this.injectVariables(card, template.css, assets));
+      this.executeHandlebars(template.html, card, assets), template.css);
+      // this.injectVariables(template.css, card, assets));
   }
 
-  private injectVariables(card: Card, text: string, assets?: Asset[]) {
+  private executeHandlebars(htmlTemplate: string, card: Card, assets?: Asset[]): string {
+    let template = Handlebars.compile(htmlTemplate);
+    return template({card: card, assets: assets});
+  }
+
+  private injectVariables(text: string, card: Card, assets?: Asset[]) {
     if (!card || !text) {
       return text;
     }
