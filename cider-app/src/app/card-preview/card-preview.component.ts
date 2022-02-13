@@ -1,6 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { AssetsService } from '../data-services/services/assets.service';
-import { Asset } from '../data-services/types/asset.type';
 import { CardTemplate } from '../data-services/types/card-template.type';
 import { Card } from '../data-services/types/card.type';
 
@@ -15,10 +14,11 @@ export class CardPreviewComponent implements OnInit {
 
   assetUrls: any;
 
-  constructor(private assetsService: AssetsService) { }
+  constructor(
+    private assetsService: AssetsService) { }
 
   ngOnInit(): void {
-    this.assetsService.getAssetUrls().then(assetUrls => this.assetUrls = assetUrls);
+    this.assetsService.getAssetUrls().subscribe(assetUrls => this.assetUrls = assetUrls);
   }
 
 }

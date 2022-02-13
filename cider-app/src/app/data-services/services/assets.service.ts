@@ -4,12 +4,13 @@ import { AppDB } from '../indexed-db/db';
 import { FieldType } from '../types/field-type.type';
 import { GamesChildService } from '../indexed-db/games-child.service';
 import { GamesService } from './games.service';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AssetsService extends GamesChildService<Asset, number> {
-  assetUrls: any = {};
+  assetUrls: BehaviorSubject<any>;
 
   constructor(gamesService: GamesService) {
     super(gamesService, AppDB.ASSETS_TABLE, [
@@ -18,6 +19,7 @@ export class AssetsService extends GamesChildService<Asset, number> {
       {field: 'name', header: 'Name', type: FieldType.string},
       {field: 'file', header: 'File', type: FieldType.file}
     ]);
+    this.assetUrls = new BehaviorSubject<any>({});
     // update the asset urls whenever a new game is selected
     gamesService.getSelectedGame().subscribe(game => this.updateAssetUrls());
   }
@@ -28,7 +30,7 @@ export class AssetsService extends GamesChildService<Asset, number> {
       assets.forEach(asset => assetUrls[this.convertNameToField(asset.name)] = URL.createObjectURL(asset.file));
       console.log('assetUrls: ', assetUrls);
       return assetUrls;
-    }).then(assetUrls => this.assetUrls = assetUrls);
+    }).then(assetUrls => this.assetUrls.next(assetUrls));
   }
 
   private convertNameToField(name: string): string {
@@ -39,10 +41,12 @@ export class AssetsService extends GamesChildService<Asset, number> {
     return entity.name;
   }
 
-  getAssetUrls(): Promise<any> {
-    return new Promise<any>((resolve, reject) => {
-      resolve(this.assetUrls);
-    });
+  getAssetUrls(): Observable<any> {
+    // return new Promise<any>((resolve, reject) => {
+    //   console.log('getAssetUrls', this.assetUrls);
+    //   resolve(this.assetUrls);
+    // });
+    return this.assetUrls.asObservable();
   }
 
   getByName(name: string): Promise<Asset> {
