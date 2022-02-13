@@ -37,7 +37,8 @@ export class CardToHtmlPipe implements PipeTransform {
     }
     console.log('cardToHtml: ', card, template);
     return this.safeHtmlAndStyle(card, 
-      this.executeHandlebars(template.html, card, assets), template.css);
+      this.executeHandlebars(template.html, card, assets), 
+      this.executeHandlebars(template.css, card, assets));
       // this.injectVariables(template.css, card, assets));
   }
 

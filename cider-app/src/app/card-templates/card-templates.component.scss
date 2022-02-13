@@ -35,6 +35,16 @@ textarea {
         width: 100%;
     }
 }
+:host ::ng-deep p-panel {
+    .p-panel {
+        .p-panel-header {
+            height: 50px;
+            padding: 8px;
+            padding-left: 16px;
+            padding-right: 16px;
+        }
+    }
+}
 
 .preview-space {
     height: calc(100% - 70px);
@@ -48,7 +58,7 @@ textarea {
 
 .wrapper {
     display: flex;
-    height: calc(100vh - 198px - 70px);
+    height: calc(100vh - 198px - 73px);
     .left-panel {
         min-width: 400px;
         width: 400px;

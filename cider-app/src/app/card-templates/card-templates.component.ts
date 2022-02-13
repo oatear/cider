@@ -26,6 +26,8 @@ export class CardTemplatesComponent implements OnInit {
   selectedTemplate: CardTemplate = {} as CardTemplate;
   editTemplate: CardTemplate = {} as CardTemplate;
   dialogVisible: boolean = false;
+  infoVisible: boolean = false;
+  infoText: string = '';
 
   constructor(private domSanitizer: DomSanitizer, 
     public service: CardTemplatesService,
@@ -60,6 +62,18 @@ export class CardTemplatesComponent implements OnInit {
       html: CardTemplatesComponent.DEFAULT_HTML
     } as CardTemplate;
     this.dialogVisible = true;
+  }
+
+  public openCssInfo() {
+    this.infoVisible = true;
+    this.infoText = "CSS Guide";
+  }
+
+  public openHtmlInfo() {
+    this.infoVisible = true;
+    this.infoText = "HTML/Handlebars Guide"
+      + "\n\ncard attributes: {{card.name}}"
+      + "\ntimes helper: {{#times card.strength}}o{{/times}}";
   }
 
   public openEditDialog(entity : CardTemplate) {

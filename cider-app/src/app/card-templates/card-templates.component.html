@@ -24,12 +24,18 @@
     <div class="right-panel">
         <div class="top-panel">
             <p-panel style="height: 100%; width: 100%;" header="CSS">
+                <ng-template pTemplate="icons">
+                    <button pButton pRipple icon="pi pi-info-circle" class="p-panel-header-icon p-link" (click)="openCssInfo()"></button>
+                </ng-template>
                 <ngx-monaco-editor style="height: 100%;" 
                     [options]="cssEditorOptions" [(ngModel)]="selectedTemplate.css"></ngx-monaco-editor>
             </p-panel>
         </div>
         <div class="bottom-panel">
             <p-panel style="height: 100%; width: 100%;" header="HTML/Handlebars">
+                <ng-template pTemplate="icons">
+                    <button pButton pRipple icon="pi pi-info-circle" class="p-panel-header-icon p-link" (click)="openHtmlInfo()"></button>
+                </ng-template>
                 <ngx-monaco-editor style="height: 100%;" 
                     [options]="htmlEditorOptions" [(ngModel)]="selectedTemplate.html"></ngx-monaco-editor>
             </p-panel>
@@ -38,3 +44,4 @@
 </div>
 <app-entity-dialog [service]="service" [(visible)]="dialogVisible" [entity]="editTemplate"></app-entity-dialog>
 <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+<p-dialog header="Information" [style]="{width: '450px'}" [(visible)]="infoVisible">{{infoText}}</p-dialog>
