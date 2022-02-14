@@ -28,7 +28,7 @@ export class CardsService extends GamesChildService<Card, number> {
   override getFields() {
     return this.attributesService.getAll().then(attributes => this.fields.concat(attributes.map(attribute => {
       return {
-        field: attribute.name.replace(/ /g, '').toLowerCase(),
+        field: attribute.name.trim().replace(/ /g, '-').toLowerCase(),
         header: attribute.name,
         type: attribute.type
       } as EntityField<Card>;
