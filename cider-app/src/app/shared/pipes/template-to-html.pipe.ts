@@ -16,17 +16,21 @@ export class CardToHtmlPipe implements PipeTransform {
   constructor(private domSanitizer: DomSanitizer) {
 
     /**
-     * Usage:
-     * 
-     * {{#times 10}}
+     * {{#repeat 10}}
      *    <span>{{this}}</span>
-     * {{/times}}
+     * {{/repeat}}
      */
-    Handlebars.registerHelper('times', function(n, block) {
+    Handlebars.registerHelper('repeat', function(n, block) {
         var accum = '';
         for(var i = 0; i < n; ++i)
             accum += block.fn(i);
         return accum;
+    });
+    /**
+     * {{#indexOf assets cards.image}}
+     */
+    Handlebars.registerHelper('index', function(array, value) {
+      return array[value];
     });
   }
 

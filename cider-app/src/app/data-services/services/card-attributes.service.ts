@@ -15,7 +15,7 @@ export class CardAttributesService extends GamesChildService<CardAttribute, numb
       {field: 'id', header: 'ID', type: FieldType.number, hidden: true},
       {field: 'gameId', header: 'Game ID', type: FieldType.number, hidden: true},
       {field: 'name', header: 'Name', type: FieldType.string},
-      {field: 'type', header: 'Type', type: FieldType.string}
+      // {field: 'type', header: 'Type', type: FieldType.string}
     ])
   }
   
