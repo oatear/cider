@@ -56,24 +56,69 @@ textarea {
     margin: auto;
 }
 
-.wrapper {
+:host ::ng-deep .template-editor {
+    height: calc(100vh - 140px - 58px);
     display: flex;
-    height: calc(100vh - 198px - 73px);
-    .left-panel {
-        min-width: 400px;
-        width: 400px;
-    }
-    .right-panel {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        width: calc(100vw - 400px);
-        max-height: calc(100vw - 198px - 70px);
-        .top-panel {
-            flex: 1;
+    flex-direction: column;
+    .template-header {
+        // height: 73px;
+        .p-toolbar {
+            border-top: none;
+            border-bottom: none;
+            border-radius: 0;
         }
-        .bottom-panel {
+    }
+    .template-panel {
+        flex: 1;
+        height: 100%;
+        display: flex;
+        // height: calc(100vh - 198px - 73px);
+        .left-panel {
+            min-width: 400px;
+            width: 400px;
+            .p-panel {
+                .p-panel-header {
+                    border-radius: 0;
+                    border-bottom: none;
+                    border-right: 0;
+                }
+                .p-panel-content {
+                    border-radius: 0;
+                    border-right: 0;
+                }
+            }
+        }
+        .right-panel {
             flex: 1;
+            display: flex;
+            flex-direction: column;
+            width: calc(100vw - 400px);
+            max-height: calc(100vw - 198px - 70px);
+            .top-panel {
+                flex: 1;
+                .p-panel {
+                    .p-panel-header {
+                        border-radius: 0;
+                        border-bottom: none;
+                    }
+                    .p-panel-content {
+                        border-radius: 0;
+                    } 
+                }
+            }
+            .bottom-panel {
+                flex: 1;
+                .p-panel {
+                    .p-panel-header {
+                        border-top: none;
+                        border-radius: 0;
+                    }
+                    .p-panel-content {
+                        border-radius: 0;
+                        border-top: none;
+                    }
+                }
+            }
         }
     }
 }

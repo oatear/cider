@@ -1,44 +1,48 @@
 <p-toast></p-toast>
-<p-toolbar styleClass="mb-4">
-    <ng-template pTemplate="left">
-        <p-dropdown [options]="templates" [(ngModel)]="selectedTemplate" 
-            optionLabel="name"  styleClass="template-dropdown" class="p-mr-2"></p-dropdown>
-        <button pButton pRipple label="Edit" icon="pi pi-pencil" class="p-button p-mr-2" (click)="openEditDialog(selectedTemplate)"></button>
-        <button pButton pRipple label="New" icon="pi pi-plus" class="p-button" (click)="openCreateNew()"></button>
-    </ng-template>
-    <ng-template pTemplate="right">
-        <button pButton pRipple label="Delete" icon="pi pi-trash" class="p-button-danger p-mr-2" (click)="openDeleteDialog(selectedTemplate)"></button>
-        <button pButton pRipple label="Save" icon="pi pi-save" class="p-button" (click)="save(selectedTemplate)"></button>
-    </ng-template>
-</p-toolbar>
-<div class="wrapper">
-    <div class="left-panel">
-        <p-panel header="Preview">
-            <p-dropdown [options]="cards" [(ngModel)]="selectedCard" 
-                optionLabel="name" styleClass="card-dropdown"></p-dropdown>
-            <div class="preview-space">
-                <app-card-preview [card]="selectedCard" [template]="selectedTemplate"></app-card-preview>
-            </div>
-        </p-panel>
+<div class="template-editor">
+    <div class="template-header">
+        <p-toolbar styleClass="mb-4">
+            <ng-template pTemplate="left">
+                <p-dropdown [options]="templates" [(ngModel)]="selectedTemplate" 
+                    optionLabel="name"  styleClass="template-dropdown" class="p-mr-2"></p-dropdown>
+                <button pButton pRipple label="Edit" icon="pi pi-pencil" class="p-button p-mr-2" (click)="openEditDialog(selectedTemplate)"></button>
+                <button pButton pRipple label="New" icon="pi pi-plus" class="p-button" (click)="openCreateNew()"></button>
+            </ng-template>
+            <ng-template pTemplate="right">
+                <button pButton pRipple label="Delete" icon="pi pi-trash" class="p-button-danger p-mr-2" (click)="openDeleteDialog(selectedTemplate)"></button>
+                <button pButton pRipple label="Save" icon="pi pi-save" class="p-button" (click)="save(selectedTemplate)"></button>
+            </ng-template>
+        </p-toolbar>
     </div>
-    <div class="right-panel">
-        <div class="top-panel">
-            <p-panel style="height: 100%; width: 100%;" header="CSS">
-                <ng-template pTemplate="icons">
-                    <button pButton pRipple icon="pi pi-info-circle" class="p-panel-header-icon p-link" (click)="openCssInfo()"></button>
-                </ng-template>
-                <ngx-monaco-editor style="height: 100%;" 
-                    [options]="cssEditorOptions" [(ngModel)]="selectedTemplate.css"></ngx-monaco-editor>
+    <div class="template-panel">
+        <div class="left-panel">
+            <p-panel header="Preview">
+                <p-dropdown [options]="cards" [(ngModel)]="selectedCard" 
+                    optionLabel="name" styleClass="card-dropdown"></p-dropdown>
+                <div class="preview-space">
+                    <app-card-preview [card]="selectedCard" [template]="selectedTemplate"></app-card-preview>
+                </div>
             </p-panel>
         </div>
-        <div class="bottom-panel">
-            <p-panel style="height: 100%; width: 100%;" header="HTML/Handlebars">
-                <ng-template pTemplate="icons">
-                    <button pButton pRipple icon="pi pi-info-circle" class="p-panel-header-icon p-link" (click)="openHtmlInfo()"></button>
-                </ng-template>
-                <ngx-monaco-editor style="height: 100%;" 
-                    [options]="htmlEditorOptions" [(ngModel)]="selectedTemplate.html"></ngx-monaco-editor>
-            </p-panel>
+        <div class="right-panel">
+            <div class="top-panel">
+                <p-panel style="height: 100%; width: 100%;" header="CSS">
+                    <ng-template pTemplate="icons">
+                        <button pButton pRipple icon="pi pi-info-circle" class="p-panel-header-icon p-link" (click)="openCssInfo()"></button>
+                    </ng-template>
+                    <ngx-monaco-editor style="height: 100%;" 
+                        [options]="cssEditorOptions" [(ngModel)]="selectedTemplate.css"></ngx-monaco-editor>
+                </p-panel>
+            </div>
+            <div class="bottom-panel">
+                <p-panel style="height: 100%; width: 100%;" header="HTML/Handlebars">
+                    <ng-template pTemplate="icons">
+                        <button pButton pRipple icon="pi pi-info-circle" class="p-panel-header-icon p-link" (click)="openHtmlInfo()"></button>
+                    </ng-template>
+                    <ngx-monaco-editor style="height: 100%;" 
+                        [options]="htmlEditorOptions" [(ngModel)]="selectedTemplate.html"></ngx-monaco-editor>
+                </p-panel>
+            </div>
         </div>
     </div>
 </div>
