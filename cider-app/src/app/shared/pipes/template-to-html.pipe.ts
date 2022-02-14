@@ -27,15 +27,18 @@ export class CardToHtmlPipe implements PipeTransform {
         return accum;
     });
     /**
-     * {{#indexOf assets cards.image}}
+     * {{#index assets cards.image}}{{/index}}
      */
     Handlebars.registerHelper('index', function(array, value) {
+      if (!array || !value) {
+        return '';
+      }
       return array[value];
     });
   }
 
   transform(template: CardTemplate, card: Card, assetUrls?: any): SafeHtml {
-    if (!template ||!card) {
+    if (!template || !card) {
       return '';
     }
     // console.log('cardToHtml: ', card, template, assetUrls);
@@ -49,7 +52,11 @@ export class CardToHtmlPipe implements PipeTransform {
       return '';
     }
     let template = Handlebars.compile(htmlTemplate);
-    return template({card: card, assets: assetUrls});
+    try {
+      return template({card: card, assets: assetUrls});
+    } catch(error) {
+      return '';
+    }
   }
 
   private safeHtmlAndStyle(card: Card, html: string, css: string): SafeHtml {
