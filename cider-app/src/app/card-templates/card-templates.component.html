@@ -17,10 +17,17 @@
     <div class="template-panel">
         <div class="left-panel">
             <p-panel header="Preview">
-                <p-dropdown [options]="cards" [(ngModel)]="selectedCard" 
-                    optionLabel="name" styleClass="card-dropdown"></p-dropdown>
-                <div class="preview-space">
-                    <app-card-preview [card]="selectedCard" [template]="selectedTemplate"></app-card-preview>
+                <div class="preview-controls">
+                    <p-dropdown [options]="cards" [(ngModel)]="selectedCard" 
+                        optionLabel="name" styleClass="card-dropdown"></p-dropdown>
+                    <span class="p-buttonset">
+                        <button pButton type="button" icon="pi pi-search-minus" (click)="changeZoom(-0.1)"></button>
+                        <button pButton type="button" icon="pi pi-search-plus" (click)="changeZoom(0.1)"></button>
+                    </span>
+                </div>
+                <div class="preview-space" >
+                    <app-card-preview [card]="selectedCard" [template]="selectedTemplate" 
+                        [style]="{transform: 'scale(' + zoom + ')'}"></app-card-preview>
                 </div>
             </p-panel>
         </div>

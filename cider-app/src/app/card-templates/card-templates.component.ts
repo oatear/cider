@@ -28,6 +28,7 @@ export class CardTemplatesComponent implements OnInit {
   dialogVisible: boolean = false;
   infoVisible: boolean = false;
   infoText: string = '';
+  zoom: number = 1.0;
 
   constructor(private domSanitizer: DomSanitizer, 
     public service: CardTemplatesService,
@@ -38,6 +39,13 @@ export class CardTemplatesComponent implements OnInit {
   ngOnInit(): void {
     this.service.getAll().then(templates => this.templates = templates);
     this.cardsService.getAll().then(cards => this.cards = cards);
+  }
+
+  public changeZoom(change: number) {
+    this.zoom += change;
+    if (this.zoom < 0.1) {
+      this.zoom = 0.1;
+    }
   }
   
   public save(entity : CardTemplate) {
