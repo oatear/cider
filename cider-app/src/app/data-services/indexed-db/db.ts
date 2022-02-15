@@ -39,39 +39,111 @@ export class AppDB extends Dexie {
             name: 'Apple Cider Game'
         });
 
+        const templateCss  = `
+            .card {
+                width: 300px;
+                height: 400px;
+                border-radius: 10px;
+                text-align: center;
+                display: flex;
+                flex-direction: column;
+                font-weight: 600;
+                background-color: hsl({{card.hue}}, 23%, 20%);
+                border: 15px solid hsl({{card.hue}}, 23%, 10%);
+                color: hsl({{card.hue}}, 23%, 70%);
+            }
+            .card .header {
+                height: 120px;
+                font-size: 25px;
+                font-weight: 600;
+                padding: 10px;
+                padding-top: 60px;
+            }
+            .card .apple {
+                height: 40px;
+                font-size: 60px;
+            }
+            .card .content {
+                flex: 1;
+                padding: 10px;
+                padding-top: 60px;
+            }
+            .card .footer {
+                height: 10px;
+                text-align: right;
+                padding: 25px;
+                padding-right: 15px;
+            }
+        `;
+
+        const templateHtml = `
+            <div class="card">
+                <div class="header">{{card.name}}</div>
+                <div class="apple">◯</div>
+                <div class="content">{{card.description}}</div>
+                <div class="footer">A{{card.id}}</div>
+            </div>
+        `;
+
         const frontCardTemplateId : IndexableType = await db.table(AppDB.CARD_TEMPLATES_TABLE).add({
             name: 'Apple Front',
             gameId: gameId,
             description: '',
-            css: 'div {\n\twidth: 300px;\n\theight: 400px;\n\t'
-                + 'background-color: rgb(37, 37, 37);\n\tborder: 1px solid black;\n\tpadding: 25px;'
-                + '\n\ttext-align: center;\n}\n'
-                + 'h2 {\n\tcolor: rgb(129, 156, 89);\n}',
-            html: '<div>\n\t<h2>{{name}}</h2>\n\t<p>{{description}}</p>\n</div>'
+            css: templateCss,
+            html: templateHtml
         });
 
         const backCardTemplateId : IndexableType = await db.table(AppDB.CARD_TEMPLATES_TABLE).add({
             name: 'Apple Back',
             gameId: gameId,
             description: '',
-            css: 'div {\n\twidth: 300px;\n\theight: 400px;\n\t'
-            + 'background-color: rgb(37, 37, 37);\n\tborder: 1px solid black;\n\tpadding: 25px;'
-            + '\n\ttext-align: center;\n\tpadding-top: 120px;\n}\n'
-            + 'h1 {\n\tcolor: rgb(50, 50, 50);\n}',
-            html: '<div>\n\t<h1>Apple Card</h1>\n</div>'
+            css: templateCss,
+            html: `
+                <div class="card">
+                    <div class="content">Apple Cider Game</div>
+                </div>
+            `
         });
+
+        await db.table(AppDB.CARD_ATTRIBUTES_TABLE).bulkAdd([
+            {
+                gameId: gameId,
+                name: 'Description'
+            }, {
+                gameId: gameId,
+                name: 'Hue'
+            }
+        ]);
 
         await db.table(AppDB.CARDS_TABLE).bulkAdd([
             {
                 gameId: gameId,
                 frontCardTemplateId: frontCardTemplateId,
                 backCardTemplateId: backCardTemplateId,
-                name: 'Poison Apple'
+                name: 'Poison Apple',
+                description: "Take one card from an opponent's hand.",
+                hue: '110'
             }, {
                 gameId: gameId,
                 frontCardTemplateId: frontCardTemplateId,
                 backCardTemplateId: backCardTemplateId,
-                name: 'Healthy Apple'
+                name: 'Healthy Apple',
+                description: "Take a card from the discard pile.",
+                hue: '0'
+            }, {
+                gameId: gameId,
+                frontCardTemplateId: frontCardTemplateId,
+                backCardTemplateId: backCardTemplateId,
+                name: 'Mystic Apple',
+                description: "Draw two cards from the deck, choose one, discard the other.",
+                hue: '250'
+            }, {
+                gameId: gameId,
+                frontCardTemplateId: frontCardTemplateId,
+                backCardTemplateId: backCardTemplateId,
+                name: 'Crystal Apple',
+                description: "Every player draws a card and hands you one card from their hand.",
+                hue: '175'
             }
         ]);
     }
