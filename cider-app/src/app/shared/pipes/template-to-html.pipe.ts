@@ -27,13 +27,22 @@ export class CardToHtmlPipe implements PipeTransform {
         return accum;
     });
     /**
-     * {{#index assets cards.image}}{{/index}}
+     * {{#index assets card.image}}{{/index}}
      */
     Handlebars.registerHelper('index', function(array, value) {
       if (!array || !value) {
         return '';
       }
       return array[value];
+    });
+    /**
+     * {{#padZeros card.id 4}}{{/padZeros}}
+     */
+    Handlebars.registerHelper('padZeros', function(value, numZeros) {
+      if (!value || !numZeros) {
+        return ''.padStart(numZeros, '0');
+      }
+      return (value + '').padStart(numZeros, '0');
     });
   }
 
