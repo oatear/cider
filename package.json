@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "dexie-export-import": "^1.0.3"
+  }
+}

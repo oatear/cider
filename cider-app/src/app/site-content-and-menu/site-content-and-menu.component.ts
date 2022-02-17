@@ -50,12 +50,29 @@ export class SiteContentAndMenuComponent implements OnInit {
             icon: 'pi pi-pw pi-folder',
             routerLink: [`/games/${selectedGame?.id}/assets`]
           }, {
-            label: 'Export',
-            icon: 'pi pi-pw pi-file-pdf'
+            label: 'Import/Export',
+            icon: 'pi pi-pw pi-file',
+            items: [
+              {
+                label: 'Import Database',
+                icon: 'pi pi-pw pi-file'
+              }, {
+                label: 'Export Database',
+                icon: 'pi pi-pw pi-file'
+              }
+            ]
           }
         ]
       }
     });
+  }
+
+  public openImportDialog() {
+
+  }
+
+  public openExportDialog() {
+    
   }
 
 }

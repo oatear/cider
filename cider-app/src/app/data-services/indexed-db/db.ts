@@ -4,6 +4,7 @@ import { Asset } from "../types/asset.type";
 import { CardTemplate } from "../types/card-template.type";
 import { Game } from "../types/game.type";
 import { PrintTemplate } from "../types/print-template.type";
+import { importInto, exportDB } from "dexie-export-import";
 
 
 export class AppDB extends Dexie {
@@ -146,6 +147,32 @@ export class AppDB extends Dexie {
                 hue: '175'
             }
         ]);
+    }
+
+    /**
+     * Import database from file
+     * Warning: Overrides the existing database
+     * 
+     * @param file 
+     */
+    public importDatabase(file: File) {
+        // unsolved dexie with typescript issue: https://github.com/dexie/Dexie.js/issues/1262
+        // @ts-ignore
+        importInto(db, file);
+    }
+
+    /**
+     * Export database to file
+     * 
+     */
+    public exportDatabase() {
+        // unsolved dexie with typescript issue: https://github.com/dexie/Dexie.js/issues/1262
+        // @ts-ignore
+        const promisedBlob: Promise<Blob> = exportDB(this);
+        promisedBlob.then(blob => {
+            const url= window.URL.createObjectURL(blob);
+            window.open(url);
+        });
     }
 }
 
