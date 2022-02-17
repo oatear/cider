@@ -16,7 +16,7 @@ Run `ng build` to build the project. The build artifacts will be stored in the `
 
 ## Deploy GitHub Pages
 
-Run `ng build --prod=true --outputPath=../docs --baseHref=/cider/` to build the site for github pages.
+Run `ng build --outputPath=../docs --baseHref=/cider/` to build the site for github pages.
 Make sure to copy index.html to 404.html to handle all urls.
 
 ## Running unit tests
