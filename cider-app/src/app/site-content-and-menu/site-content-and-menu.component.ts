@@ -24,7 +24,7 @@ export class SiteContentAndMenuComponent implements OnInit {
       next: (selectedGame) => {
         this.items = [
           {
-            label: 'Games',
+            label: selectedGame ? selectedGame.name : 'Games',
             icon: 'pi pi-pw pi-play',
             routerLink: ['/games']
           }, {

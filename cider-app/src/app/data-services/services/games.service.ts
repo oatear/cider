@@ -17,7 +17,8 @@ export class GamesService extends IndexedDbService<Game, number> {
       {field: 'id', header: 'ID', type: FieldType.number, hidden: true},
       {field: 'name', header: 'Name', type: FieldType.string}
     ]);
-    this.selectedGame = new BehaviorSubject<Game | undefined>({id: 1, name: 'Apple Cider Game'});
+    // this.selectedGame = new BehaviorSubject<Game | undefined>({id: 1, name: 'Apple Cider Game'});
+    this.selectedGame = new BehaviorSubject<Game | undefined>(undefined);
   }
 
   override getEntityName(entity: Game) {
