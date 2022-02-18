@@ -29,6 +29,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { TabViewModule } from 'primeng/tabview';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { FileUploadModule } from 'primeng/fileupload';
+import { MessageModule } from 'primeng/message';
 
 import { MonacoEditorModule } from 'ngx-monaco-editor';
 
@@ -85,7 +86,8 @@ import { SharedModule } from './shared/shared.module';
     DataServicesModule,
     SharedModule,
     ScrollPanelModule,
-    FileUploadModule
+    FileUploadModule,
+    MessageModule
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -5,6 +5,7 @@ import { CardTemplate } from "../types/card-template.type";
 import { Game } from "../types/game.type";
 import { PrintTemplate } from "../types/print-template.type";
 import { importInto, exportDB } from "dexie-export-import";
+import * as FileSaver from "file-saver";
 
 
 export class AppDB extends Dexie {
@@ -158,7 +159,10 @@ export class AppDB extends Dexie {
     public importDatabase(file: File) {
         // unsolved dexie with typescript issue: https://github.com/dexie/Dexie.js/issues/1262
         // @ts-ignore
-        importInto(db, file);
+        importInto(db, file, {
+            overwriteValues: true,
+            noTransaction: true
+        });
     }
 
     /**
@@ -169,10 +173,7 @@ export class AppDB extends Dexie {
         // unsolved dexie with typescript issue: https://github.com/dexie/Dexie.js/issues/1262
         // @ts-ignore
         const promisedBlob: Promise<Blob> = exportDB(this);
-        promisedBlob.then(blob => {
-            const url= window.URL.createObjectURL(blob);
-            window.open(url);
-        });
+        promisedBlob.then(blob => FileSaver.saveAs(blob, 'database.json'));
     }
 }
 

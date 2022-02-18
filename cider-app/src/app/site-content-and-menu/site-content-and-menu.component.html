@@ -12,4 +12,22 @@
         </ng-template>
     </div>
 </div>
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+<p-dialog header="Import Database" [(visible)]="importVisible" [style]="{width: '450px'}" [modal]="true">
+    <ng-template pTemplate="content">
+        <div class="p-field">
+            <p-message severity="warn" text="WARNING: Importing a database file will overwrite your existing database.
+                Export your existing database to a file before proceeding."></p-message>  
+        </div>
+        <div class="p-field">
+            <p-fileUpload name="databaseFile" mode="basic" accept=".json" [maxFileSize]="20000000" 
+                label="Import" chooseLabel="Import" class="inline-block" 
+                [customUpload]="true" (onSelect)="uploadFile($event)"></p-fileUpload>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="closeImportDialog()"></button>
+        <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="confirmDatabaseImport()"></button>
+    </ng-template>
+</p-dialog>
 

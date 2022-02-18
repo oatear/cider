@@ -86,8 +86,8 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
 
   public openDeleteDialog(entity : Entity) {
     this.confirmationService.confirm({
-      message: 'Are you sure you want to delete?',
-      header: 'Confirm',
+      message: 'Are you sure you want to delete this entity?',
+      header: 'Delete Entity',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.service?.delete((<any>entity)[this.service?.getIdField()]).then(deleted => {
