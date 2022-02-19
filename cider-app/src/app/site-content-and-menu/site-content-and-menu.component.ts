@@ -39,17 +39,7 @@ export class SiteContentAndMenuComponent implements OnInit {
           }, {
             label: 'Templates',
             icon: 'pi pi-pw pi-id-card',
-            items: [
-              {
-                label: 'Card Templates',
-                icon: 'pi pi-pw pi-id-card',
-                routerLink: [`/games/${selectedGame?.id}/card-templates`]
-              }, {
-                label: 'Print Templates',
-                icon: 'pi pi-pw pi-id-card',
-                routerLink: [`/games/${selectedGame?.id}/print-templates`]
-              }
-            ]
+            routerLink: [`/games/${selectedGame?.id}/card-templates`]
           }, {
             label: 'Assets',
             icon: 'pi pi-pw pi-folder',
@@ -66,6 +56,10 @@ export class SiteContentAndMenuComponent implements OnInit {
                 label: 'Export Database',
                 icon: 'pi pi-pw pi-file',
                 command: () => this.openExportDialog()
+              }, {
+                label: 'Export Cards',
+                icon: 'pi pi-pw pi-file',
+                routerLink: [`/games/${selectedGame?.id}/export-cards`]
               }
             ]
           }

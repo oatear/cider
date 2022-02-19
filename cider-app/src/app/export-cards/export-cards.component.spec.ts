@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PrintTemplatesComponent } from './print-templates.component';
+import { ExportCardsComponent } from './export-cards.component';
 
-describe('PrintTemplatesComponent', () => {
-  let component: PrintTemplatesComponent;
-  let fixture: ComponentFixture<PrintTemplatesComponent>;
+describe('ExportCardsComponent', () => {
+  let component: ExportCardsComponent;
+  let fixture: ComponentFixture<ExportCardsComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ PrintTemplatesComponent ]
+      declarations: [ ExportCardsComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(PrintTemplatesComponent);
+    fixture = TestBed.createComponent(ExportCardsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

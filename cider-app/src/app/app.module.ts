@@ -8,7 +8,6 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { GamesComponent } from './games/games.component';
 import { CardTemplatesComponent } from './card-templates/card-templates.component';
-import { PrintTemplatesComponent } from './print-templates/print-templates.component';
 import { CardsComponent } from './cards/cards.component';
 
 import { ButtonModule } from 'primeng/button';
@@ -43,13 +42,13 @@ import { EntityDialogComponent } from './entity-dialog/entity-dialog.component';
 import { DataServicesModule } from './data-services/data-services.module';
 import { CardPreviewComponent } from './card-preview/card-preview.component';
 import { SharedModule } from './shared/shared.module';
+import { ExportCardsComponent } from './export-cards/export-cards.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     GamesComponent,
     CardTemplatesComponent,
-    PrintTemplatesComponent,
     CardsComponent,
     SiteHeaderComponent,
     SiteFooterComponent,
@@ -58,7 +57,8 @@ import { SharedModule } from './shared/shared.module';
     AssetsComponent,
     EntityTableComponent,
     EntityDialogComponent,
-    CardPreviewComponent
+    CardPreviewComponent,
+    ExportCardsComponent
   ],
   imports: [
     BrowserModule,
