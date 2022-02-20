@@ -5,21 +5,29 @@
     border-left: 1px solid var(--surface-d);
     border-right: 1px solid var(--surface-d);
     display: flex;
-    align-items: center;
-    padding: 0 35px;
+    padding: 0 25px;
 
     .mainheader {
-        font-size: 2em;
-        font-weight: bold;
-        line-height: 70px;
-        vertical-align: middle;
-        padding-right: 35px;
+        padding-right: 25px;
         border-right: 1px solid var(--surface-d);
         height: 100%;
+        display: flex;
+        align-items: center;
+        .logo-image {
+            height: 60px;
+            margin-right: 15px;
+        }
+        .logo-text {
+            font-size: 2em;
+            font-weight: bold;
+            line-height: 70px;
+            vertical-align: middle;
+        }
     }
     .subheader {
         line-height: 70px;
         vertical-align: middle;
         padding-left: 35px;
+        flex: 1;
     }
 }
