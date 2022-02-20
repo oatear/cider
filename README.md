@@ -25,12 +25,18 @@ HTML/Handlebars and CSS. Use variables to reference attributes that
 are unique to each card. Use control logic to conditionally display
 specific parts of the template.
 
+![screen-1]
+
 ## 2. Tabulate
 Create attributes relevant to your game and fill out their values for each
 card.  Choose the front and back templates for each card.
 
+![screen-2]
+
 ## 3. Preview
 Preview the cards the way they look with the tabular data applied to the templates.
+
+![screen-3]
 
 ## 4. Export (Work in progress feature)
 Export the cards as individual images, or as card sheets ready to print.
@@ -52,6 +58,9 @@ The repository itself is protected by AGPL-3.0 to ensure the project remains ope
 [release]: https://badgen.net/github/release/oatear/cider
 [website]: https://img.shields.io/website?down_color=red&down_message=offline&up_color=green&up_message=online&url=https%3A%2F%2Foatear.github.io%2Fcider
 [logo-url]: docs/assets/cider-logo-80.png
+[screen-1]: cider-app/src/assets/screen-1.png
+[screen-2]: cider-app/src/assets/screen-2.png
+[screen-3]: cider-app/src/assets/screen-3.png
 [gh-url]: https://github.com/oatear/cider
 [license-url]: https://github.com/oatear/cider/blob/master/LICENSE.md
 [pages-url]: https://oatear.github.io/cider
