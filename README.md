@@ -1,122 +1,53 @@
-# cider
-Card IDE (CIDEr) - Design playing cards using HTML, CSS, and tabular data
+<div align="center">
 
-## Styling
-- Logo: red apple cider bottle
-- Colors: red, beige, dark brown
+[![][logo-url]][pages-url]
 
-## Interface
+## CIDEr
+Card IDE (CIDEr) - Design playing cards using `HTML/Handlebars`, `CSS`, and `tabular` data
 
-### 1. Define game
-- Display existing games
-- Create new game
+[![][license]][license-url] 
+[![][stars]][gh-url]
+[![][release]][gh-url]
+[![][last-commit]][gh-url]
+[![][website]][pages-url]
 
-### 2. Define card template (HTML, CSS)
-- Display existing templates
-- Create new template option
-- Edit template HTML
-- Edit template CSS
-- Display template live preview
+Website: [Start using CIDEr][pages-url]
 
-### 3. Edit tabular card data (CSV, XLSX)
-- Display table of existing card data
-- Create new field/column option
-- Remove existing field/column option
-- Inline table row editor
-- Remove existing card/row
+</div>
 
-### 4. Select/Define Print Template (HTML, CSS)
-- Display existing templates
-- Edit template HTML
-- Edit template CSS
-- Display template live preview (first x cards)
+## About CIDEr
+Cider was created to fill a niche between ease-of-use and 
 
-### 5. Export cards (PDF/PNG)
-- Select print template
-- Select cards to template
-- Export as pdf/png
+## 1. Template
+Create a template for each of the varying card fronts and card backs using
+HTML/Handlebars and CSS. Use variables to reference attributes that
+are unique to each card. Use control logic to conditionally display
+specific parts of the template.
 
-### 6. Preview cards
-- Scrollable listing of cards
-- Cards all rendered
+## 2. Tabulate
+Create attributes relevant to your game and fill out their values for each
+card.  Choose the card front and back templates for each card.
 
-## Web Application
-- Angular
-- PrimeNG
+## 3. Preview
+Preview the cards the way they look with the tabular data applied to the templates.
 
+## 4. Export (Work in progress feature)
+Export the cards as individual images, or as card sheets ready to print.
+Adjust the paper size and spacing between cards.  Choose the export format (PDF, PNG).
 
-## Database/Local Storage
+## Creative Ownership
+Anything you create using CIDEr is your own intellectual property.
+The website hosts nothing and all of your card data and assets sit
+in IndexedDB on your browser. You may export and import your entire
+database to a .json file to use between devices. You may host your own
+version of the CIDEr website by downloading the source code and running `ng serve`.
 
-### Games Table
-- ID
-- Name
-
-### Card Templates Table
-- ID
-- Game ID
-- Name
-- HTML
-- CSS
-
-### Print Templates Table
-- ID
-- Game ID
-- Name
-- HTML
-- CSS
-
-### Cards Table
-- ID
-- Game ID
-- Front Card Template ID
-- Back Card Template ID
-- Attributes (JSON)
-```
-  [{
-    field: "title",
-    type: "string"
-  }]
-```
-
-### Card Attributes
-- ID
-- Game ID
-- Field Name
-- Type
-
-### Card Attribute Values (Alternative to Attributes JSON)
-- Game ID
-- Card ID
-- Field Name
-- Value
-
-### Assets Table
-- ID
-- Game ID
-- File Name
-
-## Generics
-
-### Entity fields definition
-```
-  fields = [
-    {
-      field: 'title',
-      header: 'Title',
-      type: 'string',
-      required: true,
-      conversion: (entity) => entity.title
-    }
-  ]
-
-```
-
-### Generic Table (Create/Read/Update/Delete)
-Search/sort/filter on a table of entities
-Optionally allow CRUD operations
-The fields definition from the entity can be overwritten with custom fields
-
-### Generic Editor Modal (Create/Read/Update)
-Edit/create new entity dialog
-
-
+[last-commit]: https://img.shields.io/github/last-commit/oatear/cider
+[license]: https://badgen.net/github/license/oatear/cider
+[stars]: https://badgen.net/github/stars/oatear/cider
+[release]: https://badgen.net/github/release/oatear/cider
+[website]: https://img.shields.io/website?down_color=red&down_message=offline&up_color=green&up_message=online&url=https%3A%2F%2Foatear.github.io%2Fcider
+[logo-url]: /docs/assets/cider-logo-80.png
+[gh-url]: https://github.com/oatear/cider
+[license-url]: https://github.com/oatear/cider/blob/master/LICENSE.md
+[pages-url]: https://oatear.github.io/cider
