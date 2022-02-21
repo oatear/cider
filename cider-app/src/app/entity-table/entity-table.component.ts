@@ -84,7 +84,7 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
     this.dialogVisible = true;
   }
 
-  public openDeleteDialog(entity : Entity) {
+  public openDeleteDialog(entity : Entity, table: Table) {
     this.confirmationService.confirm({
       message: 'Are you sure you want to delete this entity?',
       header: 'Delete Entity',
@@ -92,6 +92,7 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
       accept: () => {
         this.service?.delete((<any>entity)[this.service?.getIdField()]).then(deleted => {
           this.messageService.add({severity:'success', summary: 'Successful', detail: 'Entity Deleted', life: 3000});
+          this.clear(table);
         });
       }
     });

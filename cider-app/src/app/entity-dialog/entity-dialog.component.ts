@@ -17,6 +17,7 @@ export class EntityDialogComponent<Entity, Identifier extends string | number> i
   @Input() visible: boolean = false;
   @Input() entity: Entity = {} as Entity;
   @Output() visibleChange: EventEmitter<boolean> = new EventEmitter<boolean>();
+  @Output() onCreate: EventEmitter<Entity> = new EventEmitter<Entity>();
   loading: boolean = false;
   FieldType = FieldType;
 
@@ -44,6 +45,7 @@ export class EntityDialogComponent<Entity, Identifier extends string | number> i
       this.loading = false;
       this.hideDialog();
       this.messageService.add({severity:'success', summary: 'Successful', detail: 'Entity Created', life: 3000});
+      this.onCreate.emit(entity);
     }).catch(error => {
       this.loading = false;
     });

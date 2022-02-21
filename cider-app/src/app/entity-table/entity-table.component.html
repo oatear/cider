@@ -46,10 +46,10 @@
             </ng-container>
             <td class="action-col">
                 <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button p-mr-2" (click)="openEditDialog(rowData)"></button>
-                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger" (click)="openDeleteDialog(rowData)"></button>
+                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger" (click)="openDeleteDialog(rowData, dt)"></button>
             </td>
         </tr>
     </ng-template>
 </p-table>
-<app-entity-dialog [service]="service" [(visible)]="dialogVisible" [entity]="entity"></app-entity-dialog>
+<app-entity-dialog [service]="service" [(visible)]="dialogVisible" [entity]="entity" (onCreate)="clear(dt)"></app-entity-dialog>
 <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>

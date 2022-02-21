@@ -34,7 +34,7 @@ card.  Choose the front and back templates for each card.
 ![screen-2]
 
 ## 3. Preview
-Preview the cards the way they look with the tabular data applied to the templates.
+Preview the way the cards look with the tabular data applied to the templates.
 
 ![screen-3]
 
