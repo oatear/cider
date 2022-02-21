@@ -27,6 +27,38 @@ specific parts of the template.
 
 ![screen-1]
 
+### 1.1 Handlebars Helpers
+
+#### Card Attributes
+Reference any card attribute (names are in kebab case 
+Ex. 'Crunch Power' -> 'crunch-power').
+
+    {{card.crunch-power}}
+
+#### Assets
+Reference any asset (names are in kebab case 
+Ex. 'Apple Image' -> 'apple-image').
+
+    <img src="{{assets.apple-image}}"/>
+
+#### Repeat
+Repeat the contained HTML `n` number of times.
+
+    {{#repeat 5}}
+        Any arbitrary HTML
+    {{/repeat}}
+
+#### Pad Zeros
+Pad a given number by `n` zeros.
+
+    {{#padZeros card.id 3}}{{/padZeros}}
+
+#### Index
+Index an object/array with another variable (Ex. assets[card.image]).
+
+    {{#index assets card.image}}{{/index}}
+
+
 ## 2. Tabulate
 Create attributes relevant to your game and fill out their values for each
 card.  Choose the front and back templates for each card.
