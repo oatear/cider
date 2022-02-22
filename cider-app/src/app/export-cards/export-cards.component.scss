@@ -1,4 +1,25 @@
-:host ::ng-deep .page-card {
-    margin: 25px;
-    min-height: calc(100vh - 140px - 58px - 50px);
+:host ::ng-deep .page-wrapper {
+    > p-card {
+        flex: 1;
+        margin: 25px;
+        .page-card {
+            height: 100%;
+        }
+        &:first-child {
+            margin-right: 0;
+        }
+    }
+}
+    
+
+.page-wrapper {
+    min-height: calc(100vh - 140px - 58px - 0px);
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+}
+
+.settings-panel {
+    // width: 500px;
 }

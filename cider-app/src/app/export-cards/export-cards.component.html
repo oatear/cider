@@ -1,5 +1,41 @@
-<p-card styleClass="page-card" header="Export Cards" subheader="Export the cards in this game">
-    <div class="p-field">
-        <!-- <p-selectButton [options]="cities" [(ngModel)]="selectedCity" optionLabel="name"></p-selectButton> -->
-    </div>
-</p-card>
+<div class="page-wrapper">
+    <p-card styleClass="page-card" header="Export Preview" subheader="">
+    
+    </p-card>
+    <p-card styleClass="page-card" header="Export Settings" subheader="Configure the export parameters">
+        <div class="settings-panel p-fluid">
+            <div class="p-field">
+                <p-selectButton [options]="exportOptions" [(ngModel)]="exportType" optionLabel="name" optionValue="value"></p-selectButton>
+            </div>
+            <ng-container *ngIf="exportType === 'sheet-export'">
+                <div class="p-field">
+                    <p-selectButton [options]="paperOptions" [(ngModel)]="selectedPaper" optionLabel="name"
+                        (onChange)="changePaperType()"></p-selectButton>
+                </div>
+                <div class="p-field">
+                    <label [for]="paperWidth">Paper Width (mm)</label>
+                    <input type="text" pInputText [id]="paperWidth" [(ngModel)]="paperWidth" required autofocus 
+                        [disabled]="selectedPaper.name !== 'Custom'"/>
+                </div>
+                <div class="p-field">
+                    <label [for]="paperHeight">Paper Height (mm)</label>
+                    <input type="text" pInputText [id]="paperHeight" [(ngModel)]="paperHeight" required autofocus 
+                    [disabled]="selectedPaper.name !== 'Custom'"/>
+                </div>
+                <div class="p-field">
+                    <label [for]="paperMargins">Paper Margins (mm)</label>
+                    <input type="text" pInputText [id]="paperMargins" [(ngModel)]="paperMargins" required autofocus />
+                </div>
+                <div class="p-field">
+                    <label [for]="cardMargins">Card Margins (mm)</label>
+                    <input type="text" pInputText [id]="cardMargins" [(ngModel)]="cardMargins" required autofocus />
+                </div>
+            </ng-container>
+            <ng-container *ngIf="exportType === 'singular-export'">
+        
+            </ng-container>
+            
+            <button pButton pRipple label="Export" icon="pi pi-file" class="p-button p-mr-2" (click)="export()"></button>
+        </div>
+    </p-card>
+</div>
