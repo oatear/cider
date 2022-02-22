@@ -9,8 +9,7 @@
             margin-right: 0;
         }
     }
-}
-    
+} 
 
 .page-wrapper {
     min-height: calc(100vh - 140px - 58px - 0px);
@@ -22,4 +21,20 @@
 
 .settings-panel {
     // width: 500px;
+}
+
+.preview-wrapper {
+    width: calc(50vw - 70px);
+    height: calc(100vh - 350px);
+    overflow: hidden;
+    // display: flex;
+    // align-items: center;
+    .preview-page {
+        transform-origin: center;
+        transform: scale(0.25);
+        transform: translate(-50%, -50%) scale(0.25) 
+            translate(calc((50vw - 70px)/2/0.25), calc((100vh - 350px)/2/0.25));
+        background-color: white;
+        overflow: hidden;
+    }
 }
