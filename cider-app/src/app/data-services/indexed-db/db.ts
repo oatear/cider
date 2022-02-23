@@ -125,6 +125,13 @@ export class AppDB extends Dexie {
         const promisedBlob: Promise<Blob> = exportDB(this);
         promisedBlob.then(blob => FileSaver.saveAs(blob, 'database.json'));
     }
+
+    /**
+     * Delete all data in database and return to default data.
+     */
+    public resetDatabase() {
+        return db.delete().then (()=>db.open());
+    }
 }
 
 

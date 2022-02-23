@@ -49,6 +49,11 @@ export class SiteContentAndMenuComponent implements OnInit {
             icon: 'pi pi-pw pi-file',
             items: [
               {
+                label: 'Reset Database',
+                icon: 'pi pi-pw pi-file',
+                command: () => this.openResetDialog()
+              },
+              {
                 label: 'Import Database',
                 icon: 'pi pi-pw pi-file',
                 command: () => this.openImportDialog()
@@ -96,6 +101,18 @@ export class SiteContentAndMenuComponent implements OnInit {
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         db.exportDatabase();
+      }
+    });
+  }
+
+  public openResetDialog() {
+    this.confirmationService.confirm({
+      message: 'Are you sure that you wish to reset the entire database?'
+        + ' This will delete all of your data.',
+      header: 'Reset Database',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        db.resetDatabase();
       }
     });
   }
