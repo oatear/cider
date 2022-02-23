@@ -1,4 +1,6 @@
-<div #preview class="card-preview card-{{card.id}}" [innerHtml]="template | cardToHtml: card: assetUrls"
-    [style.width]="initialWidth ? initialWidth * scale + 'px': 'auto'" 
-    [style.height]="initialHeight ? initialHeight * scale + 'px': 'auto'"
-    [style.transform]="'scale(' + scale + ')'"></div>
+<div class="scale-wrapper"
+    [style.width]="scale !== 1.0 && initialWidth ? initialWidth * scale + 'px': 'initial'" 
+    [style.height]="scale !== 1.0 && initialHeight ? initialHeight * scale + 'px': 'initial'">
+    <div #preview class="card-preview card-{{card.id}}" [innerHtml]="template | cardToHtml: card: assetUrls"
+        [style.transform]="'scale(' + scale + ')'"></div>
+</div>

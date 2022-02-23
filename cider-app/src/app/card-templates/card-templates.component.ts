@@ -79,6 +79,10 @@ export class CardTemplatesComponent implements OnInit {
     this.cardsService.getAll().then(cards => this.cards = cards);
   }
 
+  public updateTemplatesList() {
+    this.service.getAll().then(templates => this.templates = templates);
+  }
+
   public changeZoom(change: number) {
     this.zoom += change;
     if (this.zoom < 0.1) {
@@ -134,6 +138,7 @@ export class CardTemplatesComponent implements OnInit {
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.service?.delete((<any>entity)[this.service?.getIdField()]).then(deleted => {
+          this.updateTemplatesList();
           this.messageService.add({severity:'success', summary: 'Successful', detail: 'Entity Deleted', life: 3000});
         });
       }

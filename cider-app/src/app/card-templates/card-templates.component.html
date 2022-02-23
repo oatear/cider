@@ -54,6 +54,7 @@
         </div>
     </div>
 </div>
-<app-entity-dialog [service]="service" [(visible)]="dialogVisible" [entity]="editTemplate"></app-entity-dialog>
+<app-entity-dialog [service]="service" [(visible)]="dialogVisible" [entity]="editTemplate"
+    (onCreate)="updateTemplatesList()"></app-entity-dialog>
 <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
 <p-dialog header="Information" [style]="{width: '450px'}" [(visible)]="infoVisible">{{infoText}}</p-dialog>

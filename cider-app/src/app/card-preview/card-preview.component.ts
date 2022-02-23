@@ -27,6 +27,7 @@ export class CardPreviewComponent implements OnInit, DoCheck {
       && this.element?.nativeElement.offsetHeight) {
         this.initialWidth = this.element?.nativeElement.offsetWidth;
         this.initialHeight = this.element?.nativeElement.offsetHeight;
+        console.log('initial dimensions: ', this.initialWidth, this.initialHeight);
     }
   }
 

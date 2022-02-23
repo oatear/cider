@@ -54,7 +54,7 @@ export class AppDB extends Dexie {
             gameId: gameId,
             description: '',
             css: templateCssBack,
-            html: templateCssBack
+            html: templateHtmlBack
         });
 
         await db.table(AppDB.CARD_ATTRIBUTES_TABLE).bulkAdd([
