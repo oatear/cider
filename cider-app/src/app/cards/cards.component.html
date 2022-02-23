@@ -13,11 +13,9 @@
                 <span>Thumbnails</span>
             </ng-template>
             <div class="card-thumbnails">
-                <!-- <p-scrollPanel> -->
-                    <ng-container *ngFor="let card of cards">
-                        <app-card-preview [card]="card" [template]="card.frontCardTemplateId | entity: templatesService | async"></app-card-preview>
-                    </ng-container>
-                <!-- </p-scrollPanel> -->
+                <ng-container *ngFor="let card of cards">
+                    <app-card-preview [card]="card" [scale]="0.3" [template]="card.frontCardTemplateId | entity: templatesService | async"></app-card-preview>
+                </ng-container>
             </div>
         </p-tabPanel>
         <p-tabPanel>
