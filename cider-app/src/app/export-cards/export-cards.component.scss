@@ -44,6 +44,8 @@ $preview-scale: 0.10;
     display: flex;
     flex-wrap: wrap;
     overflow-wrap: normal;
+    flex-direction: row;
+    align-content: flex-start;
     app-card-preview {
         float: left;
         margin: 0;
