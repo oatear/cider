@@ -72,7 +72,8 @@ export class CardToHtmlPipe implements PipeTransform {
     if (!html || !css) {
       return '';
     }
-    let sanitizedStyle = css.replace(/([^{}]*\{)/g, `.card-preview.card-${card.id} $1`).replace(/\!important/g, '');
+    let cardId = card?.id ? card?.id : 0;
+    let sanitizedStyle = css.replace(/([^{}]*\{)/g, `.card-preview.card-${cardId} $1`).replace(/\!important/g, '');
     let safeStyle = this.domSanitizer.sanitize(SecurityContext.STYLE, sanitizedStyle);
     // let safeHtml = this.domSanitizer.sanitize(SecurityContext.HTML, html);
     let safeHtml = html;
