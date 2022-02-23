@@ -3,7 +3,7 @@
 <img src="docs/assets/cider-logo-374.png" width=150px>
 
 ## CIDEr
-Card IDE (CIDEr) - Design playing cards using `HTML/Handlebars`, `CSS`, and `tabular` data.
+Card IDE (CIDEr) - Design game cards using `HTML/Handlebars`, `CSS`, and `tabular` data.
 
 [![][license]][license-url] 
 [![][stars]][gh-url]

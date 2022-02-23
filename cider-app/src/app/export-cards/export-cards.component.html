@@ -1,9 +1,12 @@
 <div class="page-wrapper">
     <p-card styleClass="page-card" header="Export Preview" subheader="">
         <div class="preview-wrapper">
-            <div class="preview-page" [style.width.mm]="paperWidth" [style.height.mm]="paperHeight"
-                [style.padding.mm]="paperMargins">
-    
+            <div class="preview-page" [style.width.px]="paperWidth * paperDpi" [style.height.px]="paperHeight * paperDpi"
+                [style.padding.px]="paperMargins * paperDpi">
+                <ng-container *ngFor="let card of cards">
+                    <app-card-preview [card]="card" [style.margin.px]="cardMargins * paperDpi"
+                        [template]="card.frontCardTemplateId | entity: templatesService | async"></app-card-preview>
+                </ng-container>
             </div>
         </div>
     </p-card>
@@ -14,28 +17,35 @@
             </div>
             <ng-container *ngIf="exportType === 'sheet-export'">
                 <div class="p-field">
-                    <p-selectButton [options]="paperOptions" [(ngModel)]="selectedPaper" optionLabel="name"
-                        (onChange)="changePaperType()"></p-selectButton>
+                    <p-dropdown [options]="paperOptions" [(ngModel)]="selectedPaper" optionLabel="name"
+                        (onChange)="changePaperType()"></p-dropdown>
                 </div>
                 <div class="p-d-flex p-flex-row">
                     <div class="p-field p-mr-2">
-                        <label [for]="paperWidth">Paper Width (mm)</label>
+                        <label [for]="paperWidth">Paper Width (inches)</label>
                         <input type="text" pInputText [id]="paperWidth" [(ngModel)]="paperWidth" required autofocus 
                             [disabled]="selectedPaper.name !== 'Custom'"/>
                     </div>
                     <div class="p-field">
-                        <label [for]="paperHeight">Paper Height (mm)</label>
+                        <label [for]="paperHeight">Paper Height (inches)</label>
                         <input type="text" pInputText [id]="paperHeight" [(ngModel)]="paperHeight" required autofocus 
                         [disabled]="selectedPaper.name !== 'Custom'"/>
                     </div>
                 </div>
-                <div class="p-field">
-                    <label [for]="paperMargins">Paper Margins (mm)</label>
-                    <input type="text" pInputText [id]="paperMargins" [(ngModel)]="paperMargins" required autofocus />
+                <div class="p-d-flex p-flex-row">
+                    <div class="p-field p-mr-2">
+                        <label [for]="paperMargins">Paper Margins (inches)</label>
+                        <input type="text" pInputText [id]="paperMargins" [(ngModel)]="paperMargins" required autofocus />
+                    </div>
+                    <div class="p-field">
+                        <label [for]="cardMargins">Card Margins (inches)</label>
+                        <input type="text" pInputText [id]="cardMargins" [(ngModel)]="cardMargins" required autofocus />
+                    </div>
                 </div>
                 <div class="p-field">
-                    <label [for]="cardMargins">Card Margins (mm)</label>
-                    <input type="text" pInputText [id]="cardMargins" [(ngModel)]="cardMargins" required autofocus />
+                    <label [for]="paperDpi">Paper DPI (dots per inch)</label>
+                    <input type="text" pInputText [id]="paperDpi" [(ngModel)]="paperDpi" required autofocus />
+                    <p-message severity="info" text="Make sure this DPI is the same target DPI for the card templates."></p-message>
                 </div>
             </ng-container>
             <ng-container *ngIf="exportType === 'singular-export'">

@@ -35,13 +35,14 @@ textarea {
 }
 
 .preview-space {
-    height: calc(100% - 70px);
-    display: flex;
-    align-items: center;
+    height: calc(100vh - 388px);
+    // display: flex;
+    // align-items: center;
 }
 
 :host ::ng-deep app-card-preview {
-    margin: auto;
+    display: inline-block;
+    transform-origin: center;
 }
 
 :host ::ng-deep p-toolbar p-dropdown {

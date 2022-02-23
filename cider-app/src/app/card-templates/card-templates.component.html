@@ -27,7 +27,8 @@
                 </div>
                 <div class="preview-space" >
                     <app-card-preview [card]="selectedCard" [template]="selectedTemplate" 
-                        [style]="{transform: 'scale(' + zoom + ')'}"></app-card-preview>
+                        [style]="{transform: 'translate(-50%, -50%) scale(' + zoom + ') translate(calc(399px/2/' + zoom + '), calc((100vh - 388px)/2/' + zoom + '))'}"
+                        ></app-card-preview>
                 </div>
             </p-panel>
         </div>

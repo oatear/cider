@@ -23,6 +23,8 @@
     // width: 500px;
 }
 
+$preview-scale: 0.15;
+
 .preview-wrapper {
     width: calc(50vw - 70px);
     height: calc(100vh - 350px);
@@ -31,10 +33,19 @@
     // align-items: center;
     .preview-page {
         transform-origin: center;
-        transform: scale(0.25);
-        transform: translate(-50%, -50%) scale(0.25) 
-            translate(calc((50vw - 70px)/2/0.25), calc((100vh - 350px)/2/0.25));
+        transform: translate(-50%, -50%) scale($preview-scale) 
+            translate(calc((50vw - 70px)/2/$preview-scale), calc((100vh - 350px)/2/$preview-scale));
         background-color: white;
         overflow: hidden;
+    }
+}
+
+:host ::ng-deep .preview-page {
+    display: flex;
+    flex-wrap: wrap;
+    overflow-wrap: normal;
+    app-card-preview {
+        float: left;
+        margin: 0;
     }
 }

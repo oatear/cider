@@ -28,7 +28,7 @@ export class CardTemplatesComponent implements OnInit {
   dialogVisible: boolean = false;
   infoVisible: boolean = false;
   infoText: string = '';
-  zoom: number = 1.0;
+  zoom: number = 0.3;
 
   constructor(private domSanitizer: DomSanitizer, 
     public service: CardTemplatesService,
