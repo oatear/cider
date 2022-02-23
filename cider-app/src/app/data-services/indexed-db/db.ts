@@ -41,70 +41,20 @@ export class AppDB extends Dexie {
             name: 'Apple Cider Game'
         });
 
-        const templateCss  = `
-            .card {
-                width: 300px;
-                height: 400px;
-                border-radius: 10px;
-                text-align: center;
-                display: flex;
-                flex-direction: column;
-                font-weight: 600;
-                background-color: hsl({{card.hue}}, 23%, 20%);
-                border: 15px solid hsl({{card.hue}}, 23%, 10%);
-                color: hsl({{card.hue}}, 23%, 70%);
-            }
-            .card .header {
-                height: 120px;
-                font-size: 25px;
-                font-weight: 600;
-                padding: 10px;
-                padding-top: 60px;
-            }
-            .card .apple {
-                height: 40px;
-                font-size: 60px;
-            }
-            .card .content {
-                flex: 1;
-                padding: 10px;
-                padding-top: 60px;
-            }
-            .card .footer {
-                height: 10px;
-                text-align: right;
-                padding: 25px;
-                padding-right: 15px;
-            }
-        `;
-
-        const templateHtml = `
-            <div class="card">
-                <div class="header">{{card.name}}</div>
-                <div class="apple">◯</div>
-                <div class="content">{{card.description}}</div>
-                <div class="footer">A{{card.id}}</div>
-            </div>
-        `;
-
         const frontCardTemplateId : IndexableType = await db.table(AppDB.CARD_TEMPLATES_TABLE).add({
             name: 'Apple Front',
             gameId: gameId,
             description: '',
-            css: templateCss,
-            html: templateHtml
+            css: templateCssFront,
+            html: templateHtmlFront
         });
 
         const backCardTemplateId : IndexableType = await db.table(AppDB.CARD_TEMPLATES_TABLE).add({
             name: 'Apple Back',
             gameId: gameId,
             description: '',
-            css: templateCss,
-            html: `
-                <div class="card">
-                    <div class="content">Apple Cider Game</div>
-                </div>
-            `
+            css: templateCssBack,
+            html: templateCssBack
         });
 
         await db.table(AppDB.CARD_ATTRIBUTES_TABLE).bulkAdd([
@@ -176,5 +126,76 @@ export class AppDB extends Dexie {
         promisedBlob.then(blob => FileSaver.saveAs(blob, 'database.json'));
     }
 }
+
+
+const templateCssFront  = 
+`.card {
+    width: 825px;
+    height: 1125px;
+    border-radius: 25px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    background-color: hsl({{card.hue}}, 23%, 20%);
+    border: 45px solid hsl({{card.hue}}, 23%, 10%);
+    color: hsl({{card.hue}}, 23%, 70%);
+    font-weight: 600;
+    font-size: 50px;
+}
+.card .header {
+    height: 300px;
+    font-size: 80px;
+    font-weight: 600;
+    padding: 10px;
+    padding-top: 60px;
+}
+.card .apple {
+    height: 250px;
+    font-size: 150px;
+}
+.card .content {
+    flex: 1;
+    padding: 50px;
+    padding-top: 60px;
+}
+.card .footer {
+    height: 200px;
+    text-align: right;
+    padding: 100px;
+    padding-right: 50px;
+}`;
+
+const templateHtmlFront = 
+`<div class="card">
+    <div class="header">{{card.name}}</div>
+    <div class="apple">◯</div>
+    <div class="content">{{card.description}}</div>
+    <div class="footer">A{{#padZeros card.id 3}}{{/padZeros}}</div>
+</div>`;
+
+const templateCssBack =
+`.card {
+    width: 825px;
+    height: 1125px;
+    border-radius: 25px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    background-color: hsl(220, 24%, 20%);
+    border: 45px solid hsl(220, 23%, 10%);
+    color: hsl(220, 23%, 70%);
+    font-weight: 600;
+    font-size: 100px;
+}
+.card .content {
+    flex: 1;
+    padding: 50px;
+    padding-top: 350px;
+}`
+
+const templateHtmlBack =
+`<div class="card">
+    <div class="content">Apple Cider Game</div>
+</div>`
 
 export const db = new AppDB();

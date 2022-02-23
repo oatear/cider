@@ -6,6 +6,46 @@ import { CardsService } from '../data-services/services/cards.service';
 import { CardTemplate } from '../data-services/types/card-template.type';
 import { Card } from '../data-services/types/card.type';
 
+const templateCssFront  = 
+`.card {
+    width: 825px;
+    height: 1125px;
+    border-radius: 25px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    background-color: hsl(0, 0%, 20%);
+    border: 45px solid hsl(0, 0%, 10%);
+    color: hsl(0, 0%, 70%);
+    font-weight: 600;
+    font-size: 50px;
+}
+.card .header {
+    height: 300px;
+    font-size: 80px;
+    font-weight: 600;
+    padding: 10px;
+    padding-top: 60px;
+}
+.card .content {
+    flex: 1;
+    padding: 50px;
+    padding-top: 60px;
+}
+.card .footer {
+    height: 200px;
+    text-align: right;
+    padding: 100px;
+    padding-right: 50px;
+}`;
+
+const templateHtmlFront = 
+`<div class="card">
+    <div class="header">{{card.name}}</div>
+    <div class="content">Card description</div>
+    <div class="footer">A{{#padZeros card.id 3}}{{/padZeros}}</div>
+</div>`;
+
 @Component({
   selector: 'app-card-templates',
   templateUrl: './card-templates.component.html',
@@ -13,10 +53,8 @@ import { Card } from '../data-services/types/card.type';
   providers: [MessageService, ConfirmationService]
 })
 export class CardTemplatesComponent implements OnInit {
-  static readonly DEFAULT_HTML: string = '<div>\n\t<h2>Poison Apple</h2>\n\t<p>Activate this card now.</p>\n</div>';
-  static readonly DEFAULT_CSS: string = 'div {\n\twidth: 300px;\n\theight: 400px;\n\t'
-    + 'background-color: rgb(37, 37, 37);\n\tborder: 1px solid black;\n\tpadding: 25px;\n}\n'
-    + 'h2 {\n\tcolor: rgb(129, 156, 89);\n}';
+  static readonly DEFAULT_HTML: string = templateHtmlFront;
+  static readonly DEFAULT_CSS: string = templateCssFront;
 
   htmlEditorOptions: any = {theme: 'vs-dark', language: 'handlebars', automaticLayout: true};
   cssEditorOptions: any = {theme: 'vs-dark', language: 'css', automaticLayout: true};

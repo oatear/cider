@@ -29,13 +29,12 @@ export class AssetsService extends GamesChildService<Asset, number> {
     this.getAll().then(assets => {
       let assetUrls = {} as any;
       assets.forEach(asset => assetUrls[this.convertNameToField(asset.name)] = URL.createObjectURL(asset.file));
-      console.log('assetUrls: ', assetUrls);
       return assetUrls;
     }).then(assetUrls => this.assetUrls.next(assetUrls));
   }
 
   private convertNameToField(name: string): string {
-    return name.replace(/ /g, '').toLowerCase();
+    return name.trim().replace(/ /g, '-').toLowerCase();
   }
   
   override getEntityName(entity: Asset) {
