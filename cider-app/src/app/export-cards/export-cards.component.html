@@ -3,9 +3,12 @@
         <div class="preview-wrapper">
             <div class="preview-page" [style.width.px]="paperWidth * paperDpi" [style.height.px]="paperHeight * paperDpi"
                 [style.padding.px]="paperMargins * paperDpi">
-                <ng-container *ngFor="let card of cards">
-                    <app-card-preview [card]="card" [style.margin.px]="cardMargins * paperDpi"
-                        [template]="card.frontCardTemplateId | entity: templatesService | async"></app-card-preview>
+                <ng-container *ngFor="let card of cards; let i = index">
+                    <div class="card-wrapper" [style.margin.px]="cardMargins * paperDpi"
+                        [style.opacity]="i >= cardsPerPage ? '0' : '100%'">
+                        <app-card-preview #cardPreviews [card]="card" 
+                            [template]="card.frontCardTemplateId | entity: templatesService | async"></app-card-preview>
+                    </div>
                 </ng-container>
             </div>
         </div>
@@ -41,6 +44,10 @@
                         <label [for]="cardMargins">Card Margins (inches)</label>
                         <input type="text" pInputText [id]="cardMargins" [(ngModel)]="cardMargins" required autofocus />
                     </div>
+                </div>
+                <div class="p-field">
+                    <label [for]="cardsPerPage">Cards per Page</label>
+                    <input type="text" pInputText [id]="cardsPerPage" [(ngModel)]="cardsPerPage" required autofocus />
                 </div>
                 <div class="p-field">
                     <label [for]="paperDpi">Paper DPI (dots per inch)</label>
