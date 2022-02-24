@@ -3,9 +3,9 @@ import { CardPreviewComponent } from '../card-preview/card-preview.component';
 import { CardTemplatesService } from '../data-services/services/card-templates.service';
 import { CardsService } from '../data-services/services/cards.service';
 import { Card } from '../data-services/types/card.type';
-import * as htmlToImage from 'html-to-image';
+import { DomToImage } from 'dom-to-image';
 import * as FileSaver from 'file-saver';
-import { downloadZip } from 'client-zip'
+import * as JSZip from 'jszip'
 import * as pdfMake from 'pdfmake/build/pdfmake';
 
 @Component({
@@ -57,38 +57,61 @@ export class ExportCardsComponent implements OnInit {
   }
 
   public export() {
-
     if (this.exportType === ExportCardsComponent.SHEET_EXPORT) {
-      Promise.all(this.cardPreviews.map(cardPreview => 
-        htmlToImage.toPng((<any>cardPreview).element.nativeElement))).then(images => images.map(image => {
-          return { image: image, margin: this.cardMargins};
-        })).then(docImages => {
-          const docDefinition = {
-            content: docImages,
-            pageSize: {width: this.paperWidth * this.paperDpi, height: this.paperHeight * this.paperDpi},
-            pageMargins: this.paperMargins * this.paperDpi
-          };
-          pdfMake.createPdf(docDefinition).download('card-sheets.pdf');
-        });
+      this.exportCardSheets();
     } else {
-      const frontCards = this.frontCards.map(async cardPreview => {
-        const imgUri = await htmlToImage.toPng((<any>cardPreview).element.nativeElement);
-        const imgName = 'front-' + cardPreview.card?.id + '.png';
-        return this.dataUrlToFile(imgUri, imgName);
-      });
-      const backCards = this.backCards.map(async cardPreview => {
-        const imgUri = await htmlToImage.toPng((<any>cardPreview).element.nativeElement);
-        const imgName = 'back-' + cardPreview.card?.id + '.png';
-        return this.dataUrlToFile(imgUri, imgName);
-      });
-      Promise.all(frontCards.concat(backCards)).then(promisedImages => 
-        downloadZip(promisedImages).blob().then(blob => FileSaver.saveAs(blob, 'cards.zip')));
+      this.exportIndividualImages();
     }
   }
 
+  private exportCardSheets() {
+    Promise.all(this.cardPreviews.map(cardPreview => 
+      DomToImage.toPng((<any>cardPreview).element.nativeElement))).then(images => images.map(image => {
+        return { image: image, margin: this.cardMargins};
+      })).then(docImages => {
+        const docDefinition = {
+          content: docImages,
+          pageSize: {width: this.paperWidth * this.paperDpi, height: this.paperHeight * this.paperDpi},
+          pageMargins: this.paperMargins * this.paperDpi
+        };
+        pdfMake.createPdf(docDefinition).download('card-sheets.pdf');
+      });
+  }
+
+  private exportIndividualImages() {
+    const frontCards = this.frontCards.map(async cardPreview => {
+      const imgUri = await DomToImage.toPng((<any>cardPreview).element.nativeElement);
+      const imgName = 'front-' + cardPreview.card?.id + '.png';
+      return this.dataUrlToFile(imgUri, imgName);
+    });
+    const backCards = this.backCards.map(async cardPreview => {
+      const imgUri = await DomToImage.toPng((<any>cardPreview).element.nativeElement);
+      const imgName = 'back-' + cardPreview.card?.id + '.png';
+      return this.dataUrlToFile(imgUri, imgName);
+    });
+    Promise.all(frontCards.concat(backCards)).then(promisedImages => 
+      this.zipFiles(promisedImages).then(blob => FileSaver.saveAs(blob, 'cards.zip')));
+  }
+
   /**
-  * Convert dataUrl to File
-  */
+   * Zip up files
+   * 
+   * @param files 
+   * @returns 
+   */
+  private zipFiles(files: File[]) {
+    const zip = new JSZip();
+    files.forEach(file => zip.file(file.name, file));
+    return zip.generateAsync({ type: 'blob' });
+  }
+
+  /**
+   * Convert dataUrl to File
+   * 
+   * @param dataUrl 
+   * @param fileName 
+   * @returns 
+   */
   private dataUrlToFile(dataUrl: string, fileName: string) {
     let byteString;
     const mime = dataUrl.split(',')[0].split(':')[1].split(';')[0];
