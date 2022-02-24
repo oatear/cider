@@ -46,14 +46,15 @@ export class CardToHtmlPipe implements PipeTransform {
     });
   }
 
-  transform(template: CardTemplate, card: Card, assetUrls?: any): SafeHtml {
+  transform(template: CardTemplate, card: Card, assetUrls?: any, back?: boolean): SafeHtml {
     if (!template || !card) {
       return '';
     }
     // console.log('cardToHtml: ', card, template, assetUrls);
     return this.safeHtmlAndStyle(card, 
       this.executeHandlebars(template.html, card, assetUrls), 
-      this.executeHandlebars(template.css, card, assetUrls));
+      this.executeHandlebars(template.css, card, assetUrls),
+      back);
   }
 
   private executeHandlebars(htmlTemplate: string, card: Card, assetUrls?: any): string {
@@ -68,12 +69,12 @@ export class CardToHtmlPipe implements PipeTransform {
     }
   }
 
-  private safeHtmlAndStyle(card: Card, html: string, css: string): SafeHtml {
+  private safeHtmlAndStyle(card: Card, html: string, css: string, back?: boolean): SafeHtml {
     if (!html || !css) {
       return '';
     }
     let cardId = card?.id ? card?.id : 0;
-    let sanitizedStyle = css.replace(/([^{}]*\{)/g, `.card-preview.card-${cardId} $1`).replace(/\!important/g, '');
+    let sanitizedStyle = css.replace(/([^{}]*\{)/g, `.card-preview.card-${(back ? 'back-' : 'front-') + cardId} $1`).replace(/\!important/g, '');
     let safeStyle = this.domSanitizer.sanitize(SecurityContext.STYLE, sanitizedStyle);
     // let safeHtml = this.domSanitizer.sanitize(SecurityContext.HTML, html);
     let safeHtml = html;

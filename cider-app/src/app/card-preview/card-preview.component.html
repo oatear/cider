@@ -1,6 +1,7 @@
 <div class="scale-wrapper"
     [style.width]="scale !== 1.0 && initialWidth ? initialWidth * scale + 'px': 'initial'" 
     [style.height]="scale !== 1.0 && initialHeight ? initialHeight * scale + 'px': 'initial'">
-    <div #preview class="card-preview card-{{card.id ? card.id : 0}}" [innerHtml]="template | cardToHtml: card: assetUrls"
+    <div #preview class="card-preview card-{{(back ? 'back-' : 'front-') + (card.id ? card.id : 0)}}" 
+        [innerHtml]="template | cardToHtml: card: assetUrls: back"
         [style.transform]="'scale(' + scale + ')'"></div>
 </div>

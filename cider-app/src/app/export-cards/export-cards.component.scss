@@ -24,6 +24,7 @@
 }
 
 $preview-scale: 0.10;
+$preview-individual-scale: 0.05;
 
 .preview-wrapper {
     width: calc(50vw - 70px);
@@ -37,6 +38,27 @@ $preview-scale: 0.10;
             translate(calc((50vw - 70px)/2/$preview-scale), calc((100vh - 350px)/2/$preview-scale));
         background-color: white;
         overflow: hidden;
+    }
+    .preview-individuals {
+        transform-origin: center;
+        transform: translate(-50%, -50%) scale($preview-individual-scale) 
+            translate(calc((50vw - 70px)/2/$preview-individual-scale), calc((100vh - 350px)/2/$preview-individual-scale));
+        overflow: hidden;
+        display: flex;
+        flex-wrap: wrap;
+        overflow-wrap: normal;
+        flex-direction: row;
+        align-content: flex-start;
+        width: calc((50vw - 70px) * 1/$preview-individual-scale);
+        height: calc((100vh - 350px) * 1/$preview-individual-scale);
+        .card-wrapper {
+            margin: 50px;
+        }
+        app-card-preview {
+            float: left;
+            margin: 0;
+            height: fit-content;
+        }
     }
 }
 

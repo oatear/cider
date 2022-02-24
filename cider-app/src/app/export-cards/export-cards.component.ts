@@ -17,6 +17,8 @@ export class ExportCardsComponent implements OnInit {
   private static readonly SINGULAR_EXPORT = 'singular-export';
   private static readonly SHEET_EXPORT = 'sheet-export';
   @ViewChildren('cardPreviews') cardPreviews: QueryList<CardPreviewComponent> = {} as QueryList<CardPreviewComponent>;
+  @ViewChildren('frontCards') frontCards: QueryList<CardPreviewComponent> = {} as QueryList<CardPreviewComponent>;
+  @ViewChildren('backCards') backCards: QueryList<CardPreviewComponent> = {} as QueryList<CardPreviewComponent>;
 
   public exportType: string = ExportCardsComponent.SHEET_EXPORT;
   public exportOptions: RadioOption[] = [
@@ -24,11 +26,12 @@ export class ExportCardsComponent implements OnInit {
     { name: 'Individual Images', value: ExportCardsComponent.SINGULAR_EXPORT}
   ];
   public paperOptions: PaperType[] = [
-    { name: 'US Letter (Landscape)', width: 11, height: 8.5}, 
-    { name: 'US Letter (Profile)', width: 8.5, height: 11}, 
-    { name: 'A4 (Landscape)', width: 10, height: 8}, 
-    { name: 'A4 (Profile)', width: 8, height: 10}, 
-    { name: 'Custom', width: 8.5, height: 11}
+    { name: 'US Letter (Landscape)', width: 8.5, height: 11, orientation: 'landscape'}, 
+    { name: 'US Letter (Portrait)', width: 8.5, height: 11, orientation: 'portrait'}, 
+    { name: 'A4 (Landscape)', width: 8, height: 10, orientation: 'landscape'}, 
+    { name: 'A4 (Portrait)', width: 8, height: 10, orientation: 'portrait'}, 
+    { name: 'Custom (Landscape)', width: 8.5, height: 11, orientation: 'landscape'}, 
+    { name: 'Custom (Portrait)', width: 8.5, height: 11, orientation: 'portrait'}
   ];
   public selectedPaper: PaperType = this.paperOptions[0];
   public paperWidth: number = this.paperOptions[0].width;
@@ -68,12 +71,17 @@ export class ExportCardsComponent implements OnInit {
           pdfMake.createPdf(docDefinition).download('card-sheets.pdf');
         });
     } else {
-      const images = this.cardPreviews.map(async cardPreview => {
+      const frontCards = this.frontCards.map(async cardPreview => {
         const imgUri = await htmlToImage.toPng((<any>cardPreview).element.nativeElement);
-        const imgName = 'card-' + cardPreview.card?.id + '.png';
+        const imgName = 'front-' + cardPreview.card?.id + '.png';
         return this.dataUrlToFile(imgUri, imgName);
       });
-      Promise.all(images).then(promisedImages => 
+      const backCards = this.backCards.map(async cardPreview => {
+        const imgUri = await htmlToImage.toPng((<any>cardPreview).element.nativeElement);
+        const imgName = 'back-' + cardPreview.card?.id + '.png';
+        return this.dataUrlToFile(imgUri, imgName);
+      });
+      Promise.all(frontCards.concat(backCards)).then(promisedImages => 
         downloadZip(promisedImages).blob().then(blob => FileSaver.saveAs(blob, 'cards.zip')));
     }
   }
@@ -106,5 +114,6 @@ interface RadioOption {
 interface PaperType {
   name: string,
   width: number,
-  height: number
+  height: number,
+  orientation: 'landscape' | 'portrait'
 }
