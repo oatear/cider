@@ -71,8 +71,9 @@ Preview the way the cards look with the tabular data applied to the templates.
 ![screen-3]
 
 ## 4. Export (Work in progress feature)
-Export the cards as individual images, or as card sheets ready to print.
-Adjust the paper size and spacing between cards.  Choose the export format (PDF, PNG).
+Export the cards as individual images (PNG), or as card sheets ready to print (PDF). Adjust the paper size, paper margins, and spacing between cards.
+
+![screen-4]
 
 ## Creative Ownership
 Anything you create using CIDEr is your own intellectual property.
@@ -93,6 +94,7 @@ The repository itself is protected by AGPL-3.0 to ensure the project remains ope
 [screen-1]: cider-app/src/assets/screen-1.png
 [screen-2]: cider-app/src/assets/screen-2.png
 [screen-3]: cider-app/src/assets/screen-3.png
+[screen-4]: cider-app/src/assets/screen-4.png
 [gh-url]: https://github.com/oatear/cider
 [license-url]: https://github.com/oatear/cider/blob/master/LICENSE.md
 [pages-url]: https://oatear.github.io/cider
