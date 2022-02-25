@@ -143,9 +143,9 @@ const templateCssFront  =
     text-align: center;
     display: flex;
     flex-direction: column;
-    background-color: hsl({{card.hue}}, 23%, 20%);
-    border: 45px solid hsl({{card.hue}}, 23%, 10%);
-    color: hsl({{card.hue}}, 23%, 70%);
+    background-color: hsl({{card.hue}}, 23%, 40%);
+    border: 45px solid hsl({{card.hue}}, 23%, 30%);
+    color: hsl({{card.hue}}, 23%, 90%);
     font-weight: 600;
     font-size: 50px;
 }
@@ -188,7 +188,7 @@ const templateCssBack =
     text-align: center;
     display: flex;
     flex-direction: column;
-    background-color: hsl(220, 24%, 20%);
+    background-color: hsl(220, 24%, 30%);
     border: 45px solid hsl(220, 23%, 10%);
     color: hsl(220, 23%, 70%);
     font-weight: 600;

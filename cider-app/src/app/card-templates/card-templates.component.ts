@@ -14,9 +14,9 @@ const templateCssFront  =
     text-align: center;
     display: flex;
     flex-direction: column;
-    background-color: hsl(0, 0%, 20%);
+    background-color: hsl(0, 0%, 40%);
     border: 45px solid hsl(0, 0%, 10%);
-    color: hsl(0, 0%, 70%);
+    color: hsl(0, 0%, 90%);
     font-weight: 600;
     font-size: 50px;
 }
