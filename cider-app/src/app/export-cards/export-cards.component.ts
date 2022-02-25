@@ -57,7 +57,7 @@ export class ExportCardsComponent implements OnInit {
             expandedList.push(card);
           }
         });
-        this.cards = expandedList;
+        this.cards = cards;
         this.slicedCards = this.sliceIntoChunks(expandedList, this.cardsPerPage);
       });
   }
