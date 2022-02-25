@@ -27,11 +27,11 @@ export class AppDB extends Dexie {
         super(AppDB.DB_NAME);
         this.version(1).stores({
             games: '++id, name',
-            cards: '++id, gameId, frontCardTemplateId, backCardTemplateId',
+            cards: '++id, gameId, count, frontCardTemplateId, backCardTemplateId',
             assets: '++id, gameId, name',
             cardTemplates: '++id, gameId, name, description, html, css',
             printTemplates: '++id, gameId, name, description, html, css',
-            cardAttributes: '++id, gameId, name, type'
+            cardAttributes: '++id, gameId, name, type, description'
         });
         this.on('populate', () => this.populate());
     }
@@ -60,10 +60,12 @@ export class AppDB extends Dexie {
         await db.table(AppDB.CARD_ATTRIBUTES_TABLE).bulkAdd([
             {
                 gameId: gameId,
-                name: 'Description'
+                name: 'Description',
+                description: 'Description of the card'
             }, {
                 gameId: gameId,
-                name: 'Hue'
+                name: 'Hue',
+                description: 'Hue of the card'
             }
         ]);
 
@@ -73,6 +75,7 @@ export class AppDB extends Dexie {
                 frontCardTemplateId: frontCardTemplateId,
                 backCardTemplateId: backCardTemplateId,
                 name: 'Poison Apple',
+                count: 3,
                 description: "Take one card from an opponent's hand.",
                 hue: '110'
             }, {
@@ -80,6 +83,7 @@ export class AppDB extends Dexie {
                 frontCardTemplateId: frontCardTemplateId,
                 backCardTemplateId: backCardTemplateId,
                 name: 'Healthy Apple',
+                count: 1,
                 description: "Take a card from the discard pile.",
                 hue: '0'
             }, {
@@ -87,6 +91,7 @@ export class AppDB extends Dexie {
                 frontCardTemplateId: frontCardTemplateId,
                 backCardTemplateId: backCardTemplateId,
                 name: 'Mystic Apple',
+                count: 1,
                 description: "Draw two cards from the deck, choose one, discard the other.",
                 hue: '250'
             }, {
@@ -94,6 +99,7 @@ export class AppDB extends Dexie {
                 frontCardTemplateId: frontCardTemplateId,
                 backCardTemplateId: backCardTemplateId,
                 name: 'Crystal Apple',
+                count: 1,
                 description: "Every player draws a card and hands you one card from their hand.",
                 hue: '175'
             }

@@ -51,8 +51,14 @@ export class ExportCardsComponent implements OnInit {
   constructor(cardsService: CardsService, 
     public templatesService: CardTemplatesService) {
       cardsService.getAll().then(cards => {
-        this.cards = cards;
-        this.slicedCards = this.sliceIntoChunks(cards, this.cardsPerPage);
+        const expandedList: Card[] = [];
+        cards.forEach(card => {
+          for (let i = 0; i < (card.count || 1); i++) {
+            expandedList.push(card);
+          }
+        });
+        this.cards = expandedList;
+        this.slicedCards = this.sliceIntoChunks(expandedList, this.cardsPerPage);
       });
   }
 

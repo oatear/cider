@@ -1,8 +1,8 @@
-import { AfterViewChecked, Component, DoCheck, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, DoCheck, ElementRef, Input, OnInit } from '@angular/core';
 import { AssetsService } from '../data-services/services/assets.service';
 import { CardTemplate } from '../data-services/types/card-template.type';
 import { Card } from '../data-services/types/card.type';
-import { CardToHtmlPipe } from '../shared/pipes/template-to-html.pipe';
+import { v4 as uuid } from 'uuid';
 
 @Component({
   selector: 'app-card-preview',
@@ -13,10 +13,10 @@ export class CardPreviewComponent implements OnInit, DoCheck {
   @Input() card: Card = {} as Card;
   @Input() template: CardTemplate = {} as CardTemplate;
   @Input() scale: number = 1.0;
-  @Input() back: boolean = false;
   initialWidth: number = 0;
   initialHeight: number = 0;
   assetUrls: any;
+  uuid: string  = uuid();
 
   constructor(
     private assetsService: AssetsService,

@@ -5,4 +5,5 @@ export interface CardAttribute {
     gameId: number;
     name: string;
     type: FieldType;
+    description: string;
 }

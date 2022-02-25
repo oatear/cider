@@ -17,7 +17,8 @@
     <ng-template pTemplate="header" let-columns>
         <tr>
             <ng-container *ngFor="let col of columns">
-                <th *ngIf="!col.hidden" [pSortableColumn]="col.field">{{col.header}} <p-sortIcon [field]="col.field"></p-sortIcon></th>
+                <th *ngIf="!col.hidden" [pSortableColumn]="col.field" [pTooltip]="col.description"
+                    >{{col.header}} <p-sortIcon [field]="col.field"></p-sortIcon></th>
             </ng-container>
             <th class="action-col"></th>
         </tr>

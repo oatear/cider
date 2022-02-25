@@ -24,7 +24,7 @@
                             <div #cardSheets class="preview-sheet" [style.transform]="'scaleY(-1)'">
                                 <ng-container *ngFor="let card of sheet;">
                                     <div class="card-wrapper" [style.margin.px]="cardMargins * paperDpi" [style.transform]="'scaleX(-1)'">
-                                        <app-card-preview [card]="card" [back]="true"
+                                        <app-card-preview [card]="card"
                                             [template]="card.backCardTemplateId | entity: templatesService | async"></app-card-preview>
                                     </div>
                                 </ng-container>
@@ -41,7 +41,7 @@
                                 [template]="card.frontCardTemplateId | entity: templatesService | async"></app-card-preview>
                         </div>
                         <div class="card-wrapper">
-                            <app-card-preview #backCards [card]="card" [back]="true"
+                            <app-card-preview #backCards [card]="card"
                                 [template]="card.backCardTemplateId | entity: templatesService | async"></app-card-preview>
                         </div>
                     </ng-container>

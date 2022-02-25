@@ -19,9 +19,12 @@ export class CardsService extends GamesChildService<Card, number> {
     super(gamesService, AppDB.CARDS_TABLE, [
       {field: 'id', header: 'ID', type: FieldType.number, hidden: true},
       {field: 'gameId', header: 'Game ID', type: FieldType.number, hidden: true},
-      {field: 'name', header: 'Name', type: FieldType.string},
-      {field: 'frontCardTemplateId', header: 'Front Template', type: FieldType.number, service: cardTemplatesService},
-      {field: 'backCardTemplateId', header: 'Back Template', type: FieldType.number, service: cardTemplatesService}
+      {field: 'name', header: 'Name', type: FieldType.string, description: 'The name of the card'},
+      {field: 'count', header: 'Count', type: FieldType.number, description: 'How many of this card appear in the deck'},
+      {field: 'frontCardTemplateId', header: 'Front Template', type: FieldType.number, 
+        service: cardTemplatesService, description: "The card's front template"},
+      {field: 'backCardTemplateId', header: 'Back Template', type: FieldType.number, 
+        service: cardTemplatesService, description: "The card's back template"}
     ]);
   }
   
@@ -30,7 +33,8 @@ export class CardsService extends GamesChildService<Card, number> {
       return {
         field: attribute.name.trim().replace(/ /g, '-').toLowerCase(),
         header: attribute.name,
-        type: attribute.type
+        type: attribute.type,
+        description: attribute.description
       } as EntityField<Card>;
     })));
   }

@@ -8,6 +8,7 @@ export interface EntityField<Entity> {
     field: keyof Entity;
     header: string;
     type: FieldType;
+    description?: string;
     hidden?: boolean;
     required?: boolean;
     service?: IndexedDbService<any, string | number>;
