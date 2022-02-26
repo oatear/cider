@@ -109,7 +109,7 @@ textarea {
             display: flex;
             flex-direction: column;
             width: calc(100vw - 400px);
-            max-height: calc(100vw - 198px - 70px);
+            max-height: calc(100vh - 198px - 70px);
             .top-panel {
                 flex: 1;
                 .p-panel {
