@@ -14,6 +14,7 @@ import { Card } from 'src/app/data-services/types/card.type';
 export class CardToHtmlPipe implements PipeTransform {
   
   constructor(private domSanitizer: DomSanitizer) {
+    let self = this;
 
     /**
      * {{#repeat 10}}
@@ -27,7 +28,7 @@ export class CardToHtmlPipe implements PipeTransform {
         return accum;
     });
     /**
-     * {{#index assets card.image}}{{/index}}
+     * {{index assets card.image}}
      */
     Handlebars.registerHelper('index', function(array, value) {
       if (!array || !value) {
@@ -36,13 +37,24 @@ export class CardToHtmlPipe implements PipeTransform {
       return array[value];
     });
     /**
-     * {{#padZeros card.id 4}}{{/padZeros}}
+     * {{padZeros card.id 4}}
      */
     Handlebars.registerHelper('padZeros', function(value, numZeros) {
       if (!value || !numZeros) {
         return ''.padStart(numZeros, '0');
       }
       return (value + '').padStart(numZeros, '0');
+    });
+    /**
+     * {{compileImages card.description width=100}}
+     * 
+     * card.description: 'Convert two {{apple}} into one {{chip}}'
+     */
+    Handlebars.registerHelper('compileImages', function(value, options) {
+      // console.log('options: ', options);
+      return new Handlebars.SafeString(value.replace(/[{][{]([^}]*)[}][}]/g, 
+        (match: boolean, p1: string) => 
+          `<img src="${options.data.root.assets[p1]}" ${options.hash['width'] ? 'width=' + options.hash['width'] : ''}/>`));
     });
   }
 
@@ -83,3 +95,4 @@ export class CardToHtmlPipe implements PipeTransform {
   }
 
 }
+
