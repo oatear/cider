@@ -81,7 +81,7 @@ Preview the way the cards look with the tabular data applied to the templates.
 
 ![screen-3]
 
-# 4. Export (Work in progress feature)
+# 4. Export
 Export the cards as individual images (PNG), or as card sheets ready to print (PDF). Adjust the paper size, paper margins, and spacing between cards.
 
 ![screen-4]
