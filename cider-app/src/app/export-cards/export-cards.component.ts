@@ -7,6 +7,7 @@ import * as htmlToImage from 'html-to-image';
 import * as FileSaver from 'file-saver';
 import * as JSZip from 'jszip'
 import * as pdfMake from 'pdfmake/build/pdfmake';
+import FileUtils from '../shared/utils/file-utils';
 
 @Component({
   selector: 'app-export-cards',
@@ -111,7 +112,8 @@ export class ExportCardsComponent implements OnInit {
           pageMargins: this.paperMargins * ExportCardsComponent.PDF_DPI
         };
         this.loadingInfo = 'Generating PDF file...';
-        pdfMake.createPdf(docDefinition).download('card-sheets.pdf', () => {
+        pdfMake.createPdf(docDefinition).getBlob((blob) => {
+          FileUtils.saveAs(blob, 'card-sheets.pdf');
           this.loadingPercent = 100;
           this.displayLoading = false
         });
@@ -138,7 +140,11 @@ export class ExportCardsComponent implements OnInit {
         this.loadingInfo = 'Zipping up files...';
         return this.zipFiles(promisedImages);
       })
-      .then(blob => FileSaver.saveAs(blob, 'cards.zip'))
+      .then(blob => {
+        this.loadingInfo = 'Saving file...';
+        console.log("file mime: ", blob.type);
+        return FileUtils.saveAs(blob, 'cards.zip');
+      })
       .then(() => {
         this.loadingPercent = 100;
         this.displayLoading = false

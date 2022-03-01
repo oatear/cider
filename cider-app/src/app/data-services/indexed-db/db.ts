@@ -6,6 +6,7 @@ import { Game } from "../types/game.type";
 import { PrintTemplate } from "../types/print-template.type";
 import { importInto, exportDB } from "dexie-export-import";
 import * as FileSaver from "file-saver";
+import FileUtils from "src/app/shared/utils/file-utils";
 
 
 export class AppDB extends Dexie {
@@ -129,7 +130,7 @@ export class AppDB extends Dexie {
         // unsolved dexie with typescript issue: https://github.com/dexie/Dexie.js/issues/1262
         // @ts-ignore
         const promisedBlob: Promise<Blob> = exportDB(this);
-        promisedBlob.then(blob => FileSaver.saveAs(blob, 'database.json'));
+        promisedBlob.then(blob => FileUtils.saveAs(blob, 'database.json'));
     }
 
     /**
