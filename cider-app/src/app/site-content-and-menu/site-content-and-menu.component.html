@@ -30,4 +30,13 @@
         <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="confirmDatabaseImport()"></button>
     </ng-template>
 </p-dialog>
+<p-dialog header="Exporting Data" [(visible)]="displayLoading" [style]="{width: '450px'}" [modal]="true" >
+    <div class="p-field">
+        Please wait for the export to complete.
+    </div>
+    <p-progressBar [value]="loadingPercent" [showValue]="false"></p-progressBar>
+    <div class="p-field p-mt-2">
+        {{loadingInfo}}
+    </div>
+</p-dialog>
 

@@ -7,6 +7,7 @@ import { PrintTemplate } from "../types/print-template.type";
 import { importInto, exportDB } from "dexie-export-import";
 import * as FileSaver from "file-saver";
 import FileUtils from "src/app/shared/utils/file-utils";
+import { ExportProgress } from "dexie-export-import/dist/export";
 
 
 export class AppDB extends Dexie {
@@ -126,11 +127,14 @@ export class AppDB extends Dexie {
      * Export database to file
      * 
      */
-    public exportDatabase() {
+    public exportDatabase(progressCallback?: (progress: ExportProgress) => boolean): Promise<boolean> {
         // unsolved dexie with typescript issue: https://github.com/dexie/Dexie.js/issues/1262
         // @ts-ignore
-        const promisedBlob: Promise<Blob> = exportDB(this);
-        promisedBlob.then(blob => FileUtils.saveAs(blob, 'database.json'));
+        const promisedBlob: Promise<Blob> = exportDB(this, {progressCallback: progressCallback});
+        return promisedBlob.then(blob => {
+            FileUtils.saveAs(blob, 'database.json');
+            return true;
+        });
     }
 
     /**

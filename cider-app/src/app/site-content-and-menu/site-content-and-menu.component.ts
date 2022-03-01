@@ -1,4 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { ExportProgress } from 'dexie-export-import/dist/export';
 import { ConfirmationService, MenuItem } from 'primeng/api';
 import { Observable } from 'rxjs';
 import { db } from '../data-services/indexed-db/db';
@@ -17,6 +18,9 @@ export class SiteContentAndMenuComponent implements OnInit {
   items: MenuItem[];
   importVisible: boolean = false;
   importFile: File | undefined = undefined;
+  public displayLoading: boolean = false;
+  public loadingPercent: number = 0;
+  public loadingInfo: string = '';
 
   constructor(private gamesService : GamesService,
     private confirmationService: ConfirmationService) { 
@@ -100,7 +104,16 @@ export class SiteContentAndMenuComponent implements OnInit {
       header: 'Export Database',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        db.exportDatabase();
+        this.displayLoading = true;
+        this.loadingPercent = 0;
+        this.loadingInfo = 'Exporting database rows...';
+        db.exportDatabase((progress: ExportProgress) => {
+          this.loadingPercent = (progress.completedRows / (progress.totalRows || 100)) * 100;
+          return true;
+        }).then(() => {
+          this.loadingPercent = 100;
+          this.displayLoading = false;
+        });
       }
     });
   }
