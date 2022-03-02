@@ -26,12 +26,24 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
   dialogVisible: boolean = false;
   entity: Entity = {} as Entity;
   idField?: string;
+  lookups: Map<EntityService<any, string | number>, Map<string | number, string>> = new Map();
 
   constructor(private messageService: MessageService, 
     private confirmationService: ConfirmationService) { }
 
   ngOnInit(): void {
-    this.service?.getFields().then(fields => this.columns = fields);
+    this.service?.getFields().then(fields => {
+      this.columns = fields;
+      fields.filter(field => field.service).forEach(async field => {
+        if (field.service && !this.lookups.has(field.service)) {
+          const idField = field.service.getIdField();
+          const map = new Map();
+          await field.service.getAll()
+            .then(items => items.forEach(item => map.set(item[idField], field.service?.getEntityName(item))));
+          this.lookups.set(field.service, map);
+        }
+      });
+    });
     this.service?.search({offset: 0, limit: 10}).then(result => {
       this.total = result.total;
       this.records = result.records;

@@ -35,7 +35,8 @@
                 <ng-container [ngSwitch]="true">
                     <ng-container *ngSwitchCase="col.hidden"></ng-container>
                     <ng-container *ngSwitchCase="!col.hidden && col.service !== undefined">
-                        <td>{{rowData[col.field] | entityName: col.service | async}}</td>
+                        <!-- <td>{{rowData[col.field] | entityName: col.service | async}}</td> -->
+                        <td>{{lookups.get(col.service)?.get(rowData[col.field])}}</td>
                     </ng-container>
                     <ng-container *ngSwitchCase="!col.hidden && col.type === FieldType.file">
                         <td class="preview-image"><img [src]="rowData[col.field] | fileUrl"/></td>

@@ -1,4 +1,3 @@
-import { IndexableType } from 'dexie';
 import { EntityField } from '../types/entity-field.type';
 import { EntityService } from '../types/entity-service.type';
 import { SearchParameters } from '../types/search-parameters.type';
@@ -31,7 +30,6 @@ export class IndexedDbService<Entity, Identity extends string | number> implemen
   }
 
   search(searchParameters: SearchParameters, equalityCriterias?: {[key: string]: any;}): Promise<SearchResult<Entity>> {
-    console.log('search: ', searchParameters, equalityCriterias);
     let query = equalityCriterias ? db.table(this.tableName).where(equalityCriterias) 
       : db.table(this.tableName).toCollection();
     if (searchParameters.sorting && searchParameters.sorting.length > 0) {

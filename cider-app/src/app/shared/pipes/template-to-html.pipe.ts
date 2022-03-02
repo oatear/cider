@@ -51,7 +51,9 @@ export class CardToHtmlPipe implements PipeTransform {
      * card.description: 'Convert two {{apple}} into one {{chip}}'
      */
     Handlebars.registerHelper('compileImages', function(value, options) {
-      // console.log('options: ', options);
+      if (!value) {
+        return value;
+      }
       return new Handlebars.SafeString(value.replace(/[{][{]([^}]*)[}][}]/g, 
         (match: boolean, p1: string) => 
           `<img src="${options.data.root.assets[p1]}" ${options.hash['width'] ? 'width=' + options.hash['width'] : ''}/>`));
@@ -62,7 +64,6 @@ export class CardToHtmlPipe implements PipeTransform {
     if (!template || !card) {
       return '';
     }
-    // console.log('cardToHtml: ', card, template, assetUrls);
     return this.safeHtmlAndStyle(card, 
       this.executeHandlebars(template.html, card, assetUrls), 
       this.executeHandlebars(template.css, card, assetUrls),

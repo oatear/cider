@@ -42,10 +42,6 @@ export class AssetsService extends GamesChildService<Asset, number> {
   }
 
   getAssetUrls(): Observable<any> {
-    // return new Promise<any>((resolve, reject) => {
-    //   console.log('getAssetUrls', this.assetUrls);
-    //   resolve(this.assetUrls);
-    // });
     return this.assetUrls.asObservable();
   }
 

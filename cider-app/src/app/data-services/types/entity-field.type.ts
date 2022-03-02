@@ -1,4 +1,4 @@
-import { IndexedDbService } from "../indexed-db/indexed-db.service";
+import { EntityService } from "./entity-service.type";
 import { FieldType } from "./field-type.type";
 
 /**
@@ -11,6 +11,6 @@ export interface EntityField<Entity> {
     description?: string;
     hidden?: boolean;
     required?: boolean;
-    service?: IndexedDbService<any, string | number>;
+    service?: EntityService<any, string | number>;
     conversion?: (entity: Entity) => any;
 }

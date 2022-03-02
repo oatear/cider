@@ -22,9 +22,9 @@ export class CardsService extends GamesChildService<Card, number> {
       {field: 'name', header: 'Name', type: FieldType.string, description: 'The name of the card'},
       {field: 'count', header: 'Count', type: FieldType.number, description: 'How many of this card appear in the deck'},
       {field: 'frontCardTemplateId', header: 'Front Template', type: FieldType.number, 
-        service: cardTemplatesService, description: "The card's front template"},
+        service: <any>cardTemplatesService, description: "The card's front template"},
       {field: 'backCardTemplateId', header: 'Back Template', type: FieldType.number, 
-        service: cardTemplatesService, description: "The card's back template"}
+        service: <any>cardTemplatesService, description: "The card's back template"}
     ]);
   }
   

@@ -68,7 +68,6 @@ export class ExportCardsComponent implements OnInit {
 
   public updateSlices() {
     this.slicedCards = this.sliceIntoChunks(this.cards, this.cardsPerPage);
-    console.log("slices: ", this.slicedCards);
   }
 
   public changePaperType() {
@@ -142,7 +141,6 @@ export class ExportCardsComponent implements OnInit {
       })
       .then(blob => {
         this.loadingInfo = 'Saving file...';
-        console.log("file mime: ", blob.type);
         return FileUtils.saveAs(blob, 'cards.zip');
       })
       .then(() => {
