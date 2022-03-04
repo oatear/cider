@@ -31,6 +31,7 @@ import { FileUploadModule } from 'primeng/fileupload';
 import { MessageModule } from 'primeng/message';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { ProgressBarModule } from 'primeng/progressbar';
+import { CheckboxModule } from 'primeng/checkbox';
 
 import { MonacoEditorModule } from 'ngx-monaco-editor';
 
@@ -91,7 +92,8 @@ import { ExportCardsComponent } from './export-cards/export-cards.component';
     FileUploadModule,
     MessageModule,
     SelectButtonModule,
-    ProgressBarModule
+    ProgressBarModule,
+    CheckboxModule
   ],
   providers: [],
   bootstrap: [AppComponent]

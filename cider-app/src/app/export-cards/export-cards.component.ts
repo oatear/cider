@@ -47,6 +47,7 @@ export class ExportCardsComponent implements OnInit {
   public displayLoading: boolean = false;
   public loadingPercent: number = 0;
   public loadingInfo: string = '';
+  public lowInk: boolean = false;
 
 
   constructor(cardsService: CardsService, 
