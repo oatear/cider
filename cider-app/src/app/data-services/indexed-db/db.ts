@@ -8,6 +8,7 @@ import { importInto, exportDB } from "dexie-export-import";
 import * as FileSaver from "file-saver";
 import FileUtils from "src/app/shared/utils/file-utils";
 import { ExportProgress } from "dexie-export-import/dist/export";
+import { ImportProgress } from "dexie-export-import/dist/import";
 
 
 export class AppDB extends Dexie {
@@ -114,13 +115,14 @@ export class AppDB extends Dexie {
      * 
      * @param file 
      */
-    public importDatabase(file: File) {
+    public importDatabase(file: File, progressCallback?: (progress: ImportProgress) => boolean): Promise<boolean> {
         // unsolved dexie with typescript issue: https://github.com/dexie/Dexie.js/issues/1262
         // @ts-ignore
-        importInto(db, file, {
+        return importInto(db, file, {
             overwriteValues: true,
-            noTransaction: true
-        });
+            noTransaction: true,
+            progressCallback: progressCallback
+        }).then(result => true);
     }
 
     /**

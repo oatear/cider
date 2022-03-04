@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ExportProgress } from 'dexie-export-import/dist/export';
+import { ImportProgress } from 'dexie-export-import/dist/import';
 import { ConfirmationService, MenuItem } from 'primeng/api';
 import { Observable } from 'rxjs';
 import { db } from '../data-services/indexed-db/db';
@@ -85,7 +86,16 @@ export class SiteContentAndMenuComponent implements OnInit {
 
   public confirmDatabaseImport() {
     if (this.importFile) {
-      db.importDatabase(this.importFile);
+      this.displayLoading = true;
+      this.loadingPercent = 0;
+      this.loadingInfo = 'Exporting database rows...';
+      db.importDatabase(this.importFile, (progress: ImportProgress) => {
+        this.loadingPercent = (progress.completedRows / (progress.totalRows || 100)) * 100;
+        return true;
+      }).then(() => {
+        this.loadingPercent = 100;
+        this.displayLoading = false;
+      });
       this.importVisible = false;
     }
   }
