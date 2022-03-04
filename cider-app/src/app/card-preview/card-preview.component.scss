@@ -1,3 +1,20 @@
 .card-preview {
     transform-origin: 0 0;
 }
+
+:host ::ng-deep .card-preview {
+    &.low-ink {
+        * {
+            background: white !important;
+            border-color: black !important;
+            color: black !important;
+        }
+        img {
+            opacity: 30% !important;
+            filter: grayscale(100%) !important;
+        }
+        .card {
+            border: 5px solid black !important;
+        }
+    }
+}

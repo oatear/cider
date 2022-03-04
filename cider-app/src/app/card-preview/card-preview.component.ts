@@ -13,6 +13,7 @@ export class CardPreviewComponent implements OnInit, DoCheck {
   @Input() card: Card = {} as Card;
   @Input() template: CardTemplate = {} as CardTemplate;
   @Input() scale: number = 1.0;
+  @Input() lowInk: boolean = false;
   initialWidth: number = 0;
   initialHeight: number = 0;
   assetUrls: any;
