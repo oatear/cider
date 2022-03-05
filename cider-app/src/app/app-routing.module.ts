@@ -11,6 +11,7 @@ import { GamesComponent } from './games/games.component';
 
 const routes: Routes = [
   { path: 'games', component: GamesComponent},
+  { path: 'games/:gameId/cards', component: CardsComponent, canActivate: [GameGuard]},
   { path: 'games/:gameId/cards/listing', component: CardsComponent, canActivate: [GameGuard]},
   { path: 'games/:gameId/cards/thumbnails', component: CardThumbnailsComponent, canActivate: [GameGuard]},
   { path: 'games/:gameId/cards/attributes', component: CardAttributesComponent, canActivate: [GameGuard]},
