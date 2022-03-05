@@ -12,21 +12,11 @@ import { Card } from '../data-services/types/card.type';
 export class CardsComponent implements OnInit {
 
   cards: Card[] = [];
-  thumbnailCards: Card[] = [];
 
-  constructor(public cardsService: CardsService,
-    public attributesService: CardAttributesService,
-    public templatesService: CardTemplatesService) { }
+  constructor(public cardsService: CardsService) { }
 
   ngOnInit(): void {
     this.cardsService.getAll().then(cards => {
-      const expandedList: Card[] = [];
-      cards.forEach(card => {
-        for (let i = 0; i < (card.count || 1); i++) {
-          expandedList.push(card);
-        }
-      });
-      this.thumbnailCards = expandedList;
       this.cards = cards;
     });
   }

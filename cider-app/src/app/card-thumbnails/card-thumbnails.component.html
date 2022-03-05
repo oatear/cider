@@ -1,0 +1,8 @@
+<p-card styleClass="page-card" header="Cards" subheader="List of all the cards in the game">
+    <app-cards-tab-menu></app-cards-tab-menu>
+    <div class="card-thumbnails">
+        <ng-container *ngFor="let card of thumbnailCards">
+            <app-card-preview [card]="card" [scale]="0.3" [template]="card.frontCardTemplateId | entity: templatesService | async"></app-card-preview>
+        </ng-container>
+    </div>
+</p-card>

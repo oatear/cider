@@ -40,7 +40,7 @@ export class SiteContentAndMenuComponent implements OnInit {
           }, {
             label: 'Cards',
             icon: 'pi pi-pw pi-tablet',
-            routerLink: [`/games/${selectedGame?.id}/cards`]
+            routerLink: [`/games/${selectedGame?.id}/cards/listing`]
           }, {
             label: 'Templates',
             icon: 'pi pi-pw pi-id-card',

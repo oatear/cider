@@ -32,6 +32,7 @@ import { MessageModule } from 'primeng/message';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { CheckboxModule } from 'primeng/checkbox';
+import { TabMenuModule } from 'primeng/tabmenu';
 
 import { MonacoEditorModule } from 'ngx-monaco-editor';
 
@@ -46,6 +47,9 @@ import { DataServicesModule } from './data-services/data-services.module';
 import { CardPreviewComponent } from './card-preview/card-preview.component';
 import { SharedModule } from './shared/shared.module';
 import { ExportCardsComponent } from './export-cards/export-cards.component';
+import { CardsTabMenuComponent } from './cards-tab-menu/cards-tab-menu.component';
+import { CardAttributesComponent } from './card-attributes/card-attributes.component';
+import { CardThumbnailsComponent } from './card-thumbnails/card-thumbnails.component';
 
 @NgModule({
   declarations: [
@@ -61,7 +65,10 @@ import { ExportCardsComponent } from './export-cards/export-cards.component';
     EntityTableComponent,
     EntityDialogComponent,
     CardPreviewComponent,
-    ExportCardsComponent
+    ExportCardsComponent,
+    CardsTabMenuComponent,
+    CardAttributesComponent,
+    CardThumbnailsComponent
   ],
   imports: [
     BrowserModule,
@@ -93,7 +100,8 @@ import { ExportCardsComponent } from './export-cards/export-cards.component';
     MessageModule,
     SelectButtonModule,
     ProgressBarModule,
-    CheckboxModule
+    CheckboxModule,
+    TabMenuModule
   ],
   providers: [],
   bootstrap: [AppComponent]

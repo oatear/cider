@@ -26,7 +26,11 @@ export class AssetsService extends GamesChildService<Asset, number> {
   }
 
   private updateAssetUrls() {
+    console.log('update asset urls');
     this.getAll().then(assets => {
+      // release the old URLs
+      Object.keys(this.assetUrls.getValue()).forEach(key => URL.revokeObjectURL(this.assetUrls.getValue()[key]));
+      // generate the new URLs
       let assetUrls = {} as any;
       assets.forEach(asset => assetUrls[this.convertNameToField(asset.name)] = URL.createObjectURL(asset.file));
       return assetUrls;
