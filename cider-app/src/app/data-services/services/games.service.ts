@@ -31,7 +31,9 @@ export class GamesService extends IndexedDbService<Game, number> {
    * @param game 
    */
   public selectGame(game: Game | undefined) {
-    this.selectedGame.next(game);
+    if (this.selectedGame.getValue()?.id !== game?.id) {
+      this.selectedGame.next(game);
+    }
   }
 
   /**

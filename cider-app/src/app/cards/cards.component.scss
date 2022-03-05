@@ -13,22 +13,3 @@
         }
     }
 }
-
-:host ::ng-deep .card-thumbnails {
-    display: flex;
-    flex-wrap: wrap;
-    // transform-origin: top left;
-    // transform: scale(0.3);
-    // width: calc(1/0.3 * 100%);
-    //overflow: scroll;
-    app-card-preview {
-        margin: 10px;
-    }
-}
-
-:host ::ng-deep p-scrollPanel {
-    div.p-scrollpanel {
-        width: 100%;
-        height: calc(100vh - 470px);
-    }
-}

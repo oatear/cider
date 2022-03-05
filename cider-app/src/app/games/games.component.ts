@@ -1,6 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import {ButtonModule} from 'primeng/button';
 import { Subject, take, takeUntil } from 'rxjs';
 import { GamesService } from '../data-services/services/games.service';
 import { EntityField } from '../data-services/types/entity-field.type';
