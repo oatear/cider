@@ -31,9 +31,9 @@ specific parts of the template.
 
 ### Card Attributes
 Reference any card attribute (names are in kebab case 
-Ex. 'Crunch Power' -> 'crunch-power').
+Ex. 'Mystic Power' -> 'mystic-power').
 
-    {{card.crunch-power}}
+    {{card.mystic-power}}
 
 ### Assets
 Reference any asset (names are in kebab case 
