@@ -28,6 +28,7 @@ export class AssetsService extends GamesChildService<Asset, number> {
   private updateAssetUrls() {
     console.log('update asset urls');
     this.getAll().then(assets => {
+      console.log("all assets: ", assets);
       // release the old URLs
       Object.keys(this.assetUrls.getValue()).forEach(key => URL.revokeObjectURL(this.assetUrls.getValue()[key]));
       // generate the new URLs
@@ -82,7 +83,7 @@ export class AssetsService extends GamesChildService<Asset, number> {
         return entity;
       }
     const blob: Blob = AssetsService.arrayBufferToBlob((<any>entity).buffer, (<any>entity).type);
-    entity.file = new File([blob], entity.name);
+    entity.file = new File([blob], entity.name, {type: (<any>entity).type});
     (<any>entity).buffer = undefined;
     (<any>entity).type = undefined;
     return entity;
@@ -104,10 +105,23 @@ export class AssetsService extends GamesChildService<Asset, number> {
   }
 
   override create(entity: Asset) {
-    return AssetsService.insertArrayBuffer(entity).then(entity => super.create(entity));
+    return AssetsService.insertArrayBuffer(entity).then(entity => super.create(entity)).then(entity => {
+      this.updateAssetUrls();
+      return entity;
+    });
   }
 
   override update(id: number, entity: Asset) {
-    return AssetsService.insertArrayBuffer(entity).then(entity => super.update(id, entity));
+    return AssetsService.insertArrayBuffer(entity).then(entity => super.update(id, entity)).then(entity => {
+      this.updateAssetUrls();
+      return entity;
+    });
+  }
+  
+  override delete(id: number) {
+    return super.delete(id).then(response => {
+      this.updateAssetUrls();
+      return response;
+    });
   }
 }
