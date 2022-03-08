@@ -14,10 +14,10 @@ export class CardTemplatesService extends GamesChildService<CardTemplate, number
     super(gamesService, AppDB.CARD_TEMPLATES_TABLE, [
       {field: 'id', header: 'ID', type: FieldType.number, hidden: true},
       {field: 'gameId', header: 'Game ID', type: FieldType.number, hidden: true},
-      {field: 'name', header: 'Name', type: FieldType.string},
-      {field: 'description', header: 'Description', type: FieldType.string},
-      {field: 'html', header: 'HTML', type: FieldType.string, hidden: true},
-      {field: 'css', header: 'CSS', type: FieldType.string, hidden: true}
+      {field: 'name', header: 'Name', type: FieldType.text},
+      {field: 'description', header: 'Description', type: FieldType.text},
+      {field: 'html', header: 'HTML', type: FieldType.text, hidden: true},
+      {field: 'css', header: 'CSS', type: FieldType.text, hidden: true}
     ]);
   }
 

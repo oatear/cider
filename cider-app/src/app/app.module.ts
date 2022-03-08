@@ -33,6 +33,7 @@ import { SelectButtonModule } from 'primeng/selectbutton';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { CheckboxModule } from 'primeng/checkbox';
 import { TabMenuModule } from 'primeng/tabmenu';
+import { ChipsModule } from 'primeng/chips';
 
 import { MonacoEditorModule } from 'ngx-monaco-editor';
 
@@ -101,7 +102,8 @@ import { CardThumbnailsComponent } from './card-thumbnails/card-thumbnails.compo
     SelectButtonModule,
     ProgressBarModule,
     CheckboxModule,
-    TabMenuModule
+    TabMenuModule,
+    ChipsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

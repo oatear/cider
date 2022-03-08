@@ -17,7 +17,7 @@ export class AssetsService extends GamesChildService<Asset, number> {
     super(gamesService, AppDB.ASSETS_TABLE, [
       {field: 'id', header: 'ID', type: FieldType.number, hidden: true},
       {field: 'gameId', header: 'Game ID', type: FieldType.number, hidden: true},
-      {field: 'name', header: 'Name', type: FieldType.string},
+      {field: 'name', header: 'Name', type: FieldType.text},
       {field: 'file', header: 'File', type: FieldType.file}
     ]);
     this.assetUrls = new BehaviorSubject<any>({});
