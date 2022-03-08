@@ -9,6 +9,7 @@ import * as FileSaver from "file-saver";
 import FileUtils from "src/app/shared/utils/file-utils";
 import { ExportProgress } from "dexie-export-import/dist/export";
 import { ImportProgress } from "dexie-export-import/dist/import";
+import { FieldType } from "../types/field-type.type";
 
 
 export class AppDB extends Dexie {
@@ -64,11 +65,13 @@ export class AppDB extends Dexie {
             {
                 gameId: gameId,
                 name: 'Description',
-                description: 'Description of the card'
+                description: 'Description of the card',
+                type: FieldType.text
             }, {
                 gameId: gameId,
                 name: 'Hue',
-                description: 'Hue of the card'
+                description: 'Hue of the card',
+                type: FieldType.text
             }
         ]);
 
