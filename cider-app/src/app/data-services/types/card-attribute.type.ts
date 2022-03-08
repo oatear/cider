@@ -6,4 +6,5 @@ export interface CardAttribute {
     name: string;
     type: FieldType;
     description: string;
+    options: string[];
 }

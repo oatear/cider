@@ -14,10 +14,10 @@ export class PrintTemplatesService extends GamesChildService<PrintTemplate, numb
     super(gamesService, AppDB.PRINT_TEMPLATES_TABLE, [
       {field: 'id', header: 'ID', type: FieldType.number, hidden: true},
       {field: 'gameId', header: 'Game ID', type: FieldType.number},
-      {field: 'name', header: 'Name', type: FieldType.string},
-      {field: 'description', header: 'Description', type: FieldType.string},
-      {field: 'html', header: 'HTML', type: FieldType.string},
-      {field: 'css', header: 'CSS', type: FieldType.string}
+      {field: 'name', header: 'Name', type: FieldType.text},
+      {field: 'description', header: 'Description', type: FieldType.text},
+      {field: 'html', header: 'HTML', type: FieldType.text},
+      {field: 'css', header: 'CSS', type: FieldType.text}
     ]);
   }
 

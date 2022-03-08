@@ -14,9 +14,11 @@ export class CardAttributesService extends GamesChildService<CardAttribute, numb
     super(gamesService, AppDB.CARD_ATTRIBUTES_TABLE, [
       {field: 'id', header: 'ID', type: FieldType.number, hidden: true},
       {field: 'gameId', header: 'Game ID', type: FieldType.number, hidden: true},
-      {field: 'name', header: 'Name', type: FieldType.string},
-      {field: 'description', header: 'Description', type: FieldType.string},
-      // {field: 'type', header: 'Type', type: FieldType.string}
+      {field: 'name', header: 'Name', type: FieldType.text},
+      {field: 'description', header: 'Description', type: FieldType.text},
+      {field: 'type', header: 'Type', type: FieldType.option, 
+        options: [FieldType.text, FieldType.textArea, FieldType.option]},
+      {field: 'options', header: 'Options', type: FieldType.optionList}
     ])
   }
   

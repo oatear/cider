@@ -13,4 +13,5 @@ export interface EntityField<Entity> {
     required?: boolean;
     service?: EntityService<any, string | number>;
     conversion?: (entity: Entity) => any;
+    options?: string[];
 }

@@ -34,7 +34,7 @@ export class AppDB extends Dexie {
             assets: '++id, gameId, name',
             cardTemplates: '++id, gameId, name, description, html, css',
             printTemplates: '++id, gameId, name, description, html, css',
-            cardAttributes: '++id, gameId, name, type, description'
+            cardAttributes: '++id, gameId, name, type, options, description'
         });
         this.on('populate', () => this.populate());
     }

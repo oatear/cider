@@ -2,7 +2,10 @@
  * Field Type
  */
  export enum FieldType {
-    string = 'string',
+    text = 'text',
+    textArea = 'text-area',
     number = 'number',
-    file = 'file'
+    file = 'file',
+    option = 'option',
+    optionList = 'optionList'
 }

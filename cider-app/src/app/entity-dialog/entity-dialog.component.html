@@ -9,7 +9,26 @@
                     <div *ngIf="col.service" class="p-field">
                         <label [for]="col.field">{{col.header}}</label>
                         <p-dropdown [options]="(col.service | entityList | async) || []" [(ngModel)]="entity[col.field]" 
-                            optionLabel="name" [optionValue]="col.service.getIdField()" class="p-mr-2"></p-dropdown>
+                            [id]="col.field" optionLabel="name" [optionValue]="col.service.getIdField()" class="p-mr-2"
+                            appendTo="body"></p-dropdown>
+                    </div>
+                </ng-container>
+                <ng-container *ngSwitchCase="!col.hidden && col.type === FieldType.option">
+                    <div class="p-field">
+                        <label [for]="col.field">{{col.header}}</label>
+                        <p-dropdown [options]="col.options || []" [(ngModel)]="entity[col.field]" 
+                            [id]="col.field" class="p-mr-2" appendTo="body"></p-dropdown>
+                    </div>
+                </ng-container>
+                <ng-container *ngSwitchCase="!col.hidden && col.type === FieldType.optionList 
+                    && (!$any(entity).type || $any(entity).type !== FieldType.option)">
+                </ng-container>
+                <ng-container *ngSwitchCase="!col.hidden && col.type === FieldType.optionList 
+                    && $any(entity).type && $any(entity).type === FieldType.option">
+                    <div class="p-field">
+                        <label [for]="col.field">{{col.header}}</label>
+                        <p-message severity="info" text="Press enter to create new options"></p-message>
+                        <p-chips [(ngModel)]="entity[col.field]" [id]="col.field"></p-chips>
                     </div>
                 </ng-container>
                 <ng-container *ngSwitchCase="!col.hidden && col.type === FieldType.file">
@@ -18,6 +37,13 @@
                         <p-fileUpload name="entity[col.field]" mode="basic" accept="image/*" [maxFileSize]="20000000" 
                             label="Import" chooseLabel="Import" class="inline-block" 
                             [customUpload]="true" (onSelect)="uploadFile(entity, col.field, $event)"></p-fileUpload>
+                    </div>
+                </ng-container>
+                <ng-container *ngSwitchCase="!col.hidden && col.type === FieldType.textArea">
+                    <div class="p-field">
+                        <label [for]="col.field">{{col.header}}</label>
+                        <textarea [rows]="5" [cols]="30" pInputTextarea [autoResize]="true" 
+                            [id]="col.field" [(ngModel)]="entity[col.field]" ></textarea>
                     </div>
                 </ng-container>
                 <ng-container *ngSwitchDefault>
