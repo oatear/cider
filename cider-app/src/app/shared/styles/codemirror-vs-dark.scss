@@ -1,0 +1,113 @@
+/**
+ * Codemirror Theme: codemirror-vs-dark
+ *
+ **/
+$background: #1e1e1e;
+$blue: #287BDE;
+$light-blue: #569cd6;
+$green: #b5cea8;
+$orange: #ce9178;
+$gray: #808080;
+$light-gray: #d4d4d4;
+
+.CodeMirror.cm-s-codemirror-vs-dark {
+  font-family: Consolas, 'Courier New', monospace, serif;
+  background: $background;
+  color: #e9e9e9;
+
+  span.cm-meta {
+    color: $light-blue
+  }
+  span.cm-number {
+    color: $green
+  }
+  span.cm-keyword {
+    line-height: 1em; 
+    font-weight: bold; 
+    color: $light-blue;
+  }
+  span.cm-def {
+    color:#9cdcfe
+  }
+  span.cm-variable {
+    color: $orange
+  }
+  span.cm-variable-2 {
+    color: #9cdcfe
+  }
+  span.cm-variable-3,
+  span.cm-type {
+    color: #A9B7C6
+  }
+  span.cm-property {
+    color: #9cdcfe
+  }
+  span.cm-operator {
+    color: $light-gray
+  }
+  span.cm-string {
+    color: $orange
+  }
+  span.cm-string-2 {
+    color: #6A8759
+  }
+  span.cm-comment {
+    color: #6A9955
+  }
+  span.cm-link {
+    color: $blue
+  }
+  span.cm-atom {
+    color: $light-blue
+  }
+  span.cm-error {
+    color: $orange
+  }
+  span.cm-tag {
+    color: $light-blue
+  }
+  span.cm-attribute {
+    color: #9cdcfe
+  }
+  span.cm-qualifier {
+    color: $light-blue
+  }
+  span.cm-bracket {
+    color: $gray
+  }
+
+  .CodeMirror-cursor {
+    border-left: 1px solid #bebebe;
+  }
+  div.CodeMirror-selected {
+    background: #1e496c
+  }
+  .CodeMirror-gutters {
+    background: $background;
+    border-right: none;
+    color: #606366;
+    text-align: right;
+    padding-left: 20px;
+    padding-right: 20px;
+    margin-left: 0 !important;
+  }
+  span.cm-builtin {
+    color: #A9B7C6;
+  }
+  .CodeMirror-matchingbracket {
+    background-color: #3b514d; 
+    color: yellow !important;
+  }
+}
+
+.CodeMirror-hints.codemirror-vs-dark {
+  font-family: Consolas, 'Courier New', monospace;
+  color: #9c9e9e;
+  background-color: #3b3e3f !important;
+
+  .CodeMirror-hint-active {
+    background-color: #494d4e !important;
+    color: #9c9e9e !important;
+  }
+}
+

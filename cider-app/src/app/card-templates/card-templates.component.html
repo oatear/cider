@@ -38,8 +38,10 @@
                     <ng-template pTemplate="icons">
                         <button pButton pRipple icon="pi pi-info-circle" class="p-panel-header-icon p-link" (click)="openCssInfo()"></button>
                     </ng-template>
-                    <ngx-monaco-editor style="height: 100%;" 
+                    <ngx-monaco-editor *ngIf="!isMobileBrowser()" style="height: 100%;" 
                         [options]="cssEditorOptions" [(ngModel)]="selectedTemplate.css"></ngx-monaco-editor>
+                    <ngx-codemirror *ngIf="isMobileBrowser()"
+                        [options]="cssEditorOptionsCodeMirror" [(ngModel)]="selectedTemplate.css"></ngx-codemirror>
                 </p-panel>
             </div>
             <div class="bottom-panel">
@@ -47,8 +49,10 @@
                     <ng-template pTemplate="icons">
                         <button pButton pRipple icon="pi pi-info-circle" class="p-panel-header-icon p-link" (click)="openHtmlInfo()"></button>
                     </ng-template>
-                    <ngx-monaco-editor style="height: 100%;" 
+                    <ngx-monaco-editor *ngIf="!isMobileBrowser()" style="height: 100%;" 
                         [options]="htmlEditorOptions" [(ngModel)]="selectedTemplate.html"></ngx-monaco-editor>
+                    <ngx-codemirror *ngIf="isMobileBrowser()"
+                        [options]="htmlEditorOptionsCodeMirror" [(ngModel)]="selectedTemplate.html"></ngx-codemirror>
                 </p-panel>
             </div>
         </div>

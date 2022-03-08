@@ -110,6 +110,9 @@ textarea {
             flex-direction: column;
             width: calc(100vw - 400px);
             max-height: calc(100vh - 198px - 70px);
+            .CodeMirror {
+                height: calc((100vh - 198px - 70px) / 2 - 50px);
+            }
             .top-panel {
                 flex: 1;
                 .p-panel {

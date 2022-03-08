@@ -3,6 +3,8 @@
 @import "primeng/resources/primeng.min.css";
 @import "primeng/resources/themes/vela-blue/theme.css";
 @import "primeflex/primeflex.css";
+@import '~codemirror/lib/codemirror';
+@import 'app/shared/styles/codemirror-vs-dark.scss';
 
 html {
     background-color: var(--surface-b);

@@ -5,6 +5,7 @@ import { CardTemplatesService } from '../data-services/services/card-templates.s
 import { CardsService } from '../data-services/services/cards.service';
 import { CardTemplate } from '../data-services/types/card-template.type';
 import { Card } from '../data-services/types/card.type';
+import DetectionUtils from '../shared/utils/detection-utils';
 
 const templateCssFront  = 
 `.card {
@@ -58,6 +59,8 @@ export class CardTemplatesComponent implements OnInit {
 
   htmlEditorOptions: any = {theme: 'vs-dark', language: 'handlebars', automaticLayout: true};
   cssEditorOptions: any = {theme: 'vs-dark', language: 'css', automaticLayout: true};
+  htmlEditorOptionsCodeMirror: any = {lineNumbers: true, theme: 'codemirror-vs-dark', mode: {name: 'handlebars', base: 'text/html'}};
+  cssEditorOptionsCodeMirror: any = {lineNumbers: true, theme: 'codemirror-vs-dark', mode: 'css'};
   templates: CardTemplate[] = [];
   cards: Card[] = [];
   selectedCard: Card = {} as Card;
@@ -77,6 +80,10 @@ export class CardTemplatesComponent implements OnInit {
   ngOnInit(): void {
     this.service.getAll().then(templates => this.templates = templates);
     this.cardsService.getAll().then(cards => this.cards = cards);
+  }
+
+  public isMobileBrowser(): boolean {
+    return DetectionUtils.isMobileBrowser();
   }
 
   public updateTemplatesList() {

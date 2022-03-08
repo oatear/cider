@@ -36,6 +36,8 @@ import { TabMenuModule } from 'primeng/tabmenu';
 
 import { MonacoEditorModule } from 'ngx-monaco-editor';
 
+import { CodemirrorModule } from '@ctrl/ngx-codemirror';
+
 import { SiteHeaderComponent } from './site-header/site-header.component';
 import { SiteFooterComponent } from './site-footer/site-footer.component';
 import { SiteContentComponent } from './site-content/site-content.component';
@@ -101,7 +103,8 @@ import { CardThumbnailsComponent } from './card-thumbnails/card-thumbnails.compo
     SelectButtonModule,
     ProgressBarModule,
     CheckboxModule,
-    TabMenuModule
+    TabMenuModule,
+    CodemirrorModule
   ],
   providers: [],
   bootstrap: [AppComponent]
