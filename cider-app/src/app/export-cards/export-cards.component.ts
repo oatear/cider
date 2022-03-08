@@ -19,6 +19,7 @@ export class ExportCardsComponent implements OnInit {
   private static readonly SHEET_EXPORT = 'sheet-export';
   private static readonly PDF_DPI = 72;
   @ViewChildren('cardSheets') cardSheets: QueryList<any> = {} as QueryList<any>;
+  @ViewChildren('cardSheetCards') cardSheetCards: QueryList<CardPreviewComponent> = {} as QueryList<CardPreviewComponent>;
   @ViewChildren('frontCards') frontCards: QueryList<CardPreviewComponent> = {} as QueryList<CardPreviewComponent>;
   @ViewChildren('backCards') backCards: QueryList<CardPreviewComponent> = {} as QueryList<CardPreviewComponent>;
 
@@ -33,7 +34,8 @@ export class ExportCardsComponent implements OnInit {
     { name: 'A4 (Landscape)', width: 8, height: 10, orientation: 'landscape'}, 
     { name: 'A4 (Portrait)', width: 8, height: 10, orientation: 'portrait'}, 
     { name: 'Custom (Landscape)', width: 8.5, height: 11, orientation: 'landscape'}, 
-    { name: 'Custom (Portrait)', width: 8.5, height: 11, orientation: 'portrait'}
+    { name: 'Custom (Portrait)', width: 8.5, height: 11, orientation: 'portrait'}, 
+    { name: 'Tabletop Simulator', width: 8.5, height: 11, orientation: 'portrait'}
   ];
   public selectedPaper: PaperType = this.paperOptions[0];
   public paperWidth: number = this.paperOptions[0].width;
@@ -43,6 +45,7 @@ export class ExportCardsComponent implements OnInit {
   public cardMargins: number = 0.05;
   public cardsPerPage: number = 6;
   public cards: Card[] = [];
+  public expandedCards: Card[] = [];
   public slicedCards: Card[][] = [];
   public displayLoading: boolean = false;
   public loadingPercent: number = 0;
@@ -59,8 +62,9 @@ export class ExportCardsComponent implements OnInit {
             expandedList.push(card);
           }
         });
+        this.expandedCards = expandedList;
         this.cards = cards;
-        this.slicedCards = this.sliceIntoChunks(expandedList, this.cardsPerPage);
+        this.updateSlices();
       });
   }
 
@@ -68,20 +72,62 @@ export class ExportCardsComponent implements OnInit {
   }
 
   public updateSlices() {
-    this.slicedCards = this.sliceIntoChunks(this.cards, this.cardsPerPage);
+    this.slicedCards = this.sliceIntoChunks(this.expandedCards, this.cardsPerPage);
   }
 
   public changePaperType() {
-    this.paperWidth = this.selectedPaper.width;
-    this.paperHeight = this.selectedPaper.height;
+    if (this.selectedPaper.name === 'Tabletop Simulator') {
+      this.cardMargins = 0;
+      this.paperMargins = 0;
+      console.log('front cards: ', this.cardSheetCards.first);
+      this.paperWidth = this.cardSheetCards.first.initialWidth * 10 / this.paperDpi;
+      this.paperHeight = this.cardSheetCards.first.initialHeight * 7 / this.paperDpi;
+      this.cardsPerPage = 69;
+      this.updateSlices();
+    } else {
+      this.paperWidth = this.selectedPaper.width;
+      this.paperHeight = this.selectedPaper.height;
+      this.paperMargins = 0.4;
+      this.cardMargins = 0.05;
+      this.cardsPerPage = 6;
+      this.updateSlices();
+    }
   }
 
   public export() {
-    if (this.exportType === ExportCardsComponent.SHEET_EXPORT) {
+    if (this.exportType === ExportCardsComponent.SHEET_EXPORT 
+      && this.selectedPaper.name === 'Tabletop Simulator') {
+      this.exportCardSheetsAsImages();
+    } else if (this.exportType === ExportCardsComponent.SHEET_EXPORT) {
       this.exportCardSheets();
     } else {
       this.exportIndividualImages();
     }
+  }
+
+  private exportCardSheetsAsImages() {
+    this.displayLoading = true;
+    this.loadingPercent = 0;
+    this.loadingInfo = 'Generating sheet images...';
+    let sheetIndex = 0;
+    const promisedSheets$ = this.cardSheets.map(async cardSheet => {
+      const imgUri = await htmlToImage.toPng((<any>cardSheet).nativeElement);
+      const imgName = 'sheet-' + sheetIndex++ + '.png';
+      return this.dataUrlToFile(imgUri, imgName);
+    });
+    const promisedProgress$ = this.promisesProgress(promisedSheets$, () => this.loadingPercent += 100.0/(promisedSheets$.length + 1));
+    Promise.all(promisedProgress$).then(promisedImages => {
+      this.loadingInfo = 'Zipping up files...';
+      return this.zipFiles(promisedImages);
+    })
+    .then(blob => {
+      this.loadingInfo = 'Saving file...';
+      return FileUtils.saveAs(blob, 'cards.zip');
+    })
+    .then(() => {
+      this.loadingPercent = 100;
+      this.displayLoading = false
+    });
   }
 
   private exportCardSheets() {
@@ -89,7 +135,7 @@ export class ExportCardsComponent implements OnInit {
     this.loadingPercent = 0;
     this.loadingInfo = 'Generating sheet images...';
     const promisedSheets$ = this.cardSheets.map(cardSheet => htmlToImage.toPng((<any>cardSheet).nativeElement));
-    const promisedProgress$ = this.promisesProgress(promisedSheets$, () => this.loadingPercent += 100.0/(promisedSheets$.length + 1))
+    const promisedProgress$ = this.promisesProgress(promisedSheets$, () => this.loadingPercent += 100.0/(promisedSheets$.length + 1));
     Promise.all(promisedProgress$)
       .then(images => images.map(image => {
         return { 
