@@ -1,6 +1,6 @@
 <div class="page-wrapper">
     <p-card styleClass="page-card" header="Export Preview" subheader="">
-        <p-scrollPanel class="preview-wrapper" [style]="{width: 'calc(50vw - 70px)', height: 'calc(100vh - 350px)'}">
+        <p-scrollPanel class="preview-wrapper">
             <ng-container *ngIf="exportType === 'sheet-export'">
                 <div class="preview-sheets">
                     <ng-container *ngFor="let sheet of slicedCards">
