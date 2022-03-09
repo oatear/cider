@@ -13,5 +13,15 @@ export class AppComponent implements OnInit{
   constructor(private primengConfig: PrimeNGConfig) {}
     ngOnInit() {
         this.primengConfig.ripple = true;
+
+        this.updateViewHeightVar();
+        window.addEventListener('resize', () => {
+          this.updateViewHeightVar();
+        });
+    }
+
+    private updateViewHeightVar() {
+      let vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
     }
 }
