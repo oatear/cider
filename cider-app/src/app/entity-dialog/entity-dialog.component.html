@@ -13,7 +13,8 @@
                             appendTo="body"></p-dropdown>
                     </div>
                 </ng-container>
-                <ng-container *ngSwitchCase="!col.hidden && col.type === FieldType.option">
+                <ng-container *ngSwitchCase="!col.hidden && col.type === FieldType.option 
+                    && col.service === undefined">
                     <div class="p-field">
                         <label [for]="col.field">{{col.header}}</label>
                         <p-dropdown [options]="col.options || []" [(ngModel)]="entity[col.field]" 
