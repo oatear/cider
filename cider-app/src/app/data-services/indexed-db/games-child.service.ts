@@ -46,8 +46,12 @@ export class GamesChildService<Entity, Identity extends string | number> extends
       });
   }
 
-  override delete(id: Identity) {
+  override delete(id: Identity): Promise<boolean> {
     return super.delete(id);
+  }
+
+  override deleteAll(): Promise<boolean> {
+    return super.deleteAll();
   }
 
 }

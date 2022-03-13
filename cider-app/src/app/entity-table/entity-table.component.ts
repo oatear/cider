@@ -5,6 +5,7 @@ import { EntityField } from '../data-services/types/entity-field.type';
 import { EntityService } from '../data-services/types/entity-service.type';
 import { FieldType } from '../data-services/types/field-type.type';
 import { SortDirection } from '../data-services/types/search-sort.type';
+import XlsxUtils from '../shared/utils/xlsx-utils';
 
 @Component({
   selector: 'app-entity-table',
@@ -19,6 +20,7 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
   @Input() service: EntityService<Entity, Identifier> | undefined;
   @Input() selection: Entity | undefined;
   @Input() selectionMode: string | undefined;
+  @Input() allowImportExport: boolean = false;
   @Output() selectionChange: EventEmitter<Entity | undefined> = new EventEmitter<Entity | undefined>();
   FieldType = FieldType;
   total: number = 0;
@@ -27,6 +29,8 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
   entity: Entity = {} as Entity;
   idField?: string;
   lookups: Map<EntityService<any, string | number>, Map<string | number, string>> = new Map();
+  importVisible: boolean = false;
+  importFile: File | undefined = undefined;
 
   constructor(private messageService: MessageService, 
     private confirmationService: ConfirmationService) { }
@@ -84,6 +88,38 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
 
   public clear(table: Table) {
     table.clear();
+  }
+
+  public uploadFile(event: any) {
+    if (event?.currentFiles?.length) {
+      this.importFile = event.files[0];
+    }
+  }
+
+  public openImportDialog() {
+    this.importVisible = true;
+  }
+
+  public closeImportDialog() {
+    this.importVisible = false;
+  }
+
+  public confirmImport(table: Table) {
+    console.log('upload data');
+    if (this.importFile) {
+      XlsxUtils.entityImport(this.columns, this.lookups, this.importFile).then(entities => {
+        this.service?.deleteAll().then(completed => {
+          Promise.all(entities.map(entity => this.service?.create(entity))).then(completed => {
+            this.importVisible = false;
+            this.clear(table);
+          });
+        });
+      });
+    }
+  }
+
+  public exportData() {
+    XlsxUtils.entityExport(this.columns, this.lookups, this.records);
   }
 
   public openCreateNew() {

@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { Subject, take, takeUntil } from 'rxjs';
+import { Subject, take } from 'rxjs';
 import { GamesService } from '../data-services/services/games.service';
 import { EntityField } from '../data-services/types/entity-field.type';
 import { Game } from '../data-services/types/game.type';

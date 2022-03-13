@@ -81,4 +81,8 @@ export class IndexedDbService<Entity, Identity extends string | number> implemen
     return db.table(this.tableName).delete(id).then(() => true);
   }
 
+  deleteAll(): Promise<boolean> {
+    return db.table(this.tableName).clear().then(() => true);
+  }
+
 }
