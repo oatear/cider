@@ -88,7 +88,7 @@ export class SiteContentAndMenuComponent implements OnInit {
     if (this.importFile) {
       this.displayLoading = true;
       this.loadingPercent = 0;
-      this.loadingInfo = 'Exporting database rows...';
+      this.loadingInfo = 'Importing database rows...';
       db.importDatabase(this.importFile, (progress: ImportProgress) => {
         this.loadingPercent = (progress.completedRows / (progress.totalRows || 100)) * 100;
         return true;

@@ -8,10 +8,16 @@
         <div class="p-d-flex">
             <button pButton pRipple label="Clear" icon="pi pi-filter-slash" class="p-button p-mr-2" (click)="clear(dt)"></button>
             <button pButton pRipple label="New" icon="pi pi-plus" class="p-button p-mr-2" (click)="openCreateNew()"></button>
-            <span class="p-input-icon-left p-ml-auto">
-                <i class="pi pi-search"></i>
-                <input pInputText type="text" (input)="filterGlobal(dt, $event)" placeholder="Search keyword" />
-            </span>
+            <div class="p-ml-auto">
+                <button pButton pRipple label="" icon="pi pi-upload" class="p-button-success p-mr-2" 
+                    pTooltip="Import data" (click)="openImportDialog()"></button>
+                <button pButton pRipple label="" icon="pi pi-file-excel" class="p-button-success p-mr-2" 
+                    pTooltip="Export data" (click)="exportData()"></button>
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" (input)="filterGlobal(dt, $event)" placeholder="Search keyword" />
+                </span>
+            </div>
         </div>
     </ng-template>
     <ng-template pTemplate="header" let-columns>
@@ -35,7 +41,6 @@
                 <ng-container [ngSwitch]="true">
                     <ng-container *ngSwitchCase="col.hidden"></ng-container>
                     <ng-container *ngSwitchCase="!col.hidden && col.service !== undefined">
-                        <!-- <td>{{rowData[col.field] | entityName: col.service | async}}</td> -->
                         <td>{{lookups.get(col.service)?.get(rowData[col.field])}}</td>
                     </ng-container>
                     <ng-container *ngSwitchCase="!col.hidden && col.type === FieldType.file">
@@ -55,3 +60,19 @@
 </p-table>
 <app-entity-dialog [service]="service" [(visible)]="dialogVisible" [entity]="entity" (onCreate)="clear(dt)"></app-entity-dialog>
 <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+<p-dialog header="Import Data" [(visible)]="importVisible" [style]="{width: '450px'}" [modal]="true">
+    <ng-template pTemplate="content">
+        <div class="p-field">
+            <p-message severity="warn" text="WARNING: Importing data into the table will overwrite your existing data. Make sure to run an export first."></p-message>  
+        </div>
+        <div class="p-field">
+            <p-fileUpload name="csvFile" mode="basic" accept=".csv" [maxFileSize]="20000000" 
+                label="Import" chooseLabel="Import" class="inline-block" 
+                [customUpload]="true" (onSelect)="uploadFile($event)"></p-fileUpload>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="closeImportDialog()"></button>
+        <button pButton pRipple label="Import" icon="pi pi-check" class="p-button-text" (click)="confirmImport()"></button>
+    </ng-template>
+</p-dialog>
