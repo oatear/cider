@@ -9,10 +9,12 @@
             <button pButton pRipple label="Clear" icon="pi pi-filter-slash" class="p-button p-mr-2" (click)="clear(dt)"></button>
             <button pButton pRipple label="New" icon="pi pi-plus" class="p-button p-mr-2" (click)="openCreateNew()"></button>
             <div class="p-ml-auto">
-                <button pButton pRipple label="" icon="pi pi-upload" class="p-button-success p-mr-2" 
-                    pTooltip="Import data" (click)="openImportDialog()"></button>
-                <button pButton pRipple label="" icon="pi pi-file-excel" class="p-button-success p-mr-2" 
-                    pTooltip="Export data" (click)="exportData()"></button>
+                <ng-container *ngIf="allowImportExport">
+                    <button pButton pRipple label="" icon="pi pi-upload" class="p-button-success p-mr-2" 
+                        pTooltip="Import data" (click)="openImportDialog()"></button>
+                    <button pButton pRipple label="" icon="pi pi-file-excel" class="p-button-success p-mr-2" 
+                        pTooltip="Export data" (click)="exportData()"></button>
+                </ng-container>
                 <span class="p-input-icon-left">
                     <i class="pi pi-search"></i>
                     <input pInputText type="text" (input)="filterGlobal(dt, $event)" placeholder="Search keyword" />
@@ -73,6 +75,6 @@
     </ng-template>
     <ng-template pTemplate="footer">
         <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="closeImportDialog()"></button>
-        <button pButton pRipple label="Import" icon="pi pi-check" class="p-button-text" (click)="confirmImport()"></button>
+        <button pButton pRipple label="Import" icon="pi pi-check" class="p-button-text" (click)="confirmImport(dt)"></button>
     </ng-template>
 </p-dialog>

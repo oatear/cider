@@ -19,4 +19,5 @@ export interface EntityService<Entity, Identity extends string | number> {
     create: (entity: Entity) => Promise<Entity>;
     update: (id: Identity, entity: Entity) => Promise<Entity>;
     delete: (id: Identity) => Promise<boolean>;
+    deleteAll: () => Promise<boolean>;
 }

@@ -67,4 +67,10 @@ export class InMemoryService<Entity, Identity extends string | number> implement
     });
   }
 
+  deleteAll() {
+    return new Promise<boolean>((resolve, reject) => {
+      return true;
+    });
+  }
+
 }

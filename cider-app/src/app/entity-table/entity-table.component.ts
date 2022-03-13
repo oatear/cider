@@ -20,6 +20,7 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
   @Input() service: EntityService<Entity, Identifier> | undefined;
   @Input() selection: Entity | undefined;
   @Input() selectionMode: string | undefined;
+  @Input() allowImportExport: boolean = false;
   @Output() selectionChange: EventEmitter<Entity | undefined> = new EventEmitter<Entity | undefined>();
   FieldType = FieldType;
   total: number = 0;
@@ -103,10 +104,17 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
     this.importVisible = false;
   }
 
-  public confirmImport() {
+  public confirmImport(table: Table) {
     console.log('upload data');
     if (this.importFile) {
-      XlsxUtils.entityImport(this.columns, this.lookups, this.importFile);
+      XlsxUtils.entityImport(this.columns, this.lookups, this.importFile).then(entities => {
+        this.service?.deleteAll().then(completed => {
+          Promise.all(entities.map(entity => this.service?.create(entity))).then(completed => {
+            this.importVisible = false;
+            this.clear(table);
+          });
+        });
+      });
     }
   }
 
