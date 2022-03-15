@@ -57,7 +57,6 @@ export class CardToHtmlPipe implements PipeTransform {
       }
       return new Handlebars.SafeString(value.replace(/[{][{]([^} ]*)( [0-9]+)?[}][}]/g, 
         (match: boolean, p1: string, p2: string) => {
-          console.log('match: ', match, p1, p2);
           const image = `<img src="${options.data.root.assets[p1]}" ${options.hash['width'] ? 'width=' + options.hash['width'] : ''}/>`;
           const multiplier = parseInt(p2);
           return multiplier ? image.repeat(multiplier) : image;
