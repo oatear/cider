@@ -49,14 +49,18 @@ export class CardToHtmlPipe implements PipeTransform {
      * {{compileImages card.description width=100}}
      * 
      * card.description: 'Convert two {{apple}} into one {{chip}}'
+     * card.description: 'Convert {{apple 2}} into {{chip}}'
      */
     Handlebars.registerHelper('compileImages', function(value, options) {
       if (!value) {
         return value;
       }
-      return new Handlebars.SafeString(value.replace(/[{][{]([^}]*)[}][}]/g, 
-        (match: boolean, p1: string) => 
-          `<img src="${options.data.root.assets[p1]}" ${options.hash['width'] ? 'width=' + options.hash['width'] : ''}/>`));
+      return new Handlebars.SafeString(value.replace(/[{][{]([^} ]*)( [0-9]+)?[}][}]/g, 
+        (match: boolean, p1: string, p2: string) => {
+          const image = `<img src="${options.data.root.assets[p1]}" ${options.hash['width'] ? 'width=' + options.hash['width'] : ''}/>`;
+          const multiplier = parseInt(p2);
+          return multiplier ? image.repeat(multiplier) : image;
+        }));
     });
   }
 

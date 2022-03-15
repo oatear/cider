@@ -69,6 +69,9 @@ Ex. Description Field
 
 ![image-1]
 
+Alternatively you can specify a multiplier to display multiple of a single image.
+
+    Convert {{apple 2}} into {{chip}}
 
 # 2. Tabulate
 Create attributes relevant to your game and fill out their values for each
