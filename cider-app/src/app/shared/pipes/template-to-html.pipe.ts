@@ -25,7 +25,7 @@ export class CardToHtmlPipe implements PipeTransform {
         var accum = '';
         for(var i = 0; i < n; ++i)
             accum += block.fn(i);
-        return accum;
+        return new Handlebars.SafeString(accum);
     });
     /**
      * {{index assets card.image}}
