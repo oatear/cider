@@ -21,11 +21,11 @@ export class CardToHtmlPipe implements PipeTransform {
      *    <span>{{this}}</span>
      * {{/repeat}}
      */
-    Handlebars.registerHelper('repeat', function(n, block) {
+    Handlebars.registerHelper('repeat', function(count, options) {
         var accum = '';
-        for(var i = 0; i < n; ++i)
-            accum += block.fn(i);
-        return new Handlebars.SafeString(accum);
+        for(var i = 0; i < count; i++)
+            accum += options.fn(options.data.root);
+        return accum;
     });
     /**
      * {{index assets card.image}}
