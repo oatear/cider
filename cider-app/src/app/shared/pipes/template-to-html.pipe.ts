@@ -3,6 +3,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import * as Handlebars from 'handlebars';
 import { CardTemplate } from 'src/app/data-services/types/card-template.type';
 import { Card } from 'src/app/data-services/types/card.type';
+import StringUtils from '../utils/string-utils';
 
 /**
  * Convert a card template into html
@@ -34,7 +35,7 @@ export class CardToHtmlPipe implements PipeTransform {
       if (!array || !value) {
         return '';
       }
-      return array[value];
+      return array[StringUtils.toKebabCase(value)];
     });
     /**
      * {{padZeros card.id 4}}
