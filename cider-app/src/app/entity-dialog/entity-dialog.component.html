@@ -35,7 +35,7 @@
                 <ng-container *ngSwitchCase="!col.hidden && col.type === FieldType.file">
                     <div class="p-field">
                         <label [for]="col.field">{{col.header}}</label>
-                        <p-fileUpload name="entity[col.field]" mode="basic" accept="image/*" [maxFileSize]="20000000" 
+                        <p-fileUpload name="entity[col.field]" mode="basic" accept="image/*" [maxFileSize]="200000000" 
                             label="Import" chooseLabel="Import" class="inline-block" 
                             [customUpload]="true" (onSelect)="uploadFile(entity, col.field, $event)"></p-fileUpload>
                     </div>

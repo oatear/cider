@@ -20,7 +20,7 @@
                 Export your existing database to a file before proceeding."></p-message>  
         </div>
         <div class="p-field">
-            <p-fileUpload name="databaseFile" mode="basic" accept=".json" [maxFileSize]="20000000" 
+            <p-fileUpload name="databaseFile" mode="basic" accept=".json" [maxFileSize]="2000000000" 
                 label="Import" chooseLabel="Import" class="inline-block" 
                 [customUpload]="true" (onSelect)="uploadFile($event)"></p-fileUpload>
         </div>
