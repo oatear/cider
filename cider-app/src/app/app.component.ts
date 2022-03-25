@@ -1,7 +1,11 @@
 import { Component, OnInit } from '@angular/core';
+import { NavigationEnd, Router } from '@angular/router';
 
 import { PrimeNGConfig } from 'primeng/api';
-import { Game } from './data-services/types/game.type';
+import { filter } from 'rxjs';
+
+// setup in index.html
+declare const gtag: Function;
 
 @Component({
   selector: 'app-root',
@@ -10,18 +14,34 @@ import { Game } from './data-services/types/game.type';
 })
 export class AppComponent implements OnInit{
 
-  constructor(private primengConfig: PrimeNGConfig) {}
-    ngOnInit() {
-        this.primengConfig.ripple = true;
+  constructor(private primengConfig: PrimeNGConfig, 
+    private router: Router) {
+  }
 
+  ngOnInit() {
+      this.primengConfig.ripple = true;
+
+      this.updateViewHeightVar();
+      window.addEventListener('resize', () => {
         this.updateViewHeightVar();
-        window.addEventListener('resize', () => {
-          this.updateViewHeightVar();
-        });
-    }
+      });
 
-    private updateViewHeightVar() {
-      let vh = window.innerHeight * 0.01;
-      document.documentElement.style.setProperty('--vh', `${vh}px`);
-    }
+      this.setUpAnalytics();
+  }
+
+  private setUpAnalytics() {
+    this.router.events.pipe(filter(event => event instanceof NavigationEnd))
+        .subscribe((event) => {
+            gtag('config', 'G-4B83EBZERL',
+                {
+                    page_path: (<NavigationEnd>event).urlAfterRedirects
+                }
+            );
+        });
+  }
+
+  private updateViewHeightVar() {
+    let vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+  }
 }
