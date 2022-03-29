@@ -85,7 +85,7 @@
                 </div>
                 <div class="p-field">
                     <label [for]="cardsPerPage">Cards per Page</label>
-                    <input type="text" pInputText [id]="cardsPerPage" [(ngModel)]="cardsPerPage" required autofocus 
+                    <input type="number" pInputText [id]="cardsPerPage" [(ngModel)]="cardsPerPage" required autofocus 
                         (ngModelChange)="updateSlices()" 
                         [disabled]="selectedPaper.name.includes('Tabletop Simulator')"/>
                 </div>
