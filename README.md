@@ -75,7 +75,19 @@ Repeat the contained HTML `n` number of times.
         Any arbitrary HTML
     {{/repeat}}
 
-## 1.5 Comparison Helpers
+## 1.5 Boolean Helpers
+
+### AND {{and}}
+
+    {{#if (and (eq card.type "mystic") (gt card.power 4))}}
+    {{/if}}
+
+### OR {{or}}
+
+    {{#if (or (eq card.type "mystic") (gt card.power 4))}}
+    {{/if}}
+
+## 1.6 Comparison Helpers
 
 ### Equal {{eq}}
 
@@ -102,7 +114,7 @@ Repeat the contained HTML `n` number of times.
     {{#if (lte card.power 4)}}
     {{/if}}
 
-## 1.6 String Helpers
+## 1.7 String Helpers
 
 ### Concatenate {{concat}}
 
@@ -125,7 +137,7 @@ Pad a given number by `n` zeros.
 
     {{padZeros card.id 3}}
 
-## 1.7 Math Helpers
+## 1.8 Math Helpers
 
 ### Add {{add}}
 
@@ -143,7 +155,7 @@ Pad a given number by `n` zeros.
 
     {{divide card.power 2}}
 
-### Ceiling {{cei}}
+### Ceiling {{ceil}}
 
     {{ceil card.power}}
 
