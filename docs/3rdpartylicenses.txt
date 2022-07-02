@@ -341,7 +341,7 @@ SOFTWARE.
 
 jszip
 (MIT OR GPL-3.0-or-later)
-JSZip is dual licensed. You may use it under the MIT license *or* the GPLv3
+JSZip is dual licensed. At your choice you may use it under the MIT license *or* the GPLv3
 license.
 
 The MIT License
@@ -1493,7 +1493,7 @@ zone.js
 MIT
 The MIT License
 
-Copyright (c) 2010-2020 Google LLC. https://angular.io/license
+Copyright (c) 2010-2022 Google LLC. https://angular.io/license
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
