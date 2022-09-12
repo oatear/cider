@@ -75,12 +75,19 @@ export class CardTemplatesComponent implements OnInit {
     private confirmationService: ConfirmationService) { }
 
   ngOnInit(): void {
-    this.service.getAll().then(templates => this.templates = templates);
+    this.updateTemplatesList();
     this.cardsService.getAll().then(cards => this.cards = cards);
   }
 
   public updateTemplatesList() {
-    this.service.getAll().then(templates => this.templates = templates);
+    this.service.getAll().then(templates => {
+      if(templates.length > 0 || this.templates.length > 0) { 
+        this.templates = templates;
+      }
+      if(this.templates.length === 0) { 
+        this.selectedTemplate = {} as CardTemplate;
+      }
+    });
   }
 
   public changeZoom(change: number) {
