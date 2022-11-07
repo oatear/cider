@@ -1,8 +1,11 @@
 .footer {
     height: 70px;
     padding: 2rem;
-    font-size: 1rem;
-    background-color: var(--surface-a);
+    font-size: 16px;
+    font-weight: 400;
+    // background-color: var(--surface-a);
+    background-color: #343e4d;
+    color: rgba(255, 255, 255, 0.6);
     display: flex;
     align-items: center;
     justify-content: space-between;

@@ -1,2 +1,4 @@
 node_modules/
 /node_modules
+cider-app/electron/dist/main.js
+cider-app/electron/dist/main.js.map

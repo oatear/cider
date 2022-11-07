@@ -35,8 +35,8 @@ textarea {
 }
 
 .preview-space {
-    height: calc(100vh - 388px);
-    height: calc(var(--vh, 1vh) * 100 - 388px);
+    height: calc(100vh - 316px);
+    height: calc(var(--vh, 1vh) * 100 - 316px);
     // display: flex;
     // align-items: center;
 }
@@ -111,8 +111,8 @@ textarea {
             display: flex;
             flex-direction: column;
             width: calc(100vw - 400px);
-            max-height: calc(100vh - 198px - 70px);
-            min-height: calc(var(--vh, 1vh) * 100 - 198px - 70px);
+            max-height: calc(100vh - 198px);
+            min-height: calc(var(--vh, 1vh) * 100 - 198px);
             .top-panel {
                 flex: 1;
                 .p-panel {

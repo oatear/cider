@@ -35,7 +35,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { TabMenuModule } from 'primeng/tabmenu';
 import { ChipsModule } from 'primeng/chips';
 
-import { MonacoEditorModule } from 'ngx-monaco-editor';
+import { MonacoEditorModule } from '@materia-ui/ngx-monaco-editor';
 
 import { SiteHeaderComponent } from './site-header/site-header.component';
 import { SiteFooterComponent } from './site-footer/site-footer.component';
@@ -76,7 +76,7 @@ import { CardThumbnailsComponent } from './card-thumbnails/card-thumbnails.compo
     BrowserAnimationsModule,
     AppRoutingModule,
     HttpClientModule,
-    MonacoEditorModule.forRoot(),
+    MonacoEditorModule,
     ButtonModule,
     RippleModule,
     CardModule,
