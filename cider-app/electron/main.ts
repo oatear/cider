@@ -16,7 +16,7 @@ function createWindow(): BrowserWindow {
     y: 0,
     width: size.width,
     height: size.height,
-    icon: path.join(__dirname, '../../dist/cider/assets/favicon.ico'),
+    //icon: path.join(__dirname, '../../src/assets/cider-logo.icns'),
     webPreferences: {
       nodeIntegration: true,
       allowRunningInsecureContent: (serve),

@@ -1,5 +1,9 @@
 {
   "name": "cider",
+  "description": "Design game cards using HTML/Handlebars, CSS, and tabular data.",
+  "author": {
+    "name": "Hristo Iankov"
+  },
   "version": "0.0.0",
   "main": "electron/dist/main.js",
   "scripts": {
