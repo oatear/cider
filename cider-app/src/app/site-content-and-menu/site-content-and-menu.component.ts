@@ -141,9 +141,10 @@ export class SiteContentAndMenuComponent implements OnInit {
   }
 
   public titlebarDoubleClick() {
-    console.log('double clicked titlebar');
-    const ipcRenderer = window.require('electron').ipcRenderer;
-    ipcRenderer.send("window.titlebar-double-clicked");
+    if (typeof window.require === 'function') {
+      const ipcRenderer = window.require('electron').ipcRenderer;
+      ipcRenderer.send("window.titlebar-double-clicked");
+    }
   }
 
 }
