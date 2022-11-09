@@ -1,4 +1,4 @@
-import {app, BrowserWindow, screen} from 'electron';
+import {app, BrowserWindow, screen, systemPreferences } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -8,19 +8,24 @@ const args = process.argv.slice(1),
 
 function createWindow(): BrowserWindow {
 
-  const size = screen.getPrimaryDisplay().workAreaSize;
+  const defaultSize : {width: number, height: number} = {width: 1000, height: 800};
+  const screenSize = screen.getPrimaryDisplay().workAreaSize;
 
   // Create the browser window.
   win = new BrowserWindow({
-    x: 0,
-    y: 0,
-    width: size.width,
-    height: size.height,
-    //icon: path.join(__dirname, '../../src/assets/cider-logo.icns'),
+    x: screenSize.width / 2 - defaultSize.width / 2,
+    y: screenSize.height / 2 - defaultSize.height / 2,
+    width: defaultSize.width,
+    height: defaultSize.height,
+    minWidth: 800,
+    minHeight: 600,
+    titleBarStyle: 'hidden',
+    titleBarOverlay: true,
+    trafficLightPosition: { x: 20, y: 22 },
     webPreferences: {
       nodeIntegration: true,
       allowRunningInsecureContent: (serve),
-      contextIsolation: false,
+      contextIsolation: false
     }
   });
 
@@ -33,7 +38,6 @@ function createWindow(): BrowserWindow {
   } else {
     // Path when running electron executable
     let pathIndex = './index.html';
-    //let pathIndex = '../../dist/cider/index.html';
 
     // Path when running electron in local folder
     if (fs.existsSync(path.join(__dirname, '../../dist/cider/index.html'))) {
@@ -59,16 +63,35 @@ try {
   // This method will be called when Electron has finished
   // initialization and is ready to create browser windows.
   // Some APIs can only be used after this event occurs.
-  // Added 400 ms to fix the black background issue while using transparent window. More detais at https://github.com/electron/electron/issues/15947
-  app.on('ready', () => setTimeout(createWindow, 400));
+  app.on('ready', () => {
+    const window = createWindow();
+    Object.defineProperty(window, "isElectron", { get: () => true });
+
+    // If on mac, push the menu icon over for the traffic lights to fit in title bar
+    if (process.platform === 'darwin') {
+      var css = ".site-wrapper .logo-image { margin-left: 80px; }"
+      win.webContents.insertCSS(css, {
+        cssOrigin: 'author'
+      });
+    }
+
+    // Enable double click on titlebar maximize/minimize
+    win.webContents.on("ipc-message", (event: Event, channel: string) => {
+      if (channel === "window.titlebar-double-clicked") {
+        const action: string =
+          systemPreferences.getUserDefault("AppleActionOnDoubleClick", "string") || "Maximize";
+        if (action === "Minimize") {
+          win.minimize();
+        } else {
+          win.isMaximized() ? win.unmaximize() : win.maximize();
+        }
+      }
+    });
+  });
 
   // Quit when all windows are closed.
   app.on('window-all-closed', () => {
-    // On OS X it is common for applications and their menu bar
-    // to stay active until the user quits explicitly with Cmd + Q
-    if (process.platform !== 'darwin') {
-      app.quit();
-    }
+    app.quit();
   });
 
   app.on('activate', () => {

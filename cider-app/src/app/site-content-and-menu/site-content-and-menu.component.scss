@@ -1,10 +1,13 @@
 .site-wrapper {
     display: flex;
     flex-direction: column;
-    min-height: calc(100vh - 70px);
-    min-height: calc(var(--vh, 1vh) * 100 - 70px);
+    //min-height: calc(100vh - 58px);
+    min-height: calc(var(--vh, 1vh) * 100 - 58px);
     .site-menu {
         background-color: var(--surface-a);
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-app-region: drag;
         .game-name {
             font-weight: 500;
         }
@@ -16,7 +19,7 @@
         flex: 1;
         display: flex;
         flex-direction: column;
-        max-height: calc(100vh - 70px - 58px);
+        max-height: calc(100vh - 58px - 58px);
         overflow: auto;
     }
 }
@@ -24,4 +27,8 @@
     height: 58px;
     border-radius: 0px;
     border: 0;
+
+    .p-menubar-root-list > .p-menuitem > .p-menuitem-link:focus {
+        box-shadow: none;
+    }
 }
