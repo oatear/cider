@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/assets/cider-logo-374.png" width=150px>
+<img src="docs/assets/cider-logo-512.png" width=150px>
 
 ## CIDEr
 Card IDE (CIDEr) - Design game cards using `HTML/Handlebars`, `CSS`, and `tabular` data.

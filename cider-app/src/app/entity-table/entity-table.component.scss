@@ -11,3 +11,19 @@
         height: 60px;
     }
 }
+
+:host ::ng-deep .p-datatable .p-datatable-header,
+:host ::ng-deep .p-datatable .p-datatable-thead > tr > th,
+:host ::ng-deep .p-datatable .p-datatable-tbody > tr > td 
+{
+    border: none;
+}
+
+:host ::ng-deep .p-datatable .p-datatable-tbody > tr:focus {
+    outline: none;
+}
+
+:host ::ng-deep .p-datatable .p-datatable-tbody > tr.p-highlight {
+    background: var(--surface-d);
+    color: var(--text-color);
+}

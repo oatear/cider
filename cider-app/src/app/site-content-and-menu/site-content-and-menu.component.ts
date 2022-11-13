@@ -34,44 +34,63 @@ export class SiteContentAndMenuComponent implements OnInit {
       next: (selectedGame) => {
         this.items = [
           {
-            label: selectedGame ? selectedGame.name : 'Games',
-            icon: 'pi pi-pw pi-play',
+            label: 'File',
+            icon: 'pi pi-pw pi-file',
+            items: [
+              {
+                label: 'Open Project',
+                icon: 'pi pi-pw pi-file'
+              }, {
+                label: 'Save',
+                icon: 'pi pi-pw pi-save'
+              }, {
+                  separator:true
+              }, {
+                label: 'Advanced',
+                icon: 'pi pi-pw pi-database',
+                items: [
+                  {
+                    label: 'Reset Database',
+                    icon: 'pi pi-pw pi-database',
+                    command: () => this.openResetDialog()
+                  }, {
+                    label: 'Import Database',
+                    icon: 'pi pi-pw pi-database',
+                    command: () => this.openImportDialog()
+                  }, {
+                    label: 'Export Database',
+                    icon: 'pi pi-pw pi-database',
+                    command: () => this.openExportDialog()
+                  }
+                ]
+              }, {
+                separator:true
+              }, {
+                label: 'Export Cards',
+                icon: 'pi pi-pw pi-file-pdf',
+                routerLink: [`/games/${selectedGame?.id}/export-cards`]
+              }
+            ]
+          }, {
+            label: selectedGame ? selectedGame.name : 'Select Game',
+            icon: 'pi pi-pw pi-book',
+            styleClass: 'selected-game',
             routerLink: ['/games']
           }, {
             label: 'Cards',
-            icon: 'pi pi-pw pi-tablet',
+            icon: 'pi pi-pw pi-table',
+            disabled: !selectedGame,
             routerLink: [`/games/${selectedGame?.id}/cards/listing`]
           }, {
             label: 'Templates',
             icon: 'pi pi-pw pi-id-card',
+            disabled: !selectedGame,
             routerLink: [`/games/${selectedGame?.id}/card-templates`]
           }, {
             label: 'Assets',
-            icon: 'pi pi-pw pi-folder',
+            icon: 'pi pi-pw pi-image',
+            disabled: !selectedGame,
             routerLink: [`/games/${selectedGame?.id}/assets`]
-          }, {
-            label: 'Import/Export',
-            icon: 'pi pi-pw pi-file',
-            items: [
-              {
-                label: 'Reset Database',
-                icon: 'pi pi-pw pi-file',
-                command: () => this.openResetDialog()
-              },
-              {
-                label: 'Import Database',
-                icon: 'pi pi-pw pi-file',
-                command: () => this.openImportDialog()
-              }, {
-                label: 'Export Database',
-                icon: 'pi pi-pw pi-file',
-                command: () => this.openExportDialog()
-              }, {
-                label: 'Export Cards',
-                icon: 'pi pi-pw pi-file',
-                routerLink: [`/games/${selectedGame?.id}/export-cards`]
-              }
-            ]
           }
         ]
       }

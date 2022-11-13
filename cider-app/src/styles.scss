@@ -3,7 +3,7 @@
 @import "primeng/resources/primeng.min.css";
 // @import "primeng/resources/themes/vela-blue/theme.css";
 @import "primeng/resources/themes/bootstrap4-dark-blue/theme.css";
-//@import "primeng/resources/themes/bootstrap4-light-blue/theme.css";
+// @import "primeng/resources/themes/bootstrap4-light-blue/theme.css";
 // @import "primeng/resources/themes/mdc-dark-indigo/theme.css";
 // @import "primeng/resources/themes/arya-orange/theme.css";
 // @import "primeng/resources/themes/mdc-dark-deeppurple/theme.css";
@@ -13,7 +13,8 @@ html {
     background-color: var(--surface-b);
     color: var(--text-color);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-    font-size: 1rem;
+    //font-size: 1rem;
+    font-size: 14px;
     font-weight: normal;
     height: 100%;
     min-height: 100%;
@@ -22,4 +23,9 @@ html {
         margin: 0;
         height: 100vh;
     }
+
+    // polka-dot background
+    background-color: var(--surface-b);
+    background-image: radial-gradient(var(--surface-d) 0.5px, var(--surface-b) 0.5px);
+    background-size: 10px 10px;
 }
