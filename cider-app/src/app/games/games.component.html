@@ -1,4 +1,5 @@
-<p-card styleClass="game-card" header="Games" subheader="Select an existing game to edit, or create a new one">
+<app-page-header header="Games" subheader="Select an existing game to edit, or create a new one"></app-page-header>
+<p-card styleClass="game-card">
     <div class="games-table">
         <app-entity-table [service]="gamesService" [(selection)]="selectedGame" selectionMode="single"></app-entity-table>
     </div>

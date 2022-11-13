@@ -51,6 +51,7 @@ import { ExportCardsComponent } from './export-cards/export-cards.component';
 import { CardsTabMenuComponent } from './cards-tab-menu/cards-tab-menu.component';
 import { CardAttributesComponent } from './card-attributes/card-attributes.component';
 import { CardThumbnailsComponent } from './card-thumbnails/card-thumbnails.component';
+import { PageHeaderComponent } from './page-header/page-header.component';
 
 @NgModule({
   declarations: [
@@ -69,7 +70,8 @@ import { CardThumbnailsComponent } from './card-thumbnails/card-thumbnails.compo
     ExportCardsComponent,
     CardsTabMenuComponent,
     CardAttributesComponent,
-    CardThumbnailsComponent
+    CardThumbnailsComponent,
+    PageHeaderComponent
   ],
   imports: [
     BrowserModule,

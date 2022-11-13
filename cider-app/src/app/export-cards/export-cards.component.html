@@ -1,110 +1,116 @@
 <div class="page-wrapper">
-    <p-card styleClass="page-card" header="Export Preview" subheader="">
-        <p-scrollPanel class="preview-wrapper">
-            <ng-container *ngIf="exportType === 'sheet-export'">
-                <div class="preview-sheets">
-                    <ng-container *ngFor="let sheet of slicedCards">
-                        <div class="preview-page" 
-                            [style.width.px]="selectedPaper.orientation === 'portrait' ? paperWidth * paperDpi : paperHeight * paperDpi" 
-                            [style.height.px]="selectedPaper.orientation === 'portrait' ? paperHeight * paperDpi : paperWidth * paperDpi"
-                            [style.padding.px]="paperMargins * paperDpi">
-                            <div #cardSheets class="preview-sheet">
-                                <ng-container *ngFor="let card of sheet;">
-                                    <div class="card-wrapper" [style.margin.px]="cardMargins * paperDpi">
-                                        <app-card-preview #cardSheetCards [card]="card" [lowInk]="lowInk"
-                                            [template]="card.frontCardTemplateId | entity: templatesService | async"></app-card-preview>
-                                    </div>
-                                </ng-container>
+    <div>
+        <app-page-header header="Export Preview" subheader="Preview of the card printout"></app-page-header>
+        <p-card styleClass="page-card">
+            <p-scrollPanel class="preview-wrapper">
+                <ng-container *ngIf="exportType === 'sheet-export'">
+                    <div class="preview-sheets">
+                        <ng-container *ngFor="let sheet of slicedCards">
+                            <div class="preview-page" 
+                                [style.width.px]="selectedPaper.orientation === 'portrait' ? paperWidth * paperDpi : paperHeight * paperDpi" 
+                                [style.height.px]="selectedPaper.orientation === 'portrait' ? paperHeight * paperDpi : paperWidth * paperDpi"
+                                [style.padding.px]="paperMargins * paperDpi">
+                                <div #cardSheets class="preview-sheet">
+                                    <ng-container *ngFor="let card of sheet;">
+                                        <div class="card-wrapper" [style.margin.px]="cardMargins * paperDpi">
+                                            <app-card-preview #cardSheetCards [card]="card" [lowInk]="lowInk"
+                                                [template]="card.frontCardTemplateId | entity: templatesService | async"></app-card-preview>
+                                        </div>
+                                    </ng-container>
+                                </div>
                             </div>
-                        </div>
-                        <div class="preview-page" 
-                            [style.width.px]="selectedPaper.orientation === 'portrait' ? paperWidth * paperDpi : paperHeight * paperDpi" 
-                            [style.height.px]="selectedPaper.orientation === 'portrait' ? paperHeight * paperDpi : paperWidth * paperDpi"
-                            [style.padding.px]="paperMargins * paperDpi">
-                            <div #cardSheets class="preview-sheet" [style.transform]="'scaleY(-1)'">
-                                <ng-container *ngFor="let card of sheet;">
-                                    <div class="card-wrapper" [style.margin.px]="cardMargins * paperDpi" [style.transform]="'scaleX(-1)'">
-                                        <app-card-preview #cardSheetCards [card]="card" [lowInk]="lowInk"
-                                            [template]="card.backCardTemplateId | entity: templatesService | async"></app-card-preview>
-                                    </div>
-                                </ng-container>
+                            <div class="preview-page" 
+                                [style.width.px]="selectedPaper.orientation === 'portrait' ? paperWidth * paperDpi : paperHeight * paperDpi" 
+                                [style.height.px]="selectedPaper.orientation === 'portrait' ? paperHeight * paperDpi : paperWidth * paperDpi"
+                                [style.padding.px]="paperMargins * paperDpi">
+                                <div #cardSheets class="preview-sheet" [style.transform]="'scaleY(-1)'">
+                                    <ng-container *ngFor="let card of sheet;">
+                                        <div class="card-wrapper" [style.margin.px]="cardMargins * paperDpi" [style.transform]="'scaleX(-1)'">
+                                            <app-card-preview #cardSheetCards [card]="card" [lowInk]="lowInk"
+                                                [template]="card.backCardTemplateId | entity: templatesService | async"></app-card-preview>
+                                        </div>
+                                    </ng-container>
+                                </div>
                             </div>
-                        </div>
-                    </ng-container>
-                </div>
-            </ng-container>
-            <ng-container *ngIf="exportType === 'singular-export'">
-                <div class="preview-individuals">
-                    <ng-container *ngFor="let card of cards; let i = index">
-                        <div class="card-wrapper">
-                            <app-card-preview #frontCards [card]="card"
-                                [template]="card.frontCardTemplateId | entity: templatesService | async"></app-card-preview>
-                        </div>
-                        <div class="card-wrapper">
-                            <app-card-preview #backCards [card]="card"
-                                [template]="card.backCardTemplateId | entity: templatesService | async"></app-card-preview>
-                        </div>
-                    </ng-container>
-                </div>
-            </ng-container>
-        </p-scrollPanel>
-    </p-card>
-    <p-card styleClass="page-card" header="Export Settings" subheader="Configure the export parameters">
-        <div class="settings-panel p-fluid">
-            <div class="p-field">
-                <p-selectButton [options]="exportOptions" [(ngModel)]="exportType" optionLabel="name" optionValue="value"></p-selectButton>
-            </div>
-            <ng-container *ngIf="exportType === 'sheet-export'">
+                        </ng-container>
+                    </div>
+                </ng-container>
+                <ng-container *ngIf="exportType === 'singular-export'">
+                    <div class="preview-individuals">
+                        <ng-container *ngFor="let card of cards; let i = index">
+                            <div class="card-wrapper">
+                                <app-card-preview #frontCards [card]="card"
+                                    [template]="card.frontCardTemplateId | entity: templatesService | async"></app-card-preview>
+                            </div>
+                            <div class="card-wrapper">
+                                <app-card-preview #backCards [card]="card"
+                                    [template]="card.backCardTemplateId | entity: templatesService | async"></app-card-preview>
+                            </div>
+                        </ng-container>
+                    </div>
+                </ng-container>
+            </p-scrollPanel>
+        </p-card>
+    </div>
+    <div>
+        <app-page-header header="Export Settings" subheader="Configure the export parameters"></app-page-header>
+        <p-card styleClass="page-card">
+            <div class="settings-panel p-fluid">
                 <div class="p-field">
-                    <p-dropdown [options]="paperOptions" [(ngModel)]="selectedPaper" optionLabel="name"
-                        (onChange)="changePaperType()"></p-dropdown>
+                    <p-selectButton [options]="exportOptions" [(ngModel)]="exportType" optionLabel="name" optionValue="value"></p-selectButton>
                 </div>
-                <div class="p-d-flex p-flex-row">
-                    <div class="p-field p-mr-2">
-                        <label [for]="paperWidth">Paper Width (inches)</label>
-                        <input type="text" pInputText [id]="paperWidth" [(ngModel)]="paperWidth" required autofocus 
-                            [disabled]="!selectedPaper.name.includes('Custom')"/>
+                <ng-container *ngIf="exportType === 'sheet-export'">
+                    <div class="p-field">
+                        <p-dropdown [options]="paperOptions" [(ngModel)]="selectedPaper" optionLabel="name"
+                            (onChange)="changePaperType()"></p-dropdown>
+                    </div>
+                    <div class="p-d-flex p-flex-row">
+                        <div class="p-field p-mr-2">
+                            <label [for]="paperWidth">Paper Width (inches)</label>
+                            <input type="text" pInputText [id]="paperWidth" [(ngModel)]="paperWidth" required autofocus 
+                                [disabled]="!selectedPaper.name.includes('Custom')"/>
+                        </div>
+                        <div class="p-field">
+                            <label [for]="paperHeight">Paper Height (inches)</label>
+                            <input type="text" pInputText [id]="paperHeight" [(ngModel)]="paperHeight" required autofocus 
+                                [disabled]="!selectedPaper.name.includes('Custom')"/>
+                        </div>
+                    </div>
+                    <div class="p-d-flex p-flex-row">
+                        <div class="p-field p-mr-2">
+                            <label [for]="paperMargins">Paper Margins (inches)</label>
+                            <input type="text" pInputText [id]="paperMargins" [(ngModel)]="paperMargins" required autofocus 
+                                [disabled]="selectedPaper.name.includes('Tabletop Simulator')"/>
+                        </div>
+                        <div class="p-field">
+                            <label [for]="cardMargins">Card Margins (inches)</label>
+                            <input type="text" pInputText [id]="cardMargins" [(ngModel)]="cardMargins" required autofocus 
+                                [disabled]="selectedPaper.name.includes('Tabletop Simulator')"/>
+                        </div>
                     </div>
                     <div class="p-field">
-                        <label [for]="paperHeight">Paper Height (inches)</label>
-                        <input type="text" pInputText [id]="paperHeight" [(ngModel)]="paperHeight" required autofocus 
-                            [disabled]="!selectedPaper.name.includes('Custom')"/>
-                    </div>
-                </div>
-                <div class="p-d-flex p-flex-row">
-                    <div class="p-field p-mr-2">
-                        <label [for]="paperMargins">Paper Margins (inches)</label>
-                        <input type="text" pInputText [id]="paperMargins" [(ngModel)]="paperMargins" required autofocus 
+                        <label [for]="cardsPerPage">Cards per Page</label>
+                        <input type="number" pInputText [id]="cardsPerPage" [(ngModel)]="cardsPerPage" required autofocus 
+                            (ngModelChange)="updateSlices()" 
                             [disabled]="selectedPaper.name.includes('Tabletop Simulator')"/>
                     </div>
                     <div class="p-field">
-                        <label [for]="cardMargins">Card Margins (inches)</label>
-                        <input type="text" pInputText [id]="cardMargins" [(ngModel)]="cardMargins" required autofocus 
-                            [disabled]="selectedPaper.name.includes('Tabletop Simulator')"/>
+                        <p-checkbox name="lowInk" label="Low Ink Mode" [binary]="true" [(ngModel)]="lowInk"></p-checkbox>
                     </div>
-                </div>
-                <div class="p-field">
-                    <label [for]="cardsPerPage">Cards per Page</label>
-                    <input type="number" pInputText [id]="cardsPerPage" [(ngModel)]="cardsPerPage" required autofocus 
-                        (ngModelChange)="updateSlices()" 
-                        [disabled]="selectedPaper.name.includes('Tabletop Simulator')"/>
-                </div>
-                <div class="p-field">
-                    <p-checkbox name="lowInk" label="Low Ink Mode" [binary]="true" [(ngModel)]="lowInk"></p-checkbox>
-                </div>
-                <div class="p-field">
-                    <label [for]="paperDpi">Paper DPI (dots per inch)</label>
-                    <input type="text" pInputText [id]="paperDpi" [(ngModel)]="paperDpi" required autofocus />
-                    <p-message severity="info" text="Make sure this DPI is the same target DPI for the card templates."></p-message>
-                </div>
-            </ng-container>
-            <ng-container *ngIf="exportType === 'singular-export'">
-        
-            </ng-container>
+                    <div class="p-field">
+                        <label [for]="paperDpi">Paper DPI (dots per inch)</label>
+                        <input type="text" pInputText [id]="paperDpi" [(ngModel)]="paperDpi" required autofocus />
+                        <p-message severity="info" text="Make sure this DPI is the same target DPI for the card templates."></p-message>
+                    </div>
+                </ng-container>
+                <ng-container *ngIf="exportType === 'singular-export'">
             
-            <button pButton pRipple label="Export" icon="pi pi-file" class="p-button p-mr-2" (click)="export()"></button>
-        </div>
-    </p-card>
+                </ng-container>
+                
+                <button pButton pRipple label="Export" icon="pi pi-file" class="p-button p-mr-2" (click)="export()"></button>
+            </div>
+        </p-card>
+    </div>
 </div>
 <p-dialog header="Exporting Data" [(visible)]="displayLoading" [style]="{width: '450px'}" [modal]="true" >
     <div class="p-field">

@@ -3,20 +3,6 @@
     &.tabbed-card {
         margin-top: 0px;
     }
-    &.header-card {
-        .p-card-title {
-            display: inline-block;
-            margin-right: 21px;
-            margin-bottom: 0;
-        }
-        .p-card-subtitle {
-            display: inline-block;
-            margin-bottom: 0;
-        }
-        .p-card-content {
-            padding: 0;
-        }
-    }
 }
 
 :host ::ng-deep .card-thumbnails {
