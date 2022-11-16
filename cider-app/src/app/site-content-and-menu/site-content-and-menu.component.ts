@@ -3,6 +3,7 @@ import { ExportProgress } from 'dexie-export-import/dist/export';
 import { ImportProgress } from 'dexie-export-import/dist/import';
 import { ConfirmationService, MenuItem } from 'primeng/api';
 import { Observable } from 'rxjs';
+import { ElectronService } from '../data-services/electron/electron.service';
 import { db } from '../data-services/indexed-db/db';
 import { GamesService } from '../data-services/services/games.service';
 import { Game } from '../data-services/types/game.type';
@@ -16,6 +17,7 @@ import { Game } from '../data-services/types/game.type';
 export class SiteContentAndMenuComponent implements OnInit {
 
   selectedGame$: Observable<Game | undefined>;
+  isSaving: boolean = false;
   items: MenuItem[];
   importVisible: boolean = false;
   importFile: File | undefined = undefined;
@@ -24,7 +26,8 @@ export class SiteContentAndMenuComponent implements OnInit {
   public loadingInfo: string = '';
 
   constructor(private gamesService : GamesService,
-    private confirmationService: ConfirmationService) { 
+    private confirmationService: ConfirmationService,
+    private electronService: ElectronService) { 
     this.items = [];
     this.selectedGame$ = this.gamesService.getSelectedGame();
   }
@@ -39,7 +42,8 @@ export class SiteContentAndMenuComponent implements OnInit {
             items: [
               {
                 label: 'Open Project',
-                icon: 'pi pi-pw pi-file'
+                icon: 'pi pi-pw pi-file',
+                command: () => this.selectDirectory()
               }, {
                 label: 'Save',
                 icon: 'pi pi-pw pi-save'
@@ -68,6 +72,7 @@ export class SiteContentAndMenuComponent implements OnInit {
               }, {
                 label: 'Export Cards',
                 icon: 'pi pi-pw pi-file-pdf',
+                disabled: !selectedGame,
                 routerLink: [`/games/${selectedGame?.id}/export-cards`]
               }
             ]
@@ -159,11 +164,19 @@ export class SiteContentAndMenuComponent implements OnInit {
     });
   }
 
+  public logoClicked() {
+    this.isSaving = true;
+    setTimeout (() => {
+      this.isSaving = false;
+    }, 1800);
+  }
+
+  public selectDirectory() {
+    this.electronService.selectDirectory();
+  }
+
   public titlebarDoubleClick() {
-    if (typeof window.require === 'function') {
-      const ipcRenderer = window.require('electron').ipcRenderer;
-      ipcRenderer.send("window.titlebar-double-clicked");
-    }
+    this.electronService.titlebarDoubleClick();
   }
 
 }

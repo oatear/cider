@@ -41,6 +41,12 @@
         border: none;
     }
 
+    .p-menuitem {
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-app-region: none;
+    }
+
     .p-menuitem.selected-game {
         background-color: var(--surface-a);
         border-radius: 10px;

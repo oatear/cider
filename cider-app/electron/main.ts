@@ -1,4 +1,4 @@
-import {app, BrowserWindow, screen, systemPreferences } from 'electron';
+import {app, BrowserWindow, screen, systemPreferences, ipcMain, dialog } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -74,19 +74,6 @@ try {
         cssOrigin: 'author'
       });
     }
-
-    // Enable double click on titlebar maximize/minimize
-    win.webContents.on("ipc-message", (event: Event, channel: string) => {
-      if (channel === "window.titlebar-double-clicked") {
-        const action: string =
-          systemPreferences.getUserDefault("AppleActionOnDoubleClick", "string") || "Maximize";
-        if (action === "Minimize") {
-          win.minimize();
-        } else {
-          win.isMaximized() ? win.unmaximize() : win.maximize();
-        }
-      }
-    });
   });
 
   // Quit when all windows are closed.
@@ -100,6 +87,25 @@ try {
     if (win === null) {
       createWindow();
     }
+  });
+
+  // Enable double click on titlebar maximize/minimize
+  ipcMain.on('titlebar-double-clicked', async (event, arg) => {
+    const action: string =
+      systemPreferences.getUserDefault("AppleActionOnDoubleClick", "string") || "Maximize";
+    if (action === "Minimize") {
+      win.minimize();
+    } else {
+      win.isMaximized() ? win.unmaximize() : win.maximize();
+    }
+  });
+
+  // open directory selection dialog
+  ipcMain.on('select-directory', async (event, arg) => {
+    const result = await dialog.showOpenDialog(win, {
+      properties: ['openDirectory']
+    })
+    console.log('directory selected', result.filePaths)
   });
 
 } catch (e) {
