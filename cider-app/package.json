@@ -5,15 +5,15 @@
     "name": "Hristo Iankov"
   },
   "version": "0.3.0",
-  "main": "electron/dist/main.js",
+  "main": "electron-app/dist/main.js",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "electron": "ng build --base-href ./ && tsc --p electron && electron .",
-    "electron:build": "ng build --base-href ./ && tsc --p electron && electron-builder build --publish=never"
+    "electron": "ng build --base-href ./ && tsc --p electron-app && electron .",
+    "electron:build": "ng build --base-href ./ && tsc --p electron-app && electron-builder build --publish=never"
   },
   "browser": {
     "fs": false,

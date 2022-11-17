@@ -105,7 +105,12 @@ try {
     const result = await dialog.showOpenDialog(win, {
       properties: ['openDirectory']
     })
-    console.log('directory selected', result.filePaths)
+    console.log('directory selected', result.filePaths);
+  });
+
+  // exit the application
+  ipcMain.on('exit-application', async (event, arg) => {
+    app.quit();
   });
 
 } catch (e) {

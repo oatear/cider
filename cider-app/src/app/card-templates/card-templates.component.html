@@ -26,7 +26,7 @@
                     </span>
                 </div>
                 <div class="preview-space" >
-                    <app-card-preview [card]="selectedCard" [template]="selectedTemplate" 
+                    <app-card-preview [card]="selectedCard" [template]="selectedTemplate" *ngIf="selectedCard"
                         [style]="{transform: 'translate(-50%, -50%) scale(' + zoom + ') translate(calc(399px/2/' + zoom + '), calc((100vh - 388px)/2/' + zoom + '))'}"
                         ></app-card-preview>
                 </div>
@@ -38,7 +38,7 @@
                     <ng-template pTemplate="icons">
                         <button pButton pRipple icon="pi pi-info-circle" class="p-panel-header-icon p-link" (click)="openCssInfo()"></button>
                     </ng-template>
-                    <ngx-monaco-editor style="height: 100%;" 
+                    <ngx-monaco-editor style="height: 100%;" *ngIf="selectedTemplate"
                         [options]="cssEditorOptions" [(ngModel)]="selectedTemplate.css"></ngx-monaco-editor>
                 </p-panel>
             </div>
@@ -47,7 +47,7 @@
                     <ng-template pTemplate="icons">
                         <button pButton pRipple icon="pi pi-info-circle" class="p-panel-header-icon p-link" (click)="openHtmlInfo()"></button>
                     </ng-template>
-                    <ngx-monaco-editor style="height: 100%;" 
+                    <ngx-monaco-editor style="height: 100%;" *ngIf="selectedTemplate"
                         [options]="htmlEditorOptions" [(ngModel)]="selectedTemplate.html"></ngx-monaco-editor>
                 </p-panel>
             </div>

@@ -43,10 +43,12 @@ export class SiteContentAndMenuComponent implements OnInit {
               {
                 label: 'Open Project',
                 icon: 'pi pi-pw pi-file',
+                visible: this.electronService.isElectron(),
                 command: () => this.selectDirectory()
               }, {
                 label: 'Save',
-                icon: 'pi pi-pw pi-save'
+                icon: 'pi pi-pw pi-save',
+                visible: this.electronService.isElectron()
               }, {
                   separator:true
               }, {
@@ -74,6 +76,11 @@ export class SiteContentAndMenuComponent implements OnInit {
                 icon: 'pi pi-pw pi-file-pdf',
                 disabled: !selectedGame,
                 routerLink: [`/games/${selectedGame?.id}/export-cards`]
+              }, {
+                label: 'Exit Cider',
+                icon: 'pi pi-pw pi-file',
+                visible: this.electronService.isElectron(),
+                command: () => this.exitCider()
               }
             ]
           }, {
@@ -177,6 +184,10 @@ export class SiteContentAndMenuComponent implements OnInit {
 
   public titlebarDoubleClick() {
     this.electronService.titlebarDoubleClick();
+  }
+
+  public exitCider() {
+    this.electronService.exitApplication();
   }
 
 }

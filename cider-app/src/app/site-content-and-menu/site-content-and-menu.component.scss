@@ -47,13 +47,17 @@
         -webkit-app-region: none;
     }
 
+    .p-menubar-root-list > .p-menuitem > .p-menuitem-link {
+        border-radius: 10px;
+    }
+
     .p-menuitem.selected-game {
         background-color: var(--surface-a);
         border-radius: 10px;
     }
 
     .p-menuitem.p-menuitem-active > .p-menuitem-link {
-        background: #2b323d;
+        background: var(--surface-d);
     }
 }
 
