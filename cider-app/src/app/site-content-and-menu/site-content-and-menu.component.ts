@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { ExportProgress } from 'dexie-export-import/dist/export';
 import { ImportProgress } from 'dexie-export-import/dist/import';
 import { ConfirmationService, MenuItem } from 'primeng/api';
-import { Observable } from 'rxjs';
+import { Observable, combineLatest } from 'rxjs';
 import { ElectronService } from '../data-services/electron/electron.service';
 import { db } from '../data-services/indexed-db/db';
 import { LocalStorageService } from '../data-services/local-storage/local-storage.service';
@@ -39,19 +39,21 @@ export class SiteContentAndMenuComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.recentProjectUrls$.subscribe({
-      next: (urls) => {
+
+    combineLatest([this.selectedGame$, this.recentProjectUrls$]).subscribe({
+      next: ([selectedGame, urls]) => {
+        // setup the recent project urls
         this.recentProjectUrlItems = urls.map(url => {return {
           label: url.substring(url.lastIndexOf('/') | 0),
           title: url,
           icon: 'pi pi-pw pi-file',
-          command: () => this.electronService.selectDirectory(url)
+          command: () => {
+            this.electronService.selectDirectory(url);
+            this.localStorageService.addRecentProjectUrl(url);
+          }
         }});
-      }
-    });
 
-    this.selectedGame$.subscribe({
-      next: (selectedGame) => {
+        // setup the menu items
         this.items = [
           {
             label: 'File',
@@ -128,9 +130,8 @@ export class SiteContentAndMenuComponent implements OnInit {
             disabled: !selectedGame,
             routerLink: [`/games/${selectedGame?.id}/assets`]
           }
-        ]
-      }
-    });
+        ];
+    }});
   }
   
   public uploadFile(event: any) {

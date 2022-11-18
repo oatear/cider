@@ -135,7 +135,10 @@ export class AppDB extends Dexie {
     public exportDatabase(progressCallback?: (progress: ExportProgress) => boolean): Promise<boolean> {
         // unsolved dexie with typescript issue: https://github.com/dexie/Dexie.js/issues/1262
         // @ts-ignore
-        const promisedBlob: Promise<Blob> = exportDB(this, {progressCallback: progressCallback});
+        const promisedBlob: Promise<Blob> = exportDB(this, {
+            progressCallback: progressCallback,
+            prettyJson: true
+        });
         return promisedBlob.then(blob => {
             FileUtils.saveAs(blob, 'database.json');
             return true;

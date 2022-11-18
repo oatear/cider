@@ -19,11 +19,9 @@ export class LocalStorageService {
   }
 
   public addRecentProjectUrl(url : string) {
-    const urls = this.getRecentProjectUrlsFromLocalStorage();
-    const existingIndex = urls.findIndex(item => item == url);
-    if (existingIndex > -1) {
-      urls.splice(existingIndex, 1);
-    } else if (urls.length >= LocalStorageService.MAX_RECENT_PROJECT_URLS) {
+    let urls = this.getRecentProjectUrlsFromLocalStorage();
+    urls = urls.filter(item => item !== url);
+    if (urls.length >= LocalStorageService.MAX_RECENT_PROJECT_URLS) {
       urls.pop();
     }
     urls.unshift(url);
