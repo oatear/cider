@@ -101,11 +101,12 @@ try {
   });
 
   // open directory selection dialog
-  ipcMain.on('select-directory', async (event, arg) => {
+  ipcMain.handle('select-directory', async (event, arg) => {
     const result = await dialog.showOpenDialog(win, {
       properties: ['openDirectory']
-    })
+    });
     console.log('directory selected', result.filePaths);
+    return result;
   });
 
   // exit the application

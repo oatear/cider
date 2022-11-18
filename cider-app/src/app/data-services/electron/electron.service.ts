@@ -1,14 +1,19 @@
 import { Injectable } from '@angular/core';
 import { IpcRenderer } from 'electron';
+import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ElectronService {
-
-  projectHomeUrl: string | undefined;
+  public projectHomeUrl: BehaviorSubject<string | undefined>;
 
   constructor() {
+    this.projectHomeUrl = new BehaviorSubject<string | undefined>(undefined);
+  }
+
+  public getProjectHomeUrl() {
+    return this.projectHomeUrl.asObservable();
   }
 
   /**
@@ -26,11 +31,23 @@ export class ElectronService {
     return window.require('electron').ipcRenderer;
   }
 
-  public selectDirectory() {
+  public selectDirectory(url: string) {
+    this.projectHomeUrl.next(url);
+  }
+
+  public openSelectDirectoryDialog(): Promise<string | null> {
     if (!this.isElectron()) {
-      return;
+      return Promise.resolve(null);
     }
-    this.getIpcRenderer().send("select-directory");
+    return this.getIpcRenderer().invoke("select-directory").then(
+      (result : Electron.OpenDialogReturnValue) => {
+        if (!result.canceled) {
+          this.projectHomeUrl.next(result.filePaths[0]);
+          console.log("projectHomeUrl: ", result.filePaths[0]);
+          return result.filePaths[0];
+        }
+        return null;
+    });
   }
 
   public titlebarDoubleClick() {

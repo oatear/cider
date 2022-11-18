@@ -5,6 +5,7 @@ import { ConfirmationService, MenuItem } from 'primeng/api';
 import { Observable } from 'rxjs';
 import { ElectronService } from '../data-services/electron/electron.service';
 import { db } from '../data-services/indexed-db/db';
+import { LocalStorageService } from '../data-services/local-storage/local-storage.service';
 import { GamesService } from '../data-services/services/games.service';
 import { Game } from '../data-services/types/game.type';
 
@@ -17,6 +18,8 @@ import { Game } from '../data-services/types/game.type';
 export class SiteContentAndMenuComponent implements OnInit {
 
   selectedGame$: Observable<Game | undefined>;
+  recentProjectUrls$: Observable<string[]>;
+  recentProjectUrlItems: MenuItem[];
   isSaving: boolean = false;
   items: MenuItem[];
   importVisible: boolean = false;
@@ -27,12 +30,26 @@ export class SiteContentAndMenuComponent implements OnInit {
 
   constructor(private gamesService : GamesService,
     private confirmationService: ConfirmationService,
-    private electronService: ElectronService) { 
+    private electronService: ElectronService,
+    private localStorageService: LocalStorageService) { 
     this.items = [];
     this.selectedGame$ = this.gamesService.getSelectedGame();
+    this.recentProjectUrls$ = this.localStorageService.getRecentProjectUrls();
+    this.recentProjectUrlItems = [];
   }
 
   ngOnInit(): void {
+    this.recentProjectUrls$.subscribe({
+      next: (urls) => {
+        this.recentProjectUrlItems = urls.map(url => {return {
+          label: url.substring(url.lastIndexOf('/') | 0),
+          title: url,
+          icon: 'pi pi-pw pi-file',
+          command: () => this.electronService.selectDirectory(url)
+        }});
+      }
+    });
+
     this.selectedGame$.subscribe({
       next: (selectedGame) => {
         this.items = [
@@ -44,7 +61,14 @@ export class SiteContentAndMenuComponent implements OnInit {
                 label: 'Open Project',
                 icon: 'pi pi-pw pi-file',
                 visible: this.electronService.isElectron(),
-                command: () => this.selectDirectory()
+                command: () => this.openSelectDirectoryDialog()
+              }, {
+                label: 'Open Recent',
+                icon: 'pi pi-pw pi-file',
+                visible: this.electronService.isElectron(),
+                disabled: !this.recentProjectUrlItems 
+                  || this.recentProjectUrlItems.length <= 0,
+                items: this.recentProjectUrlItems
               }, {
                 label: 'Save',
                 icon: 'pi pi-pw pi-save',
@@ -178,8 +202,12 @@ export class SiteContentAndMenuComponent implements OnInit {
     }, 1800);
   }
 
-  public selectDirectory() {
-    this.electronService.selectDirectory();
+  public openSelectDirectoryDialog() {
+    this.electronService.openSelectDirectoryDialog().then(url => {
+      if (url) {
+        this.localStorageService.addRecentProjectUrl(url);
+      }
+    });
   }
 
   public titlebarDoubleClick() {
