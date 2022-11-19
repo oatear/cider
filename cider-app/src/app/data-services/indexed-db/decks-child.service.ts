@@ -50,8 +50,10 @@ export class DecksChildService<Entity, Identity extends string | number> extends
     return super.delete(id);
   }
 
-  override deleteAll(): Promise<boolean> {
-    return super.deleteAll();
+  override deleteAll(equalityCriterias?: {[key: string]: any;}): Promise<boolean> {
+    return firstValueFrom(this.decksService.getSelectedDeck())
+      .then(deck => super.deleteAll(
+        {...{deckId: (deck || {}).id}, ...equalityCriterias}));
   }
 
 }

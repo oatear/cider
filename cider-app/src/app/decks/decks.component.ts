@@ -44,7 +44,7 @@ export class DecksComponent implements OnInit, OnDestroy {
    */
   public selectDeck() {
       this.decksService.selectDeck(this.selectedDeck);
-      this.router.navigateByUrl(`/decks/${this.selectedDeck?.id}/cards`);
+      this.router.navigateByUrl(`/decks/${this.selectedDeck?.id}/cards/listing`);
   }
 
 }

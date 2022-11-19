@@ -6,6 +6,8 @@ import { Observable, combineLatest } from 'rxjs';
 import { ElectronService } from '../data-services/electron/electron.service';
 import { db } from '../data-services/indexed-db/db';
 import { LocalStorageService } from '../data-services/local-storage/local-storage.service';
+import { AssetsService } from '../data-services/services/assets.service';
+import { CardsService } from '../data-services/services/cards.service';
 import { DecksService } from '../data-services/services/decks.service';
 import { Deck } from '../data-services/types/deck.type';
 
@@ -31,7 +33,9 @@ export class SiteContentAndMenuComponent implements OnInit {
   constructor(private decksService : DecksService,
     private confirmationService: ConfirmationService,
     private electronService: ElectronService,
-    private localStorageService: LocalStorageService) { 
+    private localStorageService: LocalStorageService,
+    private assetsService: AssetsService,
+    private cardsService: CardsService) { 
     this.items = [];
     this.selectedDeck$ = this.decksService.getSelectedDeck();
     this.recentProjectUrls$ = this.localStorageService.getRecentProjectUrls();
@@ -74,7 +78,8 @@ export class SiteContentAndMenuComponent implements OnInit {
               }, {
                 label: 'Save',
                 icon: 'pi pi-pw pi-save',
-                visible: this.electronService.isElectron()
+                visible: this.electronService.isElectron(),
+                command: () => this.saveProject()
               }, {
                   separator:true
               }, {
@@ -208,6 +213,12 @@ export class SiteContentAndMenuComponent implements OnInit {
         this.localStorageService.addRecentProjectUrl(url);
       }
     });
+  }
+
+  public saveProject() {
+    // save to the filesystem
+    //this.assetsService.getAll();
+    //this.cardsService.getAll();
   }
 
   public titlebarDoubleClick() {
