@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { Deck } from '../types/game.type';
+import { Deck } from '../types/deck.type';
 
 import { InMemoryService } from './in-memory.service';
 
