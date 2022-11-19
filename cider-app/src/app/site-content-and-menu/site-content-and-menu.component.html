@@ -9,10 +9,7 @@
         </p-menubar>
     </div>
     <div class="site-content">
-        <ng-content *ngIf="selectedDeck$ | async; else elseBlock" ></ng-content>
-        <ng-template #elseBlock>
-            <app-decks></app-decks>
-        </ng-template>
+        <ng-content></ng-content>
     </div>
 </div>
 <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>

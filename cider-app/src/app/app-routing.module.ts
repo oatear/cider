@@ -11,12 +11,12 @@ import { DecksComponent } from './decks/decks.component';
 
 const routes: Routes = [
   { path: 'decks', component: DecksComponent},
+  { path: 'assets', component: AssetsComponent},
   { path: 'decks/:deckId/cards', component: CardsComponent, canActivate: [DeckGuard]},
   { path: 'decks/:deckId/cards/listing', component: CardsComponent, canActivate: [DeckGuard]},
   { path: 'decks/:deckId/cards/thumbnails', component: CardThumbnailsComponent, canActivate: [DeckGuard]},
   { path: 'decks/:deckId/cards/attributes', component: CardAttributesComponent, canActivate: [DeckGuard]},
   { path: 'decks/:deckId/card-templates', component: CardTemplatesComponent, canActivate: [DeckGuard]},
-  { path: 'decks/:deckId/assets', component: AssetsComponent, canActivate: [DeckGuard]},
   { path: 'decks/:deckId/export-cards', component: ExportCardsComponent, canActivate: [DeckGuard]},
   { path: '**', component: DecksComponent}
 ];

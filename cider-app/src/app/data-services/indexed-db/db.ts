@@ -60,6 +60,10 @@ export class AppDB extends Dexie {
                     attribute.deckId = attribute.gameId;
                     delete attribute.gameId;
                 });
+            }).then(result => {
+                return transaction.table(AppDB.ASSETS_TABLE).toCollection().modify(asset => {
+                    delete asset.gameId;
+                });
             });
         });
         this.on('populate', () => this.populate());

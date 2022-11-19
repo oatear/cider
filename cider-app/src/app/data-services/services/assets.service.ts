@@ -1,4 +1,4 @@
-import { Injectable, PLATFORM_INITIALIZER } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Asset } from '../types/asset.type';
 import { AppDB } from '../indexed-db/db';
 import { FieldType } from '../types/field-type.type';

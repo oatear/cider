@@ -46,7 +46,7 @@ export class SiteContentAndMenuComponent implements OnInit {
         this.recentProjectUrlItems = urls.map(url => {return {
           label: url.substring(url.lastIndexOf('/') | 0),
           title: url,
-          icon: 'pi pi-pw pi-file',
+          icon: 'pi pi-pw pi-folder',
           command: () => {
             this.electronService.selectDirectory(url);
             this.localStorageService.addRecentProjectUrl(url);
@@ -61,12 +61,12 @@ export class SiteContentAndMenuComponent implements OnInit {
             items: [
               {
                 label: 'Open Project',
-                icon: 'pi pi-pw pi-file',
+                icon: 'pi pi-pw pi-folder',
                 visible: this.electronService.isElectron(),
                 command: () => this.openSelectDirectoryDialog()
               }, {
                 label: 'Open Recent',
-                icon: 'pi pi-pw pi-file',
+                icon: 'pi pi-pw pi-folder',
                 visible: this.electronService.isElectron(),
                 disabled: !this.recentProjectUrlItems 
                   || this.recentProjectUrlItems.length <= 0,
@@ -127,8 +127,7 @@ export class SiteContentAndMenuComponent implements OnInit {
           }, {
             label: 'Assets',
             icon: 'pi pi-pw pi-image',
-            disabled: !selectedDeck,
-            routerLink: [`/decks/${selectedDeck?.id}/assets`]
+            routerLink: [`/assets`]
           }
         ];
     }});
