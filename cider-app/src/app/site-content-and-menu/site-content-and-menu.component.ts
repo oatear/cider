@@ -6,8 +6,8 @@ import { Observable, combineLatest } from 'rxjs';
 import { ElectronService } from '../data-services/electron/electron.service';
 import { db } from '../data-services/indexed-db/db';
 import { LocalStorageService } from '../data-services/local-storage/local-storage.service';
-import { GamesService } from '../data-services/services/games.service';
-import { Game } from '../data-services/types/game.type';
+import { DecksService } from '../data-services/services/decks.service';
+import { Deck } from '../data-services/types/deck.type';
 
 @Component({
   selector: 'app-site-content-and-menu',
@@ -17,7 +17,7 @@ import { Game } from '../data-services/types/game.type';
 })
 export class SiteContentAndMenuComponent implements OnInit {
 
-  selectedGame$: Observable<Game | undefined>;
+  selectedDeck$: Observable<Deck | undefined>;
   recentProjectUrls$: Observable<string[]>;
   recentProjectUrlItems: MenuItem[];
   isSaving: boolean = false;
@@ -28,20 +28,20 @@ export class SiteContentAndMenuComponent implements OnInit {
   public loadingPercent: number = 0;
   public loadingInfo: string = '';
 
-  constructor(private gamesService : GamesService,
+  constructor(private decksService : DecksService,
     private confirmationService: ConfirmationService,
     private electronService: ElectronService,
     private localStorageService: LocalStorageService) { 
     this.items = [];
-    this.selectedGame$ = this.gamesService.getSelectedGame();
+    this.selectedDeck$ = this.decksService.getSelectedDeck();
     this.recentProjectUrls$ = this.localStorageService.getRecentProjectUrls();
     this.recentProjectUrlItems = [];
   }
 
   ngOnInit(): void {
 
-    combineLatest([this.selectedGame$, this.recentProjectUrls$]).subscribe({
-      next: ([selectedGame, urls]) => {
+    combineLatest([this.selectedDeck$, this.recentProjectUrls$]).subscribe({
+      next: ([selectedDeck, urls]) => {
         // setup the recent project urls
         this.recentProjectUrlItems = urls.map(url => {return {
           label: url.substring(url.lastIndexOf('/') | 0),
@@ -100,8 +100,8 @@ export class SiteContentAndMenuComponent implements OnInit {
               }, {
                 label: 'Export Cards',
                 icon: 'pi pi-pw pi-file-pdf',
-                disabled: !selectedGame,
-                routerLink: [`/games/${selectedGame?.id}/export-cards`]
+                disabled: !selectedDeck,
+                routerLink: [`/decks/${selectedDeck?.id}/export-cards`]
               }, {
                 label: 'Exit Cider',
                 icon: 'pi pi-pw pi-file',
@@ -110,25 +110,25 @@ export class SiteContentAndMenuComponent implements OnInit {
               }
             ]
           }, {
-            label: selectedGame ? selectedGame.name : 'Select Game',
+            label: selectedDeck ? selectedDeck.name : 'Select Deck',
             icon: 'pi pi-pw pi-book',
-            styleClass: 'selected-game',
-            routerLink: ['/games']
+            styleClass: 'selected-deck',
+            routerLink: ['/decks']
           }, {
             label: 'Cards',
             icon: 'pi pi-pw pi-table',
-            disabled: !selectedGame,
-            routerLink: [`/games/${selectedGame?.id}/cards/listing`]
+            disabled: !selectedDeck,
+            routerLink: [`/decks/${selectedDeck?.id}/cards/listing`]
           }, {
             label: 'Templates',
             icon: 'pi pi-pw pi-id-card',
-            disabled: !selectedGame,
-            routerLink: [`/games/${selectedGame?.id}/card-templates`]
+            disabled: !selectedDeck,
+            routerLink: [`/decks/${selectedDeck?.id}/card-templates`]
           }, {
             label: 'Assets',
             icon: 'pi pi-pw pi-image',
-            disabled: !selectedGame,
-            routerLink: [`/games/${selectedGame?.id}/assets`]
+            disabled: !selectedDeck,
+            routerLink: [`/decks/${selectedDeck?.id}/assets`]
           }
         ];
     }});

@@ -1,4 +1,4 @@
-export interface Game {
+export interface Deck {
     id: number;
     name: string;
 }

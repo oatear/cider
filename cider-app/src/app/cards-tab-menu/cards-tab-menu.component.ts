@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { Observable } from 'rxjs';
-import { GamesService } from '../data-services/services/games.service';
-import { Game } from '../data-services/types/game.type';
+import { DecksService } from '../data-services/services/decks.service';
+import { Deck } from '../data-services/types/deck.type';
 
 @Component({
   selector: 'app-cards-tab-menu',
@@ -11,21 +11,21 @@ import { Game } from '../data-services/types/game.type';
 })
 export class CardsTabMenuComponent implements OnInit {
 
-  selectedGame$: Observable<Game | undefined>;
+  selectedDeck$: Observable<Deck | undefined>;
   items: MenuItem[] = [];
 
-  constructor(private gamesService : GamesService) { 
-    this.selectedGame$ = this.gamesService.getSelectedGame();
+  constructor(private decksService : DecksService) { 
+    this.selectedDeck$ = this.decksService.getSelectedDeck();
 
   }
 
   ngOnInit(): void {
-    this.selectedGame$.subscribe({
-      next: (selectedGame) => {
+    this.selectedDeck$.subscribe({
+      next: (selectedDeck) => {
         this.items = [
-          {label: 'Listing', icon: 'pi pi-fw pi-list', routerLink: [`/games/${selectedGame?.id}/cards/listing`]},
-          {label: 'Thumbnails', icon: 'pi pi-fw pi-th-large', routerLink: [`/games/${selectedGame?.id}/cards/thumbnails`]},
-          {label: 'Attributes', icon: 'pi pi-fw pi-caret-up', routerLink: [`/games/${selectedGame?.id}/cards/attributes`]}
+          {label: 'Listing', icon: 'pi pi-fw pi-list', routerLink: [`/decks/${selectedDeck?.id}/cards/listing`]},
+          {label: 'Thumbnails', icon: 'pi pi-fw pi-th-large', routerLink: [`/decks/${selectedDeck?.id}/cards/thumbnails`]},
+          {label: 'Attributes', icon: 'pi pi-fw pi-caret-up', routerLink: [`/decks/${selectedDeck?.id}/cards/attributes`]}
         ];
       }
     });

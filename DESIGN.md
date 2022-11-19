@@ -47,27 +47,20 @@ Card IDE (CIDEr) - Design playing cards using HTML, CSS, and tabular data
 
 ## Database/Local Storage
 
-### Games Table
+### Decks Table
 - ID
 - Name
 
 ### Card Templates Table
 - ID
-- Game ID
-- Name
-- HTML
-- CSS
-
-### Print Templates Table
-- ID
-- Game ID
+- Deck ID
 - Name
 - HTML
 - CSS
 
 ### Cards Table
 - ID
-- Game ID
+- Deck ID
 - Front Card Template ID
 - Back Card Template ID
 - Attributes (JSON)
@@ -80,19 +73,19 @@ Card IDE (CIDEr) - Design playing cards using HTML, CSS, and tabular data
 
 ### Card Attributes
 - ID
-- Game ID
+- Deck ID
 - Field Name
 - Type
 
 ### Card Attribute Values (Alternative to Attributes JSON)
-- Game ID
+- Deck ID
 - Card ID
 - Field Name
 - Value
 
 ### Assets Table
 - ID
-- Game ID
+- Deck ID
 - File Name
 
 ## Generics

@@ -2,27 +2,24 @@ import { Injectable, PLATFORM_INITIALIZER } from '@angular/core';
 import { Asset } from '../types/asset.type';
 import { AppDB } from '../indexed-db/db';
 import { FieldType } from '../types/field-type.type';
-import { GamesChildService } from '../indexed-db/games-child.service';
-import { GamesService } from './games.service';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { SearchParameters } from '../types/search-parameters.type';
+import { IndexedDbService } from '../indexed-db/indexed-db.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class AssetsService extends GamesChildService<Asset, number> {
+export class AssetsService extends IndexedDbService<Asset, number> {
   assetUrls: BehaviorSubject<any>;
 
-  constructor(gamesService: GamesService) {
-    super(gamesService, AppDB.ASSETS_TABLE, [
+  constructor() {
+    super(AppDB.ASSETS_TABLE, [
       {field: 'id', header: 'ID', type: FieldType.number, hidden: true},
-      {field: 'gameId', header: 'Game ID', type: FieldType.number, hidden: true},
       {field: 'name', header: 'Name', type: FieldType.text},
       {field: 'file', header: 'File', type: FieldType.file}
     ]);
     this.assetUrls = new BehaviorSubject<any>({});
-    // update the asset urls whenever a new game is selected
-    gamesService.getSelectedGame().subscribe(game => this.updateAssetUrls());
+    this.updateAssetUrls();
   }
 
   private updateAssetUrls() {

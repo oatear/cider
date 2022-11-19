@@ -6,19 +6,19 @@ import { CardTemplatesComponent } from './card-templates/card-templates.componen
 import { CardThumbnailsComponent } from './card-thumbnails/card-thumbnails.component';
 import { CardsComponent } from './cards/cards.component';
 import { ExportCardsComponent } from './export-cards/export-cards.component';
-import { GameGuard } from './game.guard';
-import { GamesComponent } from './games/games.component';
+import { DeckGuard } from './deck.guard';
+import { DecksComponent } from './decks/decks.component';
 
 const routes: Routes = [
-  { path: 'games', component: GamesComponent},
-  { path: 'games/:gameId/cards', component: CardsComponent, canActivate: [GameGuard]},
-  { path: 'games/:gameId/cards/listing', component: CardsComponent, canActivate: [GameGuard]},
-  { path: 'games/:gameId/cards/thumbnails', component: CardThumbnailsComponent, canActivate: [GameGuard]},
-  { path: 'games/:gameId/cards/attributes', component: CardAttributesComponent, canActivate: [GameGuard]},
-  { path: 'games/:gameId/card-templates', component: CardTemplatesComponent, canActivate: [GameGuard]},
-  { path: 'games/:gameId/assets', component: AssetsComponent, canActivate: [GameGuard]},
-  { path: 'games/:gameId/export-cards', component: ExportCardsComponent, canActivate: [GameGuard]},
-  { path: '**', component: GamesComponent}
+  { path: 'decks', component: DecksComponent},
+  { path: 'decks/:deckId/cards', component: CardsComponent, canActivate: [DeckGuard]},
+  { path: 'decks/:deckId/cards/listing', component: CardsComponent, canActivate: [DeckGuard]},
+  { path: 'decks/:deckId/cards/thumbnails', component: CardThumbnailsComponent, canActivate: [DeckGuard]},
+  { path: 'decks/:deckId/cards/attributes', component: CardAttributesComponent, canActivate: [DeckGuard]},
+  { path: 'decks/:deckId/card-templates', component: CardTemplatesComponent, canActivate: [DeckGuard]},
+  { path: 'decks/:deckId/assets', component: AssetsComponent, canActivate: [DeckGuard]},
+  { path: 'decks/:deckId/export-cards', component: ExportCardsComponent, canActivate: [DeckGuard]},
+  { path: '**', component: DecksComponent}
 ];
 
 @NgModule({

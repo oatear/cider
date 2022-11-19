@@ -8,7 +8,7 @@
         user-select: none;
         -webkit-user-select: none;
         -webkit-app-region: drag;
-        .game-name {
+        .deck-name {
             font-weight: 500;
         }
     }
@@ -51,7 +51,7 @@
         border-radius: 10px;
     }
 
-    .p-menuitem.selected-game {
+    .p-menuitem.selected-deck {
         background-color: var(--surface-a);
         border-radius: 10px;
     }

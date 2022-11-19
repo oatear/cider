@@ -6,7 +6,7 @@ import { HttpClientModule } from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { GamesComponent } from './games/games.component';
+import { DecksComponent } from './decks/decks.component';
 import { CardTemplatesComponent } from './card-templates/card-templates.component';
 import { CardsComponent } from './cards/cards.component';
 
@@ -56,7 +56,7 @@ import { PageHeaderComponent } from './page-header/page-header.component';
 @NgModule({
   declarations: [
     AppComponent,
-    GamesComponent,
+    DecksComponent,
     CardTemplatesComponent,
     CardsComponent,
     SiteHeaderComponent,

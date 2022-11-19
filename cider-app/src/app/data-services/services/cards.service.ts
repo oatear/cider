@@ -5,20 +5,20 @@ import { FieldType } from '../types/field-type.type';
 import { CardAttributesService } from './card-attributes.service';
 import { CardTemplatesService } from './card-templates.service';
 import { EntityField } from '../types/entity-field.type';
-import { GamesChildService } from '../indexed-db/games-child.service';
-import { GamesService } from './games.service';
+import { DecksChildService as DecksChildService } from '../indexed-db/decks-child.service';
+import { DecksService } from './decks.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class CardsService extends GamesChildService<Card, number> {
+export class CardsService extends DecksChildService<Card, number> {
 
   constructor(private attributesService: CardAttributesService,
     private cardTemplatesService: CardTemplatesService,
-    gamesService: GamesService) {
-    super(gamesService, AppDB.CARDS_TABLE, [
+    decksService: DecksService) {
+    super(decksService, AppDB.CARDS_TABLE, [
       {field: 'id', header: 'ID', type: FieldType.number, hidden: true},
-      {field: 'gameId', header: 'Game ID', type: FieldType.number, hidden: true},
+      {field: 'deckId', header: 'Deck ID', type: FieldType.number, hidden: true},
       {field: 'name', header: 'Name', type: FieldType.text, description: 'The name of the card'},
       {field: 'count', header: 'Count', type: FieldType.number, description: 'How many of this card appear in the deck'},
       {field: 'frontCardTemplateId', header: 'Front Template', type: FieldType.option, 

@@ -2,10 +2,8 @@ import Dexie, { IndexableType, Table } from "dexie";
 import { Card } from "primeng/card";
 import { Asset } from "../types/asset.type";
 import { CardTemplate } from "../types/card-template.type";
-import { Game } from "../types/game.type";
-import { PrintTemplate } from "../types/print-template.type";
+import { Deck } from "../types/deck.type";
 import { importInto, exportDB } from "dexie-export-import";
-import * as FileSaver from "file-saver";
 import FileUtils from "src/app/shared/utils/file-utils";
 import { ExportProgress } from "dexie-export-import/dist/export";
 import { ImportProgress } from "dexie-export-import/dist/import";
@@ -15,17 +13,17 @@ import { FieldType } from "../types/field-type.type";
 export class AppDB extends Dexie {
     private static readonly DB_NAME: string = 'cider-db';
     public static readonly GAMES_TABLE: string = 'games';
+    public static readonly DECKS_TABLE: string = 'decks';
     public static readonly CARDS_TABLE: string = 'cards';
     public static readonly ASSETS_TABLE: string = 'assets';
     public static readonly CARD_TEMPLATES_TABLE: string = 'cardTemplates'
     public static readonly PRINT_TEMPLATES_TABLE: string = 'printTemplates';
     public static readonly CARD_ATTRIBUTES_TABLE: string = 'cardAttributes';
 
-    games!: Table<Game, number>;
+    games!: Table<Deck, number>;
     cards!: Table<Card, number>;
     assets!: Table<Asset, number>;
     cardTemplates!: Table<CardTemplate, number>;
-    printTemplates!: Table<PrintTemplate, number>;
 
     constructor() {
         super(AppDB.DB_NAME);
@@ -37,17 +35,44 @@ export class AppDB extends Dexie {
             printTemplates: '++id, gameId, name, description, html, css',
             cardAttributes: '++id, gameId, name, type, options, description'
         });
+        this.version(2).stores({
+            decks: '++id, name',
+            assets: '++id, name',
+            cards: '++id, deckId, count, frontCardTemplateId, backCardTemplateId',
+            cardTemplates: '++id, deckId, name, description, html, css',
+            cardAttributes: '++id, deckId, name, type, options, description'
+        }).upgrade(transaction => {
+            // upgrade to version 2
+            return transaction.table(AppDB.GAMES_TABLE).toArray().then(games => {
+                transaction.table(AppDB.DECKS_TABLE).bulkAdd(games);
+            }).then(result => {
+                return transaction.table(AppDB.CARDS_TABLE).toCollection().modify(card => {
+                    card.deckId = card.gameId;
+                    delete card.gameId;
+                });
+            }).then(result => {
+                return transaction.table(AppDB.CARD_TEMPLATES_TABLE).toCollection().modify(template => {
+                    template.deckId = template.gameId;
+                    delete template.gameId;
+                });
+            }).then(result => {
+                return transaction.table(AppDB.CARD_ATTRIBUTES_TABLE).toCollection().modify(attribute => {
+                    attribute.deckId = attribute.gameId;
+                    delete attribute.gameId;
+                });
+            });
+        });
         this.on('populate', () => this.populate());
     }
 
     async populate() {
-        const gameId : IndexableType = await db.table(AppDB.GAMES_TABLE).add({
-            name: 'Apple Cider Game'
+        const deckId : IndexableType = await db.table(AppDB.DECKS_TABLE).add({
+            name: 'Apple Cider Deck'
         });
 
         const frontCardTemplateId : IndexableType = await db.table(AppDB.CARD_TEMPLATES_TABLE).add({
             name: 'Apple Front',
-            gameId: gameId,
+            deckId: deckId,
             description: '',
             css: templateCssFront,
             html: templateHtmlFront
@@ -55,7 +80,7 @@ export class AppDB extends Dexie {
 
         const backCardTemplateId : IndexableType = await db.table(AppDB.CARD_TEMPLATES_TABLE).add({
             name: 'Apple Back',
-            gameId: gameId,
+            deckId: deckId,
             description: '',
             css: templateCssBack,
             html: templateHtmlBack
@@ -63,12 +88,12 @@ export class AppDB extends Dexie {
 
         await db.table(AppDB.CARD_ATTRIBUTES_TABLE).bulkAdd([
             {
-                gameId: gameId,
+                deckId: deckId,
                 name: 'Description',
                 description: 'Description of the card',
                 type: FieldType.text
             }, {
-                gameId: gameId,
+                deckId: deckId,
                 name: 'Hue',
                 description: 'Hue of the card',
                 type: FieldType.text
@@ -77,7 +102,7 @@ export class AppDB extends Dexie {
 
         await db.table(AppDB.CARDS_TABLE).bulkAdd([
             {
-                gameId: gameId,
+                deckId: deckId,
                 frontCardTemplateId: frontCardTemplateId,
                 backCardTemplateId: backCardTemplateId,
                 name: 'Poison Apple',
@@ -85,7 +110,7 @@ export class AppDB extends Dexie {
                 description: "Take one card from an opponent's hand.",
                 hue: '110'
             }, {
-                gameId: gameId,
+                deckId: deckId,
                 frontCardTemplateId: frontCardTemplateId,
                 backCardTemplateId: backCardTemplateId,
                 name: 'Healthy Apple',
@@ -93,7 +118,7 @@ export class AppDB extends Dexie {
                 description: "Take a card from the discard pile.",
                 hue: '0'
             }, {
-                gameId: gameId,
+                deckId: deckId,
                 frontCardTemplateId: frontCardTemplateId,
                 backCardTemplateId: backCardTemplateId,
                 name: 'Mystic Apple',
@@ -101,7 +126,7 @@ export class AppDB extends Dexie {
                 description: "Draw two cards from the deck, choose one, discard the other.",
                 hue: '250'
             }, {
-                gameId: gameId,
+                deckId: deckId,
                 frontCardTemplateId: frontCardTemplateId,
                 backCardTemplateId: backCardTemplateId,
                 name: 'Crystal Apple',
