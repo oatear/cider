@@ -11,7 +11,6 @@ function createWindow(): BrowserWindow {
   const defaultSize : {width: number, height: number} = {width: 1000, height: 800};
   const screenSize = screen.getPrimaryDisplay().workAreaSize;
 
-  // Create the browser window.
   win = new BrowserWindow({
     x: screenSize.width / 2 - defaultSize.width / 2,
     y: screenSize.height / 2 - defaultSize.height / 2,
@@ -89,7 +88,9 @@ try {
     }
   });
 
-  // Enable double click on titlebar maximize/minimize
+  /**
+   * Minimize/maximize the window on titlebar double click
+   */
   ipcMain.on('titlebar-double-clicked', async (event, arg) => {
     const action: string =
       systemPreferences.getUserDefault("AppleActionOnDoubleClick", "string") || "Maximize";
@@ -100,8 +101,12 @@ try {
     }
   });
 
-  // open directory selection dialog
-  ipcMain.handle('select-directory', async (event, arg) => {
+  /**
+   * Open select directory dialog
+   * 
+   * return Electron.OpenDialogReturnValue
+   */
+  ipcMain.handle('open-select-directory-dialog', async (event, arg) => {
     const result = await dialog.showOpenDialog(win, {
       properties: ['openDirectory']
     });
@@ -109,7 +114,64 @@ try {
     return result;
   });
 
-  // exit the application
+  /**
+   * Create directory
+   * 
+   * params: dirUrl
+   * return true
+   */
+  ipcMain.handle('create-directory', async (event, dirUrl) => {
+    if (fs.existsSync(dirUrl)) {
+      console.log('directory already exists', dirUrl);
+      return false;
+    }
+    fs.mkdirSync(dirUrl);
+    console.log('directory created', dirUrl);
+    return true;
+  });
+
+  /**
+   * List files in a directory
+   * 
+   * params: dirUrl
+   * return string[]
+   */
+  ipcMain.handle('list-directory', async (event, dirUrl) => {
+    const files = fs.readdirSync(dirUrl);
+    console.log('directory listed', files);
+    return files;
+  });
+
+  /**
+   * Read file
+   * 
+   * params: fileUrl
+   * return Buffer
+   */
+  ipcMain.handle('read-file', async (event, fileUrl) => {
+    if (!fs.existsSync(fileUrl)) {
+      return null;
+    }
+    const buffer = fs.readFileSync(fileUrl);
+    console.log('read file', buffer);
+    return buffer;
+  });
+
+  /**
+   * Write file
+   * 
+   * params: fileUrl, data
+   * return true
+   */
+  ipcMain.handle('write-file', async (event, fileUrl, data) => {
+    fs.writeFileSync(fileUrl, data);
+    console.log('wrote file', fileUrl);
+    return true;
+  });
+
+  /**
+   * Exit the application
+   */
   ipcMain.on('exit-application', async (event, arg) => {
     app.quit();
   });

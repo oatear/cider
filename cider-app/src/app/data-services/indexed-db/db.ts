@@ -3,7 +3,7 @@ import { Card } from "primeng/card";
 import { Asset } from "../types/asset.type";
 import { CardTemplate } from "../types/card-template.type";
 import { Deck } from "../types/deck.type";
-import { importInto, exportDB } from "dexie-export-import";
+import { importInto, exportDB, importDB } from "dexie-export-import";
 import FileUtils from "src/app/shared/utils/file-utils";
 import { ExportProgress } from "dexie-export-import/dist/export";
 import { ImportProgress } from "dexie-export-import/dist/import";
@@ -40,6 +40,7 @@ export class AppDB extends Dexie {
             assets: '++id, name',
             cards: '++id, deckId, count, frontCardTemplateId, backCardTemplateId',
             cardTemplates: '++id, deckId, name, description, html, css',
+            printTemplates: null,
             cardAttributes: '++id, deckId, name, type, options, description'
         }).upgrade(transaction => {
             // upgrade to version 2
@@ -150,11 +151,12 @@ export class AppDB extends Dexie {
     public importDatabase(file: File, progressCallback?: (progress: ImportProgress) => boolean): Promise<boolean> {
         // unsolved dexie with typescript issue: https://github.com/dexie/Dexie.js/issues/1262
         // @ts-ignore
-        return importInto(db, file, {
-            overwriteValues: true,
+        return db.delete().then(result => importDB(file, {
             noTransaction: true,
             progressCallback: progressCallback
-        }).then(result => true);
+        })).then(tempDb => tempDb.close())
+        .then(result => db.open())
+        .then(result => true);
     }
 
     /**

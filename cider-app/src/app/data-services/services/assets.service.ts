@@ -5,6 +5,7 @@ import { FieldType } from '../types/field-type.type';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { SearchParameters } from '../types/search-parameters.type';
 import { IndexedDbService } from '../indexed-db/indexed-db.service';
+import StringUtils from 'src/app/shared/utils/string-utils';
 
 @Injectable({
   providedIn: 'root'
@@ -30,13 +31,9 @@ export class AssetsService extends IndexedDbService<Asset, number> {
       Object.keys(this.assetUrls.getValue()).forEach(key => URL.revokeObjectURL(this.assetUrls.getValue()[key]));
       // generate the new URLs
       let assetUrls = {} as any;
-      assets.forEach(asset => assetUrls[this.convertNameToField(asset.name)] = URL.createObjectURL(asset.file));
+      assets.forEach(asset => assetUrls[StringUtils.toKebabCase(asset.name)] = URL.createObjectURL(asset.file));
       return assetUrls;
     }).then(assetUrls => this.assetUrls.next(assetUrls));
-  }
-
-  private convertNameToField(name: string): string {
-    return name.trim().replace(/ /g, '-').toLowerCase();
   }
   
   override getEntityName(entity: Asset) {

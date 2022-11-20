@@ -54,6 +54,7 @@ export class SiteContentAndMenuComponent implements OnInit {
           command: () => {
             this.electronService.selectDirectory(url);
             this.localStorageService.addRecentProjectUrl(url);
+            this.openProject(url);
           }
         }});
 
@@ -212,13 +213,25 @@ export class SiteContentAndMenuComponent implements OnInit {
       if (url) {
         this.localStorageService.addRecentProjectUrl(url);
       }
-    });
+      return url;
+    }).then((url: string | null) => {
+      if (url) {
+        this.openProject(url);
+      }
+    })
   }
 
   public saveProject() {
     // save to the filesystem
     //this.assetsService.getAll();
     //this.cardsService.getAll();
+    //this.decksService.getAll()
+    this.assetsService.getAll()
+      .then(assets => this.electronService.saveProject(assets));
+  }
+
+  public openProject(url: string) {
+    this.electronService.openProject(url);
   }
 
   public titlebarDoubleClick() {

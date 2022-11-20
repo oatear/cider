@@ -1,11 +1,15 @@
 import { Injectable } from '@angular/core';
 import { IpcRenderer } from 'electron';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
+import StringUtils from 'src/app/shared/utils/string-utils';
+import { Asset } from '../types/asset.type';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ElectronService {
+  private static readonly ASSETS_DIR = "assets";
+  private static readonly CARDS_DIR = "cards";
   public projectHomeUrl: BehaviorSubject<string | undefined>;
 
   constructor() {
@@ -39,7 +43,7 @@ export class ElectronService {
     if (!this.isElectron()) {
       return Promise.resolve(null);
     }
-    return this.getIpcRenderer().invoke("select-directory").then(
+    return this.getIpcRenderer().invoke("open-select-directory-dialog").then(
       (result : Electron.OpenDialogReturnValue) => {
         if (!result.canceled) {
           this.projectHomeUrl.next(result.filePaths[0]);
@@ -50,17 +54,83 @@ export class ElectronService {
     });
   }
 
-  public titlebarDoubleClick() {
+  public createDirectory(dirUrl: string): Promise<boolean> {
+    if (!this.isElectron()) {
+      return Promise.resolve(false);
+    }
+    return this.getIpcRenderer().invoke("create-directory", dirUrl);
+  }
+
+  public listDirectory(dirUrl: string): Promise<string[]> {
+    if (!this.isElectron()) {
+      return Promise.resolve([]);
+    }
+    return this.getIpcRenderer().invoke("list-directory", dirUrl);
+  }
+
+  public readFile(fileUrl: string): Promise<Buffer | null> {
+    if (!this.isElectron()) {
+      return Promise.resolve(null);
+    }
+    return this.getIpcRenderer().invoke("read-file", fileUrl);
+  }
+
+  public writeFile(fileUrl: string, data: string | NodeJS.ArrayBufferView): Promise<boolean> {
+    if (!this.isElectron()) {
+      return Promise.resolve(false);
+    }
+    return this.getIpcRenderer().invoke("write-file", fileUrl, data);
+  }
+
+  public titlebarDoubleClick(): void {
     if (!this.isElectron()) {
       return;
     }
     this.getIpcRenderer().send("titlebar-double-clicked");
   }
 
-  public exitApplication() {
+  public exitApplication(): void {
     if (!this.isElectron()) {
       return;
     }
     this.getIpcRenderer().send("exit-application");
+  }
+
+  public saveProject(assets: Asset[]) {
+    if (!this.isElectron()) {
+      return;
+    }
+    const homeUrl = this.projectHomeUrl.getValue();
+    const assetsUrl = homeUrl + "/" + ElectronService.ASSETS_DIR;
+    const cardsUrl = homeUrl + "/" + ElectronService.CARDS_DIR;
+
+    const writeAllAssets: Promise<boolean[]> = Promise.all(assets.map(asset => {
+      return asset.file.arrayBuffer().then(buffer => {
+        return this.writeFile(
+          assetsUrl + '/' + StringUtils.toKebabCase(asset.name) 
+          + '.' + StringUtils.mimeToExtension(asset.file.type),
+          Buffer.from(buffer));
+      });
+    }));
+
+    // write assets
+    // write cards
+    // write database.json
+    Promise.all([
+      this.createDirectory(assetsUrl).then(result => writeAllAssets),
+      this.createDirectory(cardsUrl)
+    ]);
+  }
+
+  public openProject(homeUrl: string) {
+    if (!this.isElectron()) {
+      return;
+    }
+    //const homeUrl = this.projectHomeUrl.getValue();
+    const assetsUrl = homeUrl + "/" + ElectronService.ASSETS_DIR;
+    const cardsUrl = homeUrl + "/" + ElectronService.CARDS_DIR;
+    // read database.json
+    // read cards
+    // read assets
   }
 }
