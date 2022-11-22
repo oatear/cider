@@ -125,9 +125,13 @@ try {
       console.log('directory already exists', dirUrl);
       return false;
     }
-    fs.mkdirSync(dirUrl);
-    console.log('directory created', dirUrl);
-    return true;
+    // fs.mkdirSync(dirUrl);
+    // console.log('directory created', dirUrl);
+    // return true;
+    return fs.promises.mkdir(dirUrl).then(() => {
+      console.log('directory created', dirUrl);
+      return true;
+    });
   });
 
   /**

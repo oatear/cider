@@ -2,14 +2,18 @@ import { Component, Input, OnInit } from '@angular/core';
 import { ExportProgress } from 'dexie-export-import/dist/export';
 import { ImportProgress } from 'dexie-export-import/dist/import';
 import { ConfirmationService, MenuItem } from 'primeng/api';
-import { Observable, combineLatest } from 'rxjs';
+import { Observable, combineLatest, lastValueFrom } from 'rxjs';
 import { ElectronService } from '../data-services/electron/electron.service';
 import { db } from '../data-services/indexed-db/db';
 import { LocalStorageService } from '../data-services/local-storage/local-storage.service';
 import { AssetsService } from '../data-services/services/assets.service';
+import { CardAttributesService } from '../data-services/services/card-attributes.service';
+import { CardTemplatesService } from '../data-services/services/card-templates.service';
 import { CardsService } from '../data-services/services/cards.service';
 import { DecksService } from '../data-services/services/decks.service';
 import { Deck } from '../data-services/types/deck.type';
+import StringUtils from '../shared/utils/string-utils';
+import XlsxUtils from '../shared/utils/xlsx-utils';
 
 @Component({
   selector: 'app-site-content-and-menu',
@@ -35,7 +39,9 @@ export class SiteContentAndMenuComponent implements OnInit {
     private electronService: ElectronService,
     private localStorageService: LocalStorageService,
     private assetsService: AssetsService,
-    private cardsService: CardsService) { 
+    private cardsService: CardsService,
+    private cardAttributesService: CardAttributesService,
+    private cardTemplatesService: CardTemplatesService) { 
     this.items = [];
     this.selectedDeck$ = this.decksService.getSelectedDeck();
     this.recentProjectUrls$ = this.localStorageService.getRecentProjectUrls();
@@ -222,12 +228,45 @@ export class SiteContentAndMenuComponent implements OnInit {
   }
 
   public saveProject() {
+    this.isSaving = true;
+    setTimeout (() => {
+      this.isSaving = false;
+    }, 900);
+    // const projectHomeUrl = await lastValueFrom(this.electronService.getProjectHomeUrl());
+    // if (!projectHomeUrl) {
+    //   console.log('No project directory open.');
+    //   return;
+    // }
     // save to the filesystem
-    //this.assetsService.getAll();
-    //this.cardsService.getAll();
-    //this.decksService.getAll()
-    this.assetsService.getAll()
-      .then(assets => this.electronService.saveProject(assets));
+    const assetsPromised = this.assetsService.getAll();
+    const decksPromised = this.decksService.getAll().then(decks => Promise.all(decks.map(async deck => {
+      // cards
+      const [cardFields, cardLookups, cardRecords] = await Promise.all([
+        this.cardsService.getFields({ deckId: deck.id }),
+        this.cardsService.getLookups({ deckId: deck.id }),
+        this.cardsService.getAll({ deckId: deck.id })
+      ]);
+      const cardsCsv = XlsxUtils.entityExport(cardFields, cardLookups, cardRecords);
+      // attributes
+      const [attributeFields, attributeLookups, attributeRecords] = await Promise.all([
+        this.cardAttributesService.getFields({ deckId: deck.id }),
+        this.cardAttributesService.getLookups({ deckId: deck.id }),
+        this.cardAttributesService.getAll({ deckId: deck.id })
+      ]);
+      const attributesCsv = XlsxUtils.entityExport(attributeFields, attributeLookups, attributeRecords);
+      // templates
+      const templates = await this.cardTemplatesService.getAll({ deckId: deck.id });
+      return {
+        name: StringUtils.toKebabCase(deck.name),
+        cardsCsv: cardsCsv,
+        attributesCsv: attributesCsv,
+        templates: templates
+      };
+    })));
+    
+    Promise.all([assetsPromised, decksPromised]).then(([assets, decks]) => {
+      return this.electronService.saveProject(assets, decks);
+    });
   }
 
   public openProject(url: string) {

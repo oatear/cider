@@ -23,10 +23,29 @@ export class IndexedDbService<Entity, Identity extends string | number> implemen
     return 'id';
   }
 
-  getFields() {
+  getFields(equalityCriterias?: {[key: string]: any;}) {
     return new Promise<EntityField<Entity>[]>((resolve, reject) => {
       resolve(this.fields);
     });
+  }
+
+  getIdToNameMap(equalityCriterias?: {[key: string]: any;}): Promise<Map<Identity, string>> {
+    const idField = this.getIdField();
+    return this.getAll(equalityCriterias).then(items => items.reduce((map, item) => 
+      map.set((<any>item)[idField], this.getEntityName(item)), new Map()));
+  }
+
+  /**
+   * Get idToName lookups for each external service used in the entity fields
+   * @returns 
+   */
+  getLookups(equalityCriterias?: {[key: string]: any;}): Promise<Map<EntityService<any, string | number>, Map<string | number, string>>> {
+    return this.getFields(equalityCriterias).then(fields => fields
+      .filter(field => field.service).map(field => field.service)
+      .reduce(async (promiseMap, service) => {
+        const map = await promiseMap;
+        return service && !map.has(service) ? map.set(service, await service.getIdToNameMap(equalityCriterias)) : map
+      }, Promise.resolve(new Map())));
   }
 
   search(searchParameters: SearchParameters, equalityCriterias?: {[key: string]: any;}): Promise<SearchResult<Entity>> {

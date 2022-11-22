@@ -3,13 +3,14 @@ import { IpcRenderer } from 'electron';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import StringUtils from 'src/app/shared/utils/string-utils';
 import { Asset } from '../types/asset.type';
+import { CardTemplate } from '../types/card-template.type';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ElectronService {
   private static readonly ASSETS_DIR = "assets";
-  private static readonly CARDS_DIR = "cards";
+  private static readonly DECKS_DIR = "decks";
   public projectHomeUrl: BehaviorSubject<string | undefined>;
 
   constructor() {
@@ -39,19 +40,17 @@ export class ElectronService {
     this.projectHomeUrl.next(url);
   }
 
-  public openSelectDirectoryDialog(): Promise<string | null> {
+  public async openSelectDirectoryDialog(): Promise<string | null> {
     if (!this.isElectron()) {
       return Promise.resolve(null);
     }
-    return this.getIpcRenderer().invoke("open-select-directory-dialog").then(
-      (result : Electron.OpenDialogReturnValue) => {
-        if (!result.canceled) {
-          this.projectHomeUrl.next(result.filePaths[0]);
-          console.log("projectHomeUrl: ", result.filePaths[0]);
-          return result.filePaths[0];
-        }
-        return null;
-    });
+    const result_2 = await this.getIpcRenderer().invoke("open-select-directory-dialog");
+    if (!result_2.canceled) {
+      this.projectHomeUrl.next(result_2.filePaths[0]);
+      console.log("projectHomeUrl: ", result_2.filePaths[0]);
+      return result_2.filePaths[0];
+    }
+    return null;
   }
 
   public createDirectory(dirUrl: string): Promise<boolean> {
@@ -96,30 +95,38 @@ export class ElectronService {
     this.getIpcRenderer().send("exit-application");
   }
 
-  public saveProject(assets: Asset[]) {
+  public async saveProject(assets: Asset[], decks: { name: string; cardsCsv: string; 
+    attributesCsv: string; templates: CardTemplate[];}[]) {
     if (!this.isElectron()) {
       return;
     }
     const homeUrl = this.projectHomeUrl.getValue();
     const assetsUrl = homeUrl + "/" + ElectronService.ASSETS_DIR;
-    const cardsUrl = homeUrl + "/" + ElectronService.CARDS_DIR;
+    const decksUrl = homeUrl + "/" + ElectronService.DECKS_DIR;
 
-    const writeAllAssets: Promise<boolean[]> = Promise.all(assets.map(asset => {
-      return asset.file.arrayBuffer().then(buffer => {
-        return this.writeFile(
-          assetsUrl + '/' + StringUtils.toKebabCase(asset.name) 
-          + '.' + StringUtils.mimeToExtension(asset.file.type),
-          Buffer.from(buffer));
-      });
+    await this.createDirectory(assetsUrl);
+    const writeAllAssets: Promise<boolean[]> = Promise.all(assets.map(async asset => {
+      const buffer = await asset.file.arrayBuffer();
+      return await this.writeFile(
+        assetsUrl + '/' + StringUtils.toKebabCase(asset.name)
+        + '.' + StringUtils.mimeToExtension(asset.file.type),
+        Buffer.from(buffer));
     }));
 
-    // write assets
-    // write cards
-    // write database.json
-    Promise.all([
-      this.createDirectory(assetsUrl).then(result => writeAllAssets),
-      this.createDirectory(cardsUrl)
-    ]);
+    await this.createDirectory(decksUrl);
+    const writeAllDecks = Promise.all(decks.map(async deck => {
+      const deckUrl = decksUrl + '/' + StringUtils.toKebabCase(deck.name);
+      await this.createDirectory(deckUrl);
+      this.writeFile(deckUrl + '/cards.csv', deck.cardsCsv);
+      this.writeFile(deckUrl + '/attributes.csv', deck.attributesCsv)
+      const writeTemplates = await Promise.all(deck.templates.map(template => {
+        return Promise.all([
+          this.writeFile(deckUrl + '/' + StringUtils.toKebabCase(template.name) + '.css', template.css),
+          this.writeFile(deckUrl + '/' + StringUtils.toKebabCase(template.name) + '.html', template.html)
+        ]);
+      }));
+      return true;
+    }));
   }
 
   public openProject(homeUrl: string) {
@@ -128,7 +135,7 @@ export class ElectronService {
     }
     //const homeUrl = this.projectHomeUrl.getValue();
     const assetsUrl = homeUrl + "/" + ElectronService.ASSETS_DIR;
-    const cardsUrl = homeUrl + "/" + ElectronService.CARDS_DIR;
+    const cardsUrl = homeUrl + "/" + ElectronService.DECKS_DIR;
     // read database.json
     // read cards
     // read assets

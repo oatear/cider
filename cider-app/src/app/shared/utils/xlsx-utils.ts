@@ -28,9 +28,23 @@ export default class XlsxUtils {
             XLSX.utils.sheet_add_aoa(worksheet, [values], {origin: -1});
         });
         const csv = XLSX.utils.sheet_to_csv(worksheet);
+        return csv;
+    }
+
+    /**
+     * Export the provided records to a CSV file
+     * 
+     * @param columns 
+     * @param records 
+     * @param lookups 
+     */
+     static entityExportToFile<Entity>(columns: EntityField<Entity>[], 
+        lookups: Map<EntityService<any, string | number>, Map<string | number, string>>, records: Entity[]) {
+        const csv = XlsxUtils.entityExport(columns, lookups, records);
         const blob = new Blob([csv], {type: 'text/csv'});
         FileUtils.saveAs(blob, 'data.csv');
     }
+
 
     /**
      * Import entities from a CSV file

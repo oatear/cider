@@ -28,8 +28,9 @@ export class CardsService extends DecksChildService<Card, number> {
     ]);
   }
   
-  override getFields() {
-    return this.attributesService.getAll().then(attributes => this.fields.concat(attributes.map(attribute => {
+  override async getFields(equalityCriterias?: {[key: string]: any;}) {
+    const attributes = await this.attributesService.getAll(equalityCriterias);
+    return this.fields.concat(attributes.map(attribute => {
       return {
         field: attribute.name.trim().replace(/ /g, '-').toLowerCase(),
         header: attribute.name,
@@ -37,7 +38,7 @@ export class CardsService extends DecksChildService<Card, number> {
         description: attribute.description,
         options: attribute.options
       } as EntityField<Card>;
-    })));
+    }));
   }
 
   override getEntityName(entity: Card) {

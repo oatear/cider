@@ -13,6 +13,8 @@ export interface EntityService<Entity, Identity extends string | number> {
     getEntityName: (entity: Entity) => string;
     getFields: () => Promise<EntityField<Entity>[]>;
     getIdField: () => string;
+    getIdToNameMap: (equalityCriterias?: {[key: string]: any;}) => Promise<Map<Identity, string>>;
+    getLookups: () => Promise<Map<EntityService<any, string | number>, Map<string | number, string>>>;
     search: (searchParameters: SearchParameters) => Promise<SearchResult<Entity>>;
     getAll: () => Promise<Entity[]>;
     get: (id: Identity) => Promise<Entity>;
