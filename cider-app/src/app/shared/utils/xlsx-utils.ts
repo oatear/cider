@@ -1,6 +1,7 @@
 
 import { EntityField } from 'src/app/data-services/types/entity-field.type';
 import { EntityService } from 'src/app/data-services/types/entity-service.type';
+import { FieldType } from 'src/app/data-services/types/field-type.type';
 import * as XLSX from 'xlsx';
 import FileUtils from './file-utils';
 
@@ -22,6 +23,10 @@ export default class XlsxUtils {
             const values = headers.map(header => {
                 if (header.service) {
                     return lookups.get(header.service)?.get(<any>record[header.field]);
+                }
+                if (header.type === FieldType.optionList) {
+                    const list: string[] = (<any>record)[header.field];
+                    return list ? list.toString() : '';
                 }
                 return record[header.field];
             });
@@ -75,6 +80,9 @@ export default class XlsxUtils {
                         if (!foundValue) {
                             console.log(`Could not find value (${(<any>object)[header.header]}) for column: ${header.header}`);
                         }
+                    } else if(header.service === FieldType.optionList) {
+                        const value = (<any>object)[header.header];
+                        (<any>converted)[header.field] = value ? value.split(',') : [];
                     } else {
                         (<any>converted)[header.field] = (<any>object)[header.header];
                     }
