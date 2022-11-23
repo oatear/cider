@@ -10,6 +10,7 @@ import { FieldType } from '../types/field-type.type';
 })
 export class DecksService extends IndexedDbService<Deck, number> {
   selectedDeck: BehaviorSubject<Deck | undefined>;
+  decksUpdated: BehaviorSubject<boolean>;
 
   constructor() {
     super(AppDB.DECKS_TABLE, [
@@ -17,6 +18,7 @@ export class DecksService extends IndexedDbService<Deck, number> {
       {field: 'name', header: 'Name', type: FieldType.text}
     ]);
     this.selectedDeck = new BehaviorSubject<Deck | undefined>(undefined);
+    this.decksUpdated = new BehaviorSubject<boolean>(true);
   }
 
   override getEntityName(entity: Deck) {
@@ -35,11 +37,27 @@ export class DecksService extends IndexedDbService<Deck, number> {
   }
 
   /**
+   * Ttrigger an update for decks having changed
+   */
+  public triggerDecksUpdated() {
+    this.decksUpdated.next(true);
+  }
+
+  /**
    * Return the selected deck
    * 
    * @returns 
    */
   public getSelectedDeck() {
     return this.selectedDeck.asObservable();
+  }
+
+  /**
+   * Return a trigger for when the deck list is updated
+   * 
+   * @returns 
+   */
+  public getDecksUpdated() {
+    return this.decksUpdated.asObservable();
   }
 }

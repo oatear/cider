@@ -86,7 +86,7 @@ export class IndexedDbService<Entity, Identity extends string | number> implemen
     return db.table(this.tableName).get(id);
   }
 
-  create(entity: Entity): Promise<Entity> {
+  create(entity: Entity, overrideParent?: boolean): Promise<Entity> {
     return db.table(this.tableName).add(entity).then(entityId => 
       db.table(this.tableName).get(entityId));
   }
@@ -103,6 +103,10 @@ export class IndexedDbService<Entity, Identity extends string | number> implemen
   deleteAll(equalityCriterias?: {[key: string]: any;}): Promise<boolean> {
     return equalityCriterias ? db.table(this.tableName).where(equalityCriterias).delete().then(() => true)
       : db.table(this.tableName).clear().then(() => true);
+  }
+
+  emptyTable(): Promise<boolean> {
+    return db.table(this.tableName).clear().then(() => true);
   }
 
 }

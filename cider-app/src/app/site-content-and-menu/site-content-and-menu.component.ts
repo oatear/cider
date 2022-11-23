@@ -1,8 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ExportProgress } from 'dexie-export-import/dist/export';
 import { ImportProgress } from 'dexie-export-import/dist/import';
-import { ConfirmationService, MenuItem } from 'primeng/api';
-import { Observable, combineLatest, lastValueFrom } from 'rxjs';
+import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
+import { Observable, combineLatest, lastValueFrom, firstValueFrom } from 'rxjs';
 import { ElectronService } from '../data-services/electron/electron.service';
 import { db } from '../data-services/indexed-db/db';
 import { LocalStorageService } from '../data-services/local-storage/local-storage.service';
@@ -19,12 +19,13 @@ import XlsxUtils from '../shared/utils/xlsx-utils';
   selector: 'app-site-content-and-menu',
   templateUrl: './site-content-and-menu.component.html',
   styleUrls: ['./site-content-and-menu.component.scss'],
-  providers: [ConfirmationService]
+  providers: [MessageService, ConfirmationService]
 })
 export class SiteContentAndMenuComponent implements OnInit {
 
   selectedDeck$: Observable<Deck | undefined>;
   recentProjectUrls$: Observable<string[]>;
+  projectHomeUrl$: Observable<string | undefined>;
   recentProjectUrlItems: MenuItem[];
   isSaving: boolean = false;
   items: MenuItem[];
@@ -41,17 +42,19 @@ export class SiteContentAndMenuComponent implements OnInit {
     private assetsService: AssetsService,
     private cardsService: CardsService,
     private cardAttributesService: CardAttributesService,
-    private cardTemplatesService: CardTemplatesService) { 
+    private cardTemplatesService: CardTemplatesService,
+    private messageService: MessageService, ) { 
     this.items = [];
     this.selectedDeck$ = this.decksService.getSelectedDeck();
     this.recentProjectUrls$ = this.localStorageService.getRecentProjectUrls();
+    this.projectHomeUrl$ = this.electronService.getProjectHomeUrl();
     this.recentProjectUrlItems = [];
   }
 
   ngOnInit(): void {
 
-    combineLatest([this.selectedDeck$, this.recentProjectUrls$]).subscribe({
-      next: ([selectedDeck, urls]) => {
+    combineLatest([this.selectedDeck$, this.recentProjectUrls$, this.projectHomeUrl$]).subscribe({
+      next: ([selectedDeck, urls, projectHomeUrl]) => {
         // setup the recent project urls
         this.recentProjectUrlItems = urls.map(url => {return {
           label: url.substring(url.lastIndexOf('/') | 0),
@@ -71,6 +74,12 @@ export class SiteContentAndMenuComponent implements OnInit {
             icon: 'pi pi-pw pi-file',
             items: [
               {
+                label: 'New',
+                icon: 'pi pi-pw pi-file',
+                visible: this.electronService.isElectron(),
+                command: () => this.newProject()
+              }, 
+              {
                 label: 'Open Project',
                 icon: 'pi pi-pw pi-folder',
                 visible: this.electronService.isElectron(),
@@ -86,6 +95,7 @@ export class SiteContentAndMenuComponent implements OnInit {
                 label: 'Save',
                 icon: 'pi pi-pw pi-save',
                 visible: this.electronService.isElectron(),
+                disabled: typeof projectHomeUrl !== 'string',
                 command: () => this.saveProject()
               }, {
                   separator:true
@@ -160,6 +170,8 @@ export class SiteContentAndMenuComponent implements OnInit {
         this.loadingPercent = (progress.completedRows / (progress.totalRows || 100)) * 100;
         return true;
       }).then(() => {
+        this.assetsService.updateAssetUrls();
+      }).then(() => {
         this.loadingPercent = 100;
         this.displayLoading = false;
       });
@@ -227,16 +239,34 @@ export class SiteContentAndMenuComponent implements OnInit {
     })
   }
 
-  public saveProject() {
+  public newProject() {
+    this.confirmationService.confirm({
+      message: 'Are you sure that you wish to create a new project?'
+        + ' This will delete all of your unsaved data.',
+      header: 'New Project',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        db.resetDatabase().then(() => {
+          this.assetsService.updateAssetUrls();
+        });
+      }
+    });
+  }
+
+  public async saveProject() {
+    const projectHomeUrl = await firstValueFrom(this.electronService.getProjectHomeUrl());
+    if (!projectHomeUrl) {
+      this.messageService.add({severity:'Error', summary: 'Error', detail: 'No project directory open.', life: 3000});
+      console.log('No project directory open.');
+      return;
+    }
+
+    // activate the gif
     this.isSaving = true;
     setTimeout (() => {
       this.isSaving = false;
     }, 900);
-    // const projectHomeUrl = await lastValueFrom(this.electronService.getProjectHomeUrl());
-    // if (!projectHomeUrl) {
-    //   console.log('No project directory open.');
-    //   return;
-    // }
+
     // save to the filesystem
     const assetsPromised = this.assetsService.getAll();
     const decksPromised = this.decksService.getAll().then(decks => Promise.all(decks.map(async deck => {
@@ -270,7 +300,16 @@ export class SiteContentAndMenuComponent implements OnInit {
   }
 
   public openProject(url: string) {
-    this.electronService.openProject(url);
+    this.displayLoading = true;
+    this.loadingPercent = 30;
+    this.loadingInfo = 'Reading project data...';
+    this.electronService.openProject(url, this.assetsService, this.decksService,
+      this.cardTemplatesService, this.cardAttributesService, this.cardsService).then(() => {
+      this.assetsService.updateAssetUrls();
+      this.decksService.triggerDecksUpdated();
+      this.loadingPercent = 100;
+      this.displayLoading = false;
+    });
   }
 
   public titlebarDoubleClick() {

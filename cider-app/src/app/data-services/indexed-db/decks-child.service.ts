@@ -30,10 +30,12 @@ export class DecksChildService<Entity, Identity extends string | number> extends
       .then(deck => super.get(id));
   }
 
-  override create(entity: Entity) {
+  override create(entity: Entity, overrideParent?: boolean) {
     return firstValueFrom(this.decksService.getSelectedDeck())
       .then(deck => {
-        (<any>entity)[DecksChildService.DECK_ID] = deck?.id;
+        if (!overrideParent) {
+          (<any>entity)[DecksChildService.DECK_ID] = deck?.id;
+        }
         return super.create(entity);
       });
   }

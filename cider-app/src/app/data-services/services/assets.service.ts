@@ -23,7 +23,7 @@ export class AssetsService extends IndexedDbService<Asset, number> {
     this.updateAssetUrls();
   }
 
-  private updateAssetUrls() {
+  public updateAssetUrls() {
     console.log('update asset urls');
     this.getAll().then(assets => {
       console.log("all assets: ", assets);
@@ -73,9 +73,9 @@ export class AssetsService extends IndexedDbService<Asset, number> {
    * @param entity 
    */
   private static insertFile(entity: Asset): Asset {
-      if (!(<any>entity).buffer || !(<any>entity).type) {
-        return entity;
-      }
+    if (!(<any>entity).buffer || !(<any>entity).type) {
+      return entity;
+    }
     const blob: Blob = AssetsService.arrayBufferToBlob((<any>entity).buffer, (<any>entity).type);
     entity.file = new File([blob], entity.name, {type: (<any>entity).type});
     (<any>entity).buffer = undefined;
@@ -98,9 +98,11 @@ export class AssetsService extends IndexedDbService<Asset, number> {
     return super.getAll().then(entities => entities.map(AssetsService.insertFile));
   }
 
-  override create(entity: Asset) {
+  override create(entity: Asset, suppressUrlUpdates?: boolean) {
     return AssetsService.insertArrayBuffer(entity).then(entity => super.create(entity)).then(entity => {
-      this.updateAssetUrls();
+      if (!suppressUrlUpdates) {
+        this.updateAssetUrls();
+      }
       return entity;
     });
   }

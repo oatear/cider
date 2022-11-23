@@ -138,10 +138,16 @@ try {
    * List files in a directory
    * 
    * params: dirUrl
-   * return string[]
+   * return Dirent[]
    */
   ipcMain.handle('list-directory', async (event, dirUrl) => {
-    const files = fs.readdirSync(dirUrl);
+    const files = fs.readdirSync(dirUrl, { withFileTypes: true }).map(dirent => {
+      return {
+        name: dirent.name,
+        isDirectory: dirent.isDirectory(),
+        isFile: dirent.isFile()
+      }
+    });
     console.log('directory listed', files);
     return files;
   });
@@ -152,12 +158,28 @@ try {
    * params: fileUrl
    * return Buffer
    */
-  ipcMain.handle('read-file', async (event, fileUrl) => {
+  ipcMain.handle('read-file', async (event, fileUrl: string) => {
     if (!fs.existsSync(fileUrl)) {
       return null;
     }
     const buffer = fs.readFileSync(fileUrl);
-    console.log('read file', buffer);
+    console.log('read file', fileUrl);
+    return buffer;
+  });
+
+
+  /**
+   * Read text file
+   * 
+   * params: fileUrl
+   * return String
+   */
+  ipcMain.handle('read-text-file', async (event, fileUrl: string) => {
+    if (!fs.existsSync(fileUrl)) {
+      return null;
+    }
+    const buffer = fs.readFileSync(fileUrl, {encoding: 'utf8'});
+    console.log('read file', fileUrl);
     return buffer;
   });
 

@@ -40,6 +40,8 @@
     "handlebars": "^4.7.7",
     "html-to-image": "^1.9.0",
     "jszip": "^3.10.0",
+    "mime": "^3.0.0",
+    "mime-wrapper": "^2.0.0",
     "monaco-editor": "^0.32.1",
     "pdfmake": "^0.2.5",
     "primeflex": "^2.0.0",

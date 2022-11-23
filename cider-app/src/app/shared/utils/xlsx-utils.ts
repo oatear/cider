@@ -80,7 +80,7 @@ export default class XlsxUtils {
                         if (!foundValue) {
                             console.log(`Could not find value (${(<any>object)[header.header]}) for column: ${header.header}`);
                         }
-                    } else if(header.service === FieldType.optionList) {
+                    } else if(header.type === FieldType.optionList) {
                         const value = (<any>object)[header.header];
                         (<any>converted)[header.field] = value ? value.split(',') : [];
                     } else {

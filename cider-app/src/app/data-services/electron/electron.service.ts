@@ -4,6 +4,13 @@ import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import StringUtils from 'src/app/shared/utils/string-utils';
 import { Asset } from '../types/asset.type';
 import { CardTemplate } from '../types/card-template.type';
+import { AssetsService } from '../services/assets.service';
+import { CardTemplatesService } from '../services/card-templates.service';
+import { CardAttributesService } from '../services/card-attributes.service';
+import { CardsService } from '../services/cards.service';
+import { DecksService } from '../services/decks.service';
+import XlsxUtils from 'src/app/shared/utils/xlsx-utils';
+import { EntityService } from '../types/entity-service.type';
 
 @Injectable({
   providedIn: 'root'
@@ -60,7 +67,8 @@ export class ElectronService {
     return this.getIpcRenderer().invoke("create-directory", dirUrl);
   }
 
-  public listDirectory(dirUrl: string): Promise<string[]> {
+  public listDirectory(dirUrl: string): Promise<{ 
+    name: string; isDirectory: boolean; isFile: boolean; }[]> {
     if (!this.isElectron()) {
       return Promise.resolve([]);
     }
@@ -72,6 +80,13 @@ export class ElectronService {
       return Promise.resolve(null);
     }
     return this.getIpcRenderer().invoke("read-file", fileUrl);
+  }
+
+  public readTextFile(fileUrl: string): Promise<string | null> {
+    if (!this.isElectron()) {
+      return Promise.resolve(null);
+    }
+    return this.getIpcRenderer().invoke("read-text-file", fileUrl);
   }
 
   public writeFile(fileUrl: string, data: string | NodeJS.ArrayBufferView): Promise<boolean> {
@@ -129,15 +144,85 @@ export class ElectronService {
     }));
   }
 
-  public openProject(homeUrl: string) {
+  public async openProject(homeUrl: string, assetsService: AssetsService, decksService: DecksService,
+    cardTemplatesService: CardTemplatesService, cardAttributesService: CardAttributesService,
+    cardsService: CardsService) {
     if (!this.isElectron()) {
       return;
     }
-    //const homeUrl = this.projectHomeUrl.getValue();
     const assetsUrl = homeUrl + "/" + ElectronService.ASSETS_DIR;
-    const cardsUrl = homeUrl + "/" + ElectronService.DECKS_DIR;
-    // read database.json
-    // read cards
+    const decksUrl = homeUrl + "/" + ElectronService.DECKS_DIR;
     // read assets
+    // read decks
+    //   read attributes
+    //   read cards
+    //   read templates
+    await assetsService.emptyTable();
+    await cardTemplatesService.emptyTable();
+    await cardAttributesService.emptyTable();
+    await cardsService.emptyTable();
+    await decksService.emptyTable();
+    await this.listDirectory(assetsUrl).then(assetUrls => Promise.all(assetUrls
+      .filter(assetUrl => assetUrl.isFile).map(async assetUrl => {
+      const assetNameSplit = StringUtils.splitNameAndExtension(assetUrl.name);
+      const assetName = assetNameSplit.name;
+      const assetExt = assetNameSplit.extension;
+      const assetBuffer = await this.readFile(assetsUrl + '/' + assetUrl.name);
+      if (!assetBuffer) {
+        return;
+      }
+      const fileType = StringUtils.extensionToMime(assetExt);
+      const blob: Blob = new Blob([assetBuffer], {type: fileType});
+      const file: File = new File([blob], assetName, {type: fileType});
+      const asset = await assetsService.create(<any>{
+        file: file,
+        name: assetName
+      }, true);
+      console.log('file read', assetUrl.name, fileType, assetBuffer, blob, file, asset);
+      return asset;
+    })));
+    const deckUrls = await this.listDirectory(decksUrl);
+    deckUrls.filter(deckUrl => deckUrl.isDirectory).map(async deckUrl => {
+      const deckName = deckUrl.name;
+      const deck = await decksService.create(<any>{name: StringUtils.kebabToTitleCase(deckName)});
+      const deckFullUrl = decksUrl + '/' + deckUrl.name;
+      // for each .html file, also read the accompanying .css file
+      const deckFileUrls = await this.listDirectory(deckFullUrl);
+      await Promise.all(deckFileUrls.filter(deckFileUrl => deckFileUrl.isFile 
+        && StringUtils.splitNameAndExtension(deckFileUrl.name).extension === 'html').map(async templateUrl => {
+          const nameSplit = StringUtils.splitNameAndExtension(templateUrl.name);
+          const prettyName = StringUtils.kebabToTitleCase(nameSplit.name);
+          const htmlUrl = deckFullUrl + '/' + nameSplit.name + '.html';
+          const cssUrl = deckFullUrl + '/' + nameSplit.name + '.css';
+          const html = await this.readTextFile(htmlUrl).then(text => text ? text: '');
+          const css = await this.readTextFile(cssUrl).then(text => text ? text : '');
+          return await cardTemplatesService.create(<any>{ deckId: deck.id, name: prettyName, html: html, css: css }, true);
+      }));
+      const attributesUrl = deckFullUrl + '/attributes.csv';
+      const attributes = await this.importCsv(attributesUrl, 'attributes.csv', cardAttributesService, deck.id);
+      const cardsUrl = deckFullUrl + '/cards.csv';
+      const cards = await this.importCsv(cardsUrl, 'cards.csv', cardsService, deck.id);
+    });
+  }
+
+  private async importCsv<Entity, Identity extends string | number>(fileUrl: string, fileName: string, 
+    service: EntityService<Entity, Identity>, deckId: number) {
+    const nameSplit = StringUtils.splitNameAndExtension(fileName);
+    const fileType = StringUtils.extensionToMime(nameSplit.extension);
+    const buffer = await this.readFile(fileUrl);
+    if (!buffer) {
+      return;
+    }
+    const blob: Blob = new Blob([buffer], {type: fileType});
+    const file: File = new File([blob], fileName, {type: fileType});
+    const entities: Entity[] = await XlsxUtils.entityImport(
+      await service.getFields({ deckId: deckId }),
+      await service.getLookups({ deckId: deckId }),
+      file);
+    return await Promise.all(entities.map(entity => {
+      (<any>entity)['deckId'] = deckId;
+      console.log('create entity', entity, deckId);
+      return service.create(entity, true);
+    }));
   }
 }
