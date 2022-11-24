@@ -26,7 +26,7 @@ export default class XlsxUtils {
                 }
                 if (header.type === FieldType.optionList) {
                     const list: string[] = (<any>record)[header.field];
-                    return list ? list.toString() : '';
+                    return list ? list.join('|') : '';
                 }
                 return record[header.field];
             });
@@ -82,7 +82,9 @@ export default class XlsxUtils {
                         }
                     } else if(header.type === FieldType.optionList) {
                         const value = (<any>object)[header.header];
-                        (<any>converted)[header.field] = value ? value.split(',') : [];
+                        console.log('optionList', file.name, header.header, object, value);
+                        (<any>converted)[header.field] = typeof value === 'string' 
+                            ? value.split('|') : [];
                     } else {
                         (<any>converted)[header.field] = (<any>object)[header.header];
                     }

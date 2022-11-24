@@ -178,7 +178,6 @@ export class ElectronService {
         file: file,
         name: assetName
       }, true);
-      console.log('file read', assetUrl.name, fileType, assetBuffer, blob, file, asset);
       return asset;
     })));
     const deckUrls = await this.listDirectory(decksUrl);
@@ -199,8 +198,8 @@ export class ElectronService {
           return await cardTemplatesService.create(<any>{ deckId: deck.id, name: prettyName, html: html, css: css }, true);
       }));
       const attributesUrl = deckFullUrl + '/attributes.csv';
-      const attributes = await this.importCsv(attributesUrl, 'attributes.csv', cardAttributesService, deck.id);
       const cardsUrl = deckFullUrl + '/cards.csv';
+      const attributes = await this.importCsv(attributesUrl, 'attributes.csv', cardAttributesService, deck.id);
       const cards = await this.importCsv(cardsUrl, 'cards.csv', cardsService, deck.id);
     });
   }
@@ -211,6 +210,7 @@ export class ElectronService {
     const fileType = StringUtils.extensionToMime(nameSplit.extension);
     const buffer = await this.readFile(fileUrl);
     if (!buffer) {
+      console.log('import csv failed', fileUrl);
       return;
     }
     const blob: Blob = new Blob([buffer], {type: fileType});
@@ -219,10 +219,10 @@ export class ElectronService {
       await service.getFields({ deckId: deckId }),
       await service.getLookups({ deckId: deckId }),
       file);
-    return await Promise.all(entities.map(entity => {
+    const createdEntities = await Promise.all(entities.map(entity => {
       (<any>entity)['deckId'] = deckId;
-      console.log('create entity', entity, deckId);
       return service.create(entity, true);
     }));
+    return true;
   }
 }
