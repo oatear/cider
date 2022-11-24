@@ -1,4 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { ExportProgress } from 'dexie-export-import/dist/export';
 import { ImportProgress } from 'dexie-export-import/dist/import';
 import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
@@ -32,8 +33,10 @@ export class SiteContentAndMenuComponent implements OnInit {
   importVisible: boolean = false;
   importFile: File | undefined = undefined;
   public displayLoading: boolean = false;
+  public loadingIndeterminate: boolean = false;
   public loadingPercent: number = 0;
   public loadingInfo: string = '';
+  public loadingHeader: string = '';
 
   constructor(private decksService : DecksService,
     private confirmationService: ConfirmationService,
@@ -43,7 +46,8 @@ export class SiteContentAndMenuComponent implements OnInit {
     private cardsService: CardsService,
     private cardAttributesService: CardAttributesService,
     private cardTemplatesService: CardTemplatesService,
-    private messageService: MessageService, ) { 
+    private messageService: MessageService, 
+    private router: Router) { 
     this.items = [];
     this.selectedDeck$ = this.decksService.getSelectedDeck();
     this.recentProjectUrls$ = this.localStorageService.getRecentProjectUrls();
@@ -125,6 +129,13 @@ export class SiteContentAndMenuComponent implements OnInit {
                 disabled: !selectedDeck,
                 routerLink: [`/decks/${selectedDeck?.id}/export-cards`]
               }, {
+                separator:true
+              }, {
+                label: 'Exit Project',
+                icon: 'pi pi-pw pi-file',
+                visible: this.electronService.isElectron(),
+                command: () => this.openExitProjectDialog()
+              }, {
                 label: 'Exit Cider',
                 icon: 'pi pi-pw pi-file',
                 visible: this.electronService.isElectron(),
@@ -163,8 +174,10 @@ export class SiteContentAndMenuComponent implements OnInit {
 
   public confirmDatabaseImport() {
     if (this.importFile) {
+      this.loadingIndeterminate = false;
       this.displayLoading = true;
       this.loadingPercent = 0;
+      this.loadingHeader = 'Importing Data';
       this.loadingInfo = 'Importing database rows...';
       db.importDatabase(this.importFile, (progress: ImportProgress) => {
         this.loadingPercent = (progress.completedRows / (progress.totalRows || 100)) * 100;
@@ -172,6 +185,8 @@ export class SiteContentAndMenuComponent implements OnInit {
       }).then(() => {
         this.assetsService.updateAssetUrls();
       }).then(() => {
+        this.decksService.selectDeck(undefined);
+        this.router.navigateByUrl(`/decks`);
         this.loadingPercent = 100;
         this.displayLoading = false;
       });
@@ -193,8 +208,10 @@ export class SiteContentAndMenuComponent implements OnInit {
       header: 'Export Database',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
+        this.loadingIndeterminate = false;
         this.displayLoading = true;
         this.loadingPercent = 0;
+        this.loadingHeader = 'Exporting Data';
         this.loadingInfo = 'Exporting database rows...';
         db.exportDatabase((progress: ExportProgress) => {
           this.loadingPercent = (progress.completedRows / (progress.totalRows || 100)) * 100;
@@ -215,6 +232,23 @@ export class SiteContentAndMenuComponent implements OnInit {
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         db.resetDatabase();
+      }
+    });
+  }
+
+  public openExitProjectDialog() {
+    this.confirmationService.confirm({
+      message: 'Are you sure that you wish to exit the project?'
+        + ' This will delete all unsaved data.',
+      header: 'Exit Project',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        db.resetDatabase().then(() => {
+          this.assetsService.updateAssetUrls();
+          this.decksService.triggerDecksUpdated();
+          this.decksService.selectDeck(undefined);
+          this.router.navigateByUrl(`/decks`);
+        });
       }
     });
   }
@@ -300,15 +334,25 @@ export class SiteContentAndMenuComponent implements OnInit {
   }
 
   public openProject(url: string) {
-    this.displayLoading = true;
-    this.loadingPercent = 30;
-    this.loadingInfo = 'Reading project data...';
-    this.electronService.openProject(url, this.assetsService, this.decksService,
-      this.cardTemplatesService, this.cardAttributesService, this.cardsService).then(() => {
-      this.assetsService.updateAssetUrls();
-      this.decksService.triggerDecksUpdated();
-      this.loadingPercent = 100;
-      this.displayLoading = false;
+    this.confirmationService.confirm({
+      message: 'Are you sure that you wish to open another project?'
+        + ' All unsaved data will be lost.',
+      header: 'Open Project',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.loadingIndeterminate = true;
+        this.loadingHeader = 'Opening Project';
+        this.loadingInfo = 'Reading project data...';
+        this.displayLoading = true;
+        this.electronService.openProject(url, this.assetsService, this.decksService,
+          this.cardTemplatesService, this.cardAttributesService, this.cardsService).then(() => {
+          this.assetsService.updateAssetUrls();
+          this.decksService.triggerDecksUpdated();
+          this.decksService.selectDeck(undefined);
+          this.router.navigateByUrl(`/decks`);
+          this.displayLoading = false;
+        });
+      }
     });
   }
 

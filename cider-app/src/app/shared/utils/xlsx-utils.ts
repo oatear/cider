@@ -82,7 +82,6 @@ export default class XlsxUtils {
                         }
                     } else if(header.type === FieldType.optionList) {
                         const value = (<any>object)[header.header];
-                        console.log('optionList', file.name, header.header, object, value);
                         (<any>converted)[header.field] = typeof value === 'string' 
                             ? value.split('|') : [];
                     } else {
