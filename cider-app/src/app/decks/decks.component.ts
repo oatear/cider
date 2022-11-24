@@ -15,28 +15,21 @@ export class DecksComponent implements OnInit, OnDestroy {
   cols: EntityField<Deck>[];
   decks: Deck[];
   selectedDeck: Deck | undefined;
-  decksUpdated$: Observable<boolean>;
 
   constructor(public decksService: DecksService, 
     private router: Router) {
     this.cols = [];
     this.decks = [];
     this.selectedDeck = undefined;
-    this.decksUpdated$ = this.decksService.getDecksUpdated();
   }
 
   ngOnInit(): void {
-    this.decksUpdated$.subscribe({
-      next: () => {
-        this.decksService.getAll().then(decks => this.decks = decks);
-        this.decksService.getFields().then(fields => this.cols = fields);
-        this.decksService.getSelectedDeck()
-        .pipe(take(1))
-        .subscribe({next: (decks) => {
-          this.selectedDeck = decks;
-        }});
-      }
-    });
+    this.decksService.getAll().then(decks => this.decks = decks);
+    this.decksService.getFields().then(fields => this.cols = fields);
+    this.decksService.getSelectedDeck().pipe(take(1))
+    .subscribe({next: (decks) => {
+      this.selectedDeck = decks;
+    }});
   }
 
   ngOnDestroy(): void {

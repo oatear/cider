@@ -47,7 +47,11 @@ export class SiteContentAndMenuComponent implements OnInit {
     private cardAttributesService: CardAttributesService,
     private cardTemplatesService: CardTemplatesService,
     private messageService: MessageService, 
-    private router: Router) { 
+    private router: Router) {
+    // allow reloading of the current page
+    this.router.routeReuseStrategy.shouldReuseRoute = () => {
+      return false;
+    };
     this.items = [];
     this.selectedDeck$ = this.decksService.getSelectedDeck();
     this.recentProjectUrls$ = this.localStorageService.getRecentProjectUrls();
@@ -245,7 +249,6 @@ export class SiteContentAndMenuComponent implements OnInit {
       accept: () => {
         db.resetDatabase().then(() => {
           this.assetsService.updateAssetUrls();
-          this.decksService.triggerDecksUpdated();
           this.decksService.selectDeck(undefined);
           this.router.navigateByUrl(`/decks`);
         });
@@ -347,7 +350,6 @@ export class SiteContentAndMenuComponent implements OnInit {
         this.electronService.openProject(url, this.assetsService, this.decksService,
           this.cardTemplatesService, this.cardAttributesService, this.cardsService).then(() => {
           this.assetsService.updateAssetUrls();
-          this.decksService.triggerDecksUpdated();
           this.decksService.selectDeck(undefined);
           this.router.navigateByUrl(`/decks`);
           this.displayLoading = false;
