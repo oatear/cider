@@ -106,6 +106,11 @@ export class SiteContentAndMenuComponent implements OnInit {
                 disabled: typeof projectHomeUrl !== 'string',
                 command: () => this.saveProject()
               }, {
+                label: 'Save As',
+                icon: 'pi pi-pw pi-save',
+                visible: this.electronService.isElectron(),
+                command: () => this.saveProjectAs()
+              }, {
                   separator:true
               }, {
                 label: 'Advanced',
@@ -249,6 +254,7 @@ export class SiteContentAndMenuComponent implements OnInit {
       accept: () => {
         db.resetDatabase().then(() => {
           this.assetsService.updateAssetUrls();
+          this.electronService.selectDirectory(undefined);
           this.decksService.selectDeck(undefined);
           this.router.navigateByUrl(`/decks`);
         });
@@ -288,6 +294,19 @@ export class SiteContentAndMenuComponent implements OnInit {
         });
       }
     });
+  }
+
+  public saveProjectAs() {
+    this.electronService.openSelectDirectoryDialog().then(url => {
+      if (url) {
+        this.localStorageService.addRecentProjectUrl(url);
+      }
+      return url;
+    }).then((url: string | null) => {
+      if (url) {
+        this.saveProject();
+      }
+    })
   }
 
   public async saveProject() {

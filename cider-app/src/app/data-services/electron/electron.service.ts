@@ -43,7 +43,7 @@ export class ElectronService {
     return window.require('electron').ipcRenderer;
   }
 
-  public selectDirectory(url: string) {
+  public selectDirectory(url: string | undefined) {
     this.projectHomeUrl.next(url);
   }
 
