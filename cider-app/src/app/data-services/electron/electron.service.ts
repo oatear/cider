@@ -67,6 +67,13 @@ export class ElectronService {
     return this.getIpcRenderer().invoke("create-directory", dirUrl);
   }
 
+  public removeDirectory(dirUrl: string): Promise<boolean> {
+    if (!this.isElectron()) {
+      return Promise.resolve(false);
+    }
+    return this.getIpcRenderer().invoke("remove-directory", dirUrl);
+  }
+
   public listDirectory(dirUrl: string): Promise<{ 
     name: string; isDirectory: boolean; isFile: boolean; }[]> {
     if (!this.isElectron()) {
@@ -119,6 +126,7 @@ export class ElectronService {
     const assetsUrl = homeUrl + "/" + ElectronService.ASSETS_DIR;
     const decksUrl = homeUrl + "/" + ElectronService.DECKS_DIR;
 
+    await this.removeDirectory(assetsUrl);
     await this.createDirectory(assetsUrl);
     const writeAllAssets: Promise<boolean[]> = Promise.all(assets.map(async asset => {
       const buffer = await asset.file.arrayBuffer();
@@ -128,6 +136,7 @@ export class ElectronService {
         Buffer.from(buffer));
     }));
 
+    await this.removeDirectory(decksUrl);
     await this.createDirectory(decksUrl);
     const writeAllDecks = Promise.all(decks.map(async deck => {
       const deckUrl = decksUrl + '/' + StringUtils.toKebabCase(deck.name);

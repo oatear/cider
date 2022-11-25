@@ -125,11 +125,25 @@ try {
       console.log('directory already exists', dirUrl);
       return false;
     }
-    // fs.mkdirSync(dirUrl);
-    // console.log('directory created', dirUrl);
-    // return true;
     return fs.promises.mkdir(dirUrl).then(() => {
       console.log('directory created', dirUrl);
+      return true;
+    });
+  });
+
+  /**
+   * Remove directory
+   * 
+   * params: dirUrl
+   * return true
+   */
+   ipcMain.handle('remove-directory', async (event, dirUrl) => {
+    if (!fs.existsSync(dirUrl)) {
+      console.log('directory does not exists', dirUrl);
+      return false;
+    }
+    return fs.promises.rm(dirUrl, { recursive: true, force: true }).then(() => {
+      console.log('directory removed', dirUrl);
       return true;
     });
   });
