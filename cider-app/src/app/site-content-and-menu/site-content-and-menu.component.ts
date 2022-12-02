@@ -256,7 +256,7 @@ export class SiteContentAndMenuComponent implements OnInit {
           this.assetsService.updateAssetUrls();
           this.electronService.selectDirectory(undefined);
           this.decksService.selectDeck(undefined);
-          this.router.navigateByUrl(`/decks`);
+          this.router.navigateByUrl(`/`);
         });
       }
     });

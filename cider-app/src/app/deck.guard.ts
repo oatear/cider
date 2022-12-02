@@ -10,6 +10,13 @@ export class DeckGuard implements CanActivate {
   constructor(private decksService: DecksService) {
   }
 
+  /**
+   * Allows access whenever a deck is currently selected
+   * 
+   * @param route 
+   * @param state 
+   * @returns 
+   */
   canActivate(route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
       let deckIdString = route.paramMap.get('deckId');

@@ -34,6 +34,7 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { CheckboxModule } from 'primeng/checkbox';
 import { TabMenuModule } from 'primeng/tabmenu';
 import { ChipsModule } from 'primeng/chips';
+import { DividerModule } from 'primeng/divider';
 
 import { MonacoEditorModule } from '@materia-ui/ngx-monaco-editor';
 
@@ -52,6 +53,7 @@ import { CardsTabMenuComponent } from './cards-tab-menu/cards-tab-menu.component
 import { CardAttributesComponent } from './card-attributes/card-attributes.component';
 import { CardThumbnailsComponent } from './card-thumbnails/card-thumbnails.component';
 import { PageHeaderComponent } from './page-header/page-header.component';
+import { WelcomeComponent } from './welcome/welcome.component';
 
 @NgModule({
   declarations: [
@@ -71,7 +73,8 @@ import { PageHeaderComponent } from './page-header/page-header.component';
     CardsTabMenuComponent,
     CardAttributesComponent,
     CardThumbnailsComponent,
-    PageHeaderComponent
+    PageHeaderComponent,
+    WelcomeComponent
   ],
   imports: [
     BrowserModule,
@@ -105,7 +108,8 @@ import { PageHeaderComponent } from './page-header/page-header.component';
     ProgressBarModule,
     CheckboxModule,
     TabMenuModule,
-    ChipsModule
+    ChipsModule,
+    DividerModule
   ],
   providers: [],
   bootstrap: [AppComponent]
