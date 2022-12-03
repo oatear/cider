@@ -12,7 +12,6 @@ import { WelcomeComponent } from './welcome/welcome.component';
 import { ProjectGuard } from './project.guard';
 
 const routes: Routes = [
-  { path: 'welcome', component: WelcomeComponent},
   { path: 'decks', component: DecksComponent, canActivate: [ProjectGuard]},
   { path: 'assets', component: AssetsComponent, canActivate: [ProjectGuard]},
   { path: 'decks/:deckId/cards', component: CardsComponent, canActivate: [ProjectGuard, DeckGuard]},
@@ -21,7 +20,7 @@ const routes: Routes = [
   { path: 'decks/:deckId/cards/attributes', component: CardAttributesComponent, canActivate: [ProjectGuard, DeckGuard]},
   { path: 'decks/:deckId/card-templates', component: CardTemplatesComponent, canActivate: [ProjectGuard, DeckGuard]},
   { path: 'decks/:deckId/export-cards', component: ExportCardsComponent, canActivate: [ProjectGuard, DeckGuard]},
-  { path: '**', component: DecksComponent, canActivate: [ProjectGuard]}
+  { path: '**', component: WelcomeComponent}
 ];
 
 @NgModule({

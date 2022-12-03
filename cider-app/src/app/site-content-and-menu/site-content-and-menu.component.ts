@@ -27,6 +27,7 @@ export class SiteContentAndMenuComponent implements OnInit {
   selectedDeck$: Observable<Deck | undefined>;
   recentProjectUrls$: Observable<string[]>;
   projectHomeUrl$: Observable<string | undefined>;
+  projectUnsaved$: Observable<boolean>;
   recentProjectUrlItems: MenuItem[];
   isSaving: boolean = false;
   items: MenuItem[];
@@ -56,13 +57,15 @@ export class SiteContentAndMenuComponent implements OnInit {
     this.selectedDeck$ = this.decksService.getSelectedDeck();
     this.recentProjectUrls$ = this.localStorageService.getRecentProjectUrls();
     this.projectHomeUrl$ = this.electronService.getProjectHomeUrl();
+    this.projectUnsaved$ = this.electronService.getProjectUnsaved();
     this.recentProjectUrlItems = [];
   }
 
   ngOnInit(): void {
 
-    combineLatest([this.selectedDeck$, this.recentProjectUrls$, this.projectHomeUrl$]).subscribe({
-      next: ([selectedDeck, urls, projectHomeUrl]) => {
+    combineLatest([this.selectedDeck$, this.recentProjectUrls$, 
+      this.projectHomeUrl$, this.projectUnsaved$]).subscribe({
+      next: ([selectedDeck, urls, projectHomeUrl, projectUnsaved]) => {
         // setup the recent project urls
         this.recentProjectUrlItems = urls.map(url => {return {
           label: url.substring(url.lastIndexOf('/') | 0),
@@ -72,6 +75,7 @@ export class SiteContentAndMenuComponent implements OnInit {
             this.electronService.selectDirectory(url);
             this.localStorageService.addRecentProjectUrl(url);
             this.openProject(url);
+            this.electronService.setProjectUnsaved(false);
           }
         }});
 
@@ -103,15 +107,17 @@ export class SiteContentAndMenuComponent implements OnInit {
                 label: 'Save',
                 icon: 'pi pi-pw pi-save',
                 visible: this.electronService.isElectron(),
-                disabled: typeof projectHomeUrl !== 'string',
+                disabled: !projectHomeUrl && !projectUnsaved,
                 command: () => this.saveProject()
               }, {
                 label: 'Save As',
                 icon: 'pi pi-pw pi-save',
+                disabled: !projectHomeUrl && !projectUnsaved,
                 visible: this.electronService.isElectron(),
                 command: () => this.saveProjectAs()
               }, {
-                  separator:true
+                  separator:true,
+                  visible: this.electronService.isElectron(),
               }, {
                 label: 'Advanced',
                 icon: 'pi pi-pw pi-database',
@@ -138,10 +144,12 @@ export class SiteContentAndMenuComponent implements OnInit {
                 disabled: !selectedDeck,
                 routerLink: [`/decks/${selectedDeck?.id}/export-cards`]
               }, {
-                separator:true
+                separator:true,
+                visible: this.electronService.isElectron(),
               }, {
                 label: 'Exit Project',
                 icon: 'pi pi-pw pi-file',
+                disabled: !projectHomeUrl && !projectUnsaved,
                 visible: this.electronService.isElectron(),
                 command: () => this.openExitProjectDialog()
               }, {
@@ -155,20 +163,25 @@ export class SiteContentAndMenuComponent implements OnInit {
             label: selectedDeck ? selectedDeck.name : 'Select Deck',
             icon: 'pi pi-pw pi-book',
             styleClass: 'selected-deck',
+            disabled: this.electronService.isElectron() && !projectHomeUrl && !projectUnsaved,
             routerLink: ['/decks']
           }, {
             label: 'Cards',
             icon: 'pi pi-pw pi-table',
+            styleClass: 'cards',
             disabled: !selectedDeck,
             routerLink: [`/decks/${selectedDeck?.id}/cards/listing`]
           }, {
             label: 'Templates',
             icon: 'pi pi-pw pi-id-card',
+            styleClass: 'templates',
             disabled: !selectedDeck,
             routerLink: [`/decks/${selectedDeck?.id}/card-templates`]
           }, {
             label: 'Assets',
             icon: 'pi pi-pw pi-image',
+            styleClass: 'assets',
+            disabled: this.electronService.isElectron() && !projectHomeUrl && !projectUnsaved,
             routerLink: [`/assets`]
           }
         ];
@@ -255,6 +268,7 @@ export class SiteContentAndMenuComponent implements OnInit {
         db.resetDatabase().then(() => {
           this.assetsService.updateAssetUrls();
           this.electronService.selectDirectory(undefined);
+          this.electronService.setProjectUnsaved(false);
           this.decksService.selectDeck(undefined);
           this.router.navigateByUrl(`/`);
         });
@@ -290,7 +304,9 @@ export class SiteContentAndMenuComponent implements OnInit {
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         db.resetDatabase().then(() => {
+          this.electronService.setProjectUnsaved(true);
           this.assetsService.updateAssetUrls();
+          this.router.navigateByUrl(`/decks`);
         });
       }
     });
@@ -352,6 +368,8 @@ export class SiteContentAndMenuComponent implements OnInit {
     
     Promise.all([assetsPromised, decksPromised]).then(([assets, decks]) => {
       return this.electronService.saveProject(assets, decks);
+    }).then(() => {
+      this.electronService.setProjectUnsaved(false);
     });
   }
 

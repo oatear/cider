@@ -18,14 +18,24 @@ import { EntityService } from '../types/entity-service.type';
 export class ElectronService {
   private static readonly ASSETS_DIR = "assets";
   private static readonly DECKS_DIR = "decks";
-  public projectHomeUrl: BehaviorSubject<string | undefined>;
+  private projectHomeUrl: BehaviorSubject<string | undefined>;
+  private projectUnsaved: BehaviorSubject<boolean>;
 
   constructor() {
     this.projectHomeUrl = new BehaviorSubject<string | undefined>(undefined);
+    this.projectUnsaved = new BehaviorSubject<boolean>(false);
   }
 
   public getProjectHomeUrl() {
     return this.projectHomeUrl.asObservable();
+  }
+
+  public getProjectUnsaved() {
+    return this.projectUnsaved.asObservable();
+  }
+
+  public setProjectUnsaved(unsaved: boolean) {
+    this.projectUnsaved.next(unsaved);
   }
 
   /**

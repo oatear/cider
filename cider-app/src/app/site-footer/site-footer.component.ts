@@ -8,10 +8,12 @@ import { ElectronService } from '../data-services/electron/electron.service';
   styleUrls: ['./site-footer.component.scss']
 })
 export class SiteFooterComponent implements OnInit {
-  projectHomeUrl$ : Observable<string | undefined>;
+  projectHomeUrl$: Observable<string | undefined>;
+  projectUnsaved$: Observable<boolean>;
 
   constructor(private electronService : ElectronService) {
     this.projectHomeUrl$ = this.electronService.getProjectHomeUrl();
+    this.projectUnsaved$ = this.electronService.getProjectUnsaved();
   }
 
   ngOnInit(): void {

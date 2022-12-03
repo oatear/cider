@@ -1,10 +1,12 @@
-<app-page-header header="Welcome" subheader="Create a new project or open an existing one"></app-page-header>
+<app-page-header header="Welcome" 
+    [subheader]="isElectron ? 'Start a new project or open an existing one'
+                    : 'Select a deck to get started'"></app-page-header>
 <p-card styleClass="artwork-card"></p-card>
-<p-card styleClass="welcome-card">
+<p-card *ngIf="isElectron" styleClass="welcome-card">
     <p-button label="+ Blank Project"
-        (click)="newProject()"></p-button>
+        (click)="newProject(true)"></p-button>
     <p-button label="Sample Card Game"
-        (click)="newProject()"></p-button>
+        (click)="newProject(false)"></p-button>
     <ng-container *ngFor="let projectUrl of recentProjectUrls">
         <p-button [label]="projectUrl.name" 
         (mouseover)="projectUrl.hover = true"

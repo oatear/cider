@@ -8,10 +8,12 @@ import { ElectronService } from './data-services/electron/electron.service';
 })
 export class ProjectGuard implements CanActivate {
   projectHomeUrl$: Observable<string | undefined>;
+  projectUnsaved$: Observable<boolean>;
 
   constructor(private electronService: ElectronService,
     private router: Router) {
     this.projectHomeUrl$ = electronService.getProjectHomeUrl();
+    this.projectUnsaved$ = electronService.getProjectUnsaved();
   }
 
   /**
@@ -27,14 +29,14 @@ export class ProjectGuard implements CanActivate {
     if (!this.electronService.isElectron()) {
       return true;
     }
-    //return firstValueFrom(this.projectHomeUrl$).then(homeUrl => typeof homeUrl === 'string');
-    return firstValueFrom(this.projectHomeUrl$).then(homeUrl => {
-      if (typeof homeUrl === 'string') {
-        return true;
-      }
-      this.router.navigate(['/welcome']);
-      return false;
-    });
+    return Promise.all([firstValueFrom(this.projectHomeUrl$),
+      firstValueFrom(this.projectUnsaved$)]).then(([homeUrl, unsaved]) => {
+        if (typeof homeUrl === 'string' || unsaved) {
+          return true;
+        }
+        this.router.navigate(['/']);
+        return false;
+      });
   }
   
 }

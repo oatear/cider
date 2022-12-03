@@ -19,6 +19,9 @@ export class AppDB extends Dexie {
     public static readonly CARD_TEMPLATES_TABLE: string = 'cardTemplates'
     public static readonly PRINT_TEMPLATES_TABLE: string = 'printTemplates';
     public static readonly CARD_ATTRIBUTES_TABLE: string = 'cardAttributes';
+    private static readonly ALL_TABLES = [
+        AppDB.GAMES_TABLE, AppDB.DECKS_TABLE, AppDB.CARDS_TABLE, AppDB.ASSETS_TABLE, 
+        AppDB.CARD_TEMPLATES_TABLE, AppDB.CARD_ATTRIBUTES_TABLE];
 
     games!: Table<Deck, number>;
     cards!: Table<Card, number>;
@@ -179,8 +182,14 @@ export class AppDB extends Dexie {
     /**
      * Delete all data in database and return to default data.
      */
-    public resetDatabase() {
-        return db.delete().then (()=>db.open());
+    public resetDatabase(keepEmpty?: boolean) {
+        return db.delete().then (() => db.open()).then(() => {
+            if (keepEmpty) {
+                return Promise.all(AppDB.ALL_TABLES.map(table => db.table(table).clear()))
+                .then(() => true);
+            }
+            return true;
+        });
     }
 }
 

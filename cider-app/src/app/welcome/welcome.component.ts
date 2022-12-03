@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ConfirmationService } from 'primeng/api';
-import { Observable, take } from 'rxjs';
+import { firstValueFrom, Observable, take } from 'rxjs';
 import { LocalStorageService } from '../data-services/local-storage/local-storage.service';
 import { AssetsService } from '../data-services/services/assets.service';
 import { db } from '../data-services/indexed-db/db';
@@ -23,6 +23,9 @@ export class WelcomeComponent implements OnInit {
   public loadingPercent: number = 0;
   public loadingInfo: string = '';
   public loadingHeader: string = '';
+  isElectron: boolean;
+  projectHomeUrl$: Observable<string | undefined>;
+  projectUnsaved$: Observable<boolean>;
 
   recentProjectUrls: { url: string; name: string; hue: number; hover: boolean}[] = [];
 
@@ -35,6 +38,9 @@ export class WelcomeComponent implements OnInit {
     private cardAttributesService: CardAttributesService,
     private cardsService: CardsService,
     private router: Router) {
+      this.isElectron = electronService.isElectron();
+      this.projectHomeUrl$ = electronService.getProjectHomeUrl();
+      this.projectUnsaved$ = electronService.getProjectUnsaved();
   }
 
   ngOnInit(): void {
@@ -49,57 +55,61 @@ export class WelcomeComponent implements OnInit {
         }
       });
     });
-
-    // const sampleUrls = ['apple-cider-game', 'not-a-fun-game', 
-    //   'what-a-wonderful-world', 'snakes-and-rakes', 'a'];
-    // Promise.resolve(sampleUrls).then(urls => {
-    //   this.recentProjectUrls = urls.map(url => {
-    //     let name = url.substring(url.lastIndexOf('/') + 1 | 0);
-    //     return {
-    //       url: url,
-    //       name: name,
-    //       hue: this.calculateHue(name),
-    //       hover: false
-    //     }
-    //   });
-    // });
   }
 
-  public newProject() {
+  public async newProject(keepEmpty: boolean) {
+    let [projectHomeUrl, projectUnsaved] = await Promise.all([firstValueFrom(this.projectHomeUrl$), 
+      firstValueFrom(this.projectUnsaved$)]);
+    if (!projectHomeUrl && !projectUnsaved) {
+      this.newProjectProcedure(keepEmpty);
+      return;
+    }
     this.confirmationService.confirm({
       message: 'Are you sure that you wish to create a new project?'
         + ' This will delete all of your unsaved data.',
       header: 'New Project',
       icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        db.resetDatabase().then(() => {
-          this.assetsService.updateAssetUrls();
-        });
-      }
+      accept: () => this.newProjectProcedure(keepEmpty)
     });
   }
 
-  public openProject(url: string) {
+  newProjectProcedure(keepEmpty: boolean) {
+    db.resetDatabase(keepEmpty).then(() => {
+      this.assetsService.updateAssetUrls();
+      this.electronService.setProjectUnsaved(true);
+      this.router.navigateByUrl(`/decks`);
+    });
+  }
+
+  public async openProject(url: string) {
+    let [projectHomeUrl, projectUnsaved] = await Promise.all([firstValueFrom(this.projectHomeUrl$), 
+      firstValueFrom(this.projectUnsaved$)]);
+    if (!projectHomeUrl && !projectUnsaved) {
+      this.openProjectProcedure(url);
+    }
     this.confirmationService.confirm({
       message: 'Are you sure that you wish to open another project?'
         + ' All unsaved data will be lost.',
       header: 'Open Project',
       icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        this.electronService.selectDirectory(url);
-        this.localStorageService.addRecentProjectUrl(url);
-        this.loadingIndeterminate = true;
-        this.loadingHeader = 'Opening Project';
-        this.loadingInfo = 'Reading project data...';
-        this.displayLoading = true;
-        this.electronService.openProject(url, this.assetsService, this.decksService,
-          this.cardTemplatesService, this.cardAttributesService, this.cardsService).then(() => {
-          this.assetsService.updateAssetUrls();
-          this.decksService.selectDeck(undefined);
-          this.router.navigateByUrl(`/decks`);
-          this.displayLoading = false;
-        });
-      }
+      accept: () => this.openProjectProcedure(url)
+    });
+  }
+
+  openProjectProcedure(url: string) {
+    this.electronService.selectDirectory(url);
+    this.localStorageService.addRecentProjectUrl(url);
+    this.electronService.setProjectUnsaved(false);
+    this.loadingIndeterminate = true;
+    this.loadingHeader = 'Opening Project';
+    this.loadingInfo = 'Reading project data...';
+    this.displayLoading = true;
+    this.electronService.openProject(url, this.assetsService, this.decksService,
+      this.cardTemplatesService, this.cardAttributesService, this.cardsService).then(() => {
+      this.assetsService.updateAssetUrls();
+      this.decksService.selectDeck(undefined);
+      this.router.navigateByUrl(`/decks`);
+      this.displayLoading = false;
     });
   }
 
