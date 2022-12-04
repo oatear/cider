@@ -19,7 +19,11 @@ function createWindow(): BrowserWindow {
     minWidth: 800,
     minHeight: 600,
     titleBarStyle: 'hidden',
-    titleBarOverlay: true,
+    //titleBarOverlay: true,
+    titleBarOverlay: {
+      color: '#343e4d',
+      symbolColor: '#aeb2b8'
+    },
     trafficLightPosition: { x: 20, y: 22 },
     webPreferences: {
       nodeIntegration: true,

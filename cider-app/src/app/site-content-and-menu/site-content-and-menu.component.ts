@@ -68,7 +68,7 @@ export class SiteContentAndMenuComponent implements OnInit {
       next: ([selectedDeck, urls, projectHomeUrl, projectUnsaved]) => {
         // setup the recent project urls
         this.recentProjectUrlItems = urls.map(url => {return {
-          label: url.substring(url.lastIndexOf('/') | 0),
+          label: StringUtils.lastDirectoryFromUrl(url),
           title: url,
           icon: 'pi pi-pw pi-folder',
           command: () => {

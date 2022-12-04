@@ -10,6 +10,7 @@ import { CardTemplatesService } from '../data-services/services/card-templates.s
 import { CardAttributesService } from '../data-services/services/card-attributes.service';
 import { CardsService } from '../data-services/services/cards.service';
 import { Router } from '@angular/router';
+import StringUtils from '../shared/utils/string-utils';
 
 @Component({
   selector: 'app-welcome',
@@ -46,7 +47,7 @@ export class WelcomeComponent implements OnInit {
   ngOnInit(): void {
     this.localStorageService.getRecentProjectUrls().pipe(take(1)).subscribe(urls => {
       this.recentProjectUrls = urls.map(url => {
-        let name = url.substring(url.lastIndexOf('/') + 1 | 0);
+        let name = StringUtils.lastDirectoryFromUrl(url);
         return {
           url: url,
           name: name,

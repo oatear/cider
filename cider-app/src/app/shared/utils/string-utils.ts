@@ -51,6 +51,18 @@ export default class StringUtils {
     }
 
     /**
+     * Get the last directory from the given url string
+     * 
+     * @param url 
+     * @ returns
+     */
+    public static lastDirectoryFromUrl(url: string) {
+        let index = url.lastIndexOf('/') > 0 ? url.lastIndexOf('/') : url.lastIndexOf('\\');
+        let name = url.substring(index + 1 | 0);
+        return name;
+    }
+
+    /**
      * Convert the given mime type into the relevant extension
      * 
      * @param mime 
