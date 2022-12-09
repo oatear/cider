@@ -60,7 +60,7 @@ in IndexedDB on your browser. You may export and import your entire
 database to a .json file to use between devices. You may host your own
 version of the CIDEr website by downloading the source code and running `npm install && ng serve`.
 
-The repository itself is protected by AGPL-3.0 to ensure the project remains open-sourced.
+The repository itself is protected by [AGPL-3.0][license-url] to ensure the project remains open-sourced.
 
 
 [last-commit]: https://img.shields.io/github/last-commit/oatear/cider
