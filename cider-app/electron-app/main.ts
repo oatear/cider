@@ -159,6 +159,10 @@ try {
    * return Dirent[]
    */
   ipcMain.handle('list-directory', async (event, dirUrl) => {
+    if (!fs.existsSync(dirUrl)) {
+      console.log('directory does not exists', dirUrl);
+      return [];
+    }
     const files = fs.readdirSync(dirUrl, { withFileTypes: true }).map(dirent => {
       return {
         name: dirent.name,

@@ -13,11 +13,17 @@ Card IDE (CIDEr) - Design game cards using `HTML/Handlebars`, `CSS`, and `tabula
 
 Website: [Start using Cider][pages-url]
 
+Mac: [download]
+
+Windows: [download]
+
 </div>
 
 # About CIDEr
 Cider was created to fill a niche between ease-of-use and versatility. The current market of board game/card creating applications seems to fit
 into two categories: 1) advanced software with a steep learning curve and hundreds of pages of documentation, and 2) user-friendly graphical interface, but limited versatility. Cider is absolutely closer to the first category in execution since it currently provides no graphical template editor, but it makes up for the learning curve by using a templating language that many are already familiar with (HTML/Handlebars and CSS).
+
+![screen-1]
 
 # 1. Template
 Create a template for each of the varying card fronts and card backs using
@@ -25,7 +31,7 @@ HTML/Handlebars and CSS. Use variables to reference attributes that
 are unique to each card. Use control logic to conditionally display
 specific parts of the template.
 
-![screen-1]
+![screen-2]
 
 ## 1.1 Built-in Handlebars Helpers
 [Built-in helpers reference](https://handlebarsjs.com/guide/builtin-helpers.html)
@@ -172,17 +178,17 @@ Pad a given number by `n` zeros.
 Create attributes relevant to your game and fill out their values for each
 card.  Choose the front and back templates for each card.
 
-![screen-2]
+![screen-3]
 
 # 3. Preview
 Preview the way the cards look with the tabular data applied to the templates.
 
-![screen-3]
+![screen-4]
 
 # 4. Export
 Export the cards as individual images (PNG), or as card sheets ready to print (PDF). Adjust the paper size, paper margins, and spacing between cards.
 
-![screen-4]
+![screen-5]
 
 # Creative Ownership
 Anything you create using CIDEr is your own intellectual property.
@@ -204,6 +210,7 @@ The repository itself is protected by AGPL-3.0 to ensure the project remains ope
 [screen-2]: cider-app/src/assets/screen-2.png
 [screen-3]: cider-app/src/assets/screen-3.png
 [screen-4]: cider-app/src/assets/screen-4.png
+[screen-5]: cider-app/src/assets/screen-5.png
 [image-1]: cider-app/src/assets/image-1.png
 [gh-url]: https://github.com/oatear/cider
 [license-url]: https://github.com/oatear/cider/blob/master/LICENSE.md
