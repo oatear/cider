@@ -75,8 +75,8 @@ The repository itself is protected by AGPL-3.0 to ensure the project remains ope
 [screen-4]: cider-app/src/assets/screen-4.png
 [screen-5]: cider-app/src/assets/screen-5.png
 [gh-url]: https://github.com/oatear/cider
-[handlebars-url]: https://github.com/oatear/cider/blob/master/HANDLEBARS.md
-[license-url]: https://github.com/oatear/cider/blob/master/LICENSE.md
+[handlebars-url]: HANDLEBARS.md
+[license-url]: LICENSE.md
 [pages-url]: https://oatear.github.io/cider
 [mac-download]: https://oatear.github.io/cider
 [windows-download]: https://oatear.github.io/cider
