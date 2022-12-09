@@ -13,7 +13,9 @@ Card IDE (CIDEr) - Design game cards using `HTML/Handlebars`, `CSS`, and `tabula
 
 Website: [Start using Cider][pages-url]
 
-Mac: [download][mac-download] Windows: [download][windows-download]
+Mac: [download][mac-download]
+
+Windows: [download][windows-download]
 
 [#Template language reference][handlebars-url]
 
