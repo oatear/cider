@@ -78,87 +78,25 @@ export class AppDB extends Dexie {
                 });
             });
         });
-        // this.on('populate', () => this.populateFromFile());
-        this.on('populate', () => this.populate());
+        // populate in a non-traditional way since the 'on populate' will not allow ajax calls
+        this.on('ready', () => this.table(AppDB.DECKS_TABLE).count()
+        .then(count => {
+            if (count > 0) {
+                console.log('db already populated');
+                return true;
+            }
+            console.log('populate from file');
+            return this.populateFromFile().then(() => true);
+        }));
     }
 
     async populateFromFile() {
         const blob = await firstValueFrom(this.httpClient.get(AppDB.SAMPLE_DB_FILE, {responseType: 'blob'}));
-        console.log('blob', blob);
         const file = new File([blob], 'database.json', {type: 'application/json', lastModified: Date.now()});
-        await this.importDatabase(file, undefined, true);
-    }
-
-    async populate() {
-        const deckId : IndexableType = await this.table(AppDB.DECKS_TABLE).add({
-            name: 'Apple Cider Deck'
+        await importDB(file, {
+            //noTransaction: true
         });
-
-        const frontCardTemplateId : IndexableType = await this.table(AppDB.CARD_TEMPLATES_TABLE).add({
-            name: 'Apple Front',
-            deckId: deckId,
-            description: '',
-            css: templateCssFront,
-            html: templateHtmlFront
-        });
-
-        const backCardTemplateId : IndexableType = await this.table(AppDB.CARD_TEMPLATES_TABLE).add({
-            name: 'Apple Back',
-            deckId: deckId,
-            description: '',
-            css: templateCssBack,
-            html: templateHtmlBack
-        });
-
-        await this.table(AppDB.CARD_ATTRIBUTES_TABLE).bulkAdd([
-            {
-                deckId: deckId,
-                name: 'Description',
-                description: 'Description of the card',
-                type: FieldType.text
-            }, {
-                deckId: deckId,
-                name: 'Hue',
-                description: 'Hue of the card',
-                type: FieldType.text
-            }
-        ]);
-
-        await this.table(AppDB.CARDS_TABLE).bulkAdd([
-            {
-                deckId: deckId,
-                frontCardTemplateId: frontCardTemplateId,
-                backCardTemplateId: backCardTemplateId,
-                name: 'Poison Apple',
-                count: 3,
-                description: "Take one card from an opponent's hand.",
-                hue: '110'
-            }, {
-                deckId: deckId,
-                frontCardTemplateId: frontCardTemplateId,
-                backCardTemplateId: backCardTemplateId,
-                name: 'Healthy Apple',
-                count: 1,
-                description: "Take a card from the discard pile.",
-                hue: '0'
-            }, {
-                deckId: deckId,
-                frontCardTemplateId: frontCardTemplateId,
-                backCardTemplateId: backCardTemplateId,
-                name: 'Mystic Apple',
-                count: 1,
-                description: "Draw two cards from the deck, choose one, discard the other.",
-                hue: '250'
-            }, {
-                deckId: deckId,
-                frontCardTemplateId: frontCardTemplateId,
-                backCardTemplateId: backCardTemplateId,
-                name: 'Crystal Apple',
-                count: 1,
-                description: "Every player draws a card and hands you one card from their hand.",
-                hue: '175'
-            }
-        ]);
+        return true;
     }
 
     /**
@@ -167,13 +105,11 @@ export class AppDB extends Dexie {
      * 
      * @param file 
      */
-    public async importDatabase(file: File, progressCallback?: (progress: ImportProgress) => boolean, 
-        skipDelete?: boolean): Promise<boolean> {
+    public async importDatabase(file: File, 
+        progressCallback?: (progress: ImportProgress) => boolean): Promise<boolean> {
         // unsolved dexie with typescript issue: https://github.com/dexie/Dexie.js/issues/1262
         // @ts-ignore
-        if (!skipDelete) {
-            await this.delete();
-        }
+        await this.delete();
         return importDB(file, {
             noTransaction: true,
             progressCallback: progressCallback
@@ -203,84 +139,12 @@ export class AppDB extends Dexie {
      * Delete all data in database and return to default data.
      */
     public resetDatabase(keepEmpty?: boolean) {
-        return this.delete().then (() => this.open()).then(() => {
-            if (keepEmpty) {
-                return Promise.all(AppDB.ALL_TABLES.map(table => this.table(table).clear()))
-                .then(() => true);
+        this.close();
+        return this.delete().then(() => this.open()).then(() => {
+            if (!keepEmpty) {
+                return this.populateFromFile();
             }
             return true;
         });
     }
 }
-
-
-const templateCssFront  = 
-`.card {
-    width: 825px;
-    height: 1125px;
-    border-radius: 25px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    background-color: hsl({{card.hue}}, 23%, 40%);
-    border: 45px solid hsl({{card.hue}}, 23%, 30%);
-    color: hsl({{card.hue}}, 23%, 90%);
-    font-weight: 600;
-    font-size: 50px;
-}
-.card .header {
-    height: 300px;
-    font-size: 80px;
-    font-weight: 600;
-    padding: 10px;
-    padding-top: 60px;
-}
-.card .apple {
-    height: 250px;
-    font-size: 150px;
-}
-.card .content {
-    flex: 1;
-    padding: 50px;
-    padding-top: 60px;
-}
-.card .footer {
-    height: 200px;
-    text-align: right;
-    padding: 100px;
-    padding-right: 50px;
-}`;
-
-const templateHtmlFront = 
-`<div class="card">
-    <div class="header">{{card.name}}</div>
-    <div class="apple">◯</div>
-    <div class="content">{{card.description}}</div>
-    <div class="footer">A{{#padZeros card.id 3}}{{/padZeros}}</div>
-</div>`;
-
-const templateCssBack =
-`.card {
-    width: 825px;
-    height: 1125px;
-    border-radius: 25px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    background-color: hsl(220, 24%, 30%);
-    border: 45px solid hsl(220, 23%, 10%);
-    color: hsl(220, 23%, 70%);
-    font-weight: 600;
-    font-size: 100px;
-}
-.card .content {
-    flex: 1;
-    padding: 50px;
-    padding-top: 350px;
-}`
-
-const templateHtmlBack =
-`<div class="card">
-    <div class="content">Apple Cider Game</div>
-</div>`
-
