@@ -84,8 +84,9 @@ export class AppDB extends Dexie {
 
     async populateFromFile() {
         const blob = await firstValueFrom(this.httpClient.get(AppDB.SAMPLE_DB_FILE, {responseType: 'blob'}));
+        console.log('blob', blob);
         const file = new File([blob], 'database.json', {type: 'application/json', lastModified: Date.now()});
-        return this.importDatabase(file);
+        await this.importDatabase(file, undefined, true);
     }
 
     async populate() {
@@ -166,13 +167,17 @@ export class AppDB extends Dexie {
      * 
      * @param file 
      */
-    public importDatabase(file: File, progressCallback?: (progress: ImportProgress) => boolean): Promise<boolean> {
+    public async importDatabase(file: File, progressCallback?: (progress: ImportProgress) => boolean, 
+        skipDelete?: boolean): Promise<boolean> {
         // unsolved dexie with typescript issue: https://github.com/dexie/Dexie.js/issues/1262
         // @ts-ignore
-        return this.delete().then(result => importDB(file, {
+        if (!skipDelete) {
+            await this.delete();
+        }
+        return importDB(file, {
             noTransaction: true,
             progressCallback: progressCallback
-        })).then(tempDb => tempDb.close())
+        }).then(tempDb => tempDb.close())
         .then(result => this.open())
         .then(result => true);
     }
