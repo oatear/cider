@@ -13,8 +13,8 @@ import StringUtils from 'src/app/shared/utils/string-utils';
 export class AssetsService extends IndexedDbService<Asset, number> {
   assetUrls: BehaviorSubject<any>;
 
-  constructor() {
-    super(AppDB.ASSETS_TABLE, [
+  constructor(db: AppDB) {
+    super(db, AppDB.ASSETS_TABLE, [
       {field: 'id', header: 'ID', type: FieldType.number, hidden: true},
       {field: 'name', header: 'Name', type: FieldType.text},
       {field: 'file', header: 'File', type: FieldType.file}

@@ -49,9 +49,20 @@ Preview the way the cards look with the tabular data applied to the templates.
 ![screen-4]
 
 # 4. Export
-Export the cards as individual images (PNG), or as card sheets ready to print (PDF). Adjust the paper size, paper margins, and spacing between cards.
+Export the cards as individual images (PNG), or as card sheets ready to print (PDF). Adjust the paper size, paper margins, and spacing between cards. You can also export in `low ink mode` for quick prototyping.
 
 ![screen-5]
+
+# 5. Save
+There are various ways you can save your project files depending on the form of the application you are using.
+
+## 5.1 Web Application
+In the web application your project remains in IndexedDB within the browser storage. You can export the database as a single `database.json` file. This file can be stored somewhere safe and also transfered and imported to other devices.
+
+## 5.2 Desktop Application
+In the desktop application, the primary project structure is a directory that holds an exploded form of the project as `.csv`, `.html`, `.css`, and `image` files. These files can be edited in other applications for batch tasks or to align with an existing user workflow. You may also export or import the project as a single `database.json` file.
+
+![image-file-tree]
 
 # Creative Ownership
 Anything you create using CIDEr is your own intellectual property.
@@ -74,6 +85,7 @@ The repository itself is protected by [AGPL-3.0][license-url] to ensure the proj
 [screen-3]: cider-app/src/assets/screen-3.png
 [screen-4]: cider-app/src/assets/screen-4.png
 [screen-5]: cider-app/src/assets/screen-5.png
+[image-file-tree]: cider-app/src/assets/image-file-tree.png
 [gh-url]: https://github.com/oatear/cider
 [handlebars-url]: HANDLEBARS.md
 [license-url]: LICENSE.md

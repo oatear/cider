@@ -14,9 +14,9 @@ import { DecksService } from './decks.service';
 export class CardsService extends DecksChildService<Card, number> {
 
   constructor(private attributesService: CardAttributesService,
-    private cardTemplatesService: CardTemplatesService,
-    decksService: DecksService) {
-    super(decksService, AppDB.CARDS_TABLE, [
+    private cardTemplatesService: CardTemplatesService, 
+    decksService: DecksService, db: AppDB) {
+    super(decksService, db, AppDB.CARDS_TABLE, [
       {field: 'id', header: 'ID', type: FieldType.number, hidden: true},
       {field: 'deckId', header: 'Deck ID', type: FieldType.number, hidden: true},
       {field: 'name', header: 'Name', type: FieldType.text, description: 'The name of the card'},

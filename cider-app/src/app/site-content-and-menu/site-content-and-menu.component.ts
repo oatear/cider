@@ -5,7 +5,7 @@ import { ImportProgress } from 'dexie-export-import/dist/import';
 import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
 import { Observable, combineLatest, lastValueFrom, firstValueFrom } from 'rxjs';
 import { ElectronService } from '../data-services/electron/electron.service';
-import { db } from '../data-services/indexed-db/db';
+import { AppDB } from '../data-services/indexed-db/db';
 import { LocalStorageService } from '../data-services/local-storage/local-storage.service';
 import { AssetsService } from '../data-services/services/assets.service';
 import { CardAttributesService } from '../data-services/services/card-attributes.service';
@@ -48,7 +48,8 @@ export class SiteContentAndMenuComponent implements OnInit {
     private cardAttributesService: CardAttributesService,
     private cardTemplatesService: CardTemplatesService,
     private messageService: MessageService, 
-    private router: Router) {
+    private router: Router,
+    private db: AppDB) {
     // allow reloading of the current page
     this.router.routeReuseStrategy.shouldReuseRoute = () => {
       return false;
@@ -201,7 +202,7 @@ export class SiteContentAndMenuComponent implements OnInit {
       this.loadingPercent = 0;
       this.loadingHeader = 'Importing Data';
       this.loadingInfo = 'Importing database rows...';
-      db.importDatabase(this.importFile, (progress: ImportProgress) => {
+      this.db.importDatabase(this.importFile, (progress: ImportProgress) => {
         this.loadingPercent = (progress.completedRows / (progress.totalRows || 100)) * 100;
         return true;
       }).then(() => {
@@ -235,7 +236,7 @@ export class SiteContentAndMenuComponent implements OnInit {
         this.loadingPercent = 0;
         this.loadingHeader = 'Exporting Data';
         this.loadingInfo = 'Exporting database rows...';
-        db.exportDatabase((progress: ExportProgress) => {
+        this.db.exportDatabase((progress: ExportProgress) => {
           this.loadingPercent = (progress.completedRows / (progress.totalRows || 100)) * 100;
           return true;
         }).then(() => {
@@ -253,7 +254,7 @@ export class SiteContentAndMenuComponent implements OnInit {
       header: 'Reset Database',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        db.resetDatabase();
+        this.db.resetDatabase();
       }
     });
   }
@@ -265,7 +266,7 @@ export class SiteContentAndMenuComponent implements OnInit {
       header: 'Exit Project',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        db.resetDatabase().then(() => {
+        this.db.resetDatabase().then(() => {
           this.assetsService.updateAssetUrls();
           this.electronService.selectDirectory(undefined);
           this.electronService.setProjectUnsaved(false);
@@ -303,7 +304,7 @@ export class SiteContentAndMenuComponent implements OnInit {
       header: 'New Project',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        db.resetDatabase().then(() => {
+        this.db.resetDatabase().then(() => {
           this.electronService.setProjectUnsaved(true);
           this.assetsService.updateAssetUrls();
           this.router.navigateByUrl(`/decks`);

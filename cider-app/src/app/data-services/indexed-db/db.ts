@@ -3,14 +3,20 @@ import { Card } from "primeng/card";
 import { Asset } from "../types/asset.type";
 import { CardTemplate } from "../types/card-template.type";
 import { Deck } from "../types/deck.type";
-import { importInto, exportDB, importDB } from "dexie-export-import";
+import { exportDB, importDB } from "dexie-export-import";
 import FileUtils from "src/app/shared/utils/file-utils";
 import { ExportProgress } from "dexie-export-import/dist/export";
 import { ImportProgress } from "dexie-export-import/dist/import";
 import { FieldType } from "../types/field-type.type";
+import { HttpClient } from "@angular/common/http";
+import { firstValueFrom } from "rxjs";
+import { Injectable } from "@angular/core";
 
-
+@Injectable({
+    providedIn: 'root'
+})
 export class AppDB extends Dexie {
+    private static readonly SAMPLE_DB_FILE: string = 'assets/cosmic-apple.json'
     private static readonly DB_NAME: string = 'cider-db';
     public static readonly GAMES_TABLE: string = 'games';
     public static readonly DECKS_TABLE: string = 'decks';
@@ -27,9 +33,11 @@ export class AppDB extends Dexie {
     cards!: Table<Card, number>;
     assets!: Table<Asset, number>;
     cardTemplates!: Table<CardTemplate, number>;
+    private httpClient;
 
-    constructor() {
+    constructor(httpClient: HttpClient) {
         super(AppDB.DB_NAME);
+        this.httpClient = httpClient;
         this.version(1).stores({
             games: '++id, name',
             cards: '++id, gameId, count, frontCardTemplateId, backCardTemplateId',
@@ -70,15 +78,22 @@ export class AppDB extends Dexie {
                 });
             });
         });
+        // this.on('populate', () => this.populateFromFile());
         this.on('populate', () => this.populate());
     }
 
+    async populateFromFile() {
+        const blob = await firstValueFrom(this.httpClient.get(AppDB.SAMPLE_DB_FILE, {responseType: 'blob'}));
+        const file = new File([blob], 'database.json', {type: 'application/json', lastModified: Date.now()});
+        return this.importDatabase(file);
+    }
+
     async populate() {
-        const deckId : IndexableType = await db.table(AppDB.DECKS_TABLE).add({
+        const deckId : IndexableType = await this.table(AppDB.DECKS_TABLE).add({
             name: 'Apple Cider Deck'
         });
 
-        const frontCardTemplateId : IndexableType = await db.table(AppDB.CARD_TEMPLATES_TABLE).add({
+        const frontCardTemplateId : IndexableType = await this.table(AppDB.CARD_TEMPLATES_TABLE).add({
             name: 'Apple Front',
             deckId: deckId,
             description: '',
@@ -86,7 +101,7 @@ export class AppDB extends Dexie {
             html: templateHtmlFront
         });
 
-        const backCardTemplateId : IndexableType = await db.table(AppDB.CARD_TEMPLATES_TABLE).add({
+        const backCardTemplateId : IndexableType = await this.table(AppDB.CARD_TEMPLATES_TABLE).add({
             name: 'Apple Back',
             deckId: deckId,
             description: '',
@@ -94,7 +109,7 @@ export class AppDB extends Dexie {
             html: templateHtmlBack
         });
 
-        await db.table(AppDB.CARD_ATTRIBUTES_TABLE).bulkAdd([
+        await this.table(AppDB.CARD_ATTRIBUTES_TABLE).bulkAdd([
             {
                 deckId: deckId,
                 name: 'Description',
@@ -108,7 +123,7 @@ export class AppDB extends Dexie {
             }
         ]);
 
-        await db.table(AppDB.CARDS_TABLE).bulkAdd([
+        await this.table(AppDB.CARDS_TABLE).bulkAdd([
             {
                 deckId: deckId,
                 frontCardTemplateId: frontCardTemplateId,
@@ -154,11 +169,11 @@ export class AppDB extends Dexie {
     public importDatabase(file: File, progressCallback?: (progress: ImportProgress) => boolean): Promise<boolean> {
         // unsolved dexie with typescript issue: https://github.com/dexie/Dexie.js/issues/1262
         // @ts-ignore
-        return db.delete().then(result => importDB(file, {
+        return this.delete().then(result => importDB(file, {
             noTransaction: true,
             progressCallback: progressCallback
         })).then(tempDb => tempDb.close())
-        .then(result => db.open())
+        .then(result => this.open())
         .then(result => true);
     }
 
@@ -183,9 +198,9 @@ export class AppDB extends Dexie {
      * Delete all data in database and return to default data.
      */
     public resetDatabase(keepEmpty?: boolean) {
-        return db.delete().then (() => db.open()).then(() => {
+        return this.delete().then (() => this.open()).then(() => {
             if (keepEmpty) {
-                return Promise.all(AppDB.ALL_TABLES.map(table => db.table(table).clear()))
+                return Promise.all(AppDB.ALL_TABLES.map(table => this.table(table).clear()))
                 .then(() => true);
             }
             return true;
@@ -264,4 +279,3 @@ const templateHtmlBack =
     <div class="content">Apple Cider Game</div>
 </div>`
 
-export const db = new AppDB();

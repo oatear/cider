@@ -3,14 +3,16 @@ import { EntityService } from '../types/entity-service.type';
 import { SearchParameters } from '../types/search-parameters.type';
 import { SearchResult } from '../types/search-result.type';
 import { SortDirection } from '../types/search-sort.type';
-import { db } from './db';
+import { AppDB } from './db';
 
 export class IndexedDbService<Entity, Identity extends string | number> implements EntityService<Entity, Identity> {
 
+  protected db: AppDB;
   protected tableName: string;
   protected fields: EntityField<Entity>[];
 
-  constructor(tableName: string, fields?: EntityField<Entity>[]) {
+  constructor(db: AppDB, tableName: string, fields?: EntityField<Entity>[]) {
+    this.db = db;
     this.tableName = tableName;
     this.fields = fields || [];
   }
@@ -49,8 +51,8 @@ export class IndexedDbService<Entity, Identity extends string | number> implemen
   }
 
   search(searchParameters: SearchParameters, equalityCriterias?: {[key: string]: any;}): Promise<SearchResult<Entity>> {
-    let query = equalityCriterias ? db.table(this.tableName).where(equalityCriterias) 
-      : db.table(this.tableName).toCollection();
+    let query = equalityCriterias ? this.db.table(this.tableName).where(equalityCriterias) 
+      : this.db.table(this.tableName).toCollection();
     if (searchParameters.sorting && searchParameters.sorting.length > 0) {
       if (searchParameters.sorting[0].direction == SortDirection.desc) {
         query = query.reverse();
@@ -78,35 +80,35 @@ export class IndexedDbService<Entity, Identity extends string | number> implemen
   }
 
   getAll(equalityCriterias?: {[key: string]: any;}): Promise<Entity[]> {
-    return equalityCriterias ? db.table(this.tableName).where(equalityCriterias).toArray()
-      : db.table(this.tableName).toArray();
+    return equalityCriterias ? this.db.table(this.tableName).where(equalityCriterias).toArray()
+      : this.db.table(this.tableName).toArray();
   }
 
   get(id: Identity): Promise<Entity> {
-    return db.table(this.tableName).get(id);
+    return this.db.table(this.tableName).get(id);
   }
 
   create(entity: Entity, overrideParent?: boolean): Promise<Entity> {
-    return db.table(this.tableName).add(entity).then(entityId => 
-      db.table(this.tableName).get(entityId));
+    return this.db.table(this.tableName).add(entity).then(entityId => 
+      this.db.table(this.tableName).get(entityId));
   }
 
   update(id: Identity, entity: Entity): Promise<Entity> {
-    return db.table(this.tableName).put(entity, id).then(entityId => 
-      db.table(this.tableName).get(entityId));
+    return this.db.table(this.tableName).put(entity, id).then(entityId => 
+      this.db.table(this.tableName).get(entityId));
   }
 
   delete(id: Identity): Promise<boolean> {
-    return db.table(this.tableName).delete(id).then(() => true);
+    return this.db.table(this.tableName).delete(id).then(() => true);
   }
 
   deleteAll(equalityCriterias?: {[key: string]: any;}): Promise<boolean> {
-    return equalityCriterias ? db.table(this.tableName).where(equalityCriterias).delete().then(() => true)
-      : db.table(this.tableName).clear().then(() => true);
+    return equalityCriterias ? this.db.table(this.tableName).where(equalityCriterias).delete().then(() => true)
+      : this.db.table(this.tableName).clear().then(() => true);
   }
 
   emptyTable(): Promise<boolean> {
-    return db.table(this.tableName).clear().then(() => true);
+    return this.db.table(this.tableName).clear().then(() => true);
   }
 
 }

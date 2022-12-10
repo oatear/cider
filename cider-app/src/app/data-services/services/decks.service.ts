@@ -11,8 +11,8 @@ import { FieldType } from '../types/field-type.type';
 export class DecksService extends IndexedDbService<Deck, number> {
   selectedDeck: BehaviorSubject<Deck | undefined>;
 
-  constructor() {
-    super(AppDB.DECKS_TABLE, [
+  constructor(db: AppDB) {
+    super(db, AppDB.DECKS_TABLE, [
       {field: 'id', header: 'ID', type: FieldType.number, hidden: true},
       {field: 'name', header: 'Name', type: FieldType.text}
     ]);

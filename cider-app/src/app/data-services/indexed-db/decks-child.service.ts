@@ -2,14 +2,15 @@ import { firstValueFrom } from 'rxjs';
 import { DecksService } from '../services/decks.service';
 import { EntityField } from '../types/entity-field.type';
 import { SearchParameters } from '../types/search-parameters.type';
+import { AppDB } from './db';
 import { IndexedDbService } from './indexed-db.service';
 
 export class DecksChildService<Entity, Identity extends string | number> extends IndexedDbService<Entity, Identity> {
   private static readonly DECK_ID: string = 'deckId';
   decksService: DecksService;
 
-  constructor(decksService: DecksService, tableName: string, fields?: EntityField<Entity>[]) {
-    super(tableName, fields);
+  constructor(decksService: DecksService, db: AppDB, tableName: string, fields?: EntityField<Entity>[]) {
+    super(db, tableName, fields);
     this.decksService = decksService;
   }
 

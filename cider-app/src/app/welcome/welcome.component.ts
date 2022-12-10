@@ -3,7 +3,6 @@ import { ConfirmationService } from 'primeng/api';
 import { firstValueFrom, Observable, take } from 'rxjs';
 import { LocalStorageService } from '../data-services/local-storage/local-storage.service';
 import { AssetsService } from '../data-services/services/assets.service';
-import { db } from '../data-services/indexed-db/db';
 import { ElectronService } from '../data-services/electron/electron.service';
 import { DecksService } from '../data-services/services/decks.service';
 import { CardTemplatesService } from '../data-services/services/card-templates.service';
@@ -11,6 +10,7 @@ import { CardAttributesService } from '../data-services/services/card-attributes
 import { CardsService } from '../data-services/services/cards.service';
 import { Router } from '@angular/router';
 import StringUtils from '../shared/utils/string-utils';
+import { AppDB } from '../data-services/indexed-db/db';
 
 @Component({
   selector: 'app-welcome',
@@ -38,7 +38,8 @@ export class WelcomeComponent implements OnInit {
     private cardTemplatesService: CardTemplatesService,
     private cardAttributesService: CardAttributesService,
     private cardsService: CardsService,
-    private router: Router) {
+    private router: Router,
+    private db: AppDB) {
       this.isElectron = electronService.isElectron();
       this.projectHomeUrl$ = electronService.getProjectHomeUrl();
       this.projectUnsaved$ = electronService.getProjectUnsaved();
@@ -75,7 +76,7 @@ export class WelcomeComponent implements OnInit {
   }
 
   newProjectProcedure(keepEmpty: boolean) {
-    db.resetDatabase(keepEmpty).then(() => {
+    this.db.resetDatabase(keepEmpty).then(() => {
       this.assetsService.updateAssetUrls();
       this.electronService.setProjectUnsaved(true);
       this.router.navigateByUrl(`/decks`);
