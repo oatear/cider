@@ -4,11 +4,20 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 
 ## Local server
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+Run `npm run start` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
 
 ## Electron application
 
-Run `ng run electron` for the electron desktop application.
+Run `npm run electron` for the electron desktop application.
+
+## Electron application
+
+Run `npm run electron:build` to build the electron desktop application executable.
+
+## Deploy GitHub Pages
+
+Run `ng build --outputPath=../docs --baseHref=/cider/` to build the site for github pages.
+Make sure to copy index.html to 404.html to handle all urls.
 
 ## Code scaffolding
 
@@ -17,11 +26,6 @@ Run `ng generate component component-name` to generate a new component. You can 
 ## Build
 
 Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
-
-## Deploy GitHub Pages
-
-Run `ng build --outputPath=../docs --baseHref=/cider/` to build the site for github pages.
-Make sure to copy index.html to 404.html to handle all urls.
 
 ## Running unit tests
 
