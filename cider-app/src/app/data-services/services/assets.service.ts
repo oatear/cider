@@ -1,31 +1,29 @@
-import { Injectable, PLATFORM_INITIALIZER } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Asset } from '../types/asset.type';
 import { AppDB } from '../indexed-db/db';
 import { FieldType } from '../types/field-type.type';
-import { GamesChildService } from '../indexed-db/games-child.service';
-import { GamesService } from './games.service';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { SearchParameters } from '../types/search-parameters.type';
+import { IndexedDbService } from '../indexed-db/indexed-db.service';
+import StringUtils from 'src/app/shared/utils/string-utils';
 
 @Injectable({
   providedIn: 'root'
 })
-export class AssetsService extends GamesChildService<Asset, number> {
+export class AssetsService extends IndexedDbService<Asset, number> {
   assetUrls: BehaviorSubject<any>;
 
-  constructor(gamesService: GamesService) {
-    super(gamesService, AppDB.ASSETS_TABLE, [
+  constructor(db: AppDB) {
+    super(db, AppDB.ASSETS_TABLE, [
       {field: 'id', header: 'ID', type: FieldType.number, hidden: true},
-      {field: 'gameId', header: 'Game ID', type: FieldType.number, hidden: true},
       {field: 'name', header: 'Name', type: FieldType.text},
       {field: 'file', header: 'File', type: FieldType.file}
     ]);
     this.assetUrls = new BehaviorSubject<any>({});
-    // update the asset urls whenever a new game is selected
-    gamesService.getSelectedGame().subscribe(game => this.updateAssetUrls());
+    this.updateAssetUrls();
   }
 
-  private updateAssetUrls() {
+  public updateAssetUrls() {
     console.log('update asset urls');
     this.getAll().then(assets => {
       console.log("all assets: ", assets);
@@ -33,13 +31,9 @@ export class AssetsService extends GamesChildService<Asset, number> {
       Object.keys(this.assetUrls.getValue()).forEach(key => URL.revokeObjectURL(this.assetUrls.getValue()[key]));
       // generate the new URLs
       let assetUrls = {} as any;
-      assets.forEach(asset => assetUrls[this.convertNameToField(asset.name)] = URL.createObjectURL(asset.file));
+      assets.forEach(asset => assetUrls[StringUtils.toKebabCase(asset.name)] = URL.createObjectURL(asset.file));
       return assetUrls;
     }).then(assetUrls => this.assetUrls.next(assetUrls));
-  }
-
-  private convertNameToField(name: string): string {
-    return name.trim().replace(/ /g, '-').toLowerCase();
   }
   
   override getEntityName(entity: Asset) {
@@ -79,9 +73,9 @@ export class AssetsService extends GamesChildService<Asset, number> {
    * @param entity 
    */
   private static insertFile(entity: Asset): Asset {
-      if (!(<any>entity).buffer || !(<any>entity).type) {
-        return entity;
-      }
+    if (!(<any>entity).buffer || !(<any>entity).type) {
+      return entity;
+    }
     const blob: Blob = AssetsService.arrayBufferToBlob((<any>entity).buffer, (<any>entity).type);
     entity.file = new File([blob], entity.name, {type: (<any>entity).type});
     (<any>entity).buffer = undefined;
@@ -104,9 +98,11 @@ export class AssetsService extends GamesChildService<Asset, number> {
     return super.getAll().then(entities => entities.map(AssetsService.insertFile));
   }
 
-  override create(entity: Asset) {
+  override create(entity: Asset, suppressUrlUpdates?: boolean) {
     return AssetsService.insertArrayBuffer(entity).then(entity => super.create(entity)).then(entity => {
-      this.updateAssetUrls();
+      if (!suppressUrlUpdates) {
+        this.updateAssetUrls();
+      }
       return entity;
     });
   }

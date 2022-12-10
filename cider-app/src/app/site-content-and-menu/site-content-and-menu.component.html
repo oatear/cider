@@ -1,15 +1,15 @@
 <div class="site-wrapper">
-    <div class="site-menu">
+    <div class="site-menu" (dblclick)="titlebarDoubleClick()">
         <p-menubar [model]="items">
             <ng-template pTemplate="start">
+                <img class="logo-image" height="40"
+                [src]="isSaving ? 'assets/cider-logo.gif' : 'assets/cider-logo-128.png'" 
+                (click)="logoClicked()">
             </ng-template>
         </p-menubar>
     </div>
     <div class="site-content">
-        <ng-content *ngIf="selectedGame$ | async; else elseBlock" ></ng-content>
-        <ng-template #elseBlock>
-            <app-games></app-games>
-        </ng-template>
+        <ng-content></ng-content>
     </div>
 </div>
 <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
@@ -30,11 +30,12 @@
         <button pButton pRipple label="Import" icon="pi pi-check" class="p-button-text" (click)="confirmDatabaseImport()"></button>
     </ng-template>
 </p-dialog>
-<p-dialog header="Exporting Data" [(visible)]="displayLoading" [style]="{width: '450px'}" [modal]="true" >
+<p-dialog [header]="loadingHeader" [(visible)]="displayLoading" [style]="{width: '450px'}" [modal]="true" >
     <div class="p-field">
-        Please wait for the import/export to complete.
+        Please wait for the process to complete.
     </div>
-    <p-progressBar [value]="loadingPercent" [showValue]="false"></p-progressBar>
+    <p-progressBar [value]="loadingPercent" [showValue]="false" 
+        [mode]="loadingIndeterminate ? 'indeterminate' : 'determinate'"></p-progressBar>
     <div class="p-field p-mt-2">
         {{loadingInfo}}
     </div>

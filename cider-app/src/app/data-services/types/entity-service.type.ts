@@ -11,13 +11,16 @@ import { SearchResult } from "./search-result.type";
  */
 export interface EntityService<Entity, Identity extends string | number> {
     getEntityName: (entity: Entity) => string;
-    getFields: () => Promise<EntityField<Entity>[]>;
+    getFields: (equalityCriterias?: {[key: string]: any;}) => Promise<EntityField<Entity>[]>;
     getIdField: () => string;
+    getIdToNameMap: (equalityCriterias?: {[key: string]: any;}) => Promise<Map<Identity, string>>;
+    getLookups: (equalityCriterias?: {[key: string]: any;}) => Promise<Map<EntityService<any, string | number>, Map<string | number, string>>>;
     search: (searchParameters: SearchParameters) => Promise<SearchResult<Entity>>;
     getAll: () => Promise<Entity[]>;
     get: (id: Identity) => Promise<Entity>;
-    create: (entity: Entity) => Promise<Entity>;
+    create: (entity: Entity, overrideParent?: boolean) => Promise<Entity>;
     update: (id: Identity, entity: Entity) => Promise<Entity>;
     delete: (id: Identity) => Promise<boolean>;
     deleteAll: () => Promise<boolean>;
+    emptyTable: () => Promise<boolean>;
 }

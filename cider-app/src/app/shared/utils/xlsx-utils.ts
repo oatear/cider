@@ -1,6 +1,7 @@
 
 import { EntityField } from 'src/app/data-services/types/entity-field.type';
 import { EntityService } from 'src/app/data-services/types/entity-service.type';
+import { FieldType } from 'src/app/data-services/types/field-type.type';
 import * as XLSX from 'xlsx';
 import FileUtils from './file-utils';
 
@@ -23,14 +24,32 @@ export default class XlsxUtils {
                 if (header.service) {
                     return lookups.get(header.service)?.get(<any>record[header.field]);
                 }
+                if (header.type === FieldType.optionList) {
+                    const list: string[] = (<any>record)[header.field];
+                    return list ? list.join('|') : '';
+                }
                 return record[header.field];
             });
             XLSX.utils.sheet_add_aoa(worksheet, [values], {origin: -1});
         });
         const csv = XLSX.utils.sheet_to_csv(worksheet);
+        return csv;
+    }
+
+    /**
+     * Export the provided records to a CSV file
+     * 
+     * @param columns 
+     * @param records 
+     * @param lookups 
+     */
+     static entityExportToFile<Entity>(columns: EntityField<Entity>[], 
+        lookups: Map<EntityService<any, string | number>, Map<string | number, string>>, records: Entity[]) {
+        const csv = XlsxUtils.entityExport(columns, lookups, records);
         const blob = new Blob([csv], {type: 'text/csv'});
         FileUtils.saveAs(blob, 'data.csv');
     }
+
 
     /**
      * Import entities from a CSV file
@@ -61,6 +80,10 @@ export default class XlsxUtils {
                         if (!foundValue) {
                             console.log(`Could not find value (${(<any>object)[header.header]}) for column: ${header.header}`);
                         }
+                    } else if(header.type === FieldType.optionList) {
+                        const value = (<any>object)[header.header];
+                        (<any>converted)[header.field] = typeof value === 'string' 
+                            ? value.split('|') : [];
                     } else {
                         (<any>converted)[header.field] = (<any>object)[header.header];
                     }

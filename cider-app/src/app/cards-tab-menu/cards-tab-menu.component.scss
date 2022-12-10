@@ -1,0 +1,21 @@
+:host ::ng-deep .p-tabmenu {
+    margin-left: 35px;
+    margin-right: 35px;
+    margin-top: 25px;
+    .p-tabmenu-nav {
+        border: none;
+        .p-tabmenuitem .p-menuitem-link {
+            border-top-right-radius: 10px;
+            border-top-left-radius: 10px;
+            border: none;
+            background-color: #262d36;
+            margin-right: 15px;
+        }
+        .p-tabmenuitem.p-highlight .p-menuitem-link {
+            background-color: var(--surface-a);
+        }
+        .p-tabmenuitem .p-menuitem-link:not(.p-disabled):focus {
+            box-shadow: none;
+        }
+    }
+}

@@ -12,7 +12,7 @@ textarea {
         .p-panel-content {
             height: 100%;
             padding: 0;
-            border-top: 1px solid #304562;
+            border-top: 1px solid var(--surface-d);
             border-radius: 0;
         }
     }
@@ -35,8 +35,8 @@ textarea {
 }
 
 .preview-space {
-    height: calc(100vh - 388px);
-    height: calc(var(--vh, 1vh) * 100 - 388px);
+    height: calc(100vh - 316px);
+    height: calc(var(--vh, 1vh) * 100 - 316px);
     // display: flex;
     // align-items: center;
 }
@@ -60,8 +60,8 @@ textarea {
 }
 
 :host ::ng-deep .template-editor {
-    height: calc(100vh - 140px - 58px);
-    height: calc(var(--vh, 1vh) * 100 - 140px - 58px);
+    height: calc(100vh - 128px - 58px);
+    height: calc(var(--vh, 1vh) * 100 - 128px - 58px);
     display: flex;
     flex-direction: column;
     .template-header {
@@ -111,8 +111,8 @@ textarea {
             display: flex;
             flex-direction: column;
             width: calc(100vw - 400px);
-            max-height: calc(100vh - 198px - 70px);
-            min-height: calc(var(--vh, 1vh) * 100 - 198px - 70px);
+            max-height: calc(100vh - 186px);
+            min-height: calc(var(--vh, 1vh) * 100 - 186px);
             .top-panel {
                 flex: 1;
                 .p-panel {

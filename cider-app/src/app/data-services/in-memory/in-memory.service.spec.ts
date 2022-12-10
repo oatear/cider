@@ -1,10 +1,10 @@
 import { TestBed } from '@angular/core/testing';
-import { Game } from '../types/game.type';
+import { Deck } from '../types/deck.type';
 
 import { InMemoryService } from './in-memory.service';
 
 describe('InMemoryService', () => {
-  let service: InMemoryService<Game, number>;
+  let service: InMemoryService<Deck, number>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});

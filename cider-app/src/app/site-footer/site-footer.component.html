@@ -1,3 +1,9 @@
 <div class="footer">
-    <b>CIDEr (Card IDE)</b> <b>Copyright Ⓒ 2022</b>
+    <span>CIDEr (Card IDE)</span>
+    <span>{{
+        !(projectHomeUrl$ | async) && (projectUnsaved$ | async) ? 'Untitled' : ''
+    }}
+        {{projectHomeUrl$ | async}}
+        {{(projectUnsaved$ | async) ? '*' : ''}}</span>
+    <span>Copyright Ⓒ 2022</span>
 </div>

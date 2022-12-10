@@ -1,22 +1,95 @@
 .site-wrapper {
     display: flex;
     flex-direction: column;
-    min-height: calc(100vh - 140px);
-    min-height: calc(var(--vh, 1vh) * 100 - 140px);
+    //min-height: calc(100vh - 58px);
+    min-height: calc(var(--vh, 1vh) * 100 - 58px);
     .site-menu {
         background-color: var(--surface-a);
-        .game-name {
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-app-region: drag;
+        .deck-name {
             font-weight: 500;
         }
+    }
+    .logo-image {
+        margin-right: 15px;
     }
     .site-content {
         flex: 1;
         display: flex;
         flex-direction: column;
+        max-height: calc(100vh - 58px - 58px);
+        overflow: auto;
     }
 }
+
+/**
+ * Menubar overrides
+ */
 :host ::ng-deep .p-menubar {
     height: 58px;
     border-radius: 0px;
     border: 0;
+
+    .p-menubar-root-list > .p-menuitem > .p-menuitem-link:focus {
+        box-shadow: none;
+    }
+
+    .p-submenu-list {
+        background: #343e4d;
+        border: none;
+    }
+
+    .p-menuitem {
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-app-region: none;
+    }
+
+    .p-menubar-root-list > .p-menuitem > .p-menuitem-link {
+        border-radius: 10px;
+    }
+
+    .p-menuitem.selected-deck {
+        background-color: var(--surface-a);
+        border-radius: 10px;
+    }
+
+    .p-menuitem.p-menuitem-active > .p-menuitem-link {
+        background: var(--surface-d);
+    }
+
+    // .p-menuitem:hover {
+    //     &.selected-deck > .p-menuitem-link:not(.p-disabled) .p-menuitem-text,
+    //     &.selected-deck > .p-menuitem-link:not(.p-disabled) .p-menuitem-icon {
+    //         color: hsl(220, 100%, 80%);
+    //     }
+    //     &.cards > .p-menuitem-link:not(.p-disabled) .p-menuitem-text,
+    //     &.cards > .p-menuitem-link:not(.p-disabled) .p-menuitem-icon {
+    //         color: hsl(255, 100%, 80%);
+    //     }
+    //     &.templates > .p-menuitem-link:not(.p-disabled) .p-menuitem-text,
+    //     &.templates > .p-menuitem-link:not(.p-disabled) .p-menuitem-icon {
+    //         color: hsl(128, 100%, 80%);
+    //     }
+    //     &.assets > .p-menuitem-link:not(.p-disabled) .p-menuitem-text,
+    //     &.assets > .p-menuitem-link:not(.p-disabled) .p-menuitem-icon {
+    //         color: hsl(26, 100%, 80%);
+    //     }
+    // }
+}
+
+/**
+ * Card overrides
+ */
+:host ::ng-deep .p-card {
+    border-radius: 10px;
+}
+
+/**
+ * Dialog overrides
+ */
+:host ::ng-deep .p-dialog {
+    border-radius: 10px;
 }

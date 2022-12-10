@@ -6,7 +6,7 @@ import { HttpClientModule } from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { GamesComponent } from './games/games.component';
+import { DecksComponent } from './decks/decks.component';
 import { CardTemplatesComponent } from './card-templates/card-templates.component';
 import { CardsComponent } from './cards/cards.component';
 
@@ -34,8 +34,9 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { CheckboxModule } from 'primeng/checkbox';
 import { TabMenuModule } from 'primeng/tabmenu';
 import { ChipsModule } from 'primeng/chips';
+import { DividerModule } from 'primeng/divider';
 
-import { MonacoEditorModule } from 'ngx-monaco-editor';
+import { MonacoEditorModule } from '@materia-ui/ngx-monaco-editor';
 
 import { SiteHeaderComponent } from './site-header/site-header.component';
 import { SiteFooterComponent } from './site-footer/site-footer.component';
@@ -51,11 +52,13 @@ import { ExportCardsComponent } from './export-cards/export-cards.component';
 import { CardsTabMenuComponent } from './cards-tab-menu/cards-tab-menu.component';
 import { CardAttributesComponent } from './card-attributes/card-attributes.component';
 import { CardThumbnailsComponent } from './card-thumbnails/card-thumbnails.component';
+import { PageHeaderComponent } from './page-header/page-header.component';
+import { WelcomeComponent } from './welcome/welcome.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    GamesComponent,
+    DecksComponent,
     CardTemplatesComponent,
     CardsComponent,
     SiteHeaderComponent,
@@ -69,14 +72,16 @@ import { CardThumbnailsComponent } from './card-thumbnails/card-thumbnails.compo
     ExportCardsComponent,
     CardsTabMenuComponent,
     CardAttributesComponent,
-    CardThumbnailsComponent
+    CardThumbnailsComponent,
+    PageHeaderComponent,
+    WelcomeComponent
   ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
     AppRoutingModule,
     HttpClientModule,
-    MonacoEditorModule.forRoot(),
+    MonacoEditorModule,
     ButtonModule,
     RippleModule,
     CardModule,
@@ -103,7 +108,8 @@ import { CardThumbnailsComponent } from './card-thumbnails/card-thumbnails.compo
     ProgressBarModule,
     CheckboxModule,
     TabMenuModule,
-    ChipsModule
+    ChipsModule,
+    DividerModule
   ],
   providers: [],
   bootstrap: [AppComponent]

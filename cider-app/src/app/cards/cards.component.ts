@@ -1,6 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { CardAttributesService } from '../data-services/services/card-attributes.service';
-import { CardTemplatesService } from '../data-services/services/card-templates.service';
 import { CardsService } from '../data-services/services/cards.service';
 import { Card } from '../data-services/types/card.type';
 

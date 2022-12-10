@@ -1,0 +1,33 @@
+<app-page-header header="Welcome" 
+    [subheader]="isElectron ? 'Start a new project or open an existing one'
+                    : 'Select a deck to get started'"></app-page-header>
+<p-card styleClass="artwork-card"></p-card>
+<p-card *ngIf="isElectron" styleClass="welcome-card">
+    <p-button label="+ Blank Project"
+        (click)="newProject(true)"></p-button>
+    <p-button label="Sample Card Game"
+        (click)="newProject(false)"></p-button>
+    <ng-container *ngFor="let projectUrl of recentProjectUrls">
+        <p-button [label]="projectUrl.name" 
+        (mouseover)="projectUrl.hover = true"
+        (mouseout)="projectUrl.hover = false"
+        (click)="openProject(projectUrl.url)"
+        [style]="{
+            'background-color': projectUrl.hover 
+            ? 'hsl(' + projectUrl.hue + ' 19% 55%)'
+            : 'hsl(' + projectUrl.hue + ' 19% 45%)',
+            'border-color': 'hsl(' + projectUrl.hue + ' 19% 45%)'
+        }"></p-button>
+    </ng-container>
+</p-card>
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+<p-dialog [header]="loadingHeader" [(visible)]="displayLoading" [style]="{width: '450px'}" [modal]="true" >
+    <div class="p-field">
+        Please wait for the process to complete.
+    </div>
+    <p-progressBar [value]="loadingPercent" [showValue]="false" 
+        [mode]="loadingIndeterminate ? 'indeterminate' : 'determinate'"></p-progressBar>
+    <div class="p-field p-mt-2">
+        {{loadingInfo}}
+    </div>
+</p-dialog>

@@ -1,0 +1,26 @@
+{
+    "appId": "com.oatear.cider",
+    "directories": {
+        "output": "release/"
+    },
+    "files": [
+        "**/*",
+        "!**/*.ts",
+        "!*.map",
+        "!package.json",
+        "!package-lock.json",
+        {
+            "from": "../dist",
+            "filter": ["**/*"]
+        }
+    ],
+    "mac": {
+        "icon": "dist/cider/assets/cider-logo.icns"
+    },
+    "win": {
+        "icon": "dist/cider/favicon.ico"
+    },
+    "linux": {
+        "icon": "dist/cider/assets/cider-logo.icns"
+    }
+}

@@ -1,7 +1,8 @@
 :host ::ng-deep .page-card {
     margin: 25px;
-    min-height: calc(100vh - 140px - 58px - 50px);
-    min-height: calc(var(--vh, 1vh) * 100 - 140px - 58px - 50px);
+    &.tabbed-card {
+        margin-top: 0px;
+    }
 }
 
 :host ::ng-deep .card-thumbnails {

@@ -1,12 +1,19 @@
 {
   "name": "cider",
-  "version": "0.0.0",
+  "description": "Design game cards using HTML/Handlebars, CSS, and tabular data.",
+  "author": {
+    "name": "Hristo Iankov"
+  },
+  "version": "0.3.0",
+  "main": "electron-app/dist/main.js",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "electron": "ng build --base-href ./ && tsc --p electron-app && electron .",
+    "electron:build": "ng build --base-href ./ && tsc --p electron-app && electron-builder build --publish=never"
   },
   "browser": {
     "fs": false,
@@ -24,6 +31,7 @@
     "@angular/platform-browser": "^13.2.7",
     "@angular/platform-browser-dynamic": "^13.2.7",
     "@angular/router": "^13.2.7",
+    "@materia-ui/ngx-monaco-editor": "^6.0.0",
     "@types/dom-to-image": "^2.6.4",
     "@types/uuid": "^8.3.4",
     "dexie": "^3.2.2",
@@ -32,8 +40,9 @@
     "handlebars": "^4.7.7",
     "html-to-image": "^1.9.0",
     "jszip": "^3.10.0",
+    "mime": "^3.0.0",
+    "mime-wrapper": "^2.0.0",
     "monaco-editor": "^0.32.1",
-    "ngx-monaco-editor": "^12.0.0",
     "pdfmake": "^0.2.5",
     "primeflex": "^2.0.0",
     "primeicons": "^5.0.0",
@@ -48,10 +57,13 @@
     "@angular-devkit/build-angular": "^13.2.6",
     "@angular/cli": "^13.2.6",
     "@angular/compiler-cli": "^13.2.7",
+    "@types/electron": "^1.6.10",
     "@types/file-saver": "^2.0.5",
     "@types/jasmine": "^3.10.6",
     "@types/node": "^12.20.55",
     "@types/pdfmake": "^0.1.21",
+    "electron": "^21.2.0",
+    "electron-builder": "^23.6.0",
     "jasmine-core": "^4.0.1",
     "karma": "^6.4.0",
     "karma-chrome-launcher": "^3.1.1",
