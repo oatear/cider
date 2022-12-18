@@ -23,9 +23,10 @@
                                 [style.width.px]="selectedPaper.orientation === 'portrait' ? paperWidth * paperDpi : paperHeight * paperDpi" 
                                 [style.height.px]="selectedPaper.orientation === 'portrait' ? paperHeight * paperDpi : paperWidth * paperDpi"
                                 [style.padding.px]="paperMargins * paperDpi">
-                                <div #cardSheets class="preview-sheet" [style.transform]="'scaleY(-1)'">
+                                <div #cardSheets class="preview-sheet" [style.transform]="selectedPaper.mirrorBacks ? 'scaleY(-1)' : ''">
                                     <ng-container *ngFor="let card of sheet;">
-                                        <div class="card-wrapper" [style.margin.px]="cardMargins * paperDpi" [style.transform]="'scaleX(-1)'">
+                                        <div class="card-wrapper" [style.margin.px]="cardMargins * paperDpi" 
+                                            [style.transform]="selectedPaper.mirrorBacks ? 'scaleX(-1)' : ''">
                                             <app-card-preview #cardSheetCards [card]="card" [lowInk]="lowInk"
                                                 [template]="card.backCardTemplateId | entity: templatesService | async"></app-card-preview>
                                         </div>

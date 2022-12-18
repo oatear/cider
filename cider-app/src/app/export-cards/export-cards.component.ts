@@ -29,13 +29,13 @@ export class ExportCardsComponent implements OnInit {
     { name: 'Individual Images', value: ExportCardsComponent.SINGULAR_EXPORT}
   ];
   public paperOptions: PaperType[] = [
-    { name: 'US Letter (Landscape)', width: 8.5, height: 11, orientation: 'landscape'}, 
-    { name: 'US Letter (Portrait)', width: 8.5, height: 11, orientation: 'portrait'}, 
-    { name: 'A4 (Landscape)', width: 8, height: 10, orientation: 'landscape'}, 
-    { name: 'A4 (Portrait)', width: 8, height: 10, orientation: 'portrait'}, 
-    { name: 'Custom (Landscape)', width: 8.5, height: 11, orientation: 'landscape'}, 
-    { name: 'Custom (Portrait)', width: 8.5, height: 11, orientation: 'portrait'}, 
-    { name: 'Tabletop Simulator', width: 8.5, height: 11, orientation: 'portrait'}
+    { name: 'US Letter (Landscape)', width: 8.5, height: 11, orientation: 'landscape', mirrorBacks: true}, 
+    { name: 'US Letter (Portrait)', width: 8.5, height: 11, orientation: 'portrait', mirrorBacks: true}, 
+    { name: 'A4 (Landscape)', width: 8, height: 10, orientation: 'landscape', mirrorBacks: true}, 
+    { name: 'A4 (Portrait)', width: 8, height: 10, orientation: 'portrait', mirrorBacks: true}, 
+    { name: 'Custom (Landscape)', width: 8.5, height: 11, orientation: 'landscape', mirrorBacks: true}, 
+    { name: 'Custom (Portrait)', width: 8.5, height: 11, orientation: 'portrait', mirrorBacks: true}, 
+    { name: 'Tabletop Simulator', width: 8.5, height: 11, orientation: 'portrait', mirrorBacks: false}
   ];
   public selectedPaper: PaperType = this.paperOptions[0];
   public paperWidth: number = this.paperOptions[0].width;
@@ -272,5 +272,6 @@ interface PaperType {
   name: string,
   width: number,
   height: number,
-  orientation: 'landscape' | 'portrait'
+  orientation: 'landscape' | 'portrait',
+  mirrorBacks: boolean
 }
