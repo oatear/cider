@@ -1,9 +1,17 @@
 <app-page-header header="Cards" subheader="List of all the cards in the deck"></app-page-header>
 <app-cards-tab-menu></app-cards-tab-menu>
 <p-card styleClass="page-card tabbed-card">
+    <div class="card-controls">
+        <p-selectButton [options]="zoomOptions" [(ngModel)]="zoomLevel" class="p-mr-3"
+            optionLabel="label" optionValue="value"></p-selectButton>
+        <p-selectButton [options]="sideOptions" [(ngModel)]="sideSelected" optionLabel="label" optionValue="value"></p-selectButton>
+    </div>
     <div class="card-thumbnails">
         <ng-container *ngFor="let card of thumbnailCards">
-            <app-card-preview [card]="card" [scale]="0.3" [template]="card.frontCardTemplateId | entity: templatesService | async"></app-card-preview>
+            <app-card-preview *ngIf="sideSelected == 'fronts' || sideSelected == 'both'" 
+                [card]="card" [scale]="zoomLevel" [template]="card.frontCardTemplateId | entity: templatesService | async"></app-card-preview>
+            <app-card-preview *ngIf="sideSelected == 'backs' || sideSelected == 'both'" 
+                [card]="card" [scale]="zoomLevel" [template]="card.backCardTemplateId | entity: templatesService | async"></app-card-preview>
         </ng-container>
     </div>
 </p-card>

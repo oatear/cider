@@ -11,6 +11,20 @@ import { Card } from '../data-services/types/card.type';
 })
 export class CardThumbnailsComponent implements OnInit {
   thumbnailCards: Card[] = [];
+  zoomLevel: number = 0.3;
+  zoomOptions: any[] = [
+    { label: 's', value: 0.2 },
+    { label: 'm', value: 0.3 },
+    { label: 'l', value: 0.5 },
+    { label: 'xl', value: 0.8 }
+  ];
+  sideSelected: string = 'fronts';
+  sideOptions: any[] = [
+    { label: 'Fronts', value: 'fronts' },
+    { label: 'Backs', value: 'backs' },
+    { label: 'Both', value: 'both' }
+  ]
+
 
   constructor(public cardsService: CardsService,
     public templatesService: CardTemplatesService) { }
