@@ -34,13 +34,6 @@ textarea {
     }
 }
 
-.preview-space {
-    height: calc(100vh - 316px);
-    height: calc(var(--vh, 1vh) * 100 - 316px);
-    // display: flex;
-    // align-items: center;
-}
-
 :host ::ng-deep app-card-preview {
     display: inline-block;
     transform-origin: center;
@@ -65,30 +58,41 @@ textarea {
     display: flex;
     flex-direction: column;
     .template-header {
-        // height: 73px;
         .p-toolbar {
             border-top: none;
             border-bottom: none;
             border-radius: 0;
         }
     }
+    .p-splitter {
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+        .p-col {
+            padding: 0;
+        }
+        .p-splitter-panel:first-child {
+            flex-basis: calc(40% - 4px);
+        }
+        .p-splitter-panel:last-child {
+            flex-basis: calc(60% - 4px);
+        }
+    }
     .template-panel {
-        flex: 1;
-        height: 100%;
-        display: flex;
-        // height: calc(100vh - 198px - 73px);
         .left-panel {
-            min-width: 400px;
-            width: 400px;
+            height: calc(100vh - 316px);
+            height: calc(var(--vh, 1vh) * 100 - 185px);
             .p-panel {
                 .p-panel-header {
                     border-radius: 0;
                     border-bottom: none;
                     border-right: 0;
+                    border-top: 0;
                 }
                 .p-panel-content {
                     border-radius: 0;
                     border-right: 0;
+                    border-bottom: 0;
                     .preview-controls {
                         width: 100%;
                         display: flex;
@@ -102,23 +106,25 @@ textarea {
                     }
                     .preview-space {
                         overflow: hidden;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        height: calc(100vh - 316px);
+                        height: calc(var(--vh, 1vh) * 100 - 305px);
                     }
                 }
             }
         }
         .right-panel {
-            flex: 1;
             display: flex;
             flex-direction: column;
-            width: calc(100vw - 400px);
-            max-height: calc(100vh - 186px);
-            min-height: calc(var(--vh, 1vh) * 100 - 186px);
             .top-panel {
                 flex: 1;
                 .p-panel {
                     .p-panel-header {
                         border-radius: 0;
                         border-bottom: none;
+                        border-top: 0;
                     }
                     .p-panel-content {
                         border-radius: 0;
@@ -135,6 +141,7 @@ textarea {
                     .p-panel-content {
                         border-radius: 0;
                         border-top: none;
+                        border-bottom: none;
                     }
                 }
             }

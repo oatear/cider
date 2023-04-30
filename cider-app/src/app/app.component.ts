@@ -21,9 +21,9 @@ export class AppComponent implements OnInit{
   ngOnInit() {
       this.primengConfig.ripple = true;
 
-      this.updateViewHeightVar();
+      this.updateViewWidthHeightVar();
       window.addEventListener('resize', () => {
-        this.updateViewHeightVar();
+        this.updateViewWidthHeightVar();
       });
 
       this.setUpAnalytics();
@@ -40,8 +40,10 @@ export class AppComponent implements OnInit{
         });
   }
 
-  private updateViewHeightVar() {
+  private updateViewWidthHeightVar() {
     let vh = window.innerHeight * 0.01;
+    let vw = window.innerWidth * 0.01;
     document.documentElement.style.setProperty('--vh', `${vh}px`);
+    document.documentElement.style.setProperty('--vw', `${vw}px`);
   }
 }
