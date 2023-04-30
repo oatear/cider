@@ -67,6 +67,8 @@ export class CardTemplatesComponent implements OnInit {
   infoVisible: boolean = false;
   infoText: string = '';
   zoom: number = 0.3;
+  previewPanelWidth = 40;
+  disablePanels: boolean = false;
 
   constructor(private domSanitizer: DomSanitizer, 
     public service: CardTemplatesService,
@@ -143,6 +145,15 @@ export class CardTemplatesComponent implements OnInit {
         });
       }
     });
+  }
+
+  public onResizeStart(event: any) {
+    this.disablePanels = true;
+  }
+
+  public onResizeEnd(event: any) {
+    this.disablePanels = false;
+    this.previewPanelWidth = event.sizes[0];
   }
 
 }
