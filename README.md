@@ -90,5 +90,5 @@ The repository itself is protected by [AGPL-3.0][license-url] to ensure the proj
 [handlebars-url]: HANDLEBARS.md
 [license-url]: LICENSE.md
 [pages-url]: https://oatear.github.io/cider
-[mac-download]: https://github.com/oatear/cider/releases/download/0.3/cider-0.3.0-arm64.dmg
-[windows-download]: https://github.com/oatear/cider/releases/download/0.3/cider.Setup.0.3.0.exe
+[mac-download]: https://github.com/oatear/cider/releases/download/0.3.1/cider-0.3.1-arm64.dmg
+[windows-download]: https://github.com/oatear/cider/releases/download/0.3.1/cider.Setup.0.3.1.exe
