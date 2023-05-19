@@ -23,10 +23,12 @@
                                 [style.width.px]="selectedPaper.orientation === 'portrait' ? paperWidth * paperDpi : paperHeight * paperDpi" 
                                 [style.height.px]="selectedPaper.orientation === 'portrait' ? paperHeight * paperDpi : paperWidth * paperDpi"
                                 [style.padding.px]="paperMargins * paperDpi">
-                                <div #cardSheets class="preview-sheet" [style.transform]="selectedPaper.mirrorBacks ? 'scaleY(-1)' : ''">
+                                <div #cardSheets class="preview-sheet" 
+                                        [style.transform]="mirrorBacks ? 'scaleY(-1)' : ''"
+                                        [style.text-align]="mirrorBacks ? 'left' : 'right'">
                                     <ng-container *ngFor="let card of sheet;">
                                         <div class="card-wrapper" [style.margin.px]="cardMargins * paperDpi" 
-                                            [style.transform]="selectedPaper.mirrorBacks ? 'scaleX(-1)' : ''">
+                                            [style.transform]="mirrorBacks ? 'scaleX(-1)' : ''">
                                             <app-card-preview #cardSheetCards [card]="card" [lowInk]="lowInk"
                                                 [template]="card.backCardTemplateId | entity: templatesService | async"></app-card-preview>
                                         </div>
@@ -96,12 +98,14 @@
                             [disabled]="selectedPaper.name.includes('Tabletop Simulator')"/>
                     </div>
                     <div class="p-field">
-                        <p-checkbox name="lowInk" label="Low Ink Mode" [binary]="true" [(ngModel)]="lowInk"></p-checkbox>
+                        <p-checkbox name="lowInk" class="p-mr-2" label="Low Ink Mode" [binary]="true" [(ngModel)]="lowInk"></p-checkbox>
+                        <p-checkbox name="mirrorBacks" label="Mirror Backs" [binary]="true" [(ngModel)]="mirrorBacks"></p-checkbox>
                     </div>
                     <div class="p-field">
                         <label [for]="paperDpi">Paper DPI (dots per inch)</label>
                         <input type="text" pInputText [id]="paperDpi" [(ngModel)]="paperDpi" required autofocus />
-                        <p-message severity="info" text="Make sure this DPI is the same target DPI for the card templates."></p-message>
+                        <p-message severity="info" class="p-ml-2"
+                            text="Make sure this DPI is the same target DPI for the card templates and always set 'flip on long edge' when printing."></p-message>
                     </div>
                 </ng-container>
                 <ng-container *ngIf="exportType === 'singular-export'">

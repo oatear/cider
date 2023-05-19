@@ -30,11 +30,11 @@ export class ExportCardsComponent implements OnInit {
   ];
   public paperOptions: PaperType[] = [
     { name: 'US Letter (Landscape)', width: 8.5, height: 11, orientation: 'landscape', mirrorBacks: true}, 
-    { name: 'US Letter (Portrait)', width: 8.5, height: 11, orientation: 'portrait', mirrorBacks: true}, 
+    { name: 'US Letter (Portrait)', width: 8.5, height: 11, orientation: 'portrait', mirrorBacks: false}, 
     { name: 'A4 (Landscape)', width: 8, height: 10, orientation: 'landscape', mirrorBacks: true}, 
-    { name: 'A4 (Portrait)', width: 8, height: 10, orientation: 'portrait', mirrorBacks: true}, 
+    { name: 'A4 (Portrait)', width: 8, height: 10, orientation: 'portrait', mirrorBacks: false}, 
     { name: 'Custom (Landscape)', width: 8.5, height: 11, orientation: 'landscape', mirrorBacks: true}, 
-    { name: 'Custom (Portrait)', width: 8.5, height: 11, orientation: 'portrait', mirrorBacks: true}, 
+    { name: 'Custom (Portrait)', width: 8.5, height: 11, orientation: 'portrait', mirrorBacks: false}, 
     { name: 'Tabletop Simulator', width: 8.5, height: 11, orientation: 'portrait', mirrorBacks: false}
   ];
   public selectedPaper: PaperType = this.paperOptions[0];
@@ -51,6 +51,7 @@ export class ExportCardsComponent implements OnInit {
   public loadingPercent: number = 0;
   public loadingInfo: string = '';
   public lowInk: boolean = false;
+  public mirrorBacks: boolean = this.paperOptions[0].mirrorBacks;
 
 
   constructor(cardsService: CardsService, 
@@ -87,6 +88,7 @@ export class ExportCardsComponent implements OnInit {
     } else {
       this.paperWidth = this.selectedPaper.width;
       this.paperHeight = this.selectedPaper.height;
+      this.mirrorBacks = this.selectedPaper.mirrorBacks;
       this.paperMargins = 0.4;
       this.cardMargins = 0.05;
       this.cardsPerPage = 6;
@@ -204,7 +206,7 @@ export class ExportCardsComponent implements OnInit {
    * @returns 
    */
   public sliceIntoChunks(array: any[], chunkSize: number) {
-    if (!array || chunkSize <= 1) {
+    if (!array || chunkSize <= 0) {
       return array;
     }
     const result = [];
