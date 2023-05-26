@@ -336,10 +336,7 @@ export class SiteContentAndMenuComponent implements OnInit {
 
     // activate the gif
     this.isSaving = true;
-    setTimeout (() => {
-      this.isSaving = false;
-    }, 900);
-
+    
     // save to the filesystem
     const assetsPromised = this.assetsService.getAll();
     const decksPromised = this.decksService.getAll().then(decks => Promise.all(decks.map(async deck => {
@@ -371,6 +368,7 @@ export class SiteContentAndMenuComponent implements OnInit {
       return this.electronService.saveProject(assets, decks);
     }).then(() => {
       this.electronService.setProjectUnsaved(false);
+      this.isSaving = false;
     });
   }
 
