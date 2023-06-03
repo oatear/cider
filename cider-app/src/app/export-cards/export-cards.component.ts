@@ -59,7 +59,7 @@ export class ExportCardsComponent implements OnInit {
       cardsService.getAll().then(cards => {
         const expandedList: Card[] = [];
         cards.forEach(card => {
-          for (let i = 0; i < (card.count || 1); i++) {
+          for (let i = 0; i < (typeof card.count === 'undefined' ? 1 : card.count); i++) {
             expandedList.push(card);
           }
         });
