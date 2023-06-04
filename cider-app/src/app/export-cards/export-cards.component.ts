@@ -7,6 +7,7 @@ import * as htmlToImage from 'html-to-image';
 import * as FileSaver from 'file-saver';
 import * as JSZip from 'jszip'
 import * as pdfMake from 'pdfmake/build/pdfmake';
+import pLimit from 'p-limit';
 import FileUtils from '../shared/utils/file-utils';
 
 @Component({
@@ -136,8 +137,16 @@ export class ExportCardsComponent implements OnInit {
     this.displayLoading = true;
     this.loadingPercent = 0;
     this.loadingInfo = 'Generating sheet images...';
-    const promisedSheets$ = this.cardSheets.map(cardSheet => htmlToImage.toPng((<any>cardSheet).nativeElement));
-    const promisedProgress$ = this.promisesProgress(promisedSheets$, () => this.loadingPercent += 100.0/(promisedSheets$.length + 1));
+    const limit = pLimit(3);
+    // var startTime = new Date().getTime();
+    const promisedSheets$ = this.cardSheets.map(cardSheet => limit(() => {
+      // console.log('loaded Sheet: ', cardSheet, (new Date().getTime() - startTime) / 1000);
+      return htmlToImage.toPng((<any>cardSheet).nativeElement);
+    }));
+    const promisedProgress$ = this.promisesProgress(promisedSheets$, () => {
+      // console.log('loaded Image: ', this.loadingPercent, (new Date().getTime() - startTime) / 1000);
+      return this.loadingPercent += 100.0/(promisedSheets$.length + 1);
+    });
     Promise.all(promisedProgress$)
       .then(images => images.map(image => {
         return { 
@@ -172,13 +181,14 @@ export class ExportCardsComponent implements OnInit {
     this.displayLoading = true;
     this.loadingPercent = 0;
     this.loadingInfo = 'Generating card images...';
+    const limit = pLimit(3);
     const frontCards$ = this.frontCards.map(async cardPreview => {
-      const imgUri = await htmlToImage.toPng((<any>cardPreview).element.nativeElement);
+      const imgUri = await limit(() => htmlToImage.toPng((<any>cardPreview).element.nativeElement));
       const imgName = 'front-' + cardPreview.card?.id + '.png';
       return this.dataUrlToFile(imgUri, imgName);
     });
     const backCards$ = this.backCards.map(async cardPreview => {
-      const imgUri = await htmlToImage.toPng((<any>cardPreview).element.nativeElement);
+      const imgUri = await limit(() => htmlToImage.toPng((<any>cardPreview).element.nativeElement));
       const imgName = 'back-' + cardPreview.card?.id + '.png';
       return this.dataUrlToFile(imgUri, imgName);
     });
