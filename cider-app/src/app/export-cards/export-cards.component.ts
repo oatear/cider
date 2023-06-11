@@ -30,13 +30,13 @@ export class ExportCardsComponent implements OnInit {
     { name: 'Individual Images', value: ExportCardsComponent.SINGULAR_EXPORT}
   ];
   public paperOptions: PaperType[] = [
-    { name: 'US Letter (Landscape)', width: 8.5, height: 11, orientation: 'landscape', mirrorBacks: true}, 
-    { name: 'US Letter (Portrait)', width: 8.5, height: 11, orientation: 'portrait', mirrorBacks: false}, 
-    { name: 'A4 (Landscape)', width: 8, height: 10, orientation: 'landscape', mirrorBacks: true}, 
-    { name: 'A4 (Portrait)', width: 8, height: 10, orientation: 'portrait', mirrorBacks: false}, 
-    { name: 'Custom (Landscape)', width: 8.5, height: 11, orientation: 'landscape', mirrorBacks: true}, 
-    { name: 'Custom (Portrait)', width: 8.5, height: 11, orientation: 'portrait', mirrorBacks: false}, 
-    { name: 'Tabletop Simulator', width: 8.5, height: 11, orientation: 'portrait', mirrorBacks: false}
+    { name: 'US Letter (Landscape)', width: 8.5, height: 11, orientation: 'landscape', mirrorBacksX: false, mirrorBacksY: true}, 
+    { name: 'US Letter (Portrait)', width: 8.5, height: 11, orientation: 'portrait', mirrorBacksX: true, mirrorBacksY: false}, 
+    { name: 'A4 (Landscape)', width: 8, height: 10, orientation: 'landscape', mirrorBacksX: false, mirrorBacksY: true}, 
+    { name: 'A4 (Portrait)', width: 8, height: 10, orientation: 'portrait', mirrorBacksX: true, mirrorBacksY: false}, 
+    { name: 'Custom (Landscape)', width: 8.5, height: 11, orientation: 'landscape', mirrorBacksX: false, mirrorBacksY: true}, 
+    { name: 'Custom (Portrait)', width: 8.5, height: 11, orientation: 'portrait', mirrorBacksX: true, mirrorBacksY: false}, 
+    { name: 'Tabletop Simulator', width: 8.5, height: 11, orientation: 'portrait', mirrorBacksX: false, mirrorBacksY: false}
   ];
   public selectedPaper: PaperType = this.paperOptions[0];
   public paperWidth: number = this.paperOptions[0].width;
@@ -52,7 +52,11 @@ export class ExportCardsComponent implements OnInit {
   public loadingPercent: number = 0;
   public loadingInfo: string = '';
   public lowInk: boolean = false;
-  public mirrorBacks: boolean = this.paperOptions[0].mirrorBacks;
+  public mirrorBacksX: boolean = this.paperOptions[0].mirrorBacksX;
+  public mirrorBacksY: boolean = this.paperOptions[0].mirrorBacksY;
+  public pixelRatio: number = 1;
+  public maxTtsPixels: number = 4096;
+
 
 
   constructor(cardsService: CardsService, 
@@ -84,17 +88,30 @@ export class ExportCardsComponent implements OnInit {
       console.log('front cards: ', this.cardSheetCards.first);
       this.paperWidth = this.cardSheetCards.first.initialWidth * 10 / this.paperDpi;
       this.paperHeight = this.cardSheetCards.first.initialHeight * 7 / this.paperDpi;
+      this.mirrorBacksX = this.selectedPaper.mirrorBacksX;
+      this.mirrorBacksY = this.selectedPaper.mirrorBacksY;
       this.cardsPerPage = 69;
+      this.calculatePixelRatio();
       this.updateSlices();
     } else {
       this.paperWidth = this.selectedPaper.width;
       this.paperHeight = this.selectedPaper.height;
-      this.mirrorBacks = this.selectedPaper.mirrorBacks;
+      this.mirrorBacksX = this.selectedPaper.mirrorBacksX;
+      this.mirrorBacksY = this.selectedPaper.mirrorBacksY;
       this.paperMargins = 0.4;
       this.cardMargins = 0.05;
       this.cardsPerPage = 6;
+      this.pixelRatio = 1;
       this.updateSlices();
     }
+  }
+
+  /**
+   * Calculate the pixel ratio for the TTS export
+   */
+  public calculatePixelRatio() {
+    const largestDimension = (this.paperWidth > this.paperHeight ? this.paperWidth : this.paperHeight) * this.paperDpi;
+    this.pixelRatio = this.maxTtsPixels > largestDimension ? 1 : this.maxTtsPixels / largestDimension;
   }
 
   public export() {
@@ -113,9 +130,13 @@ export class ExportCardsComponent implements OnInit {
     this.loadingPercent = 0;
     this.loadingInfo = 'Generating sheet images...';
     let sheetIndex = 0;
+    const limit = pLimit(3);
     const promisedSheets$ = this.cardSheets.map(async cardSheet => {
-      const imgUri = await htmlToImage.toPng((<any>cardSheet).nativeElement);
-      const imgName = 'sheet-' + sheetIndex++ + '.png';
+      const imgUri = await limit(() => htmlToImage.toPng((<any>cardSheet).nativeElement, {pixelRatio: this.pixelRatio}));
+      const imgName = 'sheet-' 
+        + (sheetIndex % 2 == 0 ? 'front-' : 'back-')
+        + Math.floor(sheetIndex/2) + '.png';
+      sheetIndex++;
       return this.dataUrlToFile(imgUri, imgName);
     });
     const promisedProgress$ = this.promisesProgress(promisedSheets$, () => this.loadingPercent += 100.0/(promisedSheets$.length + 1));
@@ -285,5 +306,6 @@ interface PaperType {
   width: number,
   height: number,
   orientation: 'landscape' | 'portrait',
-  mirrorBacks: boolean
+  mirrorBacksX: boolean,
+  mirrorBacksY: boolean
 }

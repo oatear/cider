@@ -35,6 +35,12 @@ $preview-individual-scale: 0.08;
 //     }
 // }
 
+.settings-panel {
+    div.p-d-flex div.p-field {
+        flex: 1
+    }
+}
+
 .preview-wrapper {
     // width: calc(50vw - 70px);
     // height: calc(100vh - 350px);
