@@ -53,6 +53,9 @@ Export the cards as individual images (PNG), or as card sheets ready to print (P
 
 ![screen-5]
 
+Export card sheets for use directly in Tabletop Simulator.
+[#Tabletop Simulator export guide][ttsexport-url]
+
 # 5. Save
 There are various ways you can save your project files depending on the form of the application you are using.
 
@@ -88,6 +91,7 @@ The repository itself is protected by [AGPL-3.0][license-url] to ensure the proj
 [image-file-tree]: cider-app/src/assets/image-file-tree.png
 [gh-url]: https://github.com/oatear/cider
 [handlebars-url]: HANDLEBARS.md
+[ttsexport-url]: HANDLEBARS.md
 [license-url]: LICENSE.md
 [pages-url]: https://oatear.github.io/cider
 [mac-download]: https://github.com/oatear/cider/releases/download/0.3.1/cider-0.3.1-arm64.dmg
