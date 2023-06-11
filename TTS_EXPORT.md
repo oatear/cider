@@ -15,7 +15,7 @@ Exported Image
 
 ## 4.2 Import into Tabletop Simulator
 
-Start up Tabletop Simulator and to go `Objects` > `Components` > `Cards` > `Custom Deck`.
+Start up Tabletop Simulator and go to `Objects` > `Components` > `Cards` > `Custom Deck`.
 
 ![screen-tts-4]
 
