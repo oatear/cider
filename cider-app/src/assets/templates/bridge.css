@@ -1,0 +1,30 @@
+.card {
+    width: 750px;
+    height: 1125px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    background-color: hsl(0, 0%, 40%);
+    border: 45px solid hsl(0, 0%, 10%);
+    color: hsl(0, 0%, 90%);
+    font-weight: 600;
+    font-size: 50px;
+}
+.card .header {
+    height: 300px;
+    font-size: 80px;
+    font-weight: 600;
+    padding: 10px;
+    padding-top: 60px;
+}
+.card .content {
+    flex: 1;
+    padding: 50px;
+    padding-top: 60px;
+}
+.card .footer {
+    height: 200px;
+    text-align: right;
+    padding: 100px;
+    padding-right: 50px;
+}
