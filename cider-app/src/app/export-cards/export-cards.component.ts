@@ -1,14 +1,14 @@
-import { Component, ElementRef, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { Component, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { CardPreviewComponent } from '../card-preview/card-preview.component';
 import { CardTemplatesService } from '../data-services/services/card-templates.service';
 import { CardsService } from '../data-services/services/cards.service';
 import { Card } from '../data-services/types/card.type';
 import * as htmlToImage from 'html-to-image';
-import * as FileSaver from 'file-saver';
 import * as JSZip from 'jszip'
 import * as pdfMake from 'pdfmake/build/pdfmake';
 import pLimit from 'p-limit';
 import FileUtils from '../shared/utils/file-utils';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-export-cards',
@@ -56,8 +56,6 @@ export class ExportCardsComponent implements OnInit {
   public mirrorBacksY: boolean = this.paperOptions[0].mirrorBacksY;
   public pixelRatio: number = 1;
   public maxTtsPixels: number = 4096;
-
-
 
   constructor(cardsService: CardsService, 
     public templatesService: CardTemplatesService) {
@@ -125,90 +123,110 @@ export class ExportCardsComponent implements OnInit {
     }
   }
 
-  private exportCardSheetsAsImages() {
+  private async exportCardSheetsAsImages() {
     this.displayLoading = true;
     this.loadingPercent = 0;
-    this.loadingInfo = 'Generating sheet images...';
     let sheetIndex = 0;
     const limit = pLimit(3);
+
+    this.loadingInfo = 'Rendering card images...';
+    const promisedCards$ = this.cardSheetCards.map(card => lastValueFrom(card.isLoaded()));
+    const promisedCardsProgress$ = this.promisesProgress(promisedCards$, () => {
+      return this.loadingPercent += 100.0/promisedCards$.length;
+    });
+    await Promise.all(promisedCardsProgress$);
+
+    this.loadingPercent = 0;
+    this.loadingInfo = 'Generating sheet images...';
     const promisedSheets$ = this.cardSheets.map(async cardSheet => {
-      const imgUri = await limit(() => htmlToImage.toPng((<any>cardSheet).nativeElement, {pixelRatio: this.pixelRatio}));
+      const imgUri = await limit(() => htmlToImage.toPng((<any>cardSheet).nativeElement, 
+      {pixelRatio: this.pixelRatio}));
       const imgName = 'sheet-' 
         + (sheetIndex % 2 == 0 ? 'front-' : 'back-')
         + Math.floor(sheetIndex/2) + '.png';
       sheetIndex++;
       return this.dataUrlToFile(imgUri, imgName);
     });
-    const promisedProgress$ = this.promisesProgress(promisedSheets$, () => this.loadingPercent += 100.0/(promisedSheets$.length + 1));
-    Promise.all(promisedProgress$).then(promisedImages => {
-      this.loadingInfo = 'Zipping up files...';
-      return this.zipFiles(promisedImages);
-    })
-    .then(blob => {
-      this.loadingInfo = 'Saving file...';
-      return FileUtils.saveAs(blob, 'cards.zip');
-    })
-    .then(() => {
-      this.loadingPercent = 100;
-      this.displayLoading = false
-    });
+    const promisedSheetsProgress$ = this.promisesProgress(promisedSheets$, 
+      () => this.loadingPercent += 100.0/(promisedSheets$.length + 1));
+    const images = await Promise.all(promisedSheetsProgress$);
+
+    this.loadingInfo = 'Zipping up files...';
+    const zippedImages = await this.zipFiles(images);
+    this.loadingInfo = 'Saving file...';
+    FileUtils.saveAs(zippedImages, 'cards.zip');
+    this.loadingPercent = 100;
+    this.displayLoading = false
   }
 
-  private exportCardSheets() {
+  private async exportCardSheets() {
     this.displayLoading = true;
     this.loadingPercent = 0;
-    this.loadingInfo = 'Generating sheet images...';
     const limit = pLimit(3);
-    // var startTime = new Date().getTime();
+
+    this.loadingInfo = 'Rendering card images...';
+    const promisedCards$ = this.cardSheetCards.map(card => lastValueFrom(card.isLoaded()));
+    const promisedCardsProgress$ = this.promisesProgress(promisedCards$, () => {
+      return this.loadingPercent += 100.0/promisedCards$.length;
+    });
+    await Promise.all(promisedCardsProgress$);
+
+    // wait for all assets to load
+
+    this.loadingPercent = 0;
+    this.loadingInfo = 'Generating sheet images...';
     const promisedSheets$ = this.cardSheets.map(cardSheet => limit(() => {
-      // console.log('loaded Sheet: ', cardSheet, (new Date().getTime() - startTime) / 1000);
       return htmlToImage.toPng((<any>cardSheet).nativeElement);
     }));
     const promisedProgress$ = this.promisesProgress(promisedSheets$, () => {
-      // console.log('loaded Image: ', this.loadingPercent, (new Date().getTime() - startTime) / 1000);
-      return this.loadingPercent += 100.0/(promisedSheets$.length + 1);
+      return this.loadingPercent += 100.0/(promisedSheets$.length);
     });
-    Promise.all(promisedProgress$)
-      .then(images => images.map(image => {
-        return { 
-          image: image, 
-          width: this.selectedPaper.orientation == 'portrait' 
-            ? (this.paperWidth - this.paperMargins * 2) * ExportCardsComponent.PDF_DPI
-            : (this.paperHeight - this.paperMargins * 2) * ExportCardsComponent.PDF_DPI, 
-          height: this.selectedPaper.orientation == 'portrait' 
-            ? (this.paperHeight - this.paperMargins * 2) * ExportCardsComponent.PDF_DPI
-            : (this.paperWidth - this.paperMargins * 2) * ExportCardsComponent.PDF_DPI
-        };
-      })).then(docImages => {
-        const docDefinition = {
-          content: docImages,
-          pageSize: {
-            width: this.paperWidth * ExportCardsComponent.PDF_DPI, 
-            height: this.paperHeight * ExportCardsComponent.PDF_DPI
-          },
-          pageOrientation: this.selectedPaper.orientation,
-          pageMargins: this.paperMargins * ExportCardsComponent.PDF_DPI
-        };
-        this.loadingInfo = 'Generating PDF file...';
-        pdfMake.createPdf(docDefinition).getBlob((blob) => {
-          FileUtils.saveAs(blob, 'card-sheets.pdf');
-          this.loadingPercent = 100;
-          this.displayLoading = false
-        });
-      });
+
+    this.loadingPercent = 0;
+    this.loadingInfo = 'Generating PDF file...';
+    const promisedSheetImages = await Promise.all(promisedProgress$);
+    const docSheets = promisedSheetImages.map(image => {
+      return { 
+        image: image, 
+        width: this.selectedPaper.orientation == 'portrait' 
+          ? (this.paperWidth - this.paperMargins * 2) * ExportCardsComponent.PDF_DPI
+          : (this.paperHeight - this.paperMargins * 2) * ExportCardsComponent.PDF_DPI, 
+        height: this.selectedPaper.orientation == 'portrait' 
+          ? (this.paperHeight - this.paperMargins * 2) * ExportCardsComponent.PDF_DPI
+          : (this.paperWidth - this.paperMargins * 2) * ExportCardsComponent.PDF_DPI
+      };
+    });
+    const docDefinition = {
+      content: docSheets,
+      pageSize: {
+        width: this.paperWidth * ExportCardsComponent.PDF_DPI, 
+        height: this.paperHeight * ExportCardsComponent.PDF_DPI
+      },
+      pageOrientation: this.selectedPaper.orientation,
+      pageMargins: this.paperMargins * ExportCardsComponent.PDF_DPI
+    };
+    pdfMake.createPdf(docDefinition).getBlob((blob) => {
+      FileUtils.saveAs(blob, 'card-sheets.pdf');
+      this.loadingPercent = 100;
+      this.displayLoading = false
+    }, {progressCallback: (progress) => {
+      this.loadingPercent = progress * 100;
+    }});
   }
 
-  private exportIndividualImages() {
+  private async exportIndividualImages() {
     this.displayLoading = true;
     this.loadingPercent = 0;
     this.loadingInfo = 'Generating card images...';
     const limit = pLimit(3);
     const frontCards$ = this.frontCards.map(async cardPreview => {
+      await lastValueFrom(cardPreview.isLoaded());
       const imgUri = await limit(() => htmlToImage.toPng((<any>cardPreview).element.nativeElement));
       const imgName = 'front-' + cardPreview.card?.id + '.png';
       return this.dataUrlToFile(imgUri, imgName);
     });
     const backCards$ = this.backCards.map(async cardPreview => {
+      await lastValueFrom(cardPreview.isLoaded());
       const imgUri = await limit(() => htmlToImage.toPng((<any>cardPreview).element.nativeElement));
       const imgName = 'back-' + cardPreview.card?.id + '.png';
       return this.dataUrlToFile(imgUri, imgName);
