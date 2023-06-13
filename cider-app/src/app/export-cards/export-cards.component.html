@@ -52,13 +52,25 @@
                 <ng-container *ngIf="exportType === 'singular-export'">
                     <div class="preview-individuals">
                         <ng-container *ngFor="let card of cards; let i = index">
-                            <div class="card-wrapper">
-                                <app-card-preview #frontCards [card]="card"
-                                    [template]="card.frontCardTemplateId | entity: templatesService | async"></app-card-preview>
+                            <div class="card-scale-wrapper"
+                                [style.width.px]="frontCards.initialWidth * scale"
+                                [style.height.px]="frontCards.initialHeight * scale"
+                                [style.margin.px]="50 * scale">
+                                <div class="card-wrapper"
+                                    [style.transform]="'scale(' + scale + ')'">
+                                    <app-card-preview #frontCards [card]="card"
+                                        [template]="card.frontCardTemplateId | entity: templatesService | async"></app-card-preview>
+                                </div>
                             </div>
-                            <div class="card-wrapper">
-                                <app-card-preview #backCards [card]="card"
-                                    [template]="card.backCardTemplateId | entity: templatesService | async"></app-card-preview>
+                            <div class="card-scale-wrapper"
+                                [style.width.px]="backCards.initialWidth * scale"
+                                [style.height.px]="backCards.initialHeight * scale"
+                                [style.margin.px]="50 * scale">
+                                <div class="card-wrapper"
+                                    [style.transform]="'scale(' + scale + ')'">
+                                    <app-card-preview #backCards [card]="card"
+                                        [template]="card.backCardTemplateId | entity: templatesService | async"></app-card-preview>
+                                </div>
                             </div>
                         </ng-container>
                     </div>
