@@ -56,6 +56,7 @@ export class ExportCardsComponent implements OnInit {
   public mirrorBacksY: boolean = this.paperOptions[0].mirrorBacksY;
   public pixelRatio: number = 1;
   public maxTtsPixels: number = 4096;
+  public scale: number = 0.1;
 
   constructor(cardsService: CardsService, 
     public templatesService: CardTemplatesService) {
