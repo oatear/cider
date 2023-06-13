@@ -32,8 +32,8 @@ export class ExportCardsComponent implements OnInit {
   public paperOptions: PaperType[] = [
     { name: 'US Letter (Landscape)', width: 8.5, height: 11, orientation: 'landscape', mirrorBacksX: false, mirrorBacksY: true}, 
     { name: 'US Letter (Portrait)', width: 8.5, height: 11, orientation: 'portrait', mirrorBacksX: true, mirrorBacksY: false}, 
-    { name: 'A4 (Landscape)', width: 8, height: 10, orientation: 'landscape', mirrorBacksX: false, mirrorBacksY: true}, 
-    { name: 'A4 (Portrait)', width: 8, height: 10, orientation: 'portrait', mirrorBacksX: true, mirrorBacksY: false}, 
+    { name: 'A4 (Landscape)', width: 8.27, height: 11.69, orientation: 'landscape', mirrorBacksX: false, mirrorBacksY: true}, 
+    { name: 'A4 (Portrait)', width: 8.27, height: 11.69, orientation: 'portrait', mirrorBacksX: true, mirrorBacksY: false}, 
     { name: 'Custom (Landscape)', width: 8.5, height: 11, orientation: 'landscape', mirrorBacksX: false, mirrorBacksY: true}, 
     { name: 'Custom (Portrait)', width: 8.5, height: 11, orientation: 'portrait', mirrorBacksX: true, mirrorBacksY: false}, 
     { name: 'Tabletop Simulator', width: 8.5, height: 11, orientation: 'portrait', mirrorBacksX: false, mirrorBacksY: false}
@@ -56,6 +56,13 @@ export class ExportCardsComponent implements OnInit {
   public mirrorBacksY: boolean = this.paperOptions[0].mirrorBacksY;
   public pixelRatio: number = 1;
   public maxTtsPixels: number = 4096;
+  public scale: number = 0.1;
+  zoomOptions: any[] = [
+    { label: 's', value: 0.05 },
+    { label: 'm', value: 0.1 },
+    { label: 'l', value: 0.2 },
+    { label: 'xl', value: 0.4 }
+  ];
 
   constructor(cardsService: CardsService, 
     public templatesService: CardTemplatesService) {
