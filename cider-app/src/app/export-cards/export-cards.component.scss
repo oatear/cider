@@ -43,12 +43,15 @@ $preview-individual-scale: 0.08;
 
 .preview-wrapper {
     .preview-sheets {
-        transform-origin: center;
         transform-origin: top left;
+        display: flex;
+        flex-wrap: wrap;
+        overflow-wrap: normal;
+        flex-direction: row;
+        align-content: flex-start;
         .preview-page {
             background-color: white;
             overflow: hidden;
-            margin: 100px;
             transform-origin: top left;
             .preview-sheet {
                 width: 100%;

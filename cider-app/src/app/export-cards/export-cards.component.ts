@@ -57,6 +57,12 @@ export class ExportCardsComponent implements OnInit {
   public pixelRatio: number = 1;
   public maxTtsPixels: number = 4096;
   public scale: number = 0.1;
+  zoomOptions: any[] = [
+    { label: 's', value: 0.05 },
+    { label: 'm', value: 0.1 },
+    { label: 'l', value: 0.2 },
+    { label: 'xl', value: 0.4 }
+  ];
 
   constructor(cardsService: CardsService, 
     public templatesService: CardTemplatesService) {

@@ -2,18 +2,22 @@
     <div>
         <app-page-header header="Export Preview" subheader="Preview of the card printout"></app-page-header>
         <p-card styleClass="page-card">
+            <div class="card-controls">
+                <p-selectButton [options]="zoomOptions" [(ngModel)]="scale" class="p-mr-3"
+                    optionLabel="label" optionValue="value"></p-selectButton>
+            </div>
             <p-scrollPanel class="preview-wrapper">
                 <ng-container *ngIf="exportType === 'sheet-export'">
                     <div class="preview-sheets">
                         <ng-container *ngFor="let sheet of slicedCards">
                             <div class="scale-wrapper"
                             [style.width.px]="selectedPaper.orientation === 'portrait' ? paperWidth * paperDpi * scale: paperHeight * paperDpi * scale" 
-                            [style.height.px]="selectedPaper.orientation === 'portrait' ? paperHeight * paperDpi * scale: paperWidth * paperDpi * scale">
+                            [style.height.px]="selectedPaper.orientation === 'portrait' ? paperHeight * paperDpi * scale: paperWidth * paperDpi * scale"
+                            [style.margin.px]="100 * scale">
                                 <div class="preview-page" 
                                     [style.width.px]="selectedPaper.orientation === 'portrait' ? paperWidth * paperDpi : paperHeight * paperDpi" 
                                     [style.height.px]="selectedPaper.orientation === 'portrait' ? paperHeight * paperDpi : paperWidth * paperDpi"
                                     [style.padding.px]="paperMargins * paperDpi"
-                                    [style.margin.px]="100 * scale"
                                     [style.transform]="'scale(' + scale + ')'">
                                     <div #cardSheets class="preview-sheet">
                                         <ng-container *ngFor="let card of sheet;">
@@ -27,12 +31,12 @@
                             </div>
                             <div class="scale-wrapper"
                             [style.width.px]="selectedPaper.orientation === 'portrait' ? paperWidth * paperDpi * scale: paperHeight * paperDpi * scale" 
-                            [style.height.px]="selectedPaper.orientation === 'portrait' ? paperHeight * paperDpi * scale: paperWidth * paperDpi * scale">
+                            [style.height.px]="selectedPaper.orientation === 'portrait' ? paperHeight * paperDpi * scale: paperWidth * paperDpi * scale"
+                            [style.margin.px]="100 * scale">
                                 <div class="preview-page" 
                                     [style.width.px]="selectedPaper.orientation === 'portrait' ? paperWidth * paperDpi : paperHeight * paperDpi" 
                                     [style.height.px]="selectedPaper.orientation === 'portrait' ? paperHeight * paperDpi : paperWidth * paperDpi"
                                     [style.padding.px]="paperMargins * paperDpi"
-                                    [style.margin.px]="100 * scale"
                                     [style.transform]="'scale(' + scale + ')'">
                                     <div #cardSheets class="preview-sheet" 
                                             [style.transform]="mirrorBacksY ? 'scaleY(-1) ' : ' ' + (mirrorBacksX ? 'scaleX(-1)' : '')">
