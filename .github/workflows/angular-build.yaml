@@ -9,6 +9,9 @@ jobs:
     strategy:
       matrix:
         node-version: [18.x]
+    defaults:
+      run:
+        working-directory: ./cider-app
 
     steps:
       - name: Checkout code
