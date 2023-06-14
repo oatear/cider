@@ -47,7 +47,7 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: deploy_dist
-          path: dist
+          path: cider-app/dist
 
   deploy:
     runs-on: ubuntu-latest
