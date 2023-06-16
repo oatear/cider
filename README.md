@@ -16,6 +16,8 @@ Website: [Start using Cider][pages-url]
 Mac: [arm64][mac-download]
 
 Windows: [x86-64][windows-download]
+  
+Sample Game Project: [Cosmic Apple][cosmic-apple]
 
 [#Template language reference][handlebars-url]
 
@@ -90,6 +92,7 @@ The repository itself is protected by [AGPL-3.0][license-url] to ensure the proj
 [screen-5]: cider-app/src/assets/screen-5.png
 [image-file-tree]: cider-app/src/assets/image-file-tree.png
 [gh-url]: https://github.com/oatear/cider
+[cosmic-apple]: https://github.com/oatear/cosmic-apple-game
 [handlebars-url]: HANDLEBARS.md
 [ttsexport-url]: TTS_EXPORT.md
 [license-url]: LICENSE.md
