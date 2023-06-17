@@ -2,7 +2,7 @@
 
 <img src="cider-app/src/assets/cider-logo-512.png" width=150px>
 
-## CIDEr
+# CIDEr
 Card IDE (CIDEr) - Design game cards using `HTML/Handlebars`, `CSS`, and `tabular` data.
 
 [![][license]][license-url] 
