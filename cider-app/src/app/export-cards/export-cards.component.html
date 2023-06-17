@@ -147,7 +147,10 @@
                     </div>
                 </ng-container>
                 <ng-container *ngIf="exportType === 'singular-export'">
-            
+                    <div class="p-field">
+                        <label [for]="individualExportPixelRatio">Scale (larger/smaller images)</label>
+                        <input type="number" pInputText [id]="individualExportPixelRatio" [(ngModel)]="individualExportPixelRatio" required autofocus />
+                    </div>
                 </ng-container>
                 
                 <button pButton pRipple label="Export" icon="pi pi-file" class="p-button p-mr-2" (click)="export()"></button>
