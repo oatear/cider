@@ -5,6 +5,7 @@ import { CardTemplatesService } from '../data-services/services/card-templates.s
 import { CardsService } from '../data-services/services/cards.service';
 import { CardTemplate } from '../data-services/types/card-template.type';
 import { Card } from '../data-services/types/card.type';
+import { Subject, debounceTime } from 'rxjs';
 
 const templateCssFront  = 
 `.card {
@@ -69,16 +70,21 @@ export class CardTemplatesComponent implements OnInit {
   zoom: number = 0.3;
   previewPanelWidth = 40;
   disablePanels: boolean = false;
+  templateChanges: Subject<boolean>;
 
   constructor(private domSanitizer: DomSanitizer, 
     public service: CardTemplatesService,
     private cardsService: CardsService,
     private messageService: MessageService, 
-    private confirmationService: ConfirmationService) { }
+    private confirmationService: ConfirmationService) {
+      this.templateChanges = new Subject();
+    }
 
   ngOnInit(): void {
     this.service.getAll().then(templates => this.templates = templates);
     this.cardsService.getAll().then(cards => this.cards = cards);
+    this.templateChanges.asObservable().pipe(debounceTime(1000))
+      .subscribe(() => this.save(this.selectedTemplate));
   }
 
   public updateTemplatesList() {
@@ -91,6 +97,10 @@ export class CardTemplatesComponent implements OnInit {
       this.zoom = 0.1;
     }
   }
+
+  public debounceSave() {
+    this.templateChanges.next(true);
+  }
   
   public save(entity : CardTemplate) {
     const id = (<any>this.selectedTemplate)[this.service?.getIdField()];
@@ -100,10 +110,7 @@ export class CardTemplatesComponent implements OnInit {
   }
 
   public updateExisting(id: number, entity: CardTemplate) {
-    this.service?.update(id, entity).then(result => {
-      this.messageService.add({severity:'success', summary: 'Successful', detail: 'Entity Updated', life: 3000});
-    }).catch(error => {
-    });
+    this.service?.update(id, entity).then(result => {}).catch(error => {});
   }
 
   public openCreateNew() {

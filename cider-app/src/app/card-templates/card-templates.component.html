@@ -9,8 +9,7 @@
                 <button pButton pRipple label="New" icon="pi pi-plus" class="p-button" (click)="openCreateNew()"></button>
             </ng-template>
             <ng-template pTemplate="right">
-                <button pButton pRipple label="Delete" icon="pi pi-trash" class="p-button-danger p-mr-2" (click)="openDeleteDialog(selectedTemplate)"></button>
-                <button pButton pRipple label="Save" icon="pi pi-save" class="p-button" (click)="save(selectedTemplate)"></button>
+                <button pButton pRipple label="Delete" icon="pi pi-trash" class="p-button-danger" (click)="openDeleteDialog(selectedTemplate)"></button>
             </ng-template>
         </p-toolbar>
     </div>
@@ -42,7 +41,7 @@
                             <button pButton pRipple icon="pi pi-info-circle" class="p-panel-header-icon p-link" (click)="openCssInfo()"></button>
                         </ng-template>
                         <ngx-monaco-editor style="height: 100%;" *ngIf="selectedTemplate && !disablePanels"
-                            [options]="cssEditorOptions" [(ngModel)]="selectedTemplate.css"></ngx-monaco-editor>
+                            [options]="cssEditorOptions" [(ngModel)]="selectedTemplate.css" (ngModelChange)="debounceSave()"></ngx-monaco-editor>
                     </p-panel>
                 </div>
                 <div class="bottom-panel">
@@ -51,7 +50,7 @@
                             <button pButton pRipple icon="pi pi-info-circle" class="p-panel-header-icon p-link" (click)="openHtmlInfo()"></button>
                         </ng-template>
                         <ngx-monaco-editor style="height: 100%;" *ngIf="selectedTemplate && !disablePanels"
-                            [options]="htmlEditorOptions" [(ngModel)]="selectedTemplate.html"></ngx-monaco-editor>
+                            [options]="htmlEditorOptions" [(ngModel)]="selectedTemplate.html" (ngModelChange)="debounceSave()"></ngx-monaco-editor>
                     </p-panel>
                 </div>
             </div>
