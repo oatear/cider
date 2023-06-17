@@ -151,6 +151,10 @@
                         <label [for]="individualExportPixelRatio">Scale (larger/smaller images)</label>
                         <input type="number" pInputText [id]="individualExportPixelRatio" [(ngModel)]="individualExportPixelRatio" required autofocus />
                     </div>
+                    <div class="p-field">
+                        <p-checkbox name="individualExportUseCardName" class="" label="Use Card Name" 
+                            [binary]="true" [(ngModel)]="individualExportUseCardName"></p-checkbox>
+                    </div>
                 </ng-container>
                 
                 <button pButton pRipple label="Export" icon="pi pi-file" class="p-button p-mr-2" (click)="export()"></button>
