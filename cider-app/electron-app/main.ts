@@ -3,8 +3,10 @@ import * as path from 'path';
 import * as fs from 'fs';
 
 let win: BrowserWindow = null;
-const args = process.argv.slice(1),
-  serve = args.some(val => val === '--serve');
+const args = process.argv.slice(1);
+console.log('args: ', args);
+const serve = args.some(val => val === '--serve');
+const headless = args.some(val => val === '--headless');
 
 function createWindow(): BrowserWindow {
 
@@ -29,7 +31,8 @@ function createWindow(): BrowserWindow {
       nodeIntegration: true,
       allowRunningInsecureContent: (serve),
       contextIsolation: false
-    }
+    },
+    show: false
   });
 
   if (serve) {
@@ -58,6 +61,13 @@ function createWindow(): BrowserWindow {
     // when you should delete the corresponding element.
     win = null;
   });
+
+  win.on('ready-to-show', () => {
+    if (headless) {
+      return;
+    }
+    win.show();
+  })
 
   return win;
 }
