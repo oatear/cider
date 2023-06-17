@@ -55,6 +55,7 @@ export class ExportCardsComponent implements OnInit {
   public mirrorBacksX: boolean = this.paperOptions[0].mirrorBacksX;
   public mirrorBacksY: boolean = this.paperOptions[0].mirrorBacksY;
   public pixelRatio: number = 1;
+  public individualExportPixelRatio: number = 1;
   public maxTtsPixels: number = 4096;
   public scale: number = 0.1;
   zoomOptions: any[] = [
@@ -228,13 +229,15 @@ export class ExportCardsComponent implements OnInit {
     const limit = pLimit(3);
     const frontCards$ = this.frontCards.map(async cardPreview => {
       await lastValueFrom(cardPreview.isLoaded());
-      const imgUri = await limit(() => htmlToImage.toPng((<any>cardPreview).element.nativeElement));
+      const imgUri = await limit(() => htmlToImage.toPng((<any>cardPreview).element.nativeElement, 
+      {pixelRatio: this.individualExportPixelRatio}));
       const imgName = 'front-' + cardPreview.card?.id + '.png';
       return this.dataUrlToFile(imgUri, imgName);
     });
     const backCards$ = this.backCards.map(async cardPreview => {
       await lastValueFrom(cardPreview.isLoaded());
-      const imgUri = await limit(() => htmlToImage.toPng((<any>cardPreview).element.nativeElement));
+      const imgUri = await limit(() => htmlToImage.toPng((<any>cardPreview).element.nativeElement, 
+      {pixelRatio: this.individualExportPixelRatio}));
       const imgName = 'back-' + cardPreview.card?.id + '.png';
       return this.dataUrlToFile(imgUri, imgName);
     });
