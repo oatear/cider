@@ -9,6 +9,7 @@ import * as pdfMake from 'pdfmake/build/pdfmake';
 import pLimit from 'p-limit';
 import FileUtils from '../shared/utils/file-utils';
 import { lastValueFrom } from 'rxjs';
+import StringUtils from '../shared/utils/string-utils';
 
 @Component({
   selector: 'app-export-cards',
@@ -55,6 +56,8 @@ export class ExportCardsComponent implements OnInit {
   public mirrorBacksX: boolean = this.paperOptions[0].mirrorBacksX;
   public mirrorBacksY: boolean = this.paperOptions[0].mirrorBacksY;
   public pixelRatio: number = 1;
+  public individualExportPixelRatio: number = 1;
+  public individualExportUseCardName: boolean = false;
   public maxTtsPixels: number = 4096;
   public scale: number = 0.1;
   zoomOptions: any[] = [
@@ -228,14 +231,22 @@ export class ExportCardsComponent implements OnInit {
     const limit = pLimit(3);
     const frontCards$ = this.frontCards.map(async cardPreview => {
       await lastValueFrom(cardPreview.isLoaded());
-      const imgUri = await limit(() => htmlToImage.toPng((<any>cardPreview).element.nativeElement));
-      const imgName = 'front-' + cardPreview.card?.id + '.png';
+      const imgUri = await limit(() => htmlToImage.toPng((<any>cardPreview).element.nativeElement, 
+      {pixelRatio: this.individualExportPixelRatio}));
+      const imgIdentifier = this.individualExportUseCardName 
+        ? StringUtils.toKebabCase(cardPreview.card?.name)
+        : cardPreview.card?.id;
+      const imgName = 'front-' + imgIdentifier + '.png';
       return this.dataUrlToFile(imgUri, imgName);
     });
     const backCards$ = this.backCards.map(async cardPreview => {
       await lastValueFrom(cardPreview.isLoaded());
-      const imgUri = await limit(() => htmlToImage.toPng((<any>cardPreview).element.nativeElement));
-      const imgName = 'back-' + cardPreview.card?.id + '.png';
+      const imgUri = await limit(() => htmlToImage.toPng((<any>cardPreview).element.nativeElement, 
+      {pixelRatio: this.individualExportPixelRatio}));
+      const imgIdentifier = this.individualExportUseCardName 
+        ? StringUtils.toKebabCase(cardPreview.card?.name)
+        : cardPreview.card?.id;
+      const imgName = 'back-' + imgIdentifier + '.png';
       return this.dataUrlToFile(imgUri, imgName);
     });
     const allCards$ = frontCards$.concat(backCards$);

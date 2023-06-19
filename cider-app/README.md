@@ -14,10 +14,15 @@ Run `npm run electron` for the electron desktop application.
 
 Run `npm run electron:build` to build the electron desktop application executable.
 
+## Build GitHub Pages (New)
+
+Run `npm run build:gh-pages` to build the site for github pages.
+Make sure to copy index.html to 404.html to handle all urls.
+
 ## Deploy GitHub Pages
 
 Run `ng build --outputPath=../docs --baseHref=/cider/` to build the site for github pages.
-Make sure to copy index.html to 404.html to handle all urls.
+Make sure to copy index.html to 404.html to handle all urls. Replaced by `Build GitHub Pages` above.
 
 ## Code scaffolding
 
