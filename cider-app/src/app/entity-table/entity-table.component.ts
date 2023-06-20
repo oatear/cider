@@ -22,6 +22,7 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
   @Input() selectionMode: string | undefined;
   @Input() allowImportExport: boolean = false;
   @Input() allowEditing: boolean = true;
+  @Input() showColumnFilters: boolean = true;
   @Output() selectionChange: EventEmitter<Entity | Entity[] | undefined> = new EventEmitter<Entity | Entity[] | undefined>();
   FieldType = FieldType;
   total: number = 0;
