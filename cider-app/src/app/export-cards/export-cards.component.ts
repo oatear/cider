@@ -46,6 +46,7 @@ export class ExportCardsComponent implements OnInit {
   public paperDpi: number = 300;
   public cardMargins: number = 0.05;
   public cardsPerPage: number = 6;
+  public originalCards: Card[] = [];
   public cards: Card[] = [];
   public expandedCards: Card[] = [];
   public slicedCards: Card[][] = [];
@@ -60,6 +61,7 @@ export class ExportCardsComponent implements OnInit {
   public individualExportUseCardName: boolean = false;
   public maxTtsPixels: number = 4096;
   public scale: number = 0.1;
+  public exportSelectionDialogVisible: boolean = false;
   zoomOptions: any[] = [
     { label: 's', value: 0.05 },
     { label: 'm', value: 0.1 },
@@ -70,19 +72,32 @@ export class ExportCardsComponent implements OnInit {
   constructor(cardsService: CardsService, 
     public templatesService: CardTemplatesService) {
       cardsService.getAll().then(cards => {
-        const expandedList: Card[] = [];
-        cards.forEach(card => {
-          for (let i = 0; i < (typeof card.count === 'undefined' ? 1 : card.count); i++) {
-            expandedList.push(card);
-          }
-        });
-        this.expandedCards = expandedList;
+        this.originalCards = cards;
         this.cards = cards;
+        this.updateExpandedCards();
         this.updateSlices();
       });
   }
 
   ngOnInit(): void {
+  }
+
+  public updateSelection(selection: Card | Card[] | undefined) {
+    if (Array.isArray(selection)) {
+      this.cards = selection;
+      this.updateExpandedCards();
+      this.updateSlices();
+    }
+  }
+
+  public updateExpandedCards() {
+    const expandedList: Card[] = [];
+    this.cards.forEach(card => {
+      for (let i = 0; i < (typeof card.count === 'undefined' ? 1 : card.count); i++) {
+        expandedList.push(card);
+      }
+    });
+    this.expandedCards = expandedList;
   }
 
   public updateSlices() {
@@ -120,6 +135,10 @@ export class ExportCardsComponent implements OnInit {
   public calculatePixelRatio() {
     const largestDimension = (this.paperWidth > this.paperHeight ? this.paperWidth : this.paperHeight) * this.paperDpi;
     this.pixelRatio = this.maxTtsPixels > largestDimension ? 1 : this.maxTtsPixels / largestDimension;
+  }
+
+  public showExportSelectionDialog() {
+    this.exportSelectionDialogVisible = true;
   }
 
   public export() {

@@ -35,6 +35,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { TabMenuModule } from 'primeng/tabmenu';
 import { ChipsModule } from 'primeng/chips';
 import { DividerModule } from 'primeng/divider';
+import { MultiSelectModule } from 'primeng/multiselect';
 
 import { MonacoEditorModule } from '@materia-ui/ngx-monaco-editor';
 
@@ -54,6 +55,7 @@ import { CardAttributesComponent } from './card-attributes/card-attributes.compo
 import { CardThumbnailsComponent } from './card-thumbnails/card-thumbnails.component';
 import { PageHeaderComponent } from './page-header/page-header.component';
 import { WelcomeComponent } from './welcome/welcome.component';
+import { ExportSelectionDialogComponent } from './export-selection-dialog/export-selection-dialog.component';
 
 @NgModule({
   declarations: [
@@ -74,7 +76,8 @@ import { WelcomeComponent } from './welcome/welcome.component';
     CardAttributesComponent,
     CardThumbnailsComponent,
     PageHeaderComponent,
-    WelcomeComponent
+    WelcomeComponent,
+    ExportSelectionDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -109,7 +112,8 @@ import { WelcomeComponent } from './welcome/welcome.component';
     CheckboxModule,
     TabMenuModule,
     ChipsModule,
-    DividerModule
+    DividerModule,
+    MultiSelectModule
   ],
   providers: [],
   bootstrap: [AppComponent]
