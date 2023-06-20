@@ -3,6 +3,7 @@
         [selectionMode]="selectionMode || 'none'" [(selection)]="selection" 
         (selectionChange)="selectionChange.emit($event)" [dataKey]="idField || ''"
         (onLazyLoad)="loadData($event)" [lazy]="true"
+        [scrollable]="true" 
         [totalRecords]="total" [loading]="loading" styleClass="p-datatable-sm">
     <ng-template pTemplate="caption">
         <div class="p-d-flex">
@@ -24,25 +25,23 @@
     </ng-template>
     <ng-template pTemplate="header" let-columns>
         <tr>
-            <th *ngIf="selectionMode === 'multiple'" style="width: 4rem" pFrozenColumn>
+            <th *ngIf="selectionMode === 'multiple'" class="selection-col" pFrozenColumn>
                 <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
             </th>
             <ng-container *ngFor="let col of columns">
                 <th *ngIf="!col.hidden" [pSortableColumn]="col.field" [pTooltip]="col.description"
-                style="width:150px; min-width: 150px; max-width: 150px;"
                     >{{col.header}} <p-sortIcon [field]="col.field"></p-sortIcon></th>
             </ng-container>
-            <th *ngIf="allowEditing" class="action-col" 
-                style="width:90px; min-width:90px; max-width:90px;" pFrozenColumn></th>
+            <th *ngIf="allowEditing" class="action-col" alignFrozen="right" pFrozenColumn></th>
         </tr>
         <tr *ngIf="showColumnFilters">
-            <th *ngIf="selectionMode === 'multiple'" pFrozenColumn>
+            <th *ngIf="selectionMode === 'multiple'" class="selection-col" pFrozenColumn>
             </th>
             <ng-container *ngFor="let col of columns">
                 <ng-container [ngSwitch]="true">
                     <ng-container *ngSwitchCase="col.hidden"></ng-container>
                     <ng-container *ngSwitchCase="!col.hidden && col.service !== undefined">
-                        <th style="width: 150px;">
+                        <th>
                             <p-columnFilter [field]="col.field" matchMode="in" [showMenu]="false">
                                 <ng-template pTemplate="filter" let-value let-filter="filterCallback">
                                     <p-multiSelect [ngModel]="value" [options]="(col.service | entityList | async) || []" placeholder="Any" 
@@ -53,20 +52,20 @@
                         </th>
                     </ng-container>
                     <ng-container *ngSwitchCase="!col.hidden && col.type === FieldType.file">
-                        <th style="width: 150px;"></th>
+                        <th></th>
                     </ng-container>
                     <ng-container *ngSwitchDefault>
-                        <th style="width: 150px;"><p-columnFilter type="text" [field]="col.field" matchMode="contains" [showMenu]="false"
+                        <th><p-columnFilter type="text" [field]="col.field" matchMode="contains" [showMenu]="false"
                             [showMatchModes]="false" [showOperator]="false" [showAddButton]="false"></p-columnFilter></th>
                     </ng-container>
                 </ng-container>
             </ng-container>
-            <th class="action-col" pFrozenColumn></th>
+            <th *ngIf="allowEditing" class="action-col" alignFrozen="right" pFrozenColumn></th>
         </tr>
     </ng-template>
     <ng-template pTemplate="body" let-rowData let-columns="columns">
         <tr [pSelectableRow]="rowData" [pSelectableRowDisabled]="selectionMode !== 'single'">
-            <td *ngIf="selectionMode === 'multiple'" pFrozenColumn>
+            <td *ngIf="selectionMode === 'multiple'" class="selection-col" pFrozenColumn>
                 <p-tableCheckbox [value]="rowData"></p-tableCheckbox>
             </td>
             <ng-container *ngFor="let col of columns">
@@ -83,7 +82,7 @@
                     </ng-container>
                 </ng-container>
             </ng-container>
-            <td *ngIf="allowEditing" class="action-col" pFrozenColumn>
+            <td *ngIf="allowEditing" class="action-col" alignFrozen="right" pFrozenColumn>
                 <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button p-mr-2" (click)="openEditDialog(rowData)"></button>
                 <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger" (click)="openDeleteDialog(rowData, dt)"></button>
             </td>
