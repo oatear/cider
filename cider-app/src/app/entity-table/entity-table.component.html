@@ -2,8 +2,7 @@
 <p-table #dt [columns]="columns" [value]="records" responsiveLayout="scroll"
         [selectionMode]="selectionMode || 'none'" [(selection)]="selection" 
         (selectionChange)="selectionChange.emit($event)" [dataKey]="idField || ''"
-        (onLazyLoad)="loadData($event)" [lazy]="true"
-        [scrollable]="true" 
+        (onLazyLoad)="loadData($event)" [lazy]="true" [scrollable]="true" 
         [totalRecords]="total" [loading]="loading" styleClass="p-datatable-sm">
     <ng-template pTemplate="caption">
         <div class="p-d-flex">
@@ -30,6 +29,7 @@
             </th>
             <ng-container *ngFor="let col of columns">
                 <th *ngIf="!col.hidden" [pSortableColumn]="col.field" [pTooltip]="col.description"
+                    [class]="col.type"
                     >{{col.header}} <p-sortIcon [field]="col.field"></p-sortIcon></th>
             </ng-container>
             <th *ngIf="allowEditing" class="action-col" alignFrozen="right" pFrozenColumn></th>
@@ -41,7 +41,7 @@
                 <ng-container [ngSwitch]="true">
                     <ng-container *ngSwitchCase="col.hidden"></ng-container>
                     <ng-container *ngSwitchCase="!col.hidden && col.service !== undefined">
-                        <th>
+                        <th [class]="col.type">
                             <p-columnFilter [field]="col.field" matchMode="in" [showMenu]="false">
                                 <ng-template pTemplate="filter" let-value let-filter="filterCallback">
                                     <p-multiSelect [ngModel]="value" [options]="(col.service | entityList | async) || []" placeholder="Any" 
@@ -55,7 +55,7 @@
                         <th></th>
                     </ng-container>
                     <ng-container *ngSwitchDefault>
-                        <th><p-columnFilter type="text" [field]="col.field" matchMode="contains" [showMenu]="false"
+                        <th [class]="col.type"><p-columnFilter type="text" [field]="col.field" matchMode="contains" [showMenu]="false"
                             [showMatchModes]="false" [showOperator]="false" [showAddButton]="false"></p-columnFilter></th>
                     </ng-container>
                 </ng-container>
@@ -72,18 +72,58 @@
                 <ng-container [ngSwitch]="true">
                     <ng-container *ngSwitchCase="col.hidden"></ng-container>
                     <ng-container *ngSwitchCase="!col.hidden && col.service !== undefined">
-                        <td>{{lookups.get(col.service)?.get(rowData[col.field])}}</td>
+                        <!-- <td>{{lookups.get(col.service)?.get(rowData[col.field])}}</td> -->
+                        <td [pEditableColumn]="rowData[col.field]" [pEditableColumnField]="col.field" [class]="col.type">
+                            <p-cellEditor>
+                                <ng-template pTemplate="input">
+                                    <p-dropdown [options]="(col.service | entityList | async) || []" [(ngModel)]="rowData[col.field]" 
+                                        [id]="col.field" optionLabel="name" [optionValue]="col.service.getIdField()"
+                                        appendTo="body"></p-dropdown>
+                                </ng-template>
+                                <ng-template pTemplate="output">
+                                    <div class="base">{{lookups.get(col.service)?.get(rowData[col.field])}}</div>
+                                </ng-template>
+                            </p-cellEditor>
+                            <!-- <p-dropdown [options]="(col.service | entityList | async) || []" [(ngModel)]="rowData[col.field]" 
+                                [id]="col.field" optionLabel="name" [optionValue]="col.service.getIdField()"
+                                appendTo="body"></p-dropdown> -->
+                        </td>
                     </ng-container>
                     <ng-container *ngSwitchCase="!col.hidden && col.type === FieldType.file">
-                        <td class="preview-image"><img [src]="rowData[col.field] | fileUrl"/></td>
+                        <td class="preview-image" [class]="col.type"><img [src]="rowData[col.field] | fileUrl"/></td>
+                    </ng-container>
+                    <ng-container *ngSwitchCase="!col.hidden && col.type === FieldType.textArea">
+                        <td [pEditableColumn]="rowData[col.field]" [pEditableColumnField]="col.field" [class]="col.type">
+                            <!-- <textarea pInputTextarea [(ngModel)]="rowData[col.field]" [rows]="3" [cols]="12" [autoResize]="true" ></textarea> -->
+                            <p-cellEditor>
+                                <ng-template pTemplate="input">
+                                    <textarea pInputTextarea [(ngModel)]="rowData[col.field]" [rows]="1" [cols]="12" [autoResize]="true" ></textarea>
+                                </ng-template>
+                                <ng-template pTemplate="output">
+                                    <!-- <div class="base">{{rowData[col.field]}}</div> -->
+                                    <textarea pInputTextarea [(ngModel)]="rowData[col.field]" [rows]="1" [cols]="12" [autoResize]="true" [disabled]="true"></textarea>
+                                </ng-template>
+                            </p-cellEditor>
+                        </td>
                     </ng-container>
                     <ng-container *ngSwitchDefault>
-                        <td>{{rowData[col.field]}}</td>
+                        <!-- <td>{{rowData[col.field]}}</td> -->
+                        <td [pEditableColumn]="rowData[col.field]" [pEditableColumnField]="col.field" [class]="col.type">
+                            <p-cellEditor>
+                                <ng-template pTemplate="input">
+                                    <input pInputText type="text" [(ngModel)]="rowData[col.field]" />
+                                </ng-template>
+                                <ng-template pTemplate="output">
+                                    <div class="base">{{rowData[col.field]}}</div>
+                                </ng-template>
+                            </p-cellEditor>
+                            <!-- <input pInputText type="text" [(ngModel)]="rowData[col.field]" /> -->
+                        </td>
                     </ng-container>
                 </ng-container>
             </ng-container>
             <td *ngIf="allowEditing" class="action-col" alignFrozen="right" pFrozenColumn>
-                <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button p-mr-2" (click)="openEditDialog(rowData)"></button>
+                <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button p-mr-2 p-ml-2" (click)="openEditDialog(rowData)"></button>
                 <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger" (click)="openDeleteDialog(rowData, dt)"></button>
             </td>
         </tr>
