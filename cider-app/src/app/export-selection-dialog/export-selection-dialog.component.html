@@ -1,0 +1,12 @@
+<p-dialog [(visible)]="visible" (visibleChange)="visibleChange.emit($event)" (onHide)="hideDialog()"
+    [style]="{width: '80%', height: '80%'}" header="Card Selection" [modal]="true" styleClass="">
+    <ng-template pTemplate="content">
+        <app-entity-table [service]="cardsService" [allowImportExport]="false" [allowEditing]="false"
+            [(selection)]="cards" selectionMode="multiple"></app-entity-table>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+        <button pButton pRipple label="Apply" icon="pi pi-check" class="p-button-text" (click)="apply()"></button>
+    </ng-template>
+</p-dialog>
+

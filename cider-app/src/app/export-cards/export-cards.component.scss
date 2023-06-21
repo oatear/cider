@@ -40,6 +40,11 @@ $preview-individual-scale: 0.08;
         flex: 1
     }
 }
+.card-controls {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
 
 .preview-wrapper {
     .preview-sheets {

@@ -5,6 +5,8 @@
             <div class="card-controls">
                 <p-selectButton [options]="zoomOptions" [(ngModel)]="scale" class="p-mr-3"
                     optionLabel="label" optionValue="value"></p-selectButton>
+                <button pButton pRipple [label]="'Select Cards (' + (expandedCards ? expandedCards.length : 0) + ')'" icon="pi pi-check-square" 
+                    class="p-button-text" (click)="showExportSelectionDialog()"></button>
             </div>
             <p-scrollPanel class="preview-wrapper">
                 <ng-container *ngIf="exportType === 'sheet-export'">
@@ -162,6 +164,8 @@
         </p-card>
     </div>
 </div>
+<app-export-selection-dialog [(visible)]="exportSelectionDialogVisible"
+    (onApply)="updateSelection($event)"></app-export-selection-dialog>
 <p-dialog header="Exporting Data" [(visible)]="displayLoading" [style]="{width: '450px'}" [modal]="true" >
     <div class="p-field">
         Please wait for the export to complete.

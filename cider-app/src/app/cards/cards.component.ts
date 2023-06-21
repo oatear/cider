@@ -9,14 +9,9 @@ import { Card } from '../data-services/types/card.type';
 })
 export class CardsComponent implements OnInit {
 
-  cards: Card[] = [];
-
   constructor(public cardsService: CardsService) { }
 
   ngOnInit(): void {
-    this.cardsService.getAll().then(cards => {
-      this.cards = cards;
-    });
   }
 
 }

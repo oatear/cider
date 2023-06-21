@@ -1,9 +1,4 @@
 
-
-:host ::ng-deep th.action-col, td.action-col {
-    width: 120px;
-}
-
 :host ::ng-deep .p-datatable .p-datatable-tbody > tr > td.preview-image {
     padding-top: 0;
     padding-bottom: 0;
@@ -19,6 +14,28 @@
     border: none;
 }
 
+:host ::ng-deep .p-datatable .p-datatable-thead > tr > th,
+:host ::ng-deep .p-datatable .p-datatable-tbody > tr > td 
+{
+    width: 150px;
+    min-width: 150px;
+    max-width: 150px;
+    &.action-col {
+        width: 90px;
+        min-width: 90px;
+        max-width: 90px;
+        // box-shadow: 0px 0px 10px 0px #00000075;
+        // clip-path: inset(0px 0px 0px -15px);
+    }
+    &.selection-col {
+        width: 50px;
+        min-width: 50px;
+        max-width: 50px;
+        // box-shadow: 0px 0px 10px 0px #00000075;
+        // clip-path: inset(0px -15px 0px -0px);
+    }
+}
+
 :host ::ng-deep .p-datatable .p-datatable-tbody > tr:focus {
     outline: none;
 }
@@ -26,4 +43,8 @@
 :host ::ng-deep .p-datatable .p-datatable-tbody > tr.p-highlight {
     background: var(--surface-d);
     color: var(--text-color);
+}
+/* Fix issue with frozen columns becoming transparent on hover */
+:host ::ng-deep .p-datatable.p-datatable-hoverable-rows .p-datatable-tbody > tr:not(.p-highlight):hover {
+    background: #333a45;
 }

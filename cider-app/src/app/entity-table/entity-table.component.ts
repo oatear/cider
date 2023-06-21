@@ -18,10 +18,12 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
   @Input() records: Entity[] = [];
   @Input() columns: EntityField<Entity>[] = [];
   @Input() service: EntityService<Entity, Identifier> | undefined;
-  @Input() selection: Entity | undefined;
+  @Input() selection: Entity | Entity[] | undefined;
   @Input() selectionMode: string | undefined;
   @Input() allowImportExport: boolean = false;
-  @Output() selectionChange: EventEmitter<Entity | undefined> = new EventEmitter<Entity | undefined>();
+  @Input() allowEditing: boolean = true;
+  @Input() showColumnFilters: boolean = true;
+  @Output() selectionChange: EventEmitter<Entity | Entity[] | undefined> = new EventEmitter<Entity | Entity[] | undefined>();
   FieldType = FieldType;
   total: number = 0;
   loading: boolean = false;
