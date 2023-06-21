@@ -1,8 +1,9 @@
 <p-dialog [(visible)]="visible" (visibleChange)="visibleChange.emit($event)" (onHide)="hideDialog()"
-    [style]="{width: '80%', height: '80%'}" header="Card Selection" [modal]="true" styleClass="">
+    [style]="{width: '80%', height: '80%'}" header="Card Selection - Changes to cards are temporary" [modal]="true" styleClass="">
     <ng-template pTemplate="content">
-        <app-entity-table [service]="cardsService" [allowImportExport]="false" [allowEditing]="false"
-            [(selection)]="cards" selectionMode="multiple"></app-entity-table>
+        <app-entity-table [service]="cardsService" [records]="records" [allowImportExport]="false" [allowEditing]="true"
+            [(selection)]="cards" selectionMode="multiple" [lazy]="false" [showActions]="false"
+            [saveToService]="false"></app-entity-table>
     </ng-template>
     <ng-template pTemplate="footer">
         <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>

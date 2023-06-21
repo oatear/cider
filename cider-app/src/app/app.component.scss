@@ -1,3 +1,7 @@
+
+/**
+ Style override: p-selectbutton
+ **/
 :host ::ng-deep .p-selectbutton .p-button {
     background: #262d36;;
     border: 1px solid  #262d36;;
@@ -17,4 +21,28 @@
         box-shadow: 0 0 0 1px var(--surface-d);
         box-shadow: none;
     }
+}
+
+/**
+ Syle override: p-dialog-mask 
+ **/
+:host ::ng-deep .p-dialog-mask {
+    background-color: var(--maskbg);
+    backdrop-filter: blur(10px);
+}
+:host ::ng-deep .p-component-overlay-enter {
+    animation: none;
+}
+:host ::ng-deep .p-component-overlay-leave {
+    animation: p-component-overlay-leave-animation 150ms forwards;
+}
+@keyframes p-component-overlay-leave-animation {
+from {
+    background-color: var(--maskbg);
+    backdrop-filter: blur(10px);
+}
+to {
+    background-color: transparent;
+    backdrop-filter: blur(0px);
+}
 }

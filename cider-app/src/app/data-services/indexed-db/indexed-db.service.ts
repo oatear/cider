@@ -51,6 +51,7 @@ export class IndexedDbService<Entity, Identity extends string | number> implemen
   }
 
   search(searchParameters: SearchParameters, equalityCriterias?: {[key: string]: any;}): Promise<SearchResult<Entity>> {
+    console.log('searchParameters', searchParameters);
     let query = equalityCriterias ? this.db.table(this.tableName).where(equalityCriterias) 
       : this.db.table(this.tableName).toCollection();
     if (searchParameters.sorting && searchParameters.sorting.length > 0) {
@@ -65,10 +66,16 @@ export class IndexedDbService<Entity, Identity extends string | number> implemen
     }
     if (searchParameters.filters && searchParameters.filters.length > 0) {
       searchParameters.filters?.forEach(filter => {
-        filters.push((record) => {
-          return (record[filter.field] ? JSON.stringify(record[filter.field]) : '').toString().toLowerCase()
-            .includes(filter.filter?.toString().toLowerCase());
-        });
+        if (Array.isArray(filter.filter)) {
+          filters.push((record) => (filter.filter as string[]).some(value => 
+            (record[filter.field] ? JSON.stringify(record[filter.field]) : '').toString().toLowerCase()
+            .includes(value?.toString().toLowerCase())));
+        } else {
+          filters.push((record) => {
+            return (record[filter.field] ? JSON.stringify(record[filter.field]) : '').toString().toLowerCase()
+              .includes(filter.filter?.toString().toLowerCase());
+          });
+        }
       });
     }
     if (filters && filters.length > 0) {

@@ -17,9 +17,17 @@
 :host ::ng-deep .p-datatable .p-datatable-thead > tr > th,
 :host ::ng-deep .p-datatable .p-datatable-tbody > tr > td 
 {
-    width: 150px;
-    min-width: 150px;
-    max-width: 150px;
+    // width: 150px;
+    // min-width: 150px;
+    // max-width: 350px;
+    &.text-area {
+        // width: 90px;
+        min-width: 300px;
+        // max-width: 90px;
+    }
+    &.option {
+        min-width: 100px;
+    }
     &.action-col {
         width: 90px;
         min-width: 90px;
@@ -31,8 +39,90 @@
         width: 50px;
         min-width: 50px;
         max-width: 50px;
+        display: flex;
+        justify-content: center;
         // box-shadow: 0px 0px 10px 0px #00000075;
         // clip-path: inset(0px -15px 0px -0px);
+    }
+    p-columnfilter {
+        width: 100%;
+    }
+}
+:host ::ng-deep .p-datatable .p-datatable-tbody tr td p-celleditor {
+    width: 100%;
+}
+:host ::ng-deep .p-datatable .p-datatable-tbody tr td p-celleditor,
+:host ::ng-deep .p-datatable .p-datatable-tbody tr td {
+    // width: 100%;
+    // height: 100%;
+    display: flex;
+    align-items: center;
+    .base {
+        width: 100%;
+        height: 100%;
+        border: 1px solid #2b313d;
+        background-color: #2b313d;
+        display: flex;
+        align-items: center;
+        padding: 0.5rem 0.75rem;
+    }
+}
+
+/* Fix issue with frozen columns becoming transparent on hover and remove hover color */
+:host ::ng-deep .p-datatable.p-datatable-hoverable-rows .p-datatable-tbody {
+    > tr:not(.p-highlight):hover,
+    > tr.p-highlight {
+        background: #2b313d;
+    }
+}
+
+/* Cell Editor Styling */
+:host ::ng-deep .p-datatable .p-datatable-tbody tr td {
+    padding: 0;
+    input {
+        width: 100%;
+        height: 100%;
+        border: 1px solid #2b313d;
+        background-color: #2b313d;
+        &:focus {
+            box-shadow: none;
+            background-color: #20262e;
+            border: 1px solid #3f4b5b;
+        }
+    }
+    textarea {
+        width: 100%;
+        border: 1px solid #2b313d;
+        background-color: #2b313d;
+        &:focus {
+            box-shadow: none;
+            background-color: #20262e;
+            border: 1px solid #3f4b5b;
+        }
+        &:disabled {
+            opacity: 100%;
+        }
+    }
+    p-dropdown {
+        width: 100%;
+        height: 100%;
+        .p-dropdown {
+            width: 100%;
+            height: 100%;
+            border: 1px solid #2b313d;
+            background-color: #2b313d;
+            &.p-focus {
+                box-shadow: none;
+                background-color: #20262e;
+                border: 1px solid #3f4b5b;
+            }
+            span.p-dropdown-label {
+                display: flex;
+                align-items: center;
+                text-overflow: ellipsis;
+                width: 80px;
+            }
+        }
     }
 }
 
@@ -43,8 +133,4 @@
 :host ::ng-deep .p-datatable .p-datatable-tbody > tr.p-highlight {
     background: var(--surface-d);
     color: var(--text-color);
-}
-/* Fix issue with frozen columns becoming transparent on hover */
-:host ::ng-deep .p-datatable.p-datatable-hoverable-rows .p-datatable-tbody > tr:not(.p-highlight):hover {
-    background: #333a45;
 }

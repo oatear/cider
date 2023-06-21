@@ -8,6 +8,7 @@ import { Card } from '../data-services/types/card.type';
   styleUrls: ['./export-selection-dialog.component.scss']
 })
 export class ExportSelectionDialogComponent implements OnInit {
+  @Input() records: Card[] = [];
   @Input() visible: boolean = false;
   @Output() visibleChange: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Output() onApply: EventEmitter<Card | Card[] | undefined> = new EventEmitter();
