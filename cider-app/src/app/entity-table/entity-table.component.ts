@@ -6,6 +6,7 @@ import { EntityService } from '../data-services/types/entity-service.type';
 import { FieldType } from '../data-services/types/field-type.type';
 import { SortDirection } from '../data-services/types/search-sort.type';
 import XlsxUtils from '../shared/utils/xlsx-utils';
+import { Subject, debounceTime } from 'rxjs';
 
 @Component({
   selector: 'app-entity-table',
@@ -23,6 +24,10 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
   @Input() allowImportExport: boolean = false;
   @Input() allowEditing: boolean = true;
   @Input() showColumnFilters: boolean = true;
+  @Input() lazy: boolean = true;
+  @Input() showActions: boolean = true;
+  @Input() showInlineEditor: boolean = true;
+  @Input() saveToService: boolean = true;
   @Output() selectionChange: EventEmitter<Entity | Entity[] | undefined> = new EventEmitter<Entity | Entity[] | undefined>();
   FieldType = FieldType;
   total: number = 0;
@@ -33,17 +38,25 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
   lookups: Map<EntityService<any, string | number>, Map<string | number, string>> = new Map();
   importVisible: boolean = false;
   importFile: File | undefined = undefined;
+  saveSubject: Subject<Entity> = new Subject();
 
   constructor(private messageService: MessageService, 
-    private confirmationService: ConfirmationService) { }
+    private confirmationService: ConfirmationService) {
+      this.saveSubject.asObservable().pipe(debounceTime(1000))
+      .subscribe((entity) => this.save(entity));
+  }
 
   ngOnInit(): void {
     this.service?.getFields().then(fields => this.columns = fields);
     this.service?.getLookups().then(lookups => this.lookups = lookups);
-    this.service?.search({offset: 0, limit: 10}).then(result => {
-      this.total = result.total;
-      this.records = result.records;
-    });
+    if (this.lazy) {
+      this.service?.search({offset: 0, limit: 10}).then(result => {
+        this.total = result.total;
+        this.records = result.records;
+      });
+    } else if (this.records) {
+      this.total = this.records.length;
+    }
     this.idField = this.service?.getIdField();
   }
 
@@ -112,6 +125,25 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
 
   public exportData() {
     XlsxUtils.entityExportToFile(this.columns, this.lookups, this.records);
+  }
+
+  public debounceSave(entity: Entity) {
+    this.saveSubject.next(entity);
+  }
+
+  public save(entity: Entity) {
+    if (!this.service || !this.saveToService) {
+      return;
+    }
+    const id = (<any>entity)[this.service?.getIdField()];
+    this.updateExisting(id, entity);
+  }
+  
+  public updateExisting(id: Identifier, entity: Entity) {
+    this.service?.update(id, entity).then(result => {
+    }).catch(error => {
+      console.log('error saving entity', error);
+    });
   }
 
   public openCreateNew() {

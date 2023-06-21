@@ -165,7 +165,7 @@
     </div>
 </div>
 <app-export-selection-dialog [(visible)]="exportSelectionDialogVisible"
-    (onApply)="updateSelection($event)"></app-export-selection-dialog>
+    (onApply)="updateSelection($event)" [records]="originalCards"></app-export-selection-dialog>
 <p-dialog header="Exporting Data" [(visible)]="displayLoading" [style]="{width: '450px'}" [modal]="true" >
     <div class="p-field">
         Please wait for the export to complete.
