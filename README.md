@@ -97,5 +97,5 @@ The repository itself is protected by [AGPL-3.0][license-url] to ensure the proj
 [ttsexport-url]: TTS_EXPORT.md
 [license-url]: LICENSE.md
 [pages-url]: https://oatear.github.io/cider
-[mac-download]: https://github.com/oatear/cider/releases/download/0.3.5/cider-0.3.5-arm64.dmg
+[mac-download]: https://github.com/oatear/cider/releases/download/0.4.0/cider-0.4.0-arm64.dmg
 [windows-download]: https://github.com/oatear/cider/releases/download/0.3.5/cider.Setup.0.3.5.exe
