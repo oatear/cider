@@ -7,7 +7,8 @@ Card IDE (CIDEr) - Design game cards using `HTML/Handlebars`, `CSS`, and `tabula
 
 [![][license]][license-url] 
 [![][stars]][gh-url]
-[![][release]][gh-url]
+[![][release]][releases-url]
+[![][downloads]][releases-url]
 [![][last-commit]][gh-url]
 [![][website]][pages-url]
 
@@ -81,8 +82,9 @@ The repository itself is protected by [AGPL-3.0][license-url] to ensure the proj
 
 [last-commit]: https://img.shields.io/github/last-commit/oatear/cider
 [license]: https://badgen.net/github/license/oatear/cider?cache=600
-[stars]: https://badgen.net/github/stars/oatear/cider?cache=600
-[release]: https://badgen.net/github/release/oatear/cider?cache=600
+[stars]: https://img.shields.io/github/stars/oatear/cider
+[release]: https://img.shields.io/github/v/release/oatear/cider
+[downloads]: https://img.shields.io/github/downloads/oatear/cider/total
 [website]: https://img.shields.io/website?down_color=red&down_message=offline&up_color=green&up_message=online&url=https%3A%2F%2Foatear.github.io%2Fcider
 [logo-url]: docs/assets/cider-logo-80.png
 [screen-1]: cider-app/src/assets/screen-1.png
@@ -92,6 +94,7 @@ The repository itself is protected by [AGPL-3.0][license-url] to ensure the proj
 [screen-5]: cider-app/src/assets/screen-5.png
 [image-file-tree]: cider-app/src/assets/image-file-tree.png
 [gh-url]: https://github.com/oatear/cider
+[releases-url]: https://github.com/oatear/cider/releases
 [cosmic-apple]: https://github.com/oatear/cosmic-apple-game
 [handlebars-url]: HANDLEBARS.md
 [ttsexport-url]: TTS_EXPORT.md
