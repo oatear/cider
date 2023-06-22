@@ -83,6 +83,7 @@ export class ExportCardsComponent implements OnInit {
   }
 
   public updateSelection(selection: Card | Card[] | undefined) {
+    console.log('updateSelection', selection);
     if (Array.isArray(selection)) {
       this.cards = selection;
       this.updateExpandedCards();
