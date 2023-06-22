@@ -12,15 +12,18 @@ export class ExportSelectionDialogComponent implements OnInit {
   @Input() visible: boolean = false;
   @Output() visibleChange: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Output() onApply: EventEmitter<Card | Card[] | undefined> = new EventEmitter();
-  public cards: Card | Card[] | undefined = [];
+  public cards: Card | Card[] | undefined = undefined;
 
   constructor(public cardsService: CardsService) {
-    cardsService.getAll().then(cards => {
-      this.cards = cards;
-    });
   }
 
   ngOnInit(): void {
+  }
+
+  public onShow() {
+    if (this.cards === undefined) {
+      this.cards = this.records;
+    }
   }
 
   public apply() {
