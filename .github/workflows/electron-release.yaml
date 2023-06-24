@@ -38,3 +38,4 @@ jobs:
           
           # set the directory where npm will run
           package_root: ./cider-app
+          build_script_name: electron:compile
