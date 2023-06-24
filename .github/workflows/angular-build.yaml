@@ -1,4 +1,4 @@
-name: Build Angular
+name: Build and Deploy Angular
 on:
   push:
     branches:
