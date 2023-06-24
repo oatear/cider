@@ -14,9 +14,7 @@ Card IDE (CIDEr) - Design game cards using `HTML/Handlebars`, `CSS`, and `tabula
 
 Website: [Start using Cider][pages-url]
 
-Mac: [arm64][mac-download]
-
-Windows: [x86-64][windows-download]
+Download: [Windows, Mac, Ubuntu][releases-url]
   
 Sample Game Project: [Cosmic Apple][cosmic-apple]
 
@@ -100,5 +98,3 @@ The repository itself is protected by [AGPL-3.0][license-url] to ensure the proj
 [ttsexport-url]: TTS_EXPORT.md
 [license-url]: LICENSE.md
 [pages-url]: https://oatear.github.io/cider
-[mac-download]: https://github.com/oatear/cider/releases/download/0.4.0/cider-0.4.0-arm64.dmg
-[windows-download]: https://github.com/oatear/cider/releases/download/0.4.0/cider.Setup.0.4.0.exe
