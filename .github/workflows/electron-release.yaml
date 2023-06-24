@@ -35,3 +35,6 @@ jobs:
           # If the commit is tagged with a version (e.g. "v1.0.0"),
           # release the app after building
           release: ${{ startsWith(github.ref, 'refs/tags/v') }}
+          
+          # set the directory where npm will run
+          package_root: ./cider-app
