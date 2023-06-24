@@ -26,7 +26,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Build/release Electron app
-        uses: oatear/action-electron-builder@v1.0.0
+        uses: oatear/action-electron-builder@v1.0.1
         with:
           # GitHub token, automatically provided to the action
           # (No need to define this secret in the repo settings)
