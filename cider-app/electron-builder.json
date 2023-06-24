@@ -22,5 +22,11 @@
     },
     "linux": {
         "icon": "dist/cider/assets/cider-logo.icns"
+    },
+    "snap": {
+        "publish": {
+            "provider": "generic",
+            "url": "https://disable.snapcraft"
+        }
     }
 }
