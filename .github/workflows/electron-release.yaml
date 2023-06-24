@@ -7,11 +7,12 @@ on:
 jobs:
   release:
     runs-on: ${{ matrix.os }}
-
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
         node-version: [18.x]
+    env:
+      SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_TOKEN }}
     defaults:
       run:
         working-directory: ./cider-app
@@ -28,8 +29,6 @@ jobs:
       - name: Install Snapcraft
         uses: oatear/action-snapcraft@v1
         if: startsWith(matrix.os, 'ubuntu')
-        with:
-          snapcraft_token: ${{ secrets.snapcraft_token }}
 
       - name: Build/release Electron app
         uses: oatear/action-electron-builder@v1.0.1
