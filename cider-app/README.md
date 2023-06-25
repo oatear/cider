@@ -14,6 +14,9 @@ Run `npm run electron` for the electron desktop application.
 
 Run `npm run electron:build` to build the electron desktop application executable.
 
+## Trigger New Release
+`git tag v0.4.1` and `git push --tags`
+
 ## Build GitHub Pages (New)
 
 Run `npm run build:gh-pages` to build the site for github pages.

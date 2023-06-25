@@ -46,6 +46,7 @@
     "mime": "^3.0.0",
     "mime-wrapper": "^2.0.0",
     "monaco-editor": "^0.32.1",
+    "ngx-moveable": "^0.45.0",
     "p-limit": "^4.0.0",
     "pdfmake": "^0.2.7",
     "primeflex": "^2.0.0",

@@ -3,6 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { NgxMoveableModule } from 'ngx-moveable';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -56,6 +57,7 @@ import { CardThumbnailsComponent } from './card-thumbnails/card-thumbnails.compo
 import { PageHeaderComponent } from './page-header/page-header.component';
 import { WelcomeComponent } from './welcome/welcome.component';
 import { ExportSelectionDialogComponent } from './export-selection-dialog/export-selection-dialog.component';
+import { GraphicalTemplateEditorComponent } from './graphical-template-editor/graphical-template-editor.component';
 
 @NgModule({
   declarations: [
@@ -77,7 +79,8 @@ import { ExportSelectionDialogComponent } from './export-selection-dialog/export
     CardThumbnailsComponent,
     PageHeaderComponent,
     WelcomeComponent,
-    ExportSelectionDialogComponent
+    ExportSelectionDialogComponent,
+    GraphicalTemplateEditorComponent
   ],
   imports: [
     BrowserModule,
@@ -113,7 +116,8 @@ import { ExportSelectionDialogComponent } from './export-selection-dialog/export
     TabMenuModule,
     ChipsModule,
     DividerModule,
-    MultiSelectModule
+    MultiSelectModule,
+    NgxMoveableModule
   ],
   providers: [],
   bootstrap: [AppComponent]
