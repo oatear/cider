@@ -62,7 +62,9 @@ export class GraphicalTemplateEditorComponent implements OnInit {
 
   onDrag(e: any) {
     e.target.style.transform = e.transform;
-    // console.log('onDrag', e);
+    // e.target.style.top = e.translate[1] + 'px';
+    // e.target.style.left = e.translate[0] + 'px';
+    console.log('onDrag', e);
     // this.elements[0].top = e.translate[1];
     // this.elements[0].left = e.translate[0];
   }
