@@ -2,7 +2,9 @@
     [style.width]="scale !== 1.0 && initialWidth ? initialWidth * scale + 'px': 'initial'" 
     [style.height]="scale !== 1.0 && initialHeight ? initialHeight * scale + 'px': 'initial'">
     <div *ngIf="cache && cachedImageUrl" class="card-preview" [style.transform]="'scale(' + scale + ')'">
-        <img [src]="getSanitizedCachedImageUrl()" >
+        <div class="image-placeholder" [style.width.px]="initialWidth" [style.height.px]="initialHeight">
+            <img [src]="getSanitizedCachedImageUrl()">
+        </div>
     </div>
     <div *ngIf="!(cache && cachedImageUrl)" [style.transform]="'scale(' + scale + ')'"
         class="card-preview card-{{uuid}}{{lowInk ? ' low-ink' : ''}}" >

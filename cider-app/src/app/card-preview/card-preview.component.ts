@@ -48,7 +48,6 @@ export class CardPreviewComponent implements OnInit, AfterViewChecked {
       && this.element?.nativeElement.offsetHeight) {
         this.initialWidth = this.element?.nativeElement.offsetWidth;
         this.initialHeight = this.element?.nativeElement.offsetHeight;
-        // console.log('card-preview ngAfterViewChecked', this.initialWidth, this.initialHeight);
         this.isLoadedSubject.next(true);
         this.isLoadedSubject.complete();
         this.changeDetectorRef.detectChanges();
@@ -58,7 +57,7 @@ export class CardPreviewComponent implements OnInit, AfterViewChecked {
   ngOnInit(): void {
     this.assetsService.getAssetUrls().subscribe(assetUrls => {
       this.assetUrls = assetUrls;
-      lastValueFrom(this.isLoadedSubject).then(() => GeneralUtils.delay(1000)).then(() => {
+      lastValueFrom(this.isLoadedSubject).then(() => GeneralUtils.delay(5000)).then(() => {
         this.renderCacheService.getOrSet(this.getHash(), () => this.toImageUrl())
         .subscribe((cachedImageUrl) => {
             this.cachedImageUrl = cachedImageUrl
