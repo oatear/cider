@@ -206,7 +206,7 @@ export class ExportCardsComponent implements OnInit {
     this.loadingPercent = 0;
     this.loadingInfo = 'Generating sheet images...';
     const promisedSheets$ = this.cardSheets.map(cardSheet => limit(() => {
-      return htmlToImage.toPng((<any>cardSheet).nativeElement);
+      return htmlToImage.toPng((<any>cardSheet).nativeElement, {pixelRatio: 1.0});
     }));
     const promisedProgress$ = this.promisesProgress(promisedSheets$, () => {
       return this.loadingPercent += 100.0/(promisedSheets$.length);

@@ -56,6 +56,7 @@ import { CardThumbnailsComponent } from './card-thumbnails/card-thumbnails.compo
 import { PageHeaderComponent } from './page-header/page-header.component';
 import { WelcomeComponent } from './welcome/welcome.component';
 import { ExportSelectionDialogComponent } from './export-selection-dialog/export-selection-dialog.component';
+import { CardToHtmlPipe } from './shared/pipes/template-to-html.pipe';
 
 @NgModule({
   declarations: [
@@ -115,7 +116,7 @@ import { ExportSelectionDialogComponent } from './export-selection-dialog/export
     DividerModule,
     MultiSelectModule
   ],
-  providers: [],
+  providers: [CardToHtmlPipe],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
