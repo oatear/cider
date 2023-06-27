@@ -1,4 +1,4 @@
-import { Component, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { AfterViewChecked, Component, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { CardPreviewComponent } from '../card-preview/card-preview.component';
 import { CardTemplatesService } from '../data-services/services/card-templates.service';
 import { CardsService } from '../data-services/services/cards.service';
@@ -10,13 +10,14 @@ import pLimit from 'p-limit';
 import FileUtils from '../shared/utils/file-utils';
 import { lastValueFrom } from 'rxjs';
 import StringUtils from '../shared/utils/string-utils';
+import GeneralUtils from '../shared/utils/general-utils';
 
 @Component({
   selector: 'app-export-cards',
   templateUrl: './export-cards.component.html',
   styleUrls: ['./export-cards.component.scss']
 })
-export class ExportCardsComponent implements OnInit {
+export class ExportCardsComponent implements OnInit, AfterViewChecked {
   private static readonly SINGULAR_EXPORT = 'singular-export';
   private static readonly SHEET_EXPORT = 'sheet-export';
   private static readonly PDF_DPI = 72;
@@ -50,6 +51,7 @@ export class ExportCardsComponent implements OnInit {
   public cards: Card[] = [];
   public expandedCards: Card[] = [];
   public slicedCards: Card[][] = [];
+  public sheet: Card[] = [];
   public displayLoading: boolean = false;
   public loadingPercent: number = 0;
   public loadingInfo: string = '';
@@ -79,6 +81,10 @@ export class ExportCardsComponent implements OnInit {
       });
   }
 
+  ngAfterViewChecked(): void {
+    // console.log('ngAfterViewChecked');
+  }
+
   ngOnInit(): void {
   }
 
@@ -103,13 +109,14 @@ export class ExportCardsComponent implements OnInit {
 
   public updateSlices() {
     this.slicedCards = this.sliceIntoChunks(this.expandedCards, this.cardsPerPage);
+    this.sheet = this.slicedCards ? this.slicedCards[0] : [];
   }
 
   public changePaperType() {
     if (this.selectedPaper.name === 'Tabletop Simulator') {
       this.cardMargins = 0;
       this.paperMargins = 0;
-      console.log('front cards: ', this.cardSheetCards.first);
+      console.log('selectedPaper', this.selectedPaper);
       this.paperWidth = this.cardSheetCards.first.initialWidth * 10 / this.paperDpi;
       this.paperHeight = this.cardSheetCards.first.initialHeight * 7 / this.paperDpi;
       this.mirrorBacksX = this.selectedPaper.mirrorBacksX;
@@ -128,6 +135,7 @@ export class ExportCardsComponent implements OnInit {
       this.pixelRatio = 1;
       this.updateSlices();
     }
+    console.log('change paper type', this.selectedPaper.name, this.mirrorBacksX, this.mirrorBacksY);
   }
 
   /**
@@ -156,37 +164,73 @@ export class ExportCardsComponent implements OnInit {
   private async exportCardSheetsAsImages() {
     this.displayLoading = true;
     this.loadingPercent = 0;
-    let sheetIndex = 0;
+    const hardLimit = pLimit(1);
     const limit = pLimit(3);
 
-    this.loadingInfo = 'Rendering card images...';
-    const promisedCards$ = this.cardSheetCards.map(card => lastValueFrom(card.isLoaded()));
-    const promisedCardsProgress$ = this.promisesProgress(promisedCards$, () => {
-      return this.loadingPercent += 100.0/promisedCards$.length;
+    const promisedSheetImages$ = this.slicedCards.map(async (sheet, sheetIndex) => {
+      return await hardLimit(async () => {
+        this.sheet = sheet;
+        await GeneralUtils.delay(1000);
+        console.log('set sheet', sheetIndex);
+        this.loadingInfo = 'Rendering sheet ' + sheetIndex + ' card images...';
+        const promisedCards$ = this.cardSheetCards.map(card => lastValueFrom(card.isLoaded()));
+        // const promisedCardsProgress$ = this.promisesProgress(promisedCards$, () => {
+        //   return this.loadingPercent += 100.0/promisedCards$.length;
+        // });
+        await Promise.all(promisedCards$);
+        
+        this.loadingInfo = 'Generating sheet ' + sheetIndex + ' image...';
+        const promisedSheets$ = this.cardSheets.map(async (cardSheet, frontBackIndex) => {
+          const imgUri = await limit(() => htmlToImage.toPng((<any>cardSheet).nativeElement, 
+          {pixelRatio: this.pixelRatio}));
+          const imgName = 'sheet-' 
+            + (frontBackIndex % 2 == 0 ? 'front-' : 'back-')
+            + sheetIndex + '.png';
+          return this.dataUrlToFile(imgUri, imgName);
+        });
+        const promisedSheetsProgress$ = this.promisesProgress(promisedSheets$, 
+          () => this.loadingPercent += 100.0/(this.slicedCards.length * 2 + 1));
+        const sheetImages = await Promise.all(promisedSheetsProgress$);
+        return sheetImages;
+      });
     });
-    await Promise.all(promisedCardsProgress$);
-
-    this.loadingPercent = 0;
-    this.loadingInfo = 'Generating sheet images...';
-    const promisedSheets$ = this.cardSheets.map(async cardSheet => {
-      const imgUri = await limit(() => htmlToImage.toPng((<any>cardSheet).nativeElement, 
-      {pixelRatio: this.pixelRatio}));
-      const imgName = 'sheet-' 
-        + (sheetIndex % 2 == 0 ? 'front-' : 'back-')
-        + Math.floor(sheetIndex/2) + '.png';
-      sheetIndex++;
-      return this.dataUrlToFile(imgUri, imgName);
-    });
-    const promisedSheetsProgress$ = this.promisesProgress(promisedSheets$, 
-      () => this.loadingPercent += 100.0/(promisedSheets$.length + 1));
-    const images = await Promise.all(promisedSheetsProgress$);
+    const sheetImages = (await Promise.all(promisedSheetImages$)).flatMap(sheetImages  => sheetImages);
 
     this.loadingInfo = 'Zipping up files...';
-    const zippedImages = await this.zipFiles(images);
+    const zippedImages = await this.zipFiles(sheetImages);
     this.loadingInfo = 'Saving file...';
     FileUtils.saveAs(zippedImages, 'cards.zip');
     this.loadingPercent = 100;
     this.displayLoading = false
+
+    // this.loadingInfo = 'Rendering card images...';
+    // const promisedCards$ = this.cardSheetCards.map(card => lastValueFrom(card.isLoaded()));
+    // const promisedCardsProgress$ = this.promisesProgress(promisedCards$, () => {
+    //   return this.loadingPercent += 100.0/promisedCards$.length;
+    // });
+    // await Promise.all(promisedCardsProgress$);
+
+    // this.loadingPercent = 0;
+    // this.loadingInfo = 'Generating sheet images...';
+    // const promisedSheets$ = this.cardSheets.map(async cardSheet => {
+    //   const imgUri = await limit(() => htmlToImage.toPng((<any>cardSheet).nativeElement, 
+    //   {pixelRatio: this.pixelRatio}));
+    //   const imgName = 'sheet-' 
+    //     + (sheetIndex % 2 == 0 ? 'front-' : 'back-')
+    //     + Math.floor(sheetIndex/2) + '.png';
+    //   sheetIndex++;
+    //   return this.dataUrlToFile(imgUri, imgName);
+    // });
+    // const promisedSheetsProgress$ = this.promisesProgress(promisedSheets$, 
+    //   () => this.loadingPercent += 100.0/(promisedSheets$.length + 1));
+    // const images = await Promise.all(promisedSheetsProgress$);
+
+    // this.loadingInfo = 'Zipping up files...';
+    // const zippedImages = await this.zipFiles(images);
+    // this.loadingInfo = 'Saving file...';
+    // FileUtils.saveAs(zippedImages, 'cards.zip');
+    // this.loadingPercent = 100;
+    // this.displayLoading = false
   }
 
   private async exportCardSheets() {

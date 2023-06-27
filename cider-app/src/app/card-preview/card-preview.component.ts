@@ -8,6 +8,7 @@ import { RenderCacheService } from '../data-services/services/render-cache.servi
 import { CardToHtmlPipe } from '../shared/pipes/template-to-html.pipe';
 import * as htmlToImage from 'html-to-image';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import GeneralUtils from '../shared/utils/general-utils';
 
 @Component({
   selector: 'app-card-preview',
@@ -57,7 +58,7 @@ export class CardPreviewComponent implements OnInit, AfterViewChecked {
   ngOnInit(): void {
     this.assetsService.getAssetUrls().subscribe(assetUrls => {
       this.assetUrls = assetUrls;
-      lastValueFrom(this.isLoadedSubject).then(() => {
+      lastValueFrom(this.isLoadedSubject).then(() => GeneralUtils.delay(1000)).then(() => {
         this.renderCacheService.getOrSet(this.getHash(), () => this.toImageUrl())
         .subscribe((cachedImageUrl) => {
             this.cachedImageUrl = cachedImageUrl
