@@ -37,6 +37,7 @@ import { TabMenuModule } from 'primeng/tabmenu';
 import { ChipsModule } from 'primeng/chips';
 import { DividerModule } from 'primeng/divider';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { DataViewModule } from 'primeng/dataview';
 
 import { MonacoEditorModule } from '@materia-ui/ngx-monaco-editor';
 
@@ -57,6 +58,7 @@ import { CardThumbnailsComponent } from './card-thumbnails/card-thumbnails.compo
 import { PageHeaderComponent } from './page-header/page-header.component';
 import { WelcomeComponent } from './welcome/welcome.component';
 import { ExportSelectionDialogComponent } from './export-selection-dialog/export-selection-dialog.component';
+import { CardToHtmlPipe } from './shared/pipes/template-to-html.pipe';
 import { GraphicalTemplateEditorComponent } from './graphical-template-editor/graphical-template-editor.component';
 
 @NgModule({
@@ -117,9 +119,10 @@ import { GraphicalTemplateEditorComponent } from './graphical-template-editor/gr
     ChipsModule,
     DividerModule,
     MultiSelectModule,
+    DataViewModule,
     NgxMoveableModule
   ],
-  providers: [],
+  providers: [CardToHtmlPipe],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
