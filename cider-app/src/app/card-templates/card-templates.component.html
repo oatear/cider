@@ -28,7 +28,8 @@
                         </span>
                     </div>
                     <div class="preview-space" [style]="{ width: 'calc(var(--vw, 1vw) * ' + previewPanelWidth + ')' }" *ngIf="!disablePanels">
-                        <app-card-preview [card]="selectedCard" [template]="selectedTemplate" *ngIf="selectedCard" [scale]="zoom"></app-card-preview>
+                        <app-card-preview [card]="selectedCard" [template]="selectedTemplate" *ngIf="selectedCard" [scale]="zoom"
+                            [cache]="false"></app-card-preview>
                     </div>
                 </p-panel>
             </div>
