@@ -22,7 +22,7 @@
             <div class="left-panel p-col p-flex p-align-items-center p-justify-content-center">
                 <p-panel header="Preview" >
                     <div class="preview-controls" *ngIf="!disablePanels">
-                        <p-dropdown [options]="cards" [(ngModel)]="selectedCard" 
+                        <p-dropdown [options]="cards" [(ngModel)]="selectedCard" [filter]="true" filterby="name"
                             optionLabel="name" styleClass="card-dropdown"></p-dropdown>
                         <span class="p-buttonset">
                             <button pButton type="button" icon="pi pi-search-minus" (click)="changeZoom(-0.1)"></button>
@@ -30,7 +30,8 @@
                         </span>
                     </div>
                     <div class="preview-space" [style]="{ width: 'calc(var(--vw, 1vw) * ' + previewPanelWidth + ')' }" *ngIf="!disablePanels">
-                        <app-card-preview [card]="selectedCard" [template]="selectedTemplate" *ngIf="selectedCard" [scale]="zoom"></app-card-preview>
+                        <app-card-preview [card]="selectedCard" [template]="selectedTemplate" *ngIf="selectedCard" [scale]="zoom"
+                            [cache]="false"></app-card-preview>
                     </div>
                 </p-panel>
             </div>

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Asset } from '../types/asset.type';
 import { AppDB } from '../indexed-db/db';
 import { FieldType } from '../types/field-type.type';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { AsyncSubject, BehaviorSubject, Observable } from 'rxjs';
 import { SearchParameters } from '../types/search-parameters.type';
 import { IndexedDbService } from '../indexed-db/indexed-db.service';
 import StringUtils from 'src/app/shared/utils/string-utils';
@@ -12,6 +12,7 @@ import StringUtils from 'src/app/shared/utils/string-utils';
 })
 export class AssetsService extends IndexedDbService<Asset, number> {
   assetUrls: BehaviorSubject<any>;
+  private isLoadingSubject: BehaviorSubject<boolean>;
 
   constructor(db: AppDB) {
     super(db, AppDB.ASSETS_TABLE, [
@@ -20,11 +21,13 @@ export class AssetsService extends IndexedDbService<Asset, number> {
       {field: 'file', header: 'File', type: FieldType.file}
     ]);
     this.assetUrls = new BehaviorSubject<any>({});
+    this.isLoadingSubject = new BehaviorSubject<boolean>(true);
     this.updateAssetUrls();
   }
 
   public updateAssetUrls() {
     console.log('update asset urls');
+    this.isLoadingSubject.next(false);
     this.getAll().then(assets => {
       console.log("all assets: ", assets);
       // release the old URLs
@@ -33,7 +36,11 @@ export class AssetsService extends IndexedDbService<Asset, number> {
       let assetUrls = {} as any;
       assets.forEach(asset => assetUrls[StringUtils.toKebabCase(asset.name)] = URL.createObjectURL(asset.file));
       return assetUrls;
-    }).then(assetUrls => this.assetUrls.next(assetUrls));
+    }).then(assetUrls => this.assetUrls.next(assetUrls)).then(() => this.isLoadingSubject.next(false));
+  }
+
+  public isLoading() {
+    return this.isLoadingSubject.asObservable();
   }
   
   override getEntityName(entity: Asset) {
