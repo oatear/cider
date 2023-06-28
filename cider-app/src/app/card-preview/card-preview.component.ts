@@ -21,7 +21,7 @@ export class CardPreviewComponent implements OnInit, AfterViewChecked {
   @Input() template: CardTemplate = {} as CardTemplate;
   @Input() scale: number = 1.0;
   @Input() lowInk: boolean = false;
-  @Input() cache: boolean = true;
+  @Input() cache: boolean = false;
   initialWidth: number = 0;
   initialHeight: number = 0;
   assetUrls: any;
@@ -57,12 +57,15 @@ export class CardPreviewComponent implements OnInit, AfterViewChecked {
   ngOnInit(): void {
     this.assetsService.getAssetUrls().subscribe(assetUrls => {
       this.assetUrls = assetUrls;
-      lastValueFrom(this.isLoadedSubject).then(() => GeneralUtils.delay(5000)).then(() => {
-        this.renderCacheService.getOrSet(this.getHash(), () => this.toImageUrl())
-        .subscribe((cachedImageUrl) => {
-            this.cachedImageUrl = cachedImageUrl
+      if (this.cache) {
+        lastValueFrom(this.isLoadedSubject).then(() => {
+          this.renderCacheService.getOrSet(this.getHash(), 
+            () => GeneralUtils.delay(5000).then(() => this.toImageUrl()))
+          .subscribe((cachedImageUrl) => {
+              this.cachedImageUrl = cachedImageUrl
+          });
         });
-      });
+      }
     });
   }
 

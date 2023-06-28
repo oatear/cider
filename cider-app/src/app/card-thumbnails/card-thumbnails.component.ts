@@ -23,7 +23,8 @@ export class CardThumbnailsComponent implements OnInit {
     { label: 'Fronts', value: 'fronts' },
     { label: 'Backs', value: 'backs' },
     { label: 'Both', value: 'both' }
-  ]
+  ];
+  cacheCards: boolean = false;
 
 
   constructor(public cardsService: CardsService,
@@ -38,6 +39,9 @@ export class CardThumbnailsComponent implements OnInit {
         }
       });
       this.thumbnailCards = expandedList;
+      if (expandedList.length >= 100) {
+        this.cacheCards = true;
+      }
     });
   }
 
