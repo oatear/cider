@@ -17,7 +17,7 @@ import GeneralUtils from '../shared/utils/general-utils';
   templateUrl: './export-cards.component.html',
   styleUrls: ['./export-cards.component.scss']
 })
-export class ExportCardsComponent implements OnInit, AfterViewChecked {
+export class ExportCardsComponent implements OnInit {
   private static readonly SINGULAR_EXPORT = 'singular-export';
   private static readonly SHEET_EXPORT = 'sheet-export';
   private static readonly PDF_DPI = 72;
@@ -81,10 +81,6 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
         this.updateExpandedCards();
         this.updateSlices();
       });
-  }
-
-  ngAfterViewChecked(): void {
-    // console.log('ngAfterViewChecked');
   }
 
   ngOnInit(): void {
@@ -179,23 +175,19 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
           this.sheet = sheet;
           this.showFront = showFront;
           this.showBack = !showFront;
-          console.log('set sheet', sheetIndex, showFront);
           this.loadingInfo = 'Rendering sheet ' + sheetIndex + ' ' 
             + (showFront ? 'front' : 'back') + ' card images...';
           await GeneralUtils.delay(5000);
           const promisedCards$ = this.cardSheetCards.map(card => lastValueFrom(card.isLoaded()));
           await Promise.all(promisedCards$);
           
-          console.log('generating sheet', sheetIndex, showFront);
           this.loadingInfo = 'Generating sheet ' + sheetIndex + ' ' 
             + (showFront ? 'front' : 'back') + ' image...';
           const cardSheet = this.cardSheets.first;
-          console.log('card sheet', sheetIndex, showFront, this.cardSheets);
           const imgUri = await limit(() => htmlToImage.toPng((<any>cardSheet).nativeElement, 
             {pixelRatio: this.pixelRatio}));
           const imgName = 'sheet-' + (showFront ? 'front-' : 'back-')
             + sheetIndex + '.png';
-            console.log('sheet image', sheetIndex, showFront, imgName);
           const sheetImage = this.dataUrlToFile(imgUri, imgName);
           this.loadingPercent += 100.0/(this.slicedCards.length * 2 + 1);
           return sheetImage;
