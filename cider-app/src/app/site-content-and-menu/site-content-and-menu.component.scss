@@ -22,7 +22,14 @@
         max-height: calc(100vh - 58px - 58px);
         max-height: calc(var(--vh, 1vh) * 100 - 58px - 58px);
         overflow: auto;
+        scrollbar-gutter: stable;
     }
+}
+
+:host ::ng-deep .page-card, 
+:host ::ng-deep .page-card.header-card {
+    margin: 25px;
+    margin-right: 10px;
 }
 
 /**

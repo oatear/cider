@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CardTemplatesService } from '../data-services/services/card-templates.service';
 import { CardsService } from '../data-services/services/cards.service';
 import { CardTemplate } from '../data-services/types/card-template.type';
@@ -10,6 +10,7 @@ import { Card } from '../data-services/types/card.type';
   styleUrls: ['./card-thumbnails.component.scss']
 })
 export class CardThumbnailsComponent implements OnInit {
+  @ViewChild('dv') dv!: DataView;
   thumbnailCards: Card[] = [];
   zoomLevel: number = 0.3;
   zoomOptions: any[] = [
@@ -24,7 +25,7 @@ export class CardThumbnailsComponent implements OnInit {
     { label: 'Backs', value: 'backs' },
     { label: 'Both', value: 'both' }
   ];
-  cacheCards: boolean = false;
+  filterFields: string = "";
 
 
   constructor(public cardsService: CardsService,
@@ -39,10 +40,14 @@ export class CardThumbnailsComponent implements OnInit {
         }
       });
       this.thumbnailCards = expandedList;
-      if (expandedList.length >= 100) {
-        this.cacheCards = true;
-      }
     });
+    this.cardsService.getFields().then(fields => {
+      this.filterFields = fields.map(field => field.field).join(',');
+    });
+  }
+
+  filter(input: any) {
+    (this.dv as any).filter(input.target.value, 'contains');
   }
 
 }

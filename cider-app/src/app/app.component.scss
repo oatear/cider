@@ -65,6 +65,7 @@
 /* Track */
 :host ::ng-deep ::-webkit-scrollbar-track {
     background: #2b313d;
+    background: transparent;
     //border-radius: 10px;
 }
 /* Handle */

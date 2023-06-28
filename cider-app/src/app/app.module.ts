@@ -36,6 +36,7 @@ import { TabMenuModule } from 'primeng/tabmenu';
 import { ChipsModule } from 'primeng/chips';
 import { DividerModule } from 'primeng/divider';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { DataViewModule } from 'primeng/dataview';
 
 import { MonacoEditorModule } from '@materia-ui/ngx-monaco-editor';
 
@@ -114,7 +115,8 @@ import { CardToHtmlPipe } from './shared/pipes/template-to-html.pipe';
     TabMenuModule,
     ChipsModule,
     DividerModule,
-    MultiSelectModule
+    MultiSelectModule,
+    DataViewModule
   ],
   providers: [CardToHtmlPipe],
   bootstrap: [AppComponent]
