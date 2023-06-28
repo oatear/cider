@@ -3,6 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { NgxMoveableModule } from 'ngx-moveable';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -58,6 +59,7 @@ import { PageHeaderComponent } from './page-header/page-header.component';
 import { WelcomeComponent } from './welcome/welcome.component';
 import { ExportSelectionDialogComponent } from './export-selection-dialog/export-selection-dialog.component';
 import { CardToHtmlPipe } from './shared/pipes/template-to-html.pipe';
+import { GraphicalTemplateEditorComponent } from './graphical-template-editor/graphical-template-editor.component';
 
 @NgModule({
   declarations: [
@@ -79,7 +81,8 @@ import { CardToHtmlPipe } from './shared/pipes/template-to-html.pipe';
     CardThumbnailsComponent,
     PageHeaderComponent,
     WelcomeComponent,
-    ExportSelectionDialogComponent
+    ExportSelectionDialogComponent,
+    GraphicalTemplateEditorComponent
   ],
   imports: [
     BrowserModule,
@@ -116,7 +119,8 @@ import { CardToHtmlPipe } from './shared/pipes/template-to-html.pipe';
     ChipsModule,
     DividerModule,
     MultiSelectModule,
-    DataViewModule
+    DataViewModule,
+    NgxMoveableModule
   ],
   providers: [CardToHtmlPipe],
   bootstrap: [AppComponent]

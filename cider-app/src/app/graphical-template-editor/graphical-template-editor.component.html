@@ -1,0 +1,37 @@
+<div class="graphical-template-editor">
+    <div class="editor-controls">
+        <button pButton pRipple label="New Element" icon="pi pi-plus" class="p-button" (click)="createNewElement()"></button>
+    </div>
+    <div class="editor-content">
+        <div #cardRef class="card editor-card" [style.width.px]="card.width" [style.height.px]="card.height"
+            [style.left.px]="card.left" [style.top.px]="card.top" [style.background]="'#343e4d'"
+            [ngStyle]="{ 'margin': '10px', 'position': 'relative'}">
+            <ng-container *ngFor="let element of elements">
+                <div #elementRef [class]="'element ' + element.className" [style.background]="'#434f61'"
+                    [style.width.px]="element.width" [style.height.px]="element.height"
+                    [style.left.px]="element.left" [style.top.px]="element.top"
+                    (click)="setTarget($event)" (blur)="resetTarget()"
+                    [ngStyle]="{ 'position': 'absolute'}"></div>
+            </ng-container>
+        </div>
+    </div>
+    <ngx-moveable
+        #moveableRef
+        [target]="target"
+        [draggable]="true"
+        [resizable]="true"
+        [rotatable]="true"
+        [snapRotationDegress]="[0, 90, 180, 270]"
+        [snappable]="true"
+        [snapDirections]="({ top: true, left: true, bottom: true, right: true, center: true, middle: true })"
+        [elementSnapDirections]="({ top: true, left: true, bottom: true, right: true, center: true, middle: true })"
+        [maxSnapElementGuidelineDistance]="70"
+        [elementGuidelines]="elementGuidelines"
+        [snapContainer]="'.editor-card'"
+        [bounds]="{position: 'css', left: 0, right: 0, top: 0, bottom: 0}"
+        [individualGroupable]="true"
+        (drag)="onDrag($event)"
+        (resize)="onResize($event)"
+        (rotate)="onRotate($event)"
+    ></ngx-moveable>
+</div>

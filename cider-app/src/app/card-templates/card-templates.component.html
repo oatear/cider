@@ -9,6 +9,8 @@
                 <button pButton pRipple label="New" icon="pi pi-plus" class="p-button" (click)="openCreateNew()"></button>
             </ng-template>
             <ng-template pTemplate="right">
+                <p-selectButton [options]="editorTypeOptions" [(ngModel)]="graphicalEditor" 
+                    optionLabel="label" optionValue="value" class="p-mr-2"></p-selectButton>
                 <button pButton pRipple label="Delete" icon="pi pi-trash" class="p-button-danger" (click)="openDeleteDialog(selectedTemplate)"></button>
             </ng-template>
         </p-toolbar>
@@ -35,7 +37,10 @@
             </div>
         </ng-template>
         <ng-template pTemplate>
-            <div class="right-panel p-col p-flex p-align-items-center p-justify-content-center">
+            <div *ngIf="graphicalEditor" class="right-panel p-col p-flex p-align-items-center p-justify-content-center">
+                <app-graphical-template-editor></app-graphical-template-editor>
+            </div>
+            <div *ngIf="!graphicalEditor" class="right-panel p-col p-flex p-align-items-center p-justify-content-center">
                 <div class="top-panel">
                     <p-panel style="height: 100%; width: 100%;" header="CSS">
                         <ng-template pTemplate="icons">
