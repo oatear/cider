@@ -24,7 +24,7 @@
                                     <div #cardSheets class="preview-sheet">
                                         <ng-container *ngFor="let card of sheet;">
                                             <div class="card-wrapper" [style.margin.px]="cardMargins * paperDpi">
-                                                <app-card-preview #cardSheetCards [card]="card" [lowInk]="lowInk" [cache]="true"
+                                                <app-card-preview #cardSheetCards [card]="card" [lowInk]="lowInk" [cache]="renderCache"
                                                     [template]="card.frontCardTemplateId | entity: templatesService | async"></app-card-preview>
                                             </div>
                                         </ng-container>
@@ -45,7 +45,7 @@
                                         <ng-container *ngFor="let card of sheet;">
                                             <div class="card-wrapper" [style.margin.px]="cardMargins * paperDpi" 
                                                 [style.transform]="mirrorBacksY || mirrorBacksX ? 'scaleX(-1) ' : ''">
-                                                <app-card-preview #cardSheetCards [card]="card" [lowInk]="lowInk" [cache]="true"
+                                                <app-card-preview #cardSheetCards [card]="card" [lowInk]="lowInk" [cache]="renderCache"
                                                     [template]="card.backCardTemplateId | entity: templatesService | async"></app-card-preview>
                                             </div>
                                         </ng-container>
@@ -64,7 +64,7 @@
                                 [style.margin.px]="50 * scale">
                                 <div class="card-wrapper"
                                     [style.transform]="'scale(' + scale + ')'">
-                                    <app-card-preview #frontCards [card]="card" [cache]="true"
+                                    <app-card-preview #frontCards [card]="card" [cache]="renderCache"
                                         [template]="card.frontCardTemplateId | entity: templatesService | async"></app-card-preview>
                                 </div>
                             </div>
@@ -74,7 +74,7 @@
                                 [style.margin.px]="50 * scale">
                                 <div class="card-wrapper"
                                     [style.transform]="'scale(' + scale + ')'">
-                                    <app-card-preview #backCards [card]="card" [cache]="true"
+                                    <app-card-preview #backCards [card]="card" [cache]="renderCache"
                                         [template]="card.backCardTemplateId | entity: templatesService | async"></app-card-preview>
                                 </div>
                             </div>
