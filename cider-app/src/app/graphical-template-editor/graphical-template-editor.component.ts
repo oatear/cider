@@ -1,4 +1,6 @@
-import { Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { Component, ElementRef, HostListener, Input, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { CardTemplate } from '../data-services/types/card-template.type';
+import { MoveableManagerInterface, Renderer } from 'ngx-moveable';
 
 @Component({
   selector: 'app-graphical-template-editor',
@@ -9,22 +11,73 @@ export class GraphicalTemplateEditorComponent implements OnInit {
   
   @ViewChildren('elementRef') elementRefs: QueryList<ElementRef> = {} as QueryList<ElementRef>;
   @ViewChildren('cardRef') cardRefs: QueryList<ElementRef> = {} as QueryList<ElementRef>;
+  @Input() template: CardTemplate = {} as CardTemplate;
   card: Element;
   elements: Element[] = [];
   target: any;
   elementGuidelines: any[] = [];
+  scale: number = 0.3;
+  keepRatio: boolean = false;
+
+  readonly DimensionViewable = {
+    name: "dimensionViewable",
+    props: [],
+    events: [],
+    render(moveable: MoveableManagerInterface<any, any>, React: Renderer) {
+        const rect = moveable.getRect();
+        return React.createElement("div", {
+            key: "dimension-viewer",
+            className: "moveable-dimension",
+            style: {
+                position: "absolute",
+                left: `${rect.width / 2}px`,
+                top: `${rect.height + 20}px`,
+                background: "#4af",
+                borderRadius: "2px",
+                padding: "2px 4px",
+                color: "white",
+                fontSize: "13px",
+                whiteSpace: "nowrap",
+                fontWeight: "bold",
+                willChange: "transform",
+                transform: `translate(-50%, 0px)`
+            }
+        }, [
+            "\n            ",
+            Math.round(rect.offsetWidth),
+            " x ",
+            Math.round(rect.offsetHeight),
+            "\n        "
+        ]);
+    }
+  } as const;
 
   constructor() {
     this.card = {
       className: 'card',
       top: 0,
       left: 0,
-      width: 300,
-      height: 400
+      width: 825,
+      height: 1125
     };
   }
 
   ngOnInit(): void {
+
+  }
+
+  explodeTemplate() {
+  }
+
+  toHtml() {
+    console.log('to html', this.card, this.elements, this.template?.html);
+  }
+
+  changeScale(change: number) {
+    this.scale *= change;
+    if (this.scale < 0.13) {
+      this.scale = Math.pow(0.6, 4);
+    }
   }
 
   createNewElement() {
@@ -32,9 +85,25 @@ export class GraphicalTemplateEditorComponent implements OnInit {
       className: 'element-' + this.elements.length,
       top: 0,
       left: 0,
-      width: 100,
-      height: 100
+      width: 300,
+      height: 300
     });
+  }
+
+  @HostListener("window:keydown", ['$event'])
+  onKeyDown(event:KeyboardEvent) {
+    if (event.key === 'Shift') {
+      this.keepRatio = true;
+    }
+    // console.log(`Keydown ${event.key}`);
+  }
+
+  @HostListener("window:keyup", ['$event'])
+  onKeyUp(event:KeyboardEvent) {
+    if (event.key === 'Shift') {
+      this.keepRatio = false;
+    }
+    // console.log(`Keyup ${event.key}`);
   }
 
   setTarget(e: any) {
@@ -61,12 +130,12 @@ export class GraphicalTemplateEditorComponent implements OnInit {
   }
 
   onDrag(e: any) {
-    e.target.style.transform = e.transform;
+    // e.target.style.transform = e.transform;
+    e.target.style.left = e.left + 'px';
+    e.target.style.top = e.top + 'px';
     // e.target.style.top = e.translate[1] + 'px';
     // e.target.style.left = e.translate[0] + 'px';
-    console.log('onDrag', e);
-    // this.elements[0].top = e.translate[1];
-    // this.elements[0].left = e.translate[0];
+    // console.log('onDrag', e);
   }
   onResize(e: any) {
     e.target.style.width = `${e.width}px`;

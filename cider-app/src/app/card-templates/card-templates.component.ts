@@ -97,9 +97,9 @@ export class CardTemplatesComponent implements OnInit {
   }
 
   public changeZoom(change: number) {
-    this.zoom += change;
-    if (this.zoom < 0.1) {
-      this.zoom = 0.1;
+    this.zoom *= change;
+    if (this.zoom < 0.13) {
+      this.zoom = Math.pow(0.6, 4);
     }
   }
 
