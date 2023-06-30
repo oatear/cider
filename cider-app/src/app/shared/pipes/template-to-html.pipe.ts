@@ -32,23 +32,27 @@ export class CardToHtmlPipe implements PipeTransform {
       return array[StringUtils.toKebabCase(value)];
     });
 
-    /**
-     * {{compileImages card.description width=100}}
-     * 
-     * card.description: 'Convert two {{apple}} into one {{chip}}'
-     * card.description: 'Convert {{apple 2}} into {{chip}}'
-     */
-    Handlebars.registerHelper('compileImages', function(value, options) {
+    const compile = function(value: any, options: any): any {
       if (!value) {
         return value;
       }
       return new Handlebars.SafeString(value.replace(/[{][{]([^} ]*)( [0-9]+)?[}][}]/g, 
-        (match: boolean, p1: string, p2: string) => {
-          const image = `<img src="${options.data.root.assets[p1]}" ${options.hash['width'] ? 'width=' + options.hash['width'] : ''}/>`;
-          const multiplier = parseInt(p2);
-          return multiplier ? image.repeat(multiplier) : image;
+        (match: boolean, asset: string, count: string) => {
+          const image = `<img src="${options.data.root.assets[asset]}" ${options.hash['width'] ? 'width=' + options.hash['width'] : ''}/>`;
+          const multiplier = parseInt(count);
+          return !options.data.root.assets[asset] ? '' : multiplier ? image.repeat(multiplier) : image;
         }));
-    });
+    }
+
+    /**
+     * {{compileImages card.description width=100}}
+     * {{compile card.description width=100}}
+     * 
+     * card.description: 'Convert two {{apple}} into one {{chip}}'
+     * card.description: 'Convert {{apple 2}} into {{chip}}'
+     */
+    Handlebars.registerHelper('compileImages', compile);
+    Handlebars.registerHelper('compile', compile);
     
     /***********************************
      * Control Helpers
