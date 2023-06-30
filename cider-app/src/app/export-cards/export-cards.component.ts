@@ -218,7 +218,7 @@ export class ExportCardsComponent implements OnInit {
       return await hardLimit(async () => {
         this.sheet = sheet;
         this.loadingInfo = 'Rendering sheet ' + sheetIndex + ' card images...';
-        await GeneralUtils.delay(3000);
+        await GeneralUtils.delay(10000);
         const promisedCards$ = this.cardSheetCards.map(card => lastValueFrom(card.isLoaded()));
         await Promise.all(promisedCards$);
 
