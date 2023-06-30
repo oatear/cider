@@ -65,6 +65,10 @@
         display: flex;
         align-items: center;
         padding: 0.5rem 0.75rem;
+        &.textarea {
+            padding-top: 7px;
+            padding-bottom: calc(0.5rem - 2px);
+        }
     }
 }
 
