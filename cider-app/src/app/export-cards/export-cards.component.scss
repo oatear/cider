@@ -15,9 +15,13 @@
     }
 }
 
-:host ::ng-deep app-page-header .p-card {
+:host ::ng-deep app-page-header p-card .p-card.page-card.header-card {
     margin: 0;
     margin-bottom: 25px;
+}
+
+:host ::ng-deep p-card .p-card.page-card.p-component {
+    margin: 0;
 }
 
 $preview-sheets-scale: 0.08;

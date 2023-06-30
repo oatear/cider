@@ -69,13 +69,6 @@ export class CardPreviewComponent implements OnInit, AfterViewChecked {
     });
   }
 
-  getSanitizedCachedImageUrl(): SafeUrl {
-    if (!this.cachedImageUrl) {
-      return this.sanitizer.bypassSecurityTrustUrl('');
-    }
-    return this.sanitizer.bypassSecurityTrustUrl(this.cachedImageUrl);
-  }
-
   public getHash(): number {
     const html = this.cardToHtmlPipe.transform(this.template, this.card, this.assetUrls);
     return this.renderCacheService.calculateHash((html as any).changingThisBreaksApplicationSecurity);
