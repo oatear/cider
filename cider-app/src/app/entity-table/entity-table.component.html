@@ -155,7 +155,8 @@
                                     (ngModelChange)="debounceSave(rowData)"></textarea>
                                 </ng-template>
                                 <ng-template pTemplate="output">
-                                    <textarea pInputTextarea [(ngModel)]="rowData[col.field]" [rows]="1" [cols]="12" [autoResize]="true" [disabled]="true"></textarea>
+                                    <!-- <textarea pInputTextarea [(ngModel)]="rowData[col.field]" [rows]="1" [cols]="12" [autoResize]="true" [disabled]="true"></textarea> -->
+                                    <div class="base textarea">{{rowData[col.field]}}</div>
                                 </ng-template>
                             </p-cellEditor>
                         </td>
