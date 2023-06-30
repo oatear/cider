@@ -9,19 +9,26 @@
     </div>
     <div class="editor-content">
         <div class="scale-wrapper"
-            [style.width.px]="card.width * scale" [style.height.px]="card.height * scale">
-            <div class="card-preview" [style.transform]="'scale(' + scale + ')'">
-                <div #cardRef class="card editor-card" [style.width.px]="card.width" [style.height.px]="card.height"
-                    [style.left.px]="card.left" [style.top.px]="card.top" [style.background]="'#343e4d'"
-                    [ngStyle]="{ 'margin': '10px', 'position': 'relative'}">
+            [style.width.px]="cardElement.width * scale" [style.height.px]="cardElement.height * scale">
+            <!-- <div class="card-preview" [style.transform]="'scale(' + scale + ')'">
+                <div #cardRef class="card editor-card" [style.width.px]="cardElement.width" [style.height.px]="cardElement.height"
+                    [style.left.px]="cardElement.left" [style.top.px]="cardElement.top" [style.background]="'#343e4d'"
+                    [ngStyle]="{ 'margin': '10px', 'position': 'relative'}"
+                    [innerHtml]="template | cardToHtml: card: assetUrls: ''">
                     <ng-container *ngFor="let element of elements">
                         <div #elementRef [class]="'element ' + element.className" [style.background]="'#434f61'"
                             [style.width.px]="element.width" [style.height.px]="element.height"
                             [style.left.px]="element.left" [style.top.px]="element.top"
-                            (click)="setTarget($event)" (blur)="resetTarget()"
                             [ngStyle]="{ 'position': 'absolute'}"></div>
                     </ng-container>
                 </div>
+            </div> -->
+            <div [style.transform]="'scale(' + scale + ')'"
+                class="card-preview card-{{uuid}}" >
+                <!-- <div #cardRef class="card-element" 
+                    [innerHtml]="editTemplate | cardToHtml: editCard: assetUrls: uuid" ></div> -->
+                <div #cardRef class="card-element editor-card" 
+                    [innerHtml]="cardHtml" ></div>
             </div>
         </div>
     </div>
@@ -45,6 +52,7 @@
         [ables]="[DimensionViewable]"
         [props]="({ dimensionViewable: false })"
         (drag)="onDrag($event)"
+        (dragStart)="onDragStart($event)"
         (resize)="onResize($event)"
         (rotate)="onRotate($event)"
     ></ngx-moveable>

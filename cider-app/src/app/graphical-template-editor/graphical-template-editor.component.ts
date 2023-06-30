@@ -1,23 +1,31 @@
-import { Component, ElementRef, HostListener, Input, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { Component, ElementRef, HostListener, Input, OnChanges, OnInit, QueryList, SimpleChanges, ViewChildren } from '@angular/core';
 import { CardTemplate } from '../data-services/types/card-template.type';
 import { MoveableManagerInterface, Renderer } from 'ngx-moveable';
+import { Card } from '../data-services/types/card.type';
+import { AssetsService } from '../data-services/services/assets.service';
+import { CardToHtmlPipe } from '../shared/pipes/template-to-html.pipe';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-graphical-template-editor',
   templateUrl: './graphical-template-editor.component.html',
   styleUrls: ['./graphical-template-editor.component.scss']
 })
-export class GraphicalTemplateEditorComponent implements OnInit {
+export class GraphicalTemplateEditorComponent implements OnInit, OnChanges {
   
   @ViewChildren('elementRef') elementRefs: QueryList<ElementRef> = {} as QueryList<ElementRef>;
   @ViewChildren('cardRef') cardRefs: QueryList<ElementRef> = {} as QueryList<ElementRef>;
   @Input() template: CardTemplate = {} as CardTemplate;
-  card: Element;
+  @Input() card: Card = {} as Card;
+  assetUrls: any;
+  cardElement: Element;
   elements: Element[] = [];
   target: any;
   elementGuidelines: any[] = [];
   scale: number = 0.3;
   keepRatio: boolean = false;
+  uuid: string = '0';
+  cardHtml?: SafeHtml;
 
   readonly DimensionViewable = {
     name: "dimensionViewable",
@@ -52,8 +60,11 @@ export class GraphicalTemplateEditorComponent implements OnInit {
     }
   } as const;
 
-  constructor() {
-    this.card = {
+  constructor(
+    private assetsService: AssetsService,
+    private cardToHtmlPipe: CardToHtmlPipe,
+    private sanitizer: DomSanitizer) {
+    this.cardElement = {
       className: 'card',
       top: 0,
       left: 0,
@@ -63,10 +74,15 @@ export class GraphicalTemplateEditorComponent implements OnInit {
   }
 
   ngOnInit(): void {
-
+    this.assetsService.getAssetUrls().subscribe(assetUrls => {
+      this.assetUrls = assetUrls;
+    });
   }
 
-  explodeTemplate() {
+  ngOnChanges(changes: SimpleChanges): void {
+    const html = this.cardToHtmlPipe.transform(this.template, this.card, this.assetUrls, this.uuid);
+    this.cardHtml = html;
+    console.log('onChange', this.template, this.card);
   }
 
   toHtml() {
@@ -91,7 +107,7 @@ export class GraphicalTemplateEditorComponent implements OnInit {
   }
 
   @HostListener("window:keydown", ['$event'])
-  onKeyDown(event:KeyboardEvent) {
+  onKeyDown(event: KeyboardEvent) {
     if (event.key === 'Shift') {
       this.keepRatio = true;
     }
@@ -99,15 +115,29 @@ export class GraphicalTemplateEditorComponent implements OnInit {
   }
 
   @HostListener("window:keyup", ['$event'])
-  onKeyUp(event:KeyboardEvent) {
+  onKeyUp(event: KeyboardEvent) {
     if (event.key === 'Shift') {
       this.keepRatio = false;
     }
     // console.log(`Keyup ${event.key}`);
   }
 
+  @HostListener('click', ['$event'])
+  onClick(event: PointerEvent) {
+    // console.log('click', event, (event.target as any).className);
+    const cardRef = this.cardRefs.first.nativeElement;
+    const className: string = (event.target as any).className;
+    if (className.includes('editor-card')) {
+      return;
+    } else if (!cardRef.contains(event.target)) {
+      this.resetTarget();
+      return;
+    }
+    this.setTarget(event);
+  }
+
   setTarget(e: any) {
-    console.log('setTarget', e);
+    // console.log('setTarget', e.target);
     if (this.target === e.target) {
       this.resetTarget();
       return;
@@ -115,12 +145,21 @@ export class GraphicalTemplateEditorComponent implements OnInit {
     var selectedElement = e.target;
     this.target = selectedElement;
     var elementGuidelines: any[] = [this.cardRefs?.first?.nativeElement];
-    this.elementRefs.forEach(element => {
-      if (element.nativeElement != selectedElement) {
-        elementGuidelines.push(element.nativeElement);
-      }
-    });
-    console.log('elementGuidelines:', elementGuidelines, selectedElement, this.cardRefs?.first);
+    const siblings: HTMLCollection = this.target.parentNode.children;
+    for (var i = 0; i < siblings.length; i++) {
+      elementGuidelines.push(siblings.item(i));
+    }
+    // console.log('siblings', siblings);
+    // siblings.forEach((element: any) => {
+    //   elementGuidelines.push(element);
+    // });
+    // this.elementRefs.forEach(element => {
+    //   if (element.nativeElement != selectedElement) {
+    //     elementGuidelines.push(element.nativeElement);
+    //   }
+    // });
+    // console.log('elementGuidelines:', elementGuidelines, selectedElement, this.cardRefs?.first);
+    console.log('target:', this.target, elementGuidelines);
     this.elementGuidelines = elementGuidelines;
   }
 
@@ -129,6 +168,10 @@ export class GraphicalTemplateEditorComponent implements OnInit {
     this.target = undefined;
   }
 
+  onDragStart(e: any) {
+    console.log('drag start', e);
+    e.target.style.position = 'absolute';
+  }
   onDrag(e: any) {
     // e.target.style.transform = e.transform;
     e.target.style.left = e.left + 'px';

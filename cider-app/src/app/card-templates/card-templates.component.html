@@ -39,7 +39,7 @@
         <ng-template pTemplate>
             <div *ngIf="graphicalEditor" class="right-panel p-col p-flex p-align-items-center p-justify-content-center">
                 <app-graphical-template-editor
-                    [template]="selectedTemplate"></app-graphical-template-editor>
+                    [template]="selectedTemplate" [card]="selectedCard"></app-graphical-template-editor>
             </div>
             <div *ngIf="!graphicalEditor" class="right-panel p-col p-flex p-align-items-center p-justify-content-center">
                 <div class="top-panel">

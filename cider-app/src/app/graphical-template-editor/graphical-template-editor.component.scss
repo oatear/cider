@@ -4,5 +4,16 @@
         width: fit-content;
         height: fit-content;
         transform-origin: 0 0;
+        .card-element {
+            width: fit-content;
+            height: fit-content;
+        }
+    }
+}
+
+.graphical-template-editor {
+    margin: 15px;
+    .editor-controls {
+        margin-bottom: 15px;
     }
 }
