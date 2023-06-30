@@ -3,7 +3,7 @@
     [style.height]="scale !== 1.0 && initialHeight ? initialHeight * scale + 'px': 'initial'">
     <div *ngIf="cache && cachedImageUrl" class="card-preview" [style.transform]="'scale(' + scale + ')'">
         <div class="image-placeholder" [style.width.px]="initialWidth" [style.height.px]="initialHeight">
-            <img [src]="getSanitizedCachedImageUrl()">
+            <img [src]="cachedImageUrl | safeUrl">
         </div>
     </div>
     <div *ngIf="!(cache && cachedImageUrl)" [style.transform]="'scale(' + scale + ')'"
