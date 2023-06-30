@@ -39,11 +39,13 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
   importVisible: boolean = false;
   importFile: File | undefined = undefined;
   saveSubject: Subject<Entity> = new Subject();
+  optionsCache: Map<EntityService<any, string | number>, any[]>;
 
   constructor(private messageService: MessageService, 
     private confirmationService: ConfirmationService) {
       this.saveSubject.asObservable().pipe(debounceTime(1000))
-      .subscribe((entity) => this.save(entity));
+        .subscribe((entity) => this.save(entity));
+      this.optionsCache = new Map<EntityService<any, string | number>, any[]>();
   }
 
   ngOnInit(): void {

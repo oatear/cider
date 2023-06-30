@@ -66,6 +66,7 @@ export class ExportCardsComponent implements OnInit {
   public maxTtsPixels: number = 4096;
   public scale: number = 0.1;
   public exportSelectionDialogVisible: boolean = false;
+  renderCache: boolean = false;
   zoomOptions: any[] = [
     { label: 's', value: 0.05 },
     { label: 'm', value: 0.1 },
@@ -166,6 +167,7 @@ export class ExportCardsComponent implements OnInit {
   private async exportCardSheetsAsImages() {
     this.displayLoading = true;
     this.loadingPercent = 0;
+    this.renderCache = true;
     const hardLimit = pLimit(1);
     const limit = pLimit(3);
 
@@ -202,11 +204,13 @@ export class ExportCardsComponent implements OnInit {
     FileUtils.saveAs(zippedImages, 'cards.zip');
     this.loadingPercent = 100;
     this.displayLoading = false
+    this.renderCache = false;
   }
 
   private async exportCardSheets() {
     this.displayLoading = true;
     this.loadingPercent = 0;
+    this.renderCache = true;
     const limit = pLimit(3);
     const hardLimit = pLimit(1);
 
@@ -254,6 +258,7 @@ export class ExportCardsComponent implements OnInit {
       FileUtils.saveAs(blob, 'card-sheets.pdf');
       this.loadingPercent = 100;
       this.displayLoading = false
+      this.renderCache = false;
     }, {progressCallback: (progress) => {
       this.loadingPercent = progress * 100;
     }});
@@ -262,6 +267,7 @@ export class ExportCardsComponent implements OnInit {
   private async exportIndividualImages() {
     this.displayLoading = true;
     this.loadingPercent = 0;
+    this.renderCache = true;
     this.loadingInfo = 'Generating card images...';
     const limit = pLimit(3);
     const frontCards$ = this.frontCards.map(async cardPreview => {
@@ -297,6 +303,7 @@ export class ExportCardsComponent implements OnInit {
       .then(() => {
         this.loadingPercent = 100;
         this.displayLoading = false
+        this.renderCache = false;
       });
   }
 

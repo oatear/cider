@@ -44,7 +44,7 @@
                         <th [class]="col.type">
                             <p-columnFilter [field]="col.field" matchMode="in" [showMenu]="false">
                                 <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-                                    <p-multiSelect [ngModel]="value" [options]="(col.service | entityList | async) || []" placeholder="" 
+                                    <p-multiSelect [ngModel]="value" [options]="(col.service | entityListCached: optionsCache | async) || []" placeholder="" 
                                         (onChange)="filter($event.value)" optionLabel="name" [optionValue]="col.service.getIdField()"
                                         appendTo="body">
                                     </p-multiSelect>
@@ -94,7 +94,7 @@
                         <td *ngIf="allowEditing && showInlineEditor" [pEditableColumn]="rowData[col.field]" [pEditableColumnField]="col.field" [class]="col.type">
                             <p-cellEditor>
                                 <ng-template pTemplate="input">
-                                    <p-dropdown [options]="(col.service | entityList | async) || []" [(ngModel)]="rowData[col.field]" 
+                                    <p-dropdown [options]="(col.service | entityListCached: optionsCache | async) || []" [(ngModel)]="rowData[col.field]" 
                                         [id]="col.field" optionLabel="name" [optionValue]="col.service.getIdField()"
                                         appendTo="body" (ngModelChange)="debounceSave(rowData)"></p-dropdown>
                                 </ng-template>
@@ -155,7 +155,8 @@
                                     (ngModelChange)="debounceSave(rowData)"></textarea>
                                 </ng-template>
                                 <ng-template pTemplate="output">
-                                    <textarea pInputTextarea [(ngModel)]="rowData[col.field]" [rows]="1" [cols]="12" [autoResize]="true" [disabled]="true"></textarea>
+                                    <!-- <textarea pInputTextarea [(ngModel)]="rowData[col.field]" [rows]="1" [cols]="12" [autoResize]="true" [disabled]="true"></textarea> -->
+                                    <div class="base textarea">{{rowData[col.field]}}</div>
                                 </ng-template>
                             </p-cellEditor>
                         </td>
