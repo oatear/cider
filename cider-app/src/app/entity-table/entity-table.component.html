@@ -1,6 +1,6 @@
 <p-toast></p-toast>
 <p-table #dt [columns]="columns" [value]="records" responsiveLayout="scroll"
-        [selectionMode]="selectionMode || 'none'" [(selection)]="selection" 
+        [selectionMode]="selectionMode" [(selection)]="selection" 
         (selectionChange)="selectionChange.emit($event)" [dataKey]="idField || ''"
         (onLazyLoad)="loadData($event)" [lazy]="lazy" [scrollable]="true" 
         [totalRecords]="total" [loading]="loading" styleClass="p-datatable-sm">
