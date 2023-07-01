@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate, RouterStateSnapshot, UrlTree } from '@angular/router';
+import { ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { Observable } from 'rxjs';
 import { DecksService } from './data-services/services/decks.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class DeckGuard implements CanActivate {
+export class DeckGuard  {
   constructor(private decksService: DecksService) {
   }
 

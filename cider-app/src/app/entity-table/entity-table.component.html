@@ -1,6 +1,6 @@
 <p-toast></p-toast>
 <p-table #dt [columns]="columns" [value]="records" responsiveLayout="scroll"
-        [selectionMode]="selectionMode || 'none'" [(selection)]="selection" 
+        [selectionMode]="selectionMode" [(selection)]="selection" 
         (selectionChange)="selectionChange.emit($event)" [dataKey]="idField || ''"
         (onLazyLoad)="loadData($event)" [lazy]="lazy" [scrollable]="true" 
         [totalRecords]="total" [loading]="loading" styleClass="p-datatable-sm">
@@ -26,6 +26,8 @@
         <tr>
             <th *ngIf="selectionMode === 'multiple'" class="selection-col" pFrozenColumn>
                 <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+            </th>
+            <th *ngIf="selectionMode === 'single'" class="selection-col" pFrozenColumn>
             </th>
             <ng-container *ngFor="let col of columns">
                 <th *ngIf="!col.hidden" [pSortableColumn]="col.field" [pTooltip]="col.description"

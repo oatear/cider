@@ -108,5 +108,7 @@
       }
     }
   },
-  "defaultProject": "cider"
+  "cli": {
+    "analytics": false
+  }
 }

@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ConfirmationService, LazyLoadEvent, MessageService } from 'primeng/api';
-import { Table } from 'primeng/table';
+import { Table, TableLazyLoadEvent } from 'primeng/table';
 import { EntityField } from '../data-services/types/entity-field.type';
 import { EntityService } from '../data-services/types/entity-service.type';
 import { FieldType } from '../data-services/types/field-type.type';
@@ -20,7 +20,7 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
   @Input() columns: EntityField<Entity>[] = [];
   @Input() service: EntityService<Entity, Identifier> | undefined;
   @Input() selection: Entity | Entity[] | undefined;
-  @Input() selectionMode: string | undefined;
+  @Input() selectionMode: 'single' | 'multiple' | undefined;
   @Input() allowImportExport: boolean = false;
   @Input() allowEditing: boolean = true;
   @Input() showColumnFilters: boolean = true;
@@ -68,21 +68,23 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
    * 
    * @param event 
    */
-  public loadData(event: LazyLoadEvent) {
+  public loadData(event: TableLazyLoadEvent) {
     this.service?.search({
       offset: 0, 
       limit: 100,
-      sorting: !event.sortField ? undefined : [{
-        field: event.sortField,
-        direction: event.sortOrder !== undefined && event.sortOrder > 0 
+      sorting: !event.sortField  || (Array.isArray(event.sortField) && event.sortField.length <= 0) ? undefined : [{
+        field: Array.isArray(event.sortField) ? event.sortField[0] : event.sortField,
+        direction: event.sortOrder !== undefined && event.sortOrder !== null && event.sortOrder > 0 
           ? SortDirection.asc : SortDirection.desc
       }],
       filters: Object.entries(event.filters || {})
-        .filter(([key, value]) => value.value !== null && key !== 'global')
+        .filter(([key, value]) => key !== 'global' && value !== undefined 
+          && (Array.isArray(value) && value.length > 0 && value[0].value != null || !Array.isArray(value) &&value.value !== null))
         .map(([key, value]) => {
-          return {field: key, filter: value.value}
+          return {field: key, filter: Array.isArray(value) ? value[0].value : value?.value}
         }),
-      query: event.globalFilter
+      query: !event.globalFilter ? undefined : Array.isArray(event.globalFilter) 
+        ? (event.globalFilter.length > 0 ? event.globalFilter[0] : undefined) : event.globalFilter
     }).then(result => {
       this.total = result.total;
       this.records = result.records;
