@@ -43,7 +43,7 @@
             </div>
             <div *ngIf="!graphicalEditor" class="right-panel p-col p-flex p-align-items-center p-justify-content-center">
                 <div class="top-panel">
-                    <p-panel style="height: 100%; width: 100%;" header="CSS">
+                    <p-panel [style]="{height: '100%', width: '100%'}" header="CSS">
                         <ng-template pTemplate="icons">
                             <button pButton pRipple icon="pi pi-info-circle" class="p-panel-header-icon p-link" (click)="openCssInfo()"></button>
                         </ng-template>
@@ -52,7 +52,7 @@
                     </p-panel>
                 </div>
                 <div class="bottom-panel">
-                    <p-panel style="height: 100%; width: 100%;" header="HTML/Handlebars">
+                    <p-panel [style]="{height: '100%', width: '100%'}" header="HTML/Handlebars">
                         <ng-template pTemplate="icons">
                             <button pButton pRipple icon="pi pi-info-circle" class="p-panel-header-icon p-link" (click)="openHtmlInfo()"></button>
                         </ng-template>

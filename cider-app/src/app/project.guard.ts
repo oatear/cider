@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
+import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { firstValueFrom, Observable } from 'rxjs';
 import { ElectronService } from './data-services/electron/electron.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class ProjectGuard implements CanActivate {
+export class ProjectGuard  {
   projectHomeUrl$: Observable<string | undefined>;
   projectUnsaved$: Observable<boolean>;
 
