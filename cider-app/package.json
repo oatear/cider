@@ -38,7 +38,7 @@
     "@types/dom-to-image": "^2.6.4",
     "@types/uuid": "^9.0.2",
     "dexie": "^3.2.4",
-    "dexie-export-import": "^1.0.3",
+    "dexie-export-import": "^4.0.7",
     "file-saver": "^2.0.5",
     "handlebars": "^4.7.7",
     "html-to-image": "^1.11.11",
