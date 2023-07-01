@@ -11,55 +11,48 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+import { coalesce } from '../../../../base/common/arrays.js';
 import { CancellationToken } from '../../../../base/common/cancellation.js';
 import { onUnexpectedExternalError } from '../../../../base/common/errors.js';
 import { registerModelAndPositionCommand } from '../../../browser/editorExtensions.js';
-import { DeclarationProviderRegistry, DefinitionProviderRegistry, ImplementationProviderRegistry, ReferenceProviderRegistry, TypeDefinitionProviderRegistry } from '../../../common/languages.js';
+import { ILanguageFeaturesService } from '../../../common/services/languageFeatures.js';
 import { ReferencesModel } from './referencesModel.js';
 function getLocationLinks(model, position, registry, provide) {
-    const provider = registry.ordered(model);
-    // get results
-    const promises = provider.map((provider) => {
-        return Promise.resolve(provide(provider, model, position)).then(undefined, err => {
-            onUnexpectedExternalError(err);
-            return undefined;
+    return __awaiter(this, void 0, void 0, function* () {
+        const provider = registry.ordered(model);
+        // get results
+        const promises = provider.map((provider) => {
+            return Promise.resolve(provide(provider, model, position)).then(undefined, err => {
+                onUnexpectedExternalError(err);
+                return undefined;
+            });
         });
-    });
-    return Promise.all(promises).then(values => {
-        const result = [];
-        for (let value of values) {
-            if (Array.isArray(value)) {
-                result.push(...value);
-            }
-            else if (value) {
-                result.push(value);
-            }
-        }
-        return result;
+        const values = yield Promise.all(promises);
+        return coalesce(values.flat());
     });
 }
-export function getDefinitionsAtPosition(model, position, token) {
-    return getLocationLinks(model, position, DefinitionProviderRegistry, (provider, model, position) => {
+export function getDefinitionsAtPosition(registry, model, position, token) {
+    return getLocationLinks(model, position, registry, (provider, model, position) => {
         return provider.provideDefinition(model, position, token);
     });
 }
-export function getDeclarationsAtPosition(model, position, token) {
-    return getLocationLinks(model, position, DeclarationProviderRegistry, (provider, model, position) => {
+export function getDeclarationsAtPosition(registry, model, position, token) {
+    return getLocationLinks(model, position, registry, (provider, model, position) => {
         return provider.provideDeclaration(model, position, token);
     });
 }
-export function getImplementationsAtPosition(model, position, token) {
-    return getLocationLinks(model, position, ImplementationProviderRegistry, (provider, model, position) => {
+export function getImplementationsAtPosition(registry, model, position, token) {
+    return getLocationLinks(model, position, registry, (provider, model, position) => {
         return provider.provideImplementation(model, position, token);
     });
 }
-export function getTypeDefinitionsAtPosition(model, position, token) {
-    return getLocationLinks(model, position, TypeDefinitionProviderRegistry, (provider, model, position) => {
+export function getTypeDefinitionsAtPosition(registry, model, position, token) {
+    return getLocationLinks(model, position, registry, (provider, model, position) => {
         return provider.provideTypeDefinition(model, position, token);
     });
 }
-export function getReferencesAtPosition(model, position, compact, token) {
-    return getLocationLinks(model, position, ReferenceProviderRegistry, (provider, model, position) => __awaiter(this, void 0, void 0, function* () {
+export function getReferencesAtPosition(registry, model, position, compact, token) {
+    return getLocationLinks(model, position, registry, (provider, model, position) => __awaiter(this, void 0, void 0, function* () {
         const result = yield provider.provideReferences(model, position, { includeDeclaration: true }, token);
         if (!compact || !result || result.length !== 2) {
             return result;
@@ -81,8 +74,28 @@ function _sortedAndDeduped(callback) {
         return modelLinks;
     });
 }
-registerModelAndPositionCommand('_executeDefinitionProvider', (model, position) => _sortedAndDeduped(() => getDefinitionsAtPosition(model, position, CancellationToken.None)));
-registerModelAndPositionCommand('_executeDeclarationProvider', (model, position) => _sortedAndDeduped(() => getDeclarationsAtPosition(model, position, CancellationToken.None)));
-registerModelAndPositionCommand('_executeImplementationProvider', (model, position) => _sortedAndDeduped(() => getImplementationsAtPosition(model, position, CancellationToken.None)));
-registerModelAndPositionCommand('_executeTypeDefinitionProvider', (model, position) => _sortedAndDeduped(() => getTypeDefinitionsAtPosition(model, position, CancellationToken.None)));
-registerModelAndPositionCommand('_executeReferenceProvider', (model, position) => _sortedAndDeduped(() => getReferencesAtPosition(model, position, false, CancellationToken.None)));
+registerModelAndPositionCommand('_executeDefinitionProvider', (accessor, model, position) => {
+    const languageFeaturesService = accessor.get(ILanguageFeaturesService);
+    const promise = getDefinitionsAtPosition(languageFeaturesService.definitionProvider, model, position, CancellationToken.None);
+    return _sortedAndDeduped(() => promise);
+});
+registerModelAndPositionCommand('_executeTypeDefinitionProvider', (accessor, model, position) => {
+    const languageFeaturesService = accessor.get(ILanguageFeaturesService);
+    const promise = getTypeDefinitionsAtPosition(languageFeaturesService.typeDefinitionProvider, model, position, CancellationToken.None);
+    return _sortedAndDeduped(() => promise);
+});
+registerModelAndPositionCommand('_executeDeclarationProvider', (accessor, model, position) => {
+    const languageFeaturesService = accessor.get(ILanguageFeaturesService);
+    const promise = getDeclarationsAtPosition(languageFeaturesService.declarationProvider, model, position, CancellationToken.None);
+    return _sortedAndDeduped(() => promise);
+});
+registerModelAndPositionCommand('_executeReferenceProvider', (accessor, model, position) => {
+    const languageFeaturesService = accessor.get(ILanguageFeaturesService);
+    const promise = getReferencesAtPosition(languageFeaturesService.referenceProvider, model, position, false, CancellationToken.None);
+    return _sortedAndDeduped(() => promise);
+});
+registerModelAndPositionCommand('_executeImplementationProvider', (accessor, model, position) => {
+    const languageFeaturesService = accessor.get(ILanguageFeaturesService);
+    const promise = getImplementationsAtPosition(languageFeaturesService.implementationProvider, model, position, CancellationToken.None);
+    return _sortedAndDeduped(() => promise);
+});

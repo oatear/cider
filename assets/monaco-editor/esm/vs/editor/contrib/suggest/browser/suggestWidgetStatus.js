@@ -14,7 +14,6 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 import * as dom from '../../../../base/browser/dom.js';
 import { ActionBar } from '../../../../base/browser/ui/actionbar/actionbar.js';
 import { DisposableStore } from '../../../../base/common/lifecycle.js';
-import { suggestWidgetStatusbarMenu } from './suggest.js';
 import { localize } from '../../../../nls.js';
 import { MenuEntryActionViewItem } from '../../../../platform/actions/browser/menuEntryActionViewItem.js';
 import { IMenuService, MenuItemAction } from '../../../../platform/actions/common/actions.js';
@@ -27,7 +26,7 @@ class StatusBarViewItem extends MenuEntryActionViewItem {
             return super.updateLabel();
         }
         if (this.label) {
-            this.label.textContent = localize('ddd', '{0} ({1})', this._action.label, StatusBarViewItem.symbolPrintEnter(kb));
+            this.label.textContent = localize({ key: 'content', comment: ['A label', 'A keybinding'] }, '{0} ({1})', this._action.label, StatusBarViewItem.symbolPrintEnter(kb));
         }
     }
     static symbolPrintEnter(kb) {
@@ -35,8 +34,9 @@ class StatusBarViewItem extends MenuEntryActionViewItem {
         return (_a = kb.getLabel()) === null || _a === void 0 ? void 0 : _a.replace(/\benter\b/gi, '\u23CE');
     }
 }
-let SuggestWidgetStatus = class SuggestWidgetStatus {
-    constructor(container, instantiationService, _menuService, _contextKeyService) {
+export let SuggestWidgetStatus = class SuggestWidgetStatus {
+    constructor(container, _menuId, instantiationService, _menuService, _contextKeyService) {
+        this._menuId = _menuId;
         this._menuService = _menuService;
         this._contextKeyService = _contextKeyService;
         this._menuDisposables = new DisposableStore();
@@ -54,11 +54,11 @@ let SuggestWidgetStatus = class SuggestWidgetStatus {
         this.element.remove();
     }
     show() {
-        const menu = this._menuService.createMenu(suggestWidgetStatusbarMenu, this._contextKeyService);
+        const menu = this._menuService.createMenu(this._menuId, this._contextKeyService);
         const renderMenu = () => {
             const left = [];
             const right = [];
-            for (let [group, actions] of menu.getActions()) {
+            for (const [group, actions] of menu.getActions()) {
                 if (group === 'left') {
                     left.push(...actions);
                 }
@@ -79,8 +79,7 @@ let SuggestWidgetStatus = class SuggestWidgetStatus {
     }
 };
 SuggestWidgetStatus = __decorate([
-    __param(1, IInstantiationService),
-    __param(2, IMenuService),
-    __param(3, IContextKeyService)
+    __param(2, IInstantiationService),
+    __param(3, IMenuService),
+    __param(4, IContextKeyService)
 ], SuggestWidgetStatus);
-export { SuggestWidgetStatus };

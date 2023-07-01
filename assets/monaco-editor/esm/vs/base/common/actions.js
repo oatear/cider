@@ -100,8 +100,8 @@ export class Action extends Disposable {
 export class ActionRunner extends Disposable {
     constructor() {
         super(...arguments);
-        this._onBeforeRun = this._register(new Emitter());
-        this.onBeforeRun = this._onBeforeRun.event;
+        this._onWillRun = this._register(new Emitter());
+        this.onWillRun = this._onWillRun.event;
         this._onDidRun = this._register(new Emitter());
         this.onDidRun = this._onDidRun.event;
     }
@@ -110,7 +110,7 @@ export class ActionRunner extends Disposable {
             if (!action.enabled) {
                 return;
             }
-            this._onBeforeRun.fire({ action });
+            this._onWillRun.fire({ action });
             let error = undefined;
             try {
                 yield this.runAction(action, context);
@@ -127,15 +127,40 @@ export class ActionRunner extends Disposable {
         });
     }
 }
-export class Separator extends Action {
-    constructor(label) {
-        super(Separator.ID, label, label ? 'separator text' : 'separator');
-        this.checked = false;
+export class Separator {
+    constructor() {
+        this.id = Separator.ID;
+        this.label = '';
+        this.tooltip = '';
+        this.class = 'separator';
         this.enabled = false;
+        this.checked = false;
+    }
+    /**
+     * Joins all non-empty lists of actions with separators.
+     */
+    static join(...actionLists) {
+        let out = [];
+        for (const list of actionLists) {
+            if (!list.length) {
+                // skip
+            }
+            else if (out.length) {
+                out = [...out, new Separator(), ...list];
+            }
+            else {
+                out = list;
+            }
+        }
+        return out;
+    }
+    run() {
+        return __awaiter(this, void 0, void 0, function* () { });
     }
 }
 Separator.ID = 'vs.actions.separator';
 export class SubmenuAction {
+    get actions() { return this._actions; }
     constructor(id, label, actions, cssClass) {
         this.tooltip = '';
         this.enabled = true;
@@ -144,12 +169,6 @@ export class SubmenuAction {
         this.label = label;
         this.class = cssClass;
         this._actions = actions;
-    }
-    get actions() { return this._actions; }
-    dispose() {
-        // there is NOTHING to dispose and the SubmenuAction should
-        // never have anything to dispose as it is a convenience type
-        // to bridge into the rendering world.
     }
     run() {
         return __awaiter(this, void 0, void 0, function* () { });
@@ -161,3 +180,15 @@ export class EmptySubmenuAction extends Action {
     }
 }
 EmptySubmenuAction.ID = 'vs.actions.empty';
+export function toAction(props) {
+    var _a, _b;
+    return {
+        id: props.id,
+        label: props.label,
+        class: undefined,
+        enabled: (_a = props.enabled) !== null && _a !== void 0 ? _a : true,
+        checked: (_b = props.checked) !== null && _b !== void 0 ? _b : false,
+        run: () => __awaiter(this, void 0, void 0, function* () { return props.run(); }),
+        tooltip: props.label
+    };
+}

@@ -45,7 +45,7 @@ class MarkerDecorations extends Disposable {
         return this._markersData.get(decoration.id);
     }
 }
-let MarkerDecorationsService = class MarkerDecorationsService extends Disposable {
+export let MarkerDecorationsService = class MarkerDecorationsService extends Disposable {
     constructor(modelService, _markerService) {
         super();
         this._markerService = _markerService;
@@ -79,6 +79,7 @@ let MarkerDecorationsService = class MarkerDecorationsService extends Disposable
         this._updateDecorations(markerDecorations);
     }
     _onModelRemoved(model) {
+        var _a;
         const markerDecorations = this._markerDecorations.get(model.uri);
         if (markerDecorations) {
             markerDecorations.dispose();
@@ -88,9 +89,7 @@ let MarkerDecorationsService = class MarkerDecorationsService extends Disposable
         if (model.uri.scheme === Schemas.inMemory
             || model.uri.scheme === Schemas.internal
             || model.uri.scheme === Schemas.vscode) {
-            if (this._markerService) {
-                this._markerService.read({ resource: model.uri }).map(marker => marker.owner).forEach(owner => this._markerService.remove(owner, [model.uri]));
-            }
+            (_a = this._markerService) === null || _a === void 0 ? void 0 : _a.read({ resource: model.uri }).map(marker => marker.owner).forEach(owner => this._markerService.remove(owner, [model.uri]));
         }
     }
     _updateDecorations(markerDecorations) {
@@ -108,12 +107,33 @@ let MarkerDecorationsService = class MarkerDecorationsService extends Disposable
     }
     _createDecorationRange(model, rawMarker) {
         let ret = Range.lift(rawMarker);
-        if (rawMarker.severity === MarkerSeverity.Hint && !this._hasMarkerTag(rawMarker, 1 /* Unnecessary */) && !this._hasMarkerTag(rawMarker, 2 /* Deprecated */)) {
+        if (rawMarker.severity === MarkerSeverity.Hint && !this._hasMarkerTag(rawMarker, 1 /* MarkerTag.Unnecessary */) && !this._hasMarkerTag(rawMarker, 2 /* MarkerTag.Deprecated */)) {
             // * never render hints on multiple lines
             // * make enough space for three dots
             ret = ret.setEndPosition(ret.startLineNumber, ret.startColumn + 2);
         }
-        return model.validateRange(ret);
+        ret = model.validateRange(ret);
+        if (ret.isEmpty()) {
+            const maxColumn = model.getLineLastNonWhitespaceColumn(ret.startLineNumber) ||
+                model.getLineMaxColumn(ret.startLineNumber);
+            if (maxColumn === 1 || ret.endColumn >= maxColumn) {
+                // empty line or behind eol
+                // keep the range as is, it will be rendered 1ch wide
+                return ret;
+            }
+            const word = model.getWordAtPosition(ret.getStartPosition());
+            if (word) {
+                ret = new Range(ret.startLineNumber, word.startColumn, ret.endLineNumber, word.endColumn);
+            }
+        }
+        else if (rawMarker.endColumn === Number.MAX_VALUE && rawMarker.startColumn === 1 && ret.startLineNumber === ret.endLineNumber) {
+            const minColumn = model.getLineFirstNonWhitespaceColumn(rawMarker.startLineNumber);
+            if (minColumn < ret.endColumn) {
+                ret = new Range(ret.startLineNumber, minColumn, ret.endLineNumber, ret.endColumn);
+                rawMarker.startColumn = minColumn;
+            }
+        }
+        return ret;
     }
     _createDecorationOption(marker) {
         let className;
@@ -123,19 +143,19 @@ let MarkerDecorationsService = class MarkerDecorationsService extends Disposable
         let minimap;
         switch (marker.severity) {
             case MarkerSeverity.Hint:
-                if (this._hasMarkerTag(marker, 2 /* Deprecated */)) {
+                if (this._hasMarkerTag(marker, 2 /* MarkerTag.Deprecated */)) {
                     className = undefined;
                 }
-                else if (this._hasMarkerTag(marker, 1 /* Unnecessary */)) {
-                    className = "squiggly-unnecessary" /* EditorUnnecessaryDecoration */;
+                else if (this._hasMarkerTag(marker, 1 /* MarkerTag.Unnecessary */)) {
+                    className = "squiggly-unnecessary" /* ClassName.EditorUnnecessaryDecoration */;
                 }
                 else {
-                    className = "squiggly-hint" /* EditorHintDecoration */;
+                    className = "squiggly-hint" /* ClassName.EditorHintDecoration */;
                 }
                 zIndex = 0;
                 break;
             case MarkerSeverity.Warning:
-                className = "squiggly-warning" /* EditorWarningDecoration */;
+                className = "squiggly-warning" /* ClassName.EditorWarningDecoration */;
                 color = themeColorFromId(overviewRulerWarning);
                 zIndex = 20;
                 minimap = {
@@ -144,13 +164,13 @@ let MarkerDecorationsService = class MarkerDecorationsService extends Disposable
                 };
                 break;
             case MarkerSeverity.Info:
-                className = "squiggly-info" /* EditorInfoDecoration */;
+                className = "squiggly-info" /* ClassName.EditorInfoDecoration */;
                 color = themeColorFromId(overviewRulerInfo);
                 zIndex = 10;
                 break;
             case MarkerSeverity.Error:
             default:
-                className = "squiggly-error" /* EditorErrorDecoration */;
+                className = "squiggly-error" /* ClassName.EditorErrorDecoration */;
                 color = themeColorFromId(overviewRulerError);
                 zIndex = 30;
                 minimap = {
@@ -160,16 +180,16 @@ let MarkerDecorationsService = class MarkerDecorationsService extends Disposable
                 break;
         }
         if (marker.tags) {
-            if (marker.tags.indexOf(1 /* Unnecessary */) !== -1) {
-                inlineClassName = "squiggly-inline-unnecessary" /* EditorUnnecessaryInlineDecoration */;
+            if (marker.tags.indexOf(1 /* MarkerTag.Unnecessary */) !== -1) {
+                inlineClassName = "squiggly-inline-unnecessary" /* ClassName.EditorUnnecessaryInlineDecoration */;
             }
-            if (marker.tags.indexOf(2 /* Deprecated */) !== -1) {
-                inlineClassName = "squiggly-inline-deprecated" /* EditorDeprecatedInlineDecoration */;
+            if (marker.tags.indexOf(2 /* MarkerTag.Deprecated */) !== -1) {
+                inlineClassName = "squiggly-inline-deprecated" /* ClassName.EditorDeprecatedInlineDecoration */;
             }
         }
         return {
             description: 'marker-decoration',
-            stickiness: 1 /* NeverGrowsWhenTypingAtEdges */,
+            stickiness: 1 /* TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges */,
             className,
             showIfCollapsed: true,
             overviewRuler: {
@@ -192,4 +212,3 @@ MarkerDecorationsService = __decorate([
     __param(0, IModelService),
     __param(1, IMarkerService)
 ], MarkerDecorationsService);
-export { MarkerDecorationsService };

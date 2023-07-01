@@ -15,7 +15,7 @@ export function fixBracketsInLine(tokens, languageConfigurationService) {
     let str = '';
     const line = tokens.getLineContent();
     function processNode(node, offset) {
-        if (node.kind === 2 /* Pair */) {
+        if (node.kind === 2 /* AstNodeKind.Pair */) {
             processNode(node.openingBracket, offset);
             offset = lengthAdd(offset, node.openingBracket.length);
             if (node.child) {
@@ -32,13 +32,13 @@ export function fixBracketsInLine(tokens, languageConfigurationService) {
                 str += closingTokenText;
             }
         }
-        else if (node.kind === 3 /* UnexpectedClosingBracket */) {
+        else if (node.kind === 3 /* AstNodeKind.UnexpectedClosingBracket */) {
             // remove the bracket
         }
-        else if (node.kind === 0 /* Text */ || node.kind === 1 /* Bracket */) {
+        else if (node.kind === 0 /* AstNodeKind.Text */ || node.kind === 1 /* AstNodeKind.Bracket */) {
             str += line.substring(lengthGetColumnCountIfZeroLineCount(offset), lengthGetColumnCountIfZeroLineCount(lengthAdd(offset, node.length)));
         }
-        else if (node.kind === 4 /* List */) {
+        else if (node.kind === 4 /* AstNodeKind.List */) {
             for (const child of node.children) {
                 processNode(child, offset);
                 offset = lengthAdd(offset, child.length);
@@ -51,14 +51,16 @@ export function fixBracketsInLine(tokens, languageConfigurationService) {
 class StaticTokenizerSource {
     constructor(lines) {
         this.lines = lines;
+        this.tokenization = {
+            getLineTokens: (lineNumber) => {
+                return this.lines[lineNumber - 1];
+            }
+        };
     }
     getLineCount() {
         return this.lines.length;
     }
     getLineLength(lineNumber) {
         return this.lines[lineNumber - 1].getLineContent().length;
-    }
-    getLineTokens(lineNumber) {
-        return this.lines[lineNumber - 1];
     }
 }

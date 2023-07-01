@@ -32,6 +32,9 @@ class StackElement {
     }
 }
 export class CursorUndoRedoController extends Disposable {
+    static get(editor) {
+        return editor.getContribution(CursorUndoRedoController.ID);
+    }
     constructor(editor) {
         super();
         this._editor = editor;
@@ -68,9 +71,6 @@ export class CursorUndoRedoController extends Disposable {
             }
         }));
     }
-    static get(editor) {
-        return editor.getContribution(CursorUndoRedoController.ID);
-    }
     cursorUndo() {
         if (!this._editor.hasModel() || this._undoStack.length === 0) {
             return;
@@ -105,8 +105,8 @@ export class CursorUndo extends EditorAction {
             precondition: undefined,
             kbOpts: {
                 kbExpr: EditorContextKeys.textInputFocus,
-                primary: 2048 /* CtrlCmd */ | 51 /* KeyU */,
-                weight: 100 /* EditorContrib */
+                primary: 2048 /* KeyMod.CtrlCmd */ | 51 /* KeyCode.KeyU */,
+                weight: 100 /* KeybindingWeight.EditorContrib */
             }
         });
     }
@@ -129,6 +129,6 @@ export class CursorRedo extends EditorAction {
         (_a = CursorUndoRedoController.get(editor)) === null || _a === void 0 ? void 0 : _a.cursorRedo();
     }
 }
-registerEditorContribution(CursorUndoRedoController.ID, CursorUndoRedoController);
+registerEditorContribution(CursorUndoRedoController.ID, CursorUndoRedoController, 0 /* EditorContributionInstantiation.Eager */); // eager because it needs to listen to record cursor state ASAP
 registerEditorAction(CursorUndo);
 registerEditorAction(CursorRedo);

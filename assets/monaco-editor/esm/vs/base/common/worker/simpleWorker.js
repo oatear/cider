@@ -5,8 +5,8 @@
 import { transformErrorForSerialization } from '../errors.js';
 import { Emitter } from '../event.js';
 import { Disposable } from '../lifecycle.js';
-import { globals, isWeb } from '../platform.js';
-import * as types from '../types.js';
+import { getAllMethodNames } from '../objects.js';
+import { isWeb } from '../platform.js';
 import * as strings from '../strings.js';
 const INITIALIZE = '$initialize';
 let webWorkerWarningLogged = false;
@@ -27,7 +27,7 @@ class RequestMessage {
         this.req = req;
         this.method = method;
         this.args = args;
-        this.type = 0 /* Request */;
+        this.type = 0 /* MessageType.Request */;
     }
 }
 class ReplyMessage {
@@ -36,7 +36,7 @@ class ReplyMessage {
         this.seq = seq;
         this.res = res;
         this.err = err;
-        this.type = 1 /* Reply */;
+        this.type = 1 /* MessageType.Reply */;
     }
 }
 class SubscribeEventMessage {
@@ -45,7 +45,7 @@ class SubscribeEventMessage {
         this.req = req;
         this.eventName = eventName;
         this.arg = arg;
-        this.type = 2 /* SubscribeEvent */;
+        this.type = 2 /* MessageType.SubscribeEvent */;
     }
 }
 class EventMessage {
@@ -53,14 +53,14 @@ class EventMessage {
         this.vsWorker = vsWorker;
         this.req = req;
         this.event = event;
-        this.type = 3 /* Event */;
+        this.type = 3 /* MessageType.Event */;
     }
 }
 class UnsubscribeEventMessage {
     constructor(vsWorker, req) {
         this.vsWorker = vsWorker;
         this.req = req;
-        this.type = 4 /* UnsubscribeEvent */;
+        this.type = 4 /* MessageType.UnsubscribeEvent */;
     }
 }
 class SimpleWorkerProtocol {
@@ -88,12 +88,12 @@ class SimpleWorkerProtocol {
     listen(eventName, arg) {
         let req = null;
         const emitter = new Emitter({
-            onFirstListenerAdd: () => {
+            onWillAddFirstListener: () => {
                 req = String(++this._lastSentReq);
                 this._pendingEmitters.set(req, emitter);
                 this._send(new SubscribeEventMessage(this._workerId, req, eventName, arg));
             },
-            onLastListenerRemove: () => {
+            onDidRemoveLastListener: () => {
                 this._pendingEmitters.delete(req);
                 this._send(new UnsubscribeEventMessage(this._workerId, req));
                 req = null;
@@ -112,15 +112,15 @@ class SimpleWorkerProtocol {
     }
     _handleMessage(msg) {
         switch (msg.type) {
-            case 1 /* Reply */:
+            case 1 /* MessageType.Reply */:
                 return this._handleReplyMessage(msg);
-            case 0 /* Request */:
+            case 0 /* MessageType.Request */:
                 return this._handleRequestMessage(msg);
-            case 2 /* SubscribeEvent */:
+            case 2 /* MessageType.SubscribeEvent */:
                 return this._handleSubscribeEventMessage(msg);
-            case 3 /* Event */:
+            case 3 /* MessageType.Event */:
                 return this._handleEventMessage(msg);
-            case 4 /* UnsubscribeEvent */:
+            case 4 /* MessageType.UnsubscribeEvent */:
                 return this._handleUnsubscribeEventMessage(msg);
         }
     }
@@ -129,7 +129,7 @@ class SimpleWorkerProtocol {
             console.warn('Got reply to unknown seq');
             return;
         }
-        let reply = this._pendingReplies[replyMessage.seq];
+        const reply = this._pendingReplies[replyMessage.seq];
         delete this._pendingReplies[replyMessage.seq];
         if (replyMessage.err) {
             let err = replyMessage.err;
@@ -145,8 +145,8 @@ class SimpleWorkerProtocol {
         reply.resolve(replyMessage.res);
     }
     _handleRequestMessage(requestMessage) {
-        let req = requestMessage.req;
-        let result = this._handler.handleMessage(requestMessage.method, requestMessage.args);
+        const req = requestMessage.req;
+        const result = this._handler.handleMessage(requestMessage.method, requestMessage.args);
         result.then((r) => {
             this._send(new ReplyMessage(this._workerId, req, r, undefined));
         }, (e) => {
@@ -180,15 +180,15 @@ class SimpleWorkerProtocol {
         this._pendingEvents.delete(msg.req);
     }
     _send(msg) {
-        let transfer = [];
-        if (msg.type === 0 /* Request */) {
+        const transfer = [];
+        if (msg.type === 0 /* MessageType.Request */) {
             for (let i = 0; i < msg.args.length; i++) {
                 if (msg.args[i] instanceof ArrayBuffer) {
                     transfer.push(msg.args[i]);
                 }
             }
         }
-        else if (msg.type === 1 /* Reply */) {
+        else if (msg.type === 1 /* MessageType.Reply */) {
             if (msg.res instanceof ArrayBuffer) {
                 transfer.push(msg.res);
             }
@@ -208,9 +208,7 @@ export class SimpleWorkerClient extends Disposable {
         }, (err) => {
             // in Firefox, web workers fail lazily :(
             // we will reject the proxy
-            if (lazyProxyReject) {
-                lazyProxyReject(err);
-            }
+            lazyProxyReject === null || lazyProxyReject === void 0 ? void 0 : lazyProxyReject(err);
         }));
         this._protocol = new SimpleWorkerProtocol({
             sendMessage: (msg, transfer) => {
@@ -248,15 +246,16 @@ export class SimpleWorkerClient extends Disposable {
         this._protocol.setWorkerId(this._worker.getId());
         // Gather loader configuration
         let loaderConfiguration = null;
-        if (typeof globals.require !== 'undefined' && typeof globals.require.getConfig === 'function') {
+        const globalRequire = globalThis.require;
+        if (typeof globalRequire !== 'undefined' && typeof globalRequire.getConfig === 'function') {
             // Get the configuration from the Monaco AMD Loader
-            loaderConfiguration = globals.require.getConfig();
+            loaderConfiguration = globalRequire.getConfig();
         }
-        else if (typeof globals.requirejs !== 'undefined') {
+        else if (typeof globalThis.requirejs !== 'undefined') {
             // Get the configuration from requirejs
-            loaderConfiguration = globals.requirejs.s.contexts._.config;
+            loaderConfiguration = globalThis.requirejs.s.contexts._.config;
         }
-        const hostMethods = types.getAllMethodNames(host);
+        const hostMethods = getAllMethodNames(host);
         // Send initialize message
         this._onModuleLoaded = this._protocol.sendMessage(INITIALIZE, [
             this._worker.getId(),
@@ -316,7 +315,7 @@ function createProxyObject(methodNames, invoke, proxyListen) {
             return proxyListen(eventName, arg);
         };
     };
-    let result = {};
+    const result = {};
     for (const methodName of methodNames) {
         if (propertyIsDynamicEvent(methodName)) {
             result[methodName] = createProxyDynamicEvent(methodName);
@@ -394,7 +393,7 @@ export class SimpleWorkerServer {
         if (this._requestHandlerFactory) {
             // static request handler
             this._requestHandler = this._requestHandlerFactory(hostProxy);
-            return Promise.resolve(types.getAllMethodNames(this._requestHandler));
+            return Promise.resolve(getAllMethodNames(this._requestHandler));
         }
         if (loaderConfig) {
             // Remove 'baseUrl', handling it is beyond scope for now
@@ -412,15 +411,15 @@ export class SimpleWorkerServer {
             }
             // Since this is in a web worker, enable catching errors
             loaderConfig.catchError = true;
-            globals.require.config(loaderConfig);
+            globalThis.require.config(loaderConfig);
         }
         return new Promise((resolve, reject) => {
             // Use the global require to be sure to get the global config
             // ESM-comment-begin
-            // 			const req = (globals.require || require);
+            // 			const req = (globalThis.require || require);
             // ESM-comment-end
             // ESM-uncomment-begin
-            const req = globals.require;
+            const req = globalThis.require;
             // ESM-uncomment-end
             req([moduleId], (module) => {
                 this._requestHandler = module.create(hostProxy);
@@ -428,7 +427,7 @@ export class SimpleWorkerServer {
                     reject(new Error(`No RequestHandler!`));
                     return;
                 }
-                resolve(types.getAllMethodNames(this._requestHandler));
+                resolve(getAllMethodNames(this._requestHandler));
             }, reject);
         });
     }

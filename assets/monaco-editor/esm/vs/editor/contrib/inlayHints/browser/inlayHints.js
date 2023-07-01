@@ -15,7 +15,8 @@ import { CancellationError, onUnexpectedExternalError } from '../../../../base/c
 import { DisposableStore } from '../../../../base/common/lifecycle.js';
 import { Position } from '../../../common/core/position.js';
 import { Range } from '../../../common/core/range.js';
-import { InlayHintsProviderRegistry } from '../../../common/languages.js';
+import { Schemas } from '../../../../base/common/network.js';
+import { URI } from '../../../../base/common/uri.js';
 export class InlayHintAnchor {
     constructor(range, direction) {
         this.range = range;
@@ -73,37 +74,10 @@ export class InlayHintItem {
     }
 }
 export class InlayHintsFragments {
-    constructor(ranges, data, model) {
-        this._disposables = new DisposableStore();
-        this.ranges = ranges;
-        this.provider = new Set();
-        const items = [];
-        for (const [list, provider] of data) {
-            this._disposables.add(list);
-            this.provider.add(provider);
-            for (const hint of list.hints) {
-                // compute the range to which the item should be attached to
-                let position = model.validatePosition(hint.position);
-                let direction = 'before';
-                const wordRange = InlayHintsFragments._getRangeAtPosition(model, position);
-                let range;
-                if (wordRange.getStartPosition().isBefore(position)) {
-                    range = Range.fromPositions(wordRange.getStartPosition(), position);
-                    direction = 'after';
-                }
-                else {
-                    range = Range.fromPositions(position, wordRange.getEndPosition());
-                    direction = 'before';
-                }
-                items.push(new InlayHintItem(hint, new InlayHintAnchor(range, direction), provider));
-            }
-        }
-        this.items = items.sort((a, b) => Position.compare(a.hint.position, b.hint.position));
-    }
-    static create(model, ranges, token) {
+    static create(registry, model, ranges, token) {
         return __awaiter(this, void 0, void 0, function* () {
             const data = [];
-            const promises = InlayHintsProviderRegistry.ordered(model).reverse().map(provider => ranges.map((range) => __awaiter(this, void 0, void 0, function* () {
+            const promises = registry.ordered(model).reverse().map(provider => ranges.map((range) => __awaiter(this, void 0, void 0, function* () {
                 try {
                     const result = yield provider.provideInlayHints(model, range, token);
                     if (result === null || result === void 0 ? void 0 : result.hints.length) {
@@ -121,6 +95,33 @@ export class InlayHintsFragments {
             return new InlayHintsFragments(ranges, data, model);
         });
     }
+    constructor(ranges, data, model) {
+        this._disposables = new DisposableStore();
+        this.ranges = ranges;
+        this.provider = new Set();
+        const items = [];
+        for (const [list, provider] of data) {
+            this._disposables.add(list);
+            this.provider.add(provider);
+            for (const hint of list.hints) {
+                // compute the range to which the item should be attached to
+                const position = model.validatePosition(hint.position);
+                let direction = 'before';
+                const wordRange = InlayHintsFragments._getRangeAtPosition(model, position);
+                let range;
+                if (wordRange.getStartPosition().isBefore(position)) {
+                    range = Range.fromPositions(wordRange.getStartPosition(), position);
+                    direction = 'after';
+                }
+                else {
+                    range = Range.fromPositions(position, wordRange.getEndPosition());
+                    direction = 'before';
+                }
+                items.push(new InlayHintItem(hint, new InlayHintAnchor(range, direction), provider));
+            }
+        }
+        this.items = items.sort((a, b) => Position.compare(a.hint.position, b.hint.position));
+    }
     dispose() {
         this._disposables.dispose();
     }
@@ -131,8 +132,8 @@ export class InlayHintsFragments {
             // always prefer the word range
             return new Range(line, word.startColumn, line, word.endColumn);
         }
-        model.tokenizeIfCheap(line);
-        const tokens = model.getLineTokens(line);
+        model.tokenization.tokenizeIfCheap(line);
+        const tokens = model.tokenization.getLineTokens(line);
         const offset = position.column - 1;
         const idx = tokens.findTokenIndexAtOffset(offset);
         let start = tokens.getStartOffset(idx);
@@ -152,4 +153,11 @@ export class InlayHintsFragments {
         }
         return new Range(line, start + 1, line, end + 1);
     }
+}
+export function asCommandLink(command) {
+    return URI.from({
+        scheme: Schemas.command,
+        path: command.id,
+        query: command.arguments && encodeURIComponent(JSON.stringify(command.arguments))
+    }).toString();
 }

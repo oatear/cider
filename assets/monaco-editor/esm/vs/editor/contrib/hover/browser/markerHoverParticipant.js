@@ -18,17 +18,16 @@ import { onUnexpectedError } from '../../../../base/common/errors.js';
 import { Disposable, DisposableStore, toDisposable } from '../../../../base/common/lifecycle.js';
 import { basename } from '../../../../base/common/resources.js';
 import { Range } from '../../../common/core/range.js';
+import { ILanguageFeaturesService } from '../../../common/services/languageFeatures.js';
 import { IMarkerDecorationsService } from '../../../common/services/markerDecorations.js';
-import { getCodeActions } from '../../codeAction/browser/codeAction.js';
-import { QuickFixAction, QuickFixController } from '../../codeAction/browser/codeActionCommands.js';
-import { CodeActionKind } from '../../codeAction/browser/types.js';
+import { getCodeActions, quickFixCommandId } from '../../codeAction/browser/codeAction.js';
+import { CodeActionController } from '../../codeAction/browser/codeActionController.js';
+import { CodeActionKind, CodeActionTriggerSource } from '../../codeAction/common/types.js';
 import { MarkerController, NextMarkerAction } from '../../gotoError/browser/gotoError.js';
 import * as nls from '../../../../nls.js';
 import { IMarkerData, MarkerSeverity } from '../../../../platform/markers/common/markers.js';
 import { IOpenerService } from '../../../../platform/opener/common/opener.js';
 import { Progress } from '../../../../platform/progress/common/progress.js';
-import { textLinkActiveForeground, textLinkForeground } from '../../../../platform/theme/common/colorRegistry.js';
-import { registerThemingParticipant } from '../../../../platform/theme/common/themeService.js';
 const $ = dom.$;
 export class MarkerHover {
     constructor(owner, range, marker) {
@@ -37,24 +36,27 @@ export class MarkerHover {
         this.marker = marker;
     }
     isValidForHoverAnchor(anchor) {
-        return (anchor.type === 1 /* Range */
+        return (anchor.type === 1 /* HoverAnchorType.Range */
             && this.range.startColumn <= anchor.range.startColumn
             && this.range.endColumn >= anchor.range.endColumn);
     }
 }
 const markerCodeActionTrigger = {
-    type: 1 /* Invoke */,
-    filter: { include: CodeActionKind.QuickFix }
+    type: 1 /* CodeActionTriggerType.Invoke */,
+    filter: { include: CodeActionKind.QuickFix },
+    triggerAction: CodeActionTriggerSource.QuickFixHover
 };
-let MarkerHoverParticipant = class MarkerHoverParticipant {
-    constructor(_editor, _markerDecorationsService, _openerService) {
+export let MarkerHoverParticipant = class MarkerHoverParticipant {
+    constructor(_editor, _markerDecorationsService, _openerService, _languageFeaturesService) {
         this._editor = _editor;
         this._markerDecorationsService = _markerDecorationsService;
         this._openerService = _openerService;
+        this._languageFeaturesService = _languageFeaturesService;
+        this.hoverOrdinal = 1;
         this.recentMarkerCodeActionsInfo = undefined;
     }
     computeSync(anchor, lineDecorations) {
-        if (!this._editor.hasModel() || anchor.type !== 1 /* Range */) {
+        if (!this._editor.hasModel() || anchor.type !== 1 /* HoverAnchorType.Range */ && !anchor.supportsMarkerHover) {
             return [];
         }
         const model = this._editor.getModel();
@@ -156,7 +158,7 @@ let MarkerHoverParticipant = class MarkerHoverParticipant {
                 }
             });
         }
-        if (!this._editor.getOption(81 /* readOnly */)) {
+        if (!this._editor.getOption(88 /* EditorOption.readOnly */)) {
             const quickfixPlaceholderElement = context.statusBar.append($('div'));
             if (this.recentMarkerCodeActionsInfo) {
                 if (IMarkerData.makeKey(this.recentMarkerCodeActionsInfo.marker) === IMarkerData.makeKey(markerHover.marker)) {
@@ -192,17 +194,19 @@ let MarkerHoverParticipant = class MarkerHoverParticipant {
                 }));
                 context.statusBar.addAction({
                     label: nls.localize('quick fixes', "Quick Fix..."),
-                    commandId: QuickFixAction.Id,
+                    commandId: quickFixCommandId,
                     run: (target) => {
                         showing = true;
-                        const controller = QuickFixController.get(this._editor);
+                        const controller = CodeActionController.get(this._editor);
                         const elementPosition = dom.getDomNodePagePosition(target);
                         // Hide the hover pre-emptively, otherwise the editor can close the code actions
                         // context menu as well when using keyboard navigation
                         context.hide();
                         controller === null || controller === void 0 ? void 0 : controller.showCodeActions(markerCodeActionTrigger, actions, {
-                            x: elementPosition.left + 6,
-                            y: elementPosition.top + elementPosition.height + 6
+                            x: elementPosition.left,
+                            y: elementPosition.top,
+                            width: elementPosition.width,
+                            height: elementPosition.height
                         });
                     }
                 });
@@ -211,22 +215,12 @@ let MarkerHoverParticipant = class MarkerHoverParticipant {
     }
     getCodeActions(marker) {
         return createCancelablePromise(cancellationToken => {
-            return getCodeActions(this._editor.getModel(), new Range(marker.startLineNumber, marker.startColumn, marker.endLineNumber, marker.endColumn), markerCodeActionTrigger, Progress.None, cancellationToken);
+            return getCodeActions(this._languageFeaturesService.codeActionProvider, this._editor.getModel(), new Range(marker.startLineNumber, marker.startColumn, marker.endLineNumber, marker.endColumn), markerCodeActionTrigger, Progress.None, cancellationToken);
         });
     }
 };
 MarkerHoverParticipant = __decorate([
     __param(1, IMarkerDecorationsService),
-    __param(2, IOpenerService)
+    __param(2, IOpenerService),
+    __param(3, ILanguageFeaturesService)
 ], MarkerHoverParticipant);
-export { MarkerHoverParticipant };
-registerThemingParticipant((theme, collector) => {
-    const linkFg = theme.getColor(textLinkForeground);
-    if (linkFg) {
-        collector.addRule(`.monaco-hover .hover-contents a.code-link span { color: ${linkFg}; }`);
-    }
-    const activeLinkFg = theme.getColor(textLinkActiveForeground);
-    if (activeLinkFg) {
-        collector.addRule(`.monaco-hover .hover-contents a.code-link span:hover { color: ${activeLinkFg}; }`);
-    }
-});

@@ -19,19 +19,17 @@ import { EditorCommand, registerEditorCommand, registerEditorContribution } from
 import { Range } from '../../../common/core/range.js';
 import * as nls from '../../../../nls.js';
 import { IContextKeyService, RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
-let MessageController = class MessageController {
+export let MessageController = class MessageController {
+    static get(editor) {
+        return editor.getContribution(MessageController.ID);
+    }
     constructor(editor, contextKeyService) {
         this._messageWidget = new MutableDisposable();
         this._messageListeners = new DisposableStore();
         this._editor = editor;
         this._visible = MessageController.MESSAGE_VISIBLE.bindTo(contextKeyService);
-        this._editorListener = this._editor.onDidAttemptReadOnlyEdit(() => this._onDidAttemptReadOnlyEdit());
-    }
-    static get(editor) {
-        return editor.getContribution(MessageController.ID);
     }
     dispose() {
-        this._editorListener.dispose();
         this._messageListeners.dispose();
         this._messageWidget.dispose();
         this._visible.reset();
@@ -73,38 +71,44 @@ let MessageController = class MessageController {
             this._messageListeners.add(MessageWidget.fadeOut(this._messageWidget.value));
         }
     }
-    _onDidAttemptReadOnlyEdit() {
-        if (this._editor.hasModel()) {
-            this.showMessage(nls.localize('editor.readonly', "Cannot edit in read-only editor"), this._editor.getPosition());
-        }
-    }
 };
 MessageController.ID = 'editor.contrib.messageController';
 MessageController.MESSAGE_VISIBLE = new RawContextKey('messageVisible', false, nls.localize('messageVisible', 'Whether the editor is currently showing an inline message'));
 MessageController = __decorate([
     __param(1, IContextKeyService)
 ], MessageController);
-export { MessageController };
 const MessageCommand = EditorCommand.bindToContribution(MessageController.get);
 registerEditorCommand(new MessageCommand({
     id: 'leaveEditorMessage',
     precondition: MessageController.MESSAGE_VISIBLE,
     handler: c => c.closeMessage(),
     kbOpts: {
-        weight: 100 /* EditorContrib */ + 30,
-        primary: 9 /* Escape */
+        weight: 100 /* KeybindingWeight.EditorContrib */ + 30,
+        primary: 9 /* KeyCode.Escape */
     }
 }));
 class MessageWidget {
+    static fadeOut(messageWidget) {
+        const dispose = () => {
+            messageWidget.dispose();
+            clearTimeout(handle);
+            messageWidget.getDomNode().removeEventListener('animationend', dispose);
+        };
+        const handle = setTimeout(dispose, 110);
+        messageWidget.getDomNode().addEventListener('animationend', dispose);
+        messageWidget.getDomNode().classList.add('fadeOut');
+        return { dispose };
+    }
     constructor(editor, { lineNumber, column }, text) {
         // Editor.IContentWidget.allowEditorOverflow
         this.allowEditorOverflow = true;
         this.suppressMouseDown = false;
         this._editor = editor;
-        this._editor.revealLinesInCenterIfOutsideViewport(lineNumber, lineNumber, 0 /* Smooth */);
-        this._position = { lineNumber, column: column - 1 };
+        this._editor.revealLinesInCenterIfOutsideViewport(lineNumber, lineNumber, 0 /* ScrollType.Smooth */);
+        this._position = { lineNumber, column };
         this._domNode = document.createElement('div');
         this._domNode.classList.add('monaco-editor-overlaymessage');
+        this._domNode.style.marginLeft = '-6px';
         const anchorTop = document.createElement('div');
         anchorTop.classList.add('anchor', 'top');
         this._domNode.appendChild(anchorTop);
@@ -118,18 +122,6 @@ class MessageWidget {
         this._editor.addContentWidget(this);
         this._domNode.classList.add('fadeIn');
     }
-    static fadeOut(messageWidget) {
-        let handle;
-        const dispose = () => {
-            messageWidget.dispose();
-            clearTimeout(handle);
-            messageWidget.getDomNode().removeEventListener('animationend', dispose);
-        };
-        handle = setTimeout(dispose, 110);
-        messageWidget.getDomNode().addEventListener('animationend', dispose);
-        messageWidget.getDomNode().classList.add('fadeOut');
-        return { dispose };
-    }
     dispose() {
         this._editor.removeContentWidget(this);
     }
@@ -140,10 +132,17 @@ class MessageWidget {
         return this._domNode;
     }
     getPosition() {
-        return { position: this._position, preference: [1 /* ABOVE */, 2 /* BELOW */] };
+        return {
+            position: this._position,
+            preference: [
+                1 /* ContentWidgetPositionPreference.ABOVE */,
+                2 /* ContentWidgetPositionPreference.BELOW */,
+            ],
+            positionAffinity: 1 /* PositionAffinity.Right */,
+        };
     }
     afterRender(position) {
-        this._domNode.classList.toggle('below', position === 2 /* BELOW */);
+        this._domNode.classList.toggle('below', position === 2 /* ContentWidgetPositionPreference.BELOW */);
     }
 }
-registerEditorContribution(MessageController.ID, MessageController);
+registerEditorContribution(MessageController.ID, MessageController, 4 /* EditorContributionInstantiation.Lazy */);

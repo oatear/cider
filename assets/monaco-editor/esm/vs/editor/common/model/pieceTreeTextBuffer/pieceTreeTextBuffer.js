@@ -53,14 +53,14 @@ export class PieceTreeTextBuffer extends Disposable {
         const endPosition = this.getPositionAt(end);
         return new Range(startPosition.lineNumber, startPosition.column, endPosition.lineNumber, endPosition.column);
     }
-    getValueInRange(range, eol = 0 /* TextDefined */) {
+    getValueInRange(range, eol = 0 /* EndOfLinePreference.TextDefined */) {
         if (range.isEmpty()) {
             return '';
         }
         const lineEnding = this._getEndOfLine(eol);
         return this._pieceTree.getValueInRange(range, lineEnding);
     }
-    getValueLengthInRange(range, eol = 0 /* TextDefined */) {
+    getValueLengthInRange(range, eol = 0 /* EndOfLinePreference.TextDefined */) {
         if (range.isEmpty()) {
             return 0;
         }
@@ -69,9 +69,19 @@ export class PieceTreeTextBuffer extends Disposable {
         }
         const startOffset = this.getOffsetAt(range.startLineNumber, range.startColumn);
         const endOffset = this.getOffsetAt(range.endLineNumber, range.endColumn);
-        return endOffset - startOffset;
+        // offsets use the text EOL, so we need to compensate for length differences
+        // if the requested EOL doesn't match the text EOL
+        let eolOffsetCompensation = 0;
+        const desiredEOL = this._getEndOfLine(eol);
+        const actualEOL = this.getEOL();
+        if (desiredEOL.length !== actualEOL.length) {
+            const delta = desiredEOL.length - actualEOL.length;
+            const eolCount = range.endLineNumber - range.startLineNumber;
+            eolOffsetCompensation = delta * eolCount;
+        }
+        return endOffset - startOffset + eolOffsetCompensation;
     }
-    getCharacterCountInRange(range, eol = 0 /* TextDefined */) {
+    getCharacterCountInRange(range, eol = 0 /* EndOfLinePreference.TextDefined */) {
         if (this._mightContainNonBasicASCII) {
             // we must count by iterating
             let result = 0;
@@ -130,11 +140,11 @@ export class PieceTreeTextBuffer extends Disposable {
     }
     _getEndOfLine(eol) {
         switch (eol) {
-            case 1 /* LF */:
+            case 1 /* EndOfLinePreference.LF */:
                 return '\n';
-            case 2 /* CRLF */:
+            case 2 /* EndOfLinePreference.CRLF */:
                 return '\r\n';
-            case 0 /* TextDefined */:
+            case 0 /* EndOfLinePreference.TextDefined */:
                 return this.getEOL();
             default:
                 throw new Error('Unknown EOL preference');
@@ -178,8 +188,8 @@ export class PieceTreeTextBuffer extends Disposable {
                 let strEOL;
                 [eolCount, firstLineLength, lastLineLength, strEOL] = countEOL(op.text);
                 const bufferEOL = this.getEOL();
-                const expectedStrEOL = (bufferEOL === '\r\n' ? 2 /* CRLF */ : 1 /* LF */);
-                if (strEOL === 0 /* Unknown */ || strEOL === expectedStrEOL) {
+                const expectedStrEOL = (bufferEOL === '\r\n' ? 2 /* StringEOL.CRLF */ : 1 /* StringEOL.LF */);
+                if (strEOL === 0 /* StringEOL.Unknown */ || strEOL === expectedStrEOL) {
                     validText = op.text;
                 }
                 else {
@@ -332,7 +342,7 @@ export class PieceTreeTextBuffer extends Disposable {
             identifier: operations[0].identifier,
             range: entireEditRange,
             rangeOffset: this.getOffsetAt(entireEditRange.startLineNumber, entireEditRange.startColumn),
-            rangeLength: this.getValueLengthInRange(entireEditRange, 0 /* TextDefined */),
+            rangeLength: this.getValueLengthInRange(entireEditRange, 0 /* EndOfLinePreference.TextDefined */),
             text: text,
             eolCount: eolCount,
             firstLineLength: firstLineLength,

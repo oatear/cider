@@ -18,9 +18,9 @@ import { DisposableStore, isDisposable } from '../../../../base/common/lifecycle
 import { assertType } from '../../../../base/common/types.js';
 import { URI } from '../../../../base/common/uri.js';
 import { Range } from '../../../common/core/range.js';
-import { LinkProviderRegistry } from '../../../common/languages.js';
 import { IModelService } from '../../../common/services/model.js';
 import { CommandsRegistry } from '../../../../platform/commands/common/commands.js';
+import { ILanguageFeaturesService } from '../../../common/services/languageFeatures.js';
 export class Link {
     constructor(link, provider) {
         this._link = link;
@@ -82,7 +82,7 @@ export class LinksList {
     }
     static _union(oldLinks, newLinks) {
         // reunite oldLinks with newLinks and remove duplicates
-        let result = [];
+        const result = [];
         let oldIndex;
         let oldLen;
         let newIndex;
@@ -116,10 +116,10 @@ export class LinksList {
         return result;
     }
 }
-export function getLinks(model, token) {
+export function getLinks(providers, model, token) {
     const lists = [];
     // ask all providers for links in parallel
-    const promises = LinkProviderRegistry.ordered(model).reverse().map((provider, i) => {
+    const promises = providers.ordered(model).reverse().map((provider, i) => {
         return Promise.resolve(provider.provideLinks(model, token)).then(result => {
             if (result) {
                 lists[i] = [result, provider];
@@ -141,11 +141,12 @@ CommandsRegistry.registerCommand('_executeLinkProvider', (accessor, ...args) => 
     if (typeof resolveCount !== 'number') {
         resolveCount = 0;
     }
+    const { linkProvider } = accessor.get(ILanguageFeaturesService);
     const model = accessor.get(IModelService).getModel(uri);
     if (!model) {
         return [];
     }
-    const list = yield getLinks(model, CancellationToken.None);
+    const list = yield getLinks(linkProvider, model, CancellationToken.None);
     if (!list) {
         return [];
     }

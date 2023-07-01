@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 import { $, append, clearNode, createStyleSheet } from '../../dom.js';
-import { List } from '../list/listWidget.js';
+import { List, unthemedListStyles } from '../list/listWidget.js';
 import { SplitView } from '../splitview/splitview.js';
 import { Emitter, Event } from '../../../common/event.js';
 import { DisposableStore } from '../../../common/lifecycle.js';
@@ -79,6 +79,9 @@ function asListVirtualDelegate(delegate) {
     };
 }
 class ColumnHeader {
+    get minimumSize() { var _a; return (_a = this.column.minimumWidth) !== null && _a !== void 0 ? _a : 120; }
+    get maximumSize() { var _a; return (_a = this.column.maximumWidth) !== null && _a !== void 0 ? _a : Number.POSITIVE_INFINITY; }
+    get onDidChange() { var _a; return (_a = this.column.onDidChangeWidthConstraints) !== null && _a !== void 0 ? _a : Event.None; }
     constructor(column, index) {
         this.column = column;
         this.index = index;
@@ -86,14 +89,17 @@ class ColumnHeader {
         this.onDidLayout = this._onDidLayout.event;
         this.element = $('.monaco-table-th', { 'data-col-index': index, title: column.tooltip }, column.label);
     }
-    get minimumSize() { var _a; return (_a = this.column.minimumWidth) !== null && _a !== void 0 ? _a : 120; }
-    get maximumSize() { var _a; return (_a = this.column.maximumWidth) !== null && _a !== void 0 ? _a : Number.POSITIVE_INFINITY; }
-    get onDidChange() { var _a; return (_a = this.column.onDidChangeWidthConstraints) !== null && _a !== void 0 ? _a : Event.None; }
     layout(size) {
         this._onDidLayout.fire([this.index, size]);
     }
 }
 export class Table {
+    get onDidChangeFocus() { return this.list.onDidChangeFocus; }
+    get onDidChangeSelection() { return this.list.onDidChangeSelection; }
+    get onMouseDblClick() { return this.list.onMouseDblClick; }
+    get onPointer() { return this.list.onPointer; }
+    get onDidFocus() { return this.list.onDidFocus; }
+    get onDidDispose() { return this.list.onDidDispose; }
     constructor(user, container, virtualDelegate, columns, renderers, _options) {
         this.virtualDelegate = virtualDelegate;
         this.domId = `table_id_${++Table.InstanceCount}`;
@@ -107,8 +113,8 @@ export class Table {
             views: headers.map(view => ({ size: view.column.weight, view }))
         };
         this.splitview = this.disposables.add(new SplitView(this.domNode, {
-            orientation: 1 /* HORIZONTAL */,
-            scrollbarVisibility: 2 /* Hidden */,
+            orientation: 1 /* Orientation.HORIZONTAL */,
+            scrollbarVisibility: 2 /* ScrollbarVisibility.Hidden */,
             getSashOrthogonalSize: () => this.cachedHeight,
             descriptor
         }));
@@ -123,14 +129,8 @@ export class Table {
             this.splitview.resizeView(index, size);
         }, null, this.disposables);
         this.styleElement = createStyleSheet(this.domNode);
-        this.style({});
+        this.style(unthemedListStyles);
     }
-    get onDidChangeFocus() { return this.list.onDidChangeFocus; }
-    get onDidChangeSelection() { return this.list.onDidChangeSelection; }
-    get onMouseDblClick() { return this.list.onMouseDblClick; }
-    get onPointer() { return this.list.onPointer; }
-    get onDidFocus() { return this.list.onDidFocus; }
-    get onDidDispose() { return this.list.onDidDispose; }
     updateOptions(options) {
         this.list.updateOptions(options);
     }

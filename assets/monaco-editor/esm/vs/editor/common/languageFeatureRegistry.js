@@ -17,14 +17,28 @@ function isExclusive(selector) {
         return !!selector.exclusive; // TODO: microsoft/TypeScript#42768
     }
 }
+class MatchCandidate {
+    constructor(uri, languageId, notebookUri, notebookType) {
+        this.uri = uri;
+        this.languageId = languageId;
+        this.notebookUri = notebookUri;
+        this.notebookType = notebookType;
+    }
+    equals(other) {
+        var _a, _b;
+        return this.notebookType === other.notebookType
+            && this.languageId === other.languageId
+            && this.uri.toString() === other.uri.toString()
+            && ((_a = this.notebookUri) === null || _a === void 0 ? void 0 : _a.toString()) === ((_b = other.notebookUri) === null || _b === void 0 ? void 0 : _b.toString());
+    }
+}
 export class LanguageFeatureRegistry {
-    constructor() {
+    constructor(_notebookInfoResolver) {
+        this._notebookInfoResolver = _notebookInfoResolver;
         this._clock = 0;
         this._entries = [];
         this._onDidChange = new Emitter();
-    }
-    get onDidChange() {
-        return this._onDidChange.event;
+        this.onDidChange = this._onDidChange.event;
     }
     register(selector, provider) {
         let entry = {
@@ -58,7 +72,7 @@ export class LanguageFeatureRegistry {
         this._updateScores(model);
         const result = [];
         // from registry
-        for (let entry of this._entries) {
+        for (const entry of this._entries) {
             if (entry._score > 0) {
                 result.push(entry.provider);
             }
@@ -87,9 +101,6 @@ export class LanguageFeatureRegistry {
         return result;
     }
     _orderedForEach(model, callback) {
-        if (!model) {
-            return;
-        }
         this._updateScores(model);
         for (const entry of this._entries) {
             if (entry._score > 0) {
@@ -98,23 +109,24 @@ export class LanguageFeatureRegistry {
         }
     }
     _updateScores(model) {
-        const candidate = {
-            uri: model.uri.toString(),
-            language: model.getLanguageId()
-        };
-        if (this._lastCandidate
-            && this._lastCandidate.language === candidate.language
-            && this._lastCandidate.uri === candidate.uri) {
+        var _a, _b;
+        const notebookInfo = (_a = this._notebookInfoResolver) === null || _a === void 0 ? void 0 : _a.call(this, model.uri);
+        // use the uri (scheme, pattern) of the notebook info iff we have one
+        // otherwise it's the model's/document's uri
+        const candidate = notebookInfo
+            ? new MatchCandidate(model.uri, model.getLanguageId(), notebookInfo.uri, notebookInfo.type)
+            : new MatchCandidate(model.uri, model.getLanguageId(), undefined, undefined);
+        if ((_b = this._lastCandidate) === null || _b === void 0 ? void 0 : _b.equals(candidate)) {
             // nothing has changed
             return;
         }
         this._lastCandidate = candidate;
-        for (let entry of this._entries) {
-            entry._score = score(entry.selector, model.uri, model.getLanguageId(), shouldSynchronizeModel(model));
+        for (const entry of this._entries) {
+            entry._score = score(entry.selector, candidate.uri, candidate.languageId, shouldSynchronizeModel(model), candidate.notebookUri, candidate.notebookType);
             if (isExclusive(entry.selector) && entry._score > 0) {
                 // support for one exclusive selector that overwrites
                 // any other selector
-                for (let entry of this._entries) {
+                for (const entry of this._entries) {
                     entry._score = 0;
                 }
                 entry._score = 1000;
@@ -131,7 +143,14 @@ export class LanguageFeatureRegistry {
         else if (a._score > b._score) {
             return -1;
         }
-        else if (a._time < b._time) {
+        // De-prioritize built-in providers
+        if (isBuiltinSelector(a.selector) && !isBuiltinSelector(b.selector)) {
+            return 1;
+        }
+        else if (!isBuiltinSelector(a.selector) && isBuiltinSelector(b.selector)) {
+            return -1;
+        }
+        if (a._time < b._time) {
             return 1;
         }
         else if (a._time > b._time) {
@@ -141,4 +160,13 @@ export class LanguageFeatureRegistry {
             return 0;
         }
     }
+}
+function isBuiltinSelector(selector) {
+    if (typeof selector === 'string') {
+        return false;
+    }
+    if (Array.isArray(selector)) {
+        return selector.some(isBuiltinSelector);
+    }
+    return Boolean(selector.isBuiltin);
 }

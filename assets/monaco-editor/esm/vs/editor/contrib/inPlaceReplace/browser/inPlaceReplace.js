@@ -20,26 +20,24 @@ import { Selection } from '../../../common/core/selection.js';
 import { EditorContextKeys } from '../../../common/editorContextKeys.js';
 import { ModelDecorationOptions } from '../../../common/model/textModel.js';
 import { IEditorWorkerService } from '../../../common/services/editorWorker.js';
-import { editorBracketMatchBorder } from '../../../common/core/editorColorRegistry.js';
 import * as nls from '../../../../nls.js';
-import { registerThemingParticipant } from '../../../../platform/theme/common/themeService.js';
 import { InPlaceReplaceCommand } from './inPlaceReplaceCommand.js';
+import './inPlaceReplace.css';
 let InPlaceReplaceController = class InPlaceReplaceController {
-    constructor(editor, editorWorkerService) {
-        this.decorationIds = [];
-        this.editor = editor;
-        this.editorWorkerService = editorWorkerService;
-    }
     static get(editor) {
         return editor.getContribution(InPlaceReplaceController.ID);
+    }
+    constructor(editor, editorWorkerService) {
+        this.editor = editor;
+        this.editorWorkerService = editorWorkerService;
+        this.decorations = this.editor.createDecorationsCollection();
     }
     dispose() {
     }
     run(source, up) {
+        var _a;
         // cancel any pending request
-        if (this.currentRequest) {
-            this.currentRequest.cancel();
-        }
+        (_a = this.currentRequest) === null || _a === void 0 ? void 0 : _a.cancel();
         const editorSelection = this.editor.getSelection();
         const model = this.editor.getModel();
         if (!model || !editorSelection) {
@@ -50,13 +48,14 @@ let InPlaceReplaceController = class InPlaceReplaceController {
             // Can't accept multiline selection
             return undefined;
         }
-        const state = new EditorState(this.editor, 1 /* Value */ | 4 /* Position */);
+        const state = new EditorState(this.editor, 1 /* CodeEditorStateFlag.Value */ | 4 /* CodeEditorStateFlag.Position */);
         const modelURI = model.uri;
         if (!this.editorWorkerService.canNavigateValueSet(modelURI)) {
             return Promise.resolve(undefined);
         }
         this.currentRequest = createCancelablePromise(token => this.editorWorkerService.navigateValueSet(modelURI, selection, up));
         return this.currentRequest.then(result => {
+            var _a;
             if (!result || !result.range || !result.value) {
                 // No proper result
                 return;
@@ -66,9 +65,9 @@ let InPlaceReplaceController = class InPlaceReplaceController {
                 return;
             }
             // Selection
-            let editRange = Range.lift(result.range);
+            const editRange = Range.lift(result.range);
             let highlightRange = result.range;
-            let diff = result.value.length - (selection.endColumn - selection.startColumn);
+            const diff = result.value.length - (selection.endColumn - selection.startColumn);
             // highlight
             highlightRange = {
                 startLineNumber: highlightRange.startLineNumber,
@@ -85,16 +84,14 @@ let InPlaceReplaceController = class InPlaceReplaceController {
             this.editor.executeCommand(source, command);
             this.editor.pushUndoStop();
             // add decoration
-            this.decorationIds = this.editor.deltaDecorations(this.decorationIds, [{
+            this.decorations.set([{
                     range: highlightRange,
                     options: InPlaceReplaceController.DECORATION
                 }]);
             // remove decoration after delay
-            if (this.decorationRemover) {
-                this.decorationRemover.cancel();
-            }
+            (_a = this.decorationRemover) === null || _a === void 0 ? void 0 : _a.cancel();
             this.decorationRemover = timeout(350);
-            this.decorationRemover.then(() => this.decorationIds = this.editor.deltaDecorations(this.decorationIds, [])).catch(onUnexpectedError);
+            this.decorationRemover.then(() => this.decorations.clear()).catch(onUnexpectedError);
         }).catch(onUnexpectedError);
     }
 };
@@ -115,30 +112,8 @@ class InPlaceReplaceUp extends EditorAction {
             precondition: EditorContextKeys.writable,
             kbOpts: {
                 kbExpr: EditorContextKeys.editorTextFocus,
-                primary: 2048 /* CtrlCmd */ | 1024 /* Shift */ | 82 /* Comma */,
-                weight: 100 /* EditorContrib */
-            }
-        });
-    }
-    run(accessor, editor) {
-        const controller = InPlaceReplaceController.get(editor);
-        if (!controller) {
-            return Promise.resolve(undefined);
-        }
-        return controller.run(this.id, true);
-    }
-}
-class InPlaceReplaceDown extends EditorAction {
-    constructor() {
-        super({
-            id: 'editor.action.inPlaceReplace.down',
-            label: nls.localize('InPlaceReplaceAction.next.label', "Replace with Next Value"),
-            alias: 'Replace with Next Value',
-            precondition: EditorContextKeys.writable,
-            kbOpts: {
-                kbExpr: EditorContextKeys.editorTextFocus,
-                primary: 2048 /* CtrlCmd */ | 1024 /* Shift */ | 84 /* Period */,
-                weight: 100 /* EditorContrib */
+                primary: 2048 /* KeyMod.CtrlCmd */ | 1024 /* KeyMod.Shift */ | 87 /* KeyCode.Comma */,
+                weight: 100 /* KeybindingWeight.EditorContrib */
             }
         });
     }
@@ -150,12 +125,28 @@ class InPlaceReplaceDown extends EditorAction {
         return controller.run(this.id, false);
     }
 }
-registerEditorContribution(InPlaceReplaceController.ID, InPlaceReplaceController);
+class InPlaceReplaceDown extends EditorAction {
+    constructor() {
+        super({
+            id: 'editor.action.inPlaceReplace.down',
+            label: nls.localize('InPlaceReplaceAction.next.label', "Replace with Next Value"),
+            alias: 'Replace with Next Value',
+            precondition: EditorContextKeys.writable,
+            kbOpts: {
+                kbExpr: EditorContextKeys.editorTextFocus,
+                primary: 2048 /* KeyMod.CtrlCmd */ | 1024 /* KeyMod.Shift */ | 89 /* KeyCode.Period */,
+                weight: 100 /* KeybindingWeight.EditorContrib */
+            }
+        });
+    }
+    run(accessor, editor) {
+        const controller = InPlaceReplaceController.get(editor);
+        if (!controller) {
+            return Promise.resolve(undefined);
+        }
+        return controller.run(this.id, true);
+    }
+}
+registerEditorContribution(InPlaceReplaceController.ID, InPlaceReplaceController, 4 /* EditorContributionInstantiation.Lazy */);
 registerEditorAction(InPlaceReplaceUp);
 registerEditorAction(InPlaceReplaceDown);
-registerThemingParticipant((theme, collector) => {
-    const border = theme.getColor(editorBracketMatchBorder);
-    if (border) {
-        collector.addRule(`.monaco-editor.vs .valueSetReplacement { outline: solid 2px ${border}; }`);
-    }
-});

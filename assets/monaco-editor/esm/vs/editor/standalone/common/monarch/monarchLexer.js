@@ -2,20 +2,30 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 import * as languages from '../../../common/languages.js';
-import { NullState } from '../../../common/languages/nullMode.js';
+import { NullState, nullTokenizeEncoded, nullTokenize } from '../../../common/languages/nullTokenize.js';
 import * as monarchCommon from './monarchCommon.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
 const CACHE_STACK_DEPTH = 5;
 /**
  * Reuse the same stack elements up to a certain depth.
  */
 class MonarchStackElementFactory {
+    static create(parent, state) {
+        return this._INSTANCE.create(parent, state);
+    }
     constructor(maxCacheDepth) {
         this._maxCacheDepth = maxCacheDepth;
         this._entries = Object.create(null);
-    }
-    static create(parent, state) {
-        return this._INSTANCE.create(parent, state);
     }
     create(parent, state) {
         if (parent !== null && parent.depth >= this._maxCacheDepth) {
@@ -112,12 +122,12 @@ class EmbeddedLanguageData {
  * Reuse the same line states up to a certain depth.
  */
 class MonarchLineStateFactory {
+    static create(stack, embeddedLanguageData) {
+        return this._INSTANCE.create(stack, embeddedLanguageData);
+    }
     constructor(maxCacheDepth) {
         this._maxCacheDepth = maxCacheDepth;
         this._entries = Object.create(null);
-    }
-    static create(stack, embeddedLanguageData) {
-        return this._INSTANCE.create(stack, embeddedLanguageData);
     }
     create(stack, embeddedLanguageData) {
         if (embeddedLanguageData !== null) {
@@ -219,14 +229,14 @@ class MonarchModernTokensCollector {
         this._theme = theme;
         this._prependTokens = null;
         this._tokens = [];
-        this._currentLanguageId = 0 /* Null */;
+        this._currentLanguageId = 0 /* LanguageId.Null */;
         this._lastTokenMetadata = 0;
     }
     enterLanguage(languageId) {
         this._currentLanguageId = this._languageService.languageIdCodec.encodeLanguageId(languageId);
     }
     emit(startOffset, type) {
-        const metadata = this._theme.match(this._currentLanguageId, type);
+        const metadata = this._theme.match(this._currentLanguageId, type) | 1024 /* MetadataConsts.BALANCED_BRACKETS_MASK */;
         if (this._lastTokenMetadata === metadata) {
             return;
         }
@@ -284,8 +294,9 @@ class MonarchModernTokensCollector {
         return new languages.EncodedTokenizationResult(MonarchModernTokensCollector._merge(this._prependTokens, this._tokens, null), endState);
     }
 }
-export class MonarchTokenizer {
-    constructor(languageService, standaloneThemeService, languageId, lexer) {
+export let MonarchTokenizer = class MonarchTokenizer {
+    constructor(languageService, standaloneThemeService, languageId, lexer, _configurationService) {
+        this._configurationService = _configurationService;
         this._languageService = languageService;
         this._standaloneThemeService = standaloneThemeService;
         this._languageId = languageId;
@@ -308,8 +319,18 @@ export class MonarchTokenizer {
             }
             if (isOneOfMyEmbeddedModes) {
                 emitting = true;
-                languages.TokenizationRegistry.fire([this._languageId]);
+                languages.TokenizationRegistry.handleChange([this._languageId]);
                 emitting = false;
+            }
+        });
+        this._maxTokenizationLineLength = this._configurationService.getValue('editor.maxTokenizationLineLength', {
+            overrideIdentifier: this._languageId
+        });
+        this._configurationService.onDidChangeConfiguration(e => {
+            if (e.affectsConfiguration('editor.maxTokenizationLineLength')) {
+                this._maxTokenizationLineLength = this._configurationService.getValue('editor.maxTokenizationLineLength', {
+                    overrideIdentifier: this._languageId
+                });
             }
         });
     }
@@ -318,7 +339,7 @@ export class MonarchTokenizer {
     }
     getLoadStatus() {
         const promises = [];
-        for (let nestedLanguageId in this._embeddedLanguages) {
+        for (const nestedLanguageId in this._embeddedLanguages) {
             const tokenizationSupport = languages.TokenizationRegistry.get(nestedLanguageId);
             if (tokenizationSupport) {
                 // The nested language is already loaded
@@ -350,11 +371,17 @@ export class MonarchTokenizer {
         return MonarchLineStateFactory.create(rootState, null);
     }
     tokenize(line, hasEOL, lineState) {
+        if (line.length >= this._maxTokenizationLineLength) {
+            return nullTokenize(this._languageId, lineState);
+        }
         const tokensCollector = new MonarchClassicTokensCollector();
         const endLineState = this._tokenize(line, hasEOL, lineState, tokensCollector);
         return tokensCollector.finalize(endLineState);
     }
     tokenizeEncoded(line, hasEOL, lineState) {
+        if (line.length >= this._maxTokenizationLineLength) {
+            return nullTokenizeEncoded(this._languageService.languageIdCodec.encodeLanguageId(this._languageId), lineState);
+        }
         const tokensCollector = new MonarchModernTokensCollector(this._languageService, this._standaloneThemeService.getColorTheme().tokenTheme);
         const endLineState = this._tokenize(line, hasEOL, lineState, tokensCollector);
         return tokensCollector.finalize(endLineState);
@@ -472,7 +499,7 @@ export class MonarchTokenizer {
                     }
                 }
                 // try each rule until we match
-                let restOfLine = line.substr(pos);
+                const restOfLine = line.substr(pos);
                 for (const rule of rules) {
                     if (pos === 0 || !rule.matchOnlyAtLineStart) {
                         matches = restOfLine.match(rule.regex);
@@ -699,6 +726,7 @@ export class MonarchTokenizer {
         }
         if (languageId !== this._languageId) {
             // Fire language loading event
+            this._languageService.requestBasicLanguageFeatures(languageId);
             languages.TokenizationRegistry.getOrCreate(languageId);
             this._embeddedLanguages[languageId] = true;
         }
@@ -708,7 +736,10 @@ export class MonarchTokenizer {
         }
         return new EmbeddedLanguageData(languageId, NullState);
     }
-}
+};
+MonarchTokenizer = __decorate([
+    __param(4, IConfigurationService)
+], MonarchTokenizer);
 /**
  * Searches for a bracket in the 'brackets' attribute that matches the input.
  */
@@ -720,10 +751,10 @@ function findBracket(lexer, matched) {
     const brackets = lexer.brackets;
     for (const bracket of brackets) {
         if (bracket.open === matched) {
-            return { token: bracket.token, bracketType: 1 /* Open */ };
+            return { token: bracket.token, bracketType: 1 /* monarchCommon.MonarchBracket.Open */ };
         }
         else if (bracket.close === matched) {
-            return { token: bracket.token, bracketType: -1 /* Close */ };
+            return { token: bracket.token, bracketType: -1 /* monarchCommon.MonarchBracket.Close */ };
         }
     }
     return null;

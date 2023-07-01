@@ -49,7 +49,7 @@ export class HoverOperation extends Disposable {
         this._firstWaitScheduler = this._register(new RunOnceScheduler(() => this._triggerAsyncComputation(), 0));
         this._secondWaitScheduler = this._register(new RunOnceScheduler(() => this._triggerSyncComputation(), 0));
         this._loadingMessageScheduler = this._register(new RunOnceScheduler(() => this._triggerLoadingMessage(), 0));
-        this._state = 0 /* Idle */;
+        this._state = 0 /* HoverOperationState.Idle */;
         this._asyncIterable = null;
         this._asyncIterableDone = false;
         this._result = [];
@@ -62,7 +62,7 @@ export class HoverOperation extends Disposable {
         super.dispose();
     }
     get _hoverTime() {
-        return this._editor.getOption(53 /* hover */).delay;
+        return this._editor.getOption(58 /* EditorOption.hover */).delay;
     }
     get _firstWaitTime() {
         return this._hoverTime / 2;
@@ -80,17 +80,19 @@ export class HoverOperation extends Disposable {
         }
     }
     _triggerAsyncComputation() {
-        this._setState(2 /* SecondWait */);
+        this._setState(2 /* HoverOperationState.SecondWait */);
         this._secondWaitScheduler.schedule(this._secondWaitTime);
         if (this._computer.computeAsync) {
             this._asyncIterableDone = false;
             this._asyncIterable = createCancelableAsyncIterable(token => this._computer.computeAsync(token));
             (() => __awaiter(this, void 0, void 0, function* () {
-                var e_1, _a;
+                var _a, e_1, _b, _c;
                 try {
                     try {
-                        for (var _b = __asyncValues(this._asyncIterable), _c; _c = yield _b.next(), !_c.done;) {
-                            const item = _c.value;
+                        for (var _d = true, _e = __asyncValues(this._asyncIterable), _f; _f = yield _e.next(), _a = _f.done, !_a; _d = true) {
+                            _c = _f.value;
+                            _d = false;
+                            const item = _c;
                             if (item) {
                                 this._result.push(item);
                                 this._fireResult();
@@ -100,13 +102,13 @@ export class HoverOperation extends Disposable {
                     catch (e_1_1) { e_1 = { error: e_1_1 }; }
                     finally {
                         try {
-                            if (_c && !_c.done && (_a = _b.return)) yield _a.call(_b);
+                            if (!_d && !_a && (_b = _e.return)) yield _b.call(_e);
                         }
                         finally { if (e_1) throw e_1.error; }
                     }
                     this._asyncIterableDone = true;
-                    if (this._state === 3 /* WaitingForAsync */ || this._state === 4 /* WaitingForAsyncShowingLoading */) {
-                        this._setState(0 /* Idle */);
+                    if (this._state === 3 /* HoverOperationState.WaitingForAsync */ || this._state === 4 /* HoverOperationState.WaitingForAsyncShowingLoading */) {
+                        this._setState(0 /* HoverOperationState.Idle */);
                     }
                 }
                 catch (e) {
@@ -122,38 +124,38 @@ export class HoverOperation extends Disposable {
         if (this._computer.computeSync) {
             this._result = this._result.concat(this._computer.computeSync());
         }
-        this._setState(this._asyncIterableDone ? 0 /* Idle */ : 3 /* WaitingForAsync */);
+        this._setState(this._asyncIterableDone ? 0 /* HoverOperationState.Idle */ : 3 /* HoverOperationState.WaitingForAsync */);
     }
     _triggerLoadingMessage() {
-        if (this._state === 3 /* WaitingForAsync */) {
-            this._setState(4 /* WaitingForAsyncShowingLoading */);
+        if (this._state === 3 /* HoverOperationState.WaitingForAsync */) {
+            this._setState(4 /* HoverOperationState.WaitingForAsyncShowingLoading */);
         }
     }
     _fireResult() {
-        if (this._state === 1 /* FirstWait */ || this._state === 2 /* SecondWait */) {
+        if (this._state === 1 /* HoverOperationState.FirstWait */ || this._state === 2 /* HoverOperationState.SecondWait */) {
             // Do not send out results before the hover time
             return;
         }
-        const isComplete = (this._state === 0 /* Idle */);
-        const hasLoadingMessage = (this._state === 4 /* WaitingForAsyncShowingLoading */);
+        const isComplete = (this._state === 0 /* HoverOperationState.Idle */);
+        const hasLoadingMessage = (this._state === 4 /* HoverOperationState.WaitingForAsyncShowingLoading */);
         this._onResult.fire(new HoverResult(this._result.slice(0), isComplete, hasLoadingMessage));
     }
     start(mode) {
-        if (mode === 0 /* Delayed */) {
-            if (this._state === 0 /* Idle */) {
-                this._setState(1 /* FirstWait */);
+        if (mode === 0 /* HoverStartMode.Delayed */) {
+            if (this._state === 0 /* HoverOperationState.Idle */) {
+                this._setState(1 /* HoverOperationState.FirstWait */);
                 this._firstWaitScheduler.schedule(this._firstWaitTime);
                 this._loadingMessageScheduler.schedule(this._loadingMessageTime);
             }
         }
         else {
             switch (this._state) {
-                case 0 /* Idle */:
+                case 0 /* HoverOperationState.Idle */:
                     this._triggerAsyncComputation();
                     this._secondWaitScheduler.cancel();
                     this._triggerSyncComputation();
                     break;
-                case 2 /* SecondWait */:
+                case 2 /* HoverOperationState.SecondWait */:
                     this._secondWaitScheduler.cancel();
                     this._triggerSyncComputation();
                     break;
@@ -169,6 +171,6 @@ export class HoverOperation extends Disposable {
             this._asyncIterable = null;
         }
         this._result = [];
-        this._setState(0 /* Idle */, false);
+        this._setState(0 /* HoverOperationState.Idle */, false);
     }
 }

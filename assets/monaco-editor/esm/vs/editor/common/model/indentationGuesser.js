@@ -29,7 +29,7 @@ function spacesDiff(a, aLength, b, bLength, result) {
     let aSpacesCnt = 0, aTabsCount = 0;
     for (let j = i; j < aLength; j++) {
         const aCharCode = a.charCodeAt(j);
-        if (aCharCode === 32 /* Space */) {
+        if (aCharCode === 32 /* CharCode.Space */) {
             aSpacesCnt++;
         }
         else {
@@ -39,7 +39,7 @@ function spacesDiff(a, aLength, b, bLength, result) {
     let bSpacesCnt = 0, bTabsCount = 0;
     for (let j = i; j < bLength; j++) {
         const bCharCode = b.charCodeAt(j);
-        if (bCharCode === 32 /* Space */) {
+        if (bCharCode === 32 /* CharCode.Space */) {
             bSpacesCnt++;
         }
         else {
@@ -59,8 +59,8 @@ function spacesDiff(a, aLength, b, bLength, result) {
         // sometime folks like to align their code, but this should not be used as a hint
         result.spacesDiff = spacesDiff;
         if (spacesDiff > 0 && 0 <= bSpacesCnt - 1 && bSpacesCnt - 1 < a.length && bSpacesCnt < b.length) {
-            if (b.charCodeAt(bSpacesCnt) !== 32 /* Space */ && a.charCodeAt(bSpacesCnt - 1) === 32 /* Space */) {
-                if (a.charCodeAt(a.length - 1) === 44 /* Comma */) {
+            if (b.charCodeAt(bSpacesCnt) !== 32 /* CharCode.Space */ && a.charCodeAt(bSpacesCnt - 1) === 32 /* CharCode.Space */) {
+                if (a.charCodeAt(a.length - 1) === 44 /* CharCode.Comma */) {
                     // This looks like an alignment desire: e.g.
                     // const a = b + c,
                     //       d = b - c;
@@ -98,10 +98,10 @@ export function guessIndentation(source, defaultTabSize, defaultInsertSpaces) {
         let currentLineTabsCount = 0; // count of tabs found in `currentLineText` indentation
         for (let j = 0, lenJ = currentLineLength; j < lenJ; j++) {
             const charCode = (useCurrentLineText ? currentLineText.charCodeAt(j) : source.getLineCharCode(lineNumber, j));
-            if (charCode === 9 /* Tab */) {
+            if (charCode === 9 /* CharCode.Tab */) {
                 currentLineTabsCount++;
             }
-            else if (charCode === 32 /* Space */) {
+            else if (charCode === 32 /* CharCode.Space */) {
                 currentLineSpacesCount++;
             }
             else {

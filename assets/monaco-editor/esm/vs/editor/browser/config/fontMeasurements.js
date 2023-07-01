@@ -8,7 +8,7 @@ import { Disposable } from '../../../base/common/lifecycle.js';
 import { CharWidthRequest, readCharWidths } from './charWidthReader.js';
 import { EditorFontLigatures } from '../../common/config/editorOptions.js';
 import { FontInfo } from '../../common/config/fontInfo.js';
-class FontMeasurementsImpl extends Disposable {
+export class FontMeasurementsImpl extends Disposable {
     constructor() {
         super();
         this._onDidChange = this._register(new Emitter());
@@ -67,6 +67,7 @@ class FontMeasurementsImpl extends Disposable {
                     fontWeight: readConfig.fontWeight,
                     fontSize: readConfig.fontSize,
                     fontFeatureSettings: readConfig.fontFeatureSettings,
+                    fontVariationSettings: readConfig.fontVariationSettings,
                     lineHeight: readConfig.lineHeight,
                     letterSpacing: readConfig.letterSpacing,
                     isMonospace: readConfig.isMonospace,
@@ -86,40 +87,38 @@ class FontMeasurementsImpl extends Disposable {
     _createRequest(chr, type, all, monospace) {
         const result = new CharWidthRequest(chr, type);
         all.push(result);
-        if (monospace) {
-            monospace.push(result);
-        }
+        monospace === null || monospace === void 0 ? void 0 : monospace.push(result);
         return result;
     }
     _actualReadFontInfo(bareFontInfo) {
         const all = [];
         const monospace = [];
-        const typicalHalfwidthCharacter = this._createRequest('n', 0 /* Regular */, all, monospace);
-        const typicalFullwidthCharacter = this._createRequest('\uff4d', 0 /* Regular */, all, null);
-        const space = this._createRequest(' ', 0 /* Regular */, all, monospace);
-        const digit0 = this._createRequest('0', 0 /* Regular */, all, monospace);
-        const digit1 = this._createRequest('1', 0 /* Regular */, all, monospace);
-        const digit2 = this._createRequest('2', 0 /* Regular */, all, monospace);
-        const digit3 = this._createRequest('3', 0 /* Regular */, all, monospace);
-        const digit4 = this._createRequest('4', 0 /* Regular */, all, monospace);
-        const digit5 = this._createRequest('5', 0 /* Regular */, all, monospace);
-        const digit6 = this._createRequest('6', 0 /* Regular */, all, monospace);
-        const digit7 = this._createRequest('7', 0 /* Regular */, all, monospace);
-        const digit8 = this._createRequest('8', 0 /* Regular */, all, monospace);
-        const digit9 = this._createRequest('9', 0 /* Regular */, all, monospace);
+        const typicalHalfwidthCharacter = this._createRequest('n', 0 /* CharWidthRequestType.Regular */, all, monospace);
+        const typicalFullwidthCharacter = this._createRequest('\uff4d', 0 /* CharWidthRequestType.Regular */, all, null);
+        const space = this._createRequest(' ', 0 /* CharWidthRequestType.Regular */, all, monospace);
+        const digit0 = this._createRequest('0', 0 /* CharWidthRequestType.Regular */, all, monospace);
+        const digit1 = this._createRequest('1', 0 /* CharWidthRequestType.Regular */, all, monospace);
+        const digit2 = this._createRequest('2', 0 /* CharWidthRequestType.Regular */, all, monospace);
+        const digit3 = this._createRequest('3', 0 /* CharWidthRequestType.Regular */, all, monospace);
+        const digit4 = this._createRequest('4', 0 /* CharWidthRequestType.Regular */, all, monospace);
+        const digit5 = this._createRequest('5', 0 /* CharWidthRequestType.Regular */, all, monospace);
+        const digit6 = this._createRequest('6', 0 /* CharWidthRequestType.Regular */, all, monospace);
+        const digit7 = this._createRequest('7', 0 /* CharWidthRequestType.Regular */, all, monospace);
+        const digit8 = this._createRequest('8', 0 /* CharWidthRequestType.Regular */, all, monospace);
+        const digit9 = this._createRequest('9', 0 /* CharWidthRequestType.Regular */, all, monospace);
         // monospace test: used for whitespace rendering
-        const rightwardsArrow = this._createRequest('→', 0 /* Regular */, all, monospace);
-        const halfwidthRightwardsArrow = this._createRequest('￫', 0 /* Regular */, all, null);
+        const rightwardsArrow = this._createRequest('→', 0 /* CharWidthRequestType.Regular */, all, monospace);
+        const halfwidthRightwardsArrow = this._createRequest('￫', 0 /* CharWidthRequestType.Regular */, all, null);
         // U+00B7 - MIDDLE DOT
-        const middot = this._createRequest('·', 0 /* Regular */, all, monospace);
+        const middot = this._createRequest('·', 0 /* CharWidthRequestType.Regular */, all, monospace);
         // U+2E31 - WORD SEPARATOR MIDDLE DOT
-        const wsmiddotWidth = this._createRequest(String.fromCharCode(0x2E31), 0 /* Regular */, all, null);
+        const wsmiddotWidth = this._createRequest(String.fromCharCode(0x2E31), 0 /* CharWidthRequestType.Regular */, all, null);
         // monospace test: some characters
         const monospaceTestChars = '|/-_ilm%';
         for (let i = 0, len = monospaceTestChars.length; i < len; i++) {
-            this._createRequest(monospaceTestChars.charAt(i), 0 /* Regular */, all, monospace);
-            this._createRequest(monospaceTestChars.charAt(i), 1 /* Italic */, all, monospace);
-            this._createRequest(monospaceTestChars.charAt(i), 2 /* Bold */, all, monospace);
+            this._createRequest(monospaceTestChars.charAt(i), 0 /* CharWidthRequestType.Regular */, all, monospace);
+            this._createRequest(monospaceTestChars.charAt(i), 1 /* CharWidthRequestType.Italic */, all, monospace);
+            this._createRequest(monospaceTestChars.charAt(i), 2 /* CharWidthRequestType.Bold */, all, monospace);
         }
         readCharWidths(bareFontInfo, all);
         const maxDigitWidth = Math.max(digit0.width, digit1.width, digit2.width, digit3.width, digit4.width, digit5.width, digit6.width, digit7.width, digit8.width, digit9.width);
@@ -147,6 +146,7 @@ class FontMeasurementsImpl extends Disposable {
             fontWeight: bareFontInfo.fontWeight,
             fontSize: bareFontInfo.fontSize,
             fontFeatureSettings: bareFontInfo.fontFeatureSettings,
+            fontVariationSettings: bareFontInfo.fontVariationSettings,
             lineHeight: bareFontInfo.lineHeight,
             letterSpacing: bareFontInfo.letterSpacing,
             isMonospace: isMonospace,

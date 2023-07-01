@@ -17,6 +17,7 @@ import { clamp, MovingAverage, SlidingWindowAverage } from '../../../base/common
 import { registerSingleton } from '../../../platform/instantiation/common/extensions.js';
 import { createDecorator } from '../../../platform/instantiation/common/instantiation.js';
 import { ILogService } from '../../../platform/log/common/log.js';
+import { matchesScheme } from '../../../platform/opener/common/opener.js';
 export const ILanguageFeatureDebounceService = createDecorator('ILanguageFeatureDebounceService');
 var IdentityHash;
 (function (IdentityHash) {
@@ -60,7 +61,9 @@ class FeatureDebounceInformation {
             this._cache.set(key, avg);
         }
         const newValue = clamp(avg.update(value), this._min, this._max);
-        this._logService.trace(`[DEBOUNCE: ${this._name}] for ${model.uri.toString()} is ${newValue}ms`);
+        if (!matchesScheme(model.uri, 'output')) {
+            this._logService.trace(`[DEBOUNCE: ${this._name}] for ${model.uri.toString()} is ${newValue}ms`);
+        }
         return newValue;
     }
     _overall() {
@@ -75,7 +78,7 @@ class FeatureDebounceInformation {
         return clamp(value, this._min, this._max);
     }
 }
-let LanguageFeatureDebounceService = class LanguageFeatureDebounceService {
+export let LanguageFeatureDebounceService = class LanguageFeatureDebounceService {
     constructor(_logService) {
         this._logService = _logService;
         this._data = new Map();
@@ -96,8 +99,8 @@ let LanguageFeatureDebounceService = class LanguageFeatureDebounceService {
     }
     _overallAverage() {
         // Average of all language features. Not a great value but an approximation
-        let result = new MovingAverage();
-        for (let info of this._data.values()) {
+        const result = new MovingAverage();
+        for (const info of this._data.values()) {
             result.update(info.default());
         }
         return result.value;
@@ -106,5 +109,4 @@ let LanguageFeatureDebounceService = class LanguageFeatureDebounceService {
 LanguageFeatureDebounceService = __decorate([
     __param(0, ILogService)
 ], LanguageFeatureDebounceService);
-export { LanguageFeatureDebounceService };
-registerSingleton(ILanguageFeatureDebounceService, LanguageFeatureDebounceService, true);
+registerSingleton(ILanguageFeatureDebounceService, LanguageFeatureDebounceService, 1 /* InstantiationType.Delayed */);

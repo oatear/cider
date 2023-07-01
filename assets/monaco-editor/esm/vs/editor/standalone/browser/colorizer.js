@@ -11,14 +11,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var _a;
+import { createTrustedTypesPolicy } from '../../../base/browser/trustedTypes.js';
 import * as strings from '../../../base/common/strings.js';
-import { LineTokens } from '../../common/tokens/lineTokens.js';
 import { TokenizationRegistry } from '../../common/languages.js';
+import { LineTokens } from '../../common/tokens/lineTokens.js';
 import { RenderLineInput, renderViewLine2 as renderViewLine } from '../../common/viewLayout/viewLineRenderer.js';
-import { ViewLineRenderingData } from '../../common/viewModel/viewModel.js';
+import { ViewLineRenderingData } from '../../common/viewModel.js';
 import { MonarchTokenizer } from '../common/monarch/monarchLexer.js';
-const ttPolicy = (_a = window.trustedTypes) === null || _a === void 0 ? void 0 : _a.createPolicy('standaloneColorizer', { createHTML: value => value });
+const ttPolicy = createTrustedTypesPolicy('standaloneColorizer', { createHTML: value => value });
 export class Colorizer {
     static colorizeElement(themeService, languageService, domNode, options) {
         options = options || {};
@@ -68,8 +68,8 @@ export class Colorizer {
     }
     static colorizeModelLine(model, lineNumber, tabSize = 4) {
         const content = model.getLineContent(lineNumber);
-        model.forceTokenization(lineNumber);
-        const tokens = model.getLineTokens(lineNumber);
+        model.tokenization.forceTokenization(lineNumber);
+        const tokens = model.tokenization.getLineTokens(lineNumber);
         const inflatedTokens = tokens.inflate();
         return this.colorizeLine(content, model.mightContainNonBasicASCII(), model.mightContainRTL(), inflatedTokens, tabSize);
     }
@@ -92,9 +92,9 @@ function _colorize(lines, tabSize, tokenizationSupport, languageIdCodec) {
 }
 function _fakeColorize(lines, tabSize, languageIdCodec) {
     let html = [];
-    const defaultMetadata = ((0 /* None */ << 10 /* FONT_STYLE_OFFSET */)
-        | (1 /* DefaultForeground */ << 14 /* FOREGROUND_OFFSET */)
-        | (2 /* DefaultBackground */ << 23 /* BACKGROUND_OFFSET */)) >>> 0;
+    const defaultMetadata = ((0 /* FontStyle.None */ << 11 /* MetadataConsts.FONT_STYLE_OFFSET */)
+        | (1 /* ColorId.DefaultForeground */ << 15 /* MetadataConsts.FOREGROUND_OFFSET */)
+        | (2 /* ColorId.DefaultBackground */ << 24 /* MetadataConsts.BACKGROUND_OFFSET */)) >>> 0;
     const tokens = new Uint32Array(2);
     tokens[0] = 0;
     tokens[1] = defaultMetadata;

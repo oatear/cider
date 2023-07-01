@@ -8,9 +8,10 @@ import { ICodeEditorService } from './services/codeEditorService.js';
 import { Position } from '../common/core/position.js';
 import { IModelService } from '../common/services/model.js';
 import { ITextModelService } from '../common/services/resolverService.js';
-import { MenuId, MenuRegistry } from '../../platform/actions/common/actions.js';
+import { MenuId, MenuRegistry, Action2 } from '../../platform/actions/common/actions.js';
 import { CommandsRegistry } from '../../platform/commands/common/commands.js';
 import { ContextKeyExpr, IContextKeyService } from '../../platform/contextkey/common/contextkey.js';
+import { IInstantiationService } from '../../platform/instantiation/common/instantiation.js';
 import { KeybindingsRegistry } from '../../platform/keybinding/common/keybindingsRegistry.js';
 import { Registry } from '../../platform/registry/common/platform.js';
 import { ITelemetryService } from '../../platform/telemetry/common/telemetry.js';
@@ -148,7 +149,7 @@ export class EditorCommand extends Command {
             }
         };
     }
-    runCommand(accessor, args) {
+    static runEditorCommand(accessor, args, precondition, runner) {
         const codeEditorService = accessor.get(ICodeEditorService);
         // Find the editor with text focus or active
         const editor = codeEditorService.getFocusedCodeEditor() || codeEditorService.getActiveCodeEditor();
@@ -158,20 +159,18 @@ export class EditorCommand extends Command {
         }
         return editor.invokeWithinContext((editorAccessor) => {
             const kbService = editorAccessor.get(IContextKeyService);
-            if (!kbService.contextMatchesRules(withNullAsUndefined(this.precondition))) {
+            if (!kbService.contextMatchesRules(withNullAsUndefined(precondition))) {
                 // precondition does not hold
                 return;
             }
-            return this.runEditorCommand(editorAccessor, editor, args);
+            return runner(editorAccessor, editor, args);
         });
+    }
+    runCommand(accessor, args) {
+        return EditorCommand.runEditorCommand(accessor, args, this.precondition, (accessor, editor, args) => this.runEditorCommand(accessor, editor, args));
     }
 }
 export class EditorAction extends EditorCommand {
-    constructor(opts) {
-        super(EditorAction.convertOptions(opts));
-        this.label = opts.label;
-        this.alias = opts.alias;
-    }
     static convertOptions(opts) {
         let menuOpts;
         if (Array.isArray(opts.menuOpts)) {
@@ -201,6 +200,11 @@ export class EditorAction extends EditorCommand {
         }
         opts.menuOpts = menuOpts;
         return opts;
+    }
+    constructor(opts) {
+        super(EditorAction.convertOptions(opts));
+        this.label = opts.label;
+        this.alias = opts.alias;
     }
     runEditorCommand(accessor, editor, args) {
         this.reportTelemetry(accessor, editor);
@@ -244,45 +248,48 @@ export class MultiEditorAction extends EditorAction {
         }
     }
 }
+//#endregion EditorAction
+//#region EditorAction2
+export class EditorAction2 extends Action2 {
+    run(accessor, ...args) {
+        // Find the editor with text focus or active
+        const codeEditorService = accessor.get(ICodeEditorService);
+        const editor = codeEditorService.getFocusedCodeEditor() || codeEditorService.getActiveCodeEditor();
+        if (!editor) {
+            // well, at least we tried...
+            return;
+        }
+        // precondition does hold
+        return editor.invokeWithinContext((editorAccessor) => {
+            var _a;
+            const kbService = editorAccessor.get(IContextKeyService);
+            const logService = editorAccessor.get(ILogService);
+            const enabled = kbService.contextMatchesRules(withNullAsUndefined(this.desc.precondition));
+            if (!enabled) {
+                logService.debug(`[EditorAction2] NOT running command because its precondition is FALSE`, this.desc.id, (_a = this.desc.precondition) === null || _a === void 0 ? void 0 : _a.serialize());
+                return;
+            }
+            return this.runEditorCommand(editorAccessor, editor, ...args);
+        });
+    }
+}
 //#endregion
 // --- Registration of commands and actions
 export function registerModelAndPositionCommand(id, handler) {
     CommandsRegistry.registerCommand(id, function (accessor, ...args) {
+        const instaService = accessor.get(IInstantiationService);
         const [resource, position] = args;
         assertType(URI.isUri(resource));
         assertType(Position.isIPosition(position));
         const model = accessor.get(IModelService).getModel(resource);
         if (model) {
             const editorPosition = Position.lift(position);
-            return handler(model, editorPosition, ...args.slice(2));
+            return instaService.invokeFunction(handler, model, editorPosition, ...args.slice(2));
         }
         return accessor.get(ITextModelService).createModelReference(resource).then(reference => {
             return new Promise((resolve, reject) => {
                 try {
-                    const result = handler(reference.object.textEditorModel, Position.lift(position), args.slice(2));
-                    resolve(result);
-                }
-                catch (err) {
-                    reject(err);
-                }
-            }).finally(() => {
-                reference.dispose();
-            });
-        });
-    });
-}
-export function registerModelCommand(id, handler) {
-    CommandsRegistry.registerCommand(id, function (accessor, ...args) {
-        const [resource] = args;
-        assertType(URI.isUri(resource));
-        const model = accessor.get(IModelService).getModel(resource);
-        if (model) {
-            return handler(model, ...args.slice(1));
-        }
-        return accessor.get(ITextModelService).createModelReference(resource).then(reference => {
-            return new Promise((resolve, reject) => {
-                try {
-                    const result = handler(reference.object.textEditorModel, args.slice(1));
+                    const result = instaService.invokeFunction(handler, reference.object.textEditorModel, Position.lift(position), args.slice(2));
                     resolve(result);
                 }
                 catch (err) {
@@ -310,8 +317,12 @@ export function registerMultiEditorAction(action) {
 export function registerInstantiatedEditorAction(editorAction) {
     EditorContributionRegistry.INSTANCE.registerEditorAction(editorAction);
 }
-export function registerEditorContribution(id, ctor) {
-    EditorContributionRegistry.INSTANCE.registerEditorContribution(id, ctor);
+/**
+ * Registers an editor contribution. Editor contributions have a lifecycle which is bound
+ * to a specific code editor instance.
+ */
+export function registerEditorContribution(id, ctor, instantiation) {
+    EditorContributionRegistry.INSTANCE.registerEditorContribution(id, ctor, instantiation);
 }
 export var EditorExtensionsRegistry;
 (function (EditorExtensionsRegistry) {
@@ -347,8 +358,8 @@ class EditorContributionRegistry {
         this.editorActions = [];
         this.editorCommands = Object.create(null);
     }
-    registerEditorContribution(id, ctor) {
-        this.editorContributions.push({ id, ctor: ctor });
+    registerEditorContribution(id, ctor, instantiation) {
+        this.editorContributions.push({ id, ctor: ctor, instantiation });
     }
     getEditorContributions() {
         return this.editorContributions.slice(0);
@@ -361,7 +372,7 @@ class EditorContributionRegistry {
         this.editorActions.push(action);
     }
     getEditorActions() {
-        return this.editorActions.slice(0);
+        return this.editorActions;
     }
     registerEditorCommand(editorCommand) {
         editorCommand.register();
@@ -381,8 +392,8 @@ export const UndoCommand = registerCommand(new MultiCommand({
     id: 'undo',
     precondition: undefined,
     kbOpts: {
-        weight: 0 /* EditorCore */,
-        primary: 2048 /* CtrlCmd */ | 56 /* KeyZ */
+        weight: 0 /* KeybindingWeight.EditorCore */,
+        primary: 2048 /* KeyMod.CtrlCmd */ | 56 /* KeyCode.KeyZ */
     },
     menuOpts: [{
             menuId: MenuId.MenubarEditMenu,
@@ -401,10 +412,10 @@ export const RedoCommand = registerCommand(new MultiCommand({
     id: 'redo',
     precondition: undefined,
     kbOpts: {
-        weight: 0 /* EditorCore */,
-        primary: 2048 /* CtrlCmd */ | 55 /* KeyY */,
-        secondary: [2048 /* CtrlCmd */ | 1024 /* Shift */ | 56 /* KeyZ */],
-        mac: { primary: 2048 /* CtrlCmd */ | 1024 /* Shift */ | 56 /* KeyZ */ }
+        weight: 0 /* KeybindingWeight.EditorCore */,
+        primary: 2048 /* KeyMod.CtrlCmd */ | 55 /* KeyCode.KeyY */,
+        secondary: [2048 /* KeyMod.CtrlCmd */ | 1024 /* KeyMod.Shift */ | 56 /* KeyCode.KeyZ */],
+        mac: { primary: 2048 /* KeyMod.CtrlCmd */ | 1024 /* KeyMod.Shift */ | 56 /* KeyCode.KeyZ */ }
     },
     menuOpts: [{
             menuId: MenuId.MenubarEditMenu,
@@ -423,9 +434,9 @@ export const SelectAllCommand = registerCommand(new MultiCommand({
     id: 'editor.action.selectAll',
     precondition: undefined,
     kbOpts: {
-        weight: 0 /* EditorCore */,
+        weight: 0 /* KeybindingWeight.EditorCore */,
         kbExpr: null,
-        primary: 2048 /* CtrlCmd */ | 31 /* KeyA */
+        primary: 2048 /* KeyMod.CtrlCmd */ | 31 /* KeyCode.KeyA */
     },
     menuOpts: [{
             menuId: MenuId.MenubarSelectionMenu,

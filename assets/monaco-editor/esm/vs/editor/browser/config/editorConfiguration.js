@@ -25,7 +25,7 @@ import { ComputeOptionsMemory, ConfigurationChangedEvent, editorOptionsRegistry 
 import { EditorZoom } from '../../common/config/editorZoom.js';
 import { BareFontInfo } from '../../common/config/fontInfo.js';
 import { IAccessibilityService } from '../../../platform/accessibility/common/accessibility.js';
-let EditorConfiguration = class EditorConfiguration extends Disposable {
+export let EditorConfiguration = class EditorConfiguration extends Disposable {
     constructor(isSimpleWidget, options, container, _accessibilityService) {
         super();
         this._accessibilityService = _accessibilityService;
@@ -37,13 +37,14 @@ let EditorConfiguration = class EditorConfiguration extends Disposable {
         this._viewLineCount = 1;
         this._lineNumbersDigitCount = 1;
         this._reservedHeight = 0;
+        this._glyphMarginDecorationLaneCount = 1;
         this._computeOptionsMemory = new ComputeOptionsMemory();
         this.isSimpleWidget = isSimpleWidget;
         this._containerObserver = this._register(new ElementSizeObserver(container, options.dimension));
         this._rawOptions = deepCloneAndMigrateOptions(options);
         this._validatedOptions = EditorOptionsUtil.validateOptions(this._rawOptions);
         this.options = this._computeOptions();
-        if (this.options.get(10 /* automaticLayout */)) {
+        if (this.options.get(11 /* EditorOption.automaticLayout */)) {
             this._containerObserver.startObserving();
         }
         this._register(EditorZoom.onDidChangeZoomLevel(() => this._recomputeOptions()));
@@ -79,8 +80,9 @@ let EditorConfiguration = class EditorConfiguration extends Disposable {
             lineNumbersDigitCount: this._lineNumbersDigitCount,
             emptySelectionClipboard: partialEnv.emptySelectionClipboard,
             pixelRatio: partialEnv.pixelRatio,
-            tabFocusMode: TabFocus.getTabFocusMode(),
-            accessibilitySupport: partialEnv.accessibilitySupport
+            tabFocusMode: TabFocus.getTabFocusMode("editorFocus" /* TabFocusContext.Editor */),
+            accessibilitySupport: partialEnv.accessibilitySupport,
+            glyphMarginDecorationLaneCount: this._glyphMarginDecorationLaneCount
         };
         return EditorOptionsUtil.computeOptions(this._validatedOptions, env);
     }
@@ -92,7 +94,7 @@ let EditorConfiguration = class EditorConfiguration extends Disposable {
             emptySelectionClipboard: browser.isWebKit || browser.isFirefox,
             pixelRatio: browser.PixelRatio.value,
             accessibilitySupport: (this._accessibilityService.isScreenReaderOptimized()
-                ? 2 /* Enabled */
+                ? 2 /* AccessibilitySupport.Enabled */
                 : this._accessibilityService.getAccessibilitySupport())
         };
     }
@@ -143,11 +145,17 @@ let EditorConfiguration = class EditorConfiguration extends Disposable {
         this._reservedHeight = reservedHeight;
         this._recomputeOptions();
     }
+    setGlyphMarginDecorationLaneCount(decorationLaneCount) {
+        if (this._glyphMarginDecorationLaneCount === decorationLaneCount) {
+            return;
+        }
+        this._glyphMarginDecorationLaneCount = decorationLaneCount;
+        this._recomputeOptions();
+    }
 };
 EditorConfiguration = __decorate([
     __param(3, IAccessibilityService)
 ], EditorConfiguration);
-export { EditorConfiguration };
 function digitCount(n) {
     let r = 0;
     while (n) {
@@ -165,6 +173,7 @@ function getExtraEditorClassName() {
     if (browser.isSafari) {
         // See https://github.com/microsoft/vscode/issues/108822
         extra += 'no-minimap-shadow ';
+        extra += 'enable-user-select ';
     }
     if (platform.isMacintosh) {
         extra += 'mac ';

@@ -15,28 +15,31 @@ import { Emitter } from '../../base/common/event.js';
 import { Disposable, toDisposable } from '../../base/common/lifecycle.js';
 export class TokenizationRegistry {
     constructor() {
-        this._map = new Map();
+        this._tokenizationSupports = new Map();
         this._factories = new Map();
         this._onDidChange = new Emitter();
         this.onDidChange = this._onDidChange.event;
         this._colorMap = null;
     }
-    fire(languages) {
+    handleChange(languageIds) {
         this._onDidChange.fire({
-            changedLanguages: languages,
+            changedLanguages: languageIds,
             changedColorMap: false
         });
     }
-    register(language, support) {
-        this._map.set(language, support);
-        this.fire([language]);
+    register(languageId, support) {
+        this._tokenizationSupports.set(languageId, support);
+        this.handleChange([languageId]);
         return toDisposable(() => {
-            if (this._map.get(language) !== support) {
+            if (this._tokenizationSupports.get(languageId) !== support) {
                 return;
             }
-            this._map.delete(language);
-            this.fire([language]);
+            this._tokenizationSupports.delete(languageId);
+            this.handleChange([languageId]);
         });
+    }
+    get(languageId) {
+        return this._tokenizationSupports.get(languageId) || null;
     }
     registerFactory(languageId, factory) {
         var _a;
@@ -68,9 +71,6 @@ export class TokenizationRegistry {
             return this.get(languageId);
         });
     }
-    get(language) {
-        return (this._map.get(language) || null);
-    }
     isResolved(languageId) {
         const tokenizationSupport = this.get(languageId);
         if (tokenizationSupport) {
@@ -85,7 +85,7 @@ export class TokenizationRegistry {
     setColorMap(colorMap) {
         this._colorMap = colorMap;
         this._onDidChange.fire({
-            changedLanguages: Array.from(this._map.keys()),
+            changedLanguages: Array.from(this._tokenizationSupports.keys()),
             changedColorMap: true
         });
     }
@@ -93,13 +93,16 @@ export class TokenizationRegistry {
         return this._colorMap;
     }
     getDefaultBackground() {
-        if (this._colorMap && this._colorMap.length > 2 /* DefaultBackground */) {
-            return this._colorMap[2 /* DefaultBackground */];
+        if (this._colorMap && this._colorMap.length > 2 /* ColorId.DefaultBackground */) {
+            return this._colorMap[2 /* ColorId.DefaultBackground */];
         }
         return null;
     }
 }
 class TokenizationSupportFactoryData extends Disposable {
+    get isResolved() {
+        return this._isResolved;
+    }
     constructor(_registry, _languageId, _factory) {
         super();
         this._registry = _registry;
@@ -108,9 +111,6 @@ class TokenizationSupportFactoryData extends Disposable {
         this._isDisposed = false;
         this._resolvePromise = null;
         this._isResolved = false;
-    }
-    get isResolved() {
-        return this._isResolved;
     }
     dispose() {
         this._isDisposed = true;
@@ -126,7 +126,7 @@ class TokenizationSupportFactoryData extends Disposable {
     }
     _create() {
         return __awaiter(this, void 0, void 0, function* () {
-            const value = yield Promise.resolve(this._factory.createTokenizationSupport());
+            const value = yield this._factory.tokenizationSupport;
             this._isResolved = true;
             if (value && !this._isDisposed) {
                 this._register(this._registry.register(this._languageId, value));

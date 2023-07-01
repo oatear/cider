@@ -24,24 +24,24 @@ export function parseTokenTheme(source) {
     let resultLen = 0;
     for (let i = 0, len = source.length; i < len; i++) {
         const entry = source[i];
-        let fontStyle = -1 /* NotSet */;
+        let fontStyle = -1 /* FontStyle.NotSet */;
         if (typeof entry.fontStyle === 'string') {
-            fontStyle = 0 /* None */;
+            fontStyle = 0 /* FontStyle.None */;
             const segments = entry.fontStyle.split(' ');
             for (let j = 0, lenJ = segments.length; j < lenJ; j++) {
                 const segment = segments[j];
                 switch (segment) {
                     case 'italic':
-                        fontStyle = fontStyle | 1 /* Italic */;
+                        fontStyle = fontStyle | 1 /* FontStyle.Italic */;
                         break;
                     case 'bold':
-                        fontStyle = fontStyle | 2 /* Bold */;
+                        fontStyle = fontStyle | 2 /* FontStyle.Bold */;
                         break;
                     case 'underline':
-                        fontStyle = fontStyle | 4 /* Underline */;
+                        fontStyle = fontStyle | 4 /* FontStyle.Underline */;
                         break;
                     case 'strikethrough':
-                        fontStyle = fontStyle | 8 /* Strikethrough */;
+                        fontStyle = fontStyle | 8 /* FontStyle.Strikethrough */;
                         break;
                 }
             }
@@ -71,12 +71,12 @@ function resolveParsedTokenThemeRules(parsedThemeRules, customTokenColors) {
         return a.index - b.index;
     });
     // Determine defaults
-    let defaultFontStyle = 0 /* None */;
+    let defaultFontStyle = 0 /* FontStyle.None */;
     let defaultForeground = '000000';
     let defaultBackground = 'ffffff';
     while (parsedThemeRules.length >= 1 && parsedThemeRules[0].token === '') {
         const incomingDefaults = parsedThemeRules.shift();
-        if (incomingDefaults.fontStyle !== -1 /* NotSet */) {
+        if (incomingDefaults.fontStyle !== -1 /* FontStyle.NotSet */) {
             defaultFontStyle = incomingDefaults.fontStyle;
         }
         if (incomingDefaults.foreground !== null) {
@@ -88,7 +88,7 @@ function resolveParsedTokenThemeRules(parsedThemeRules, customTokenColors) {
     }
     const colorMap = new ColorMap();
     // start with token colors from custom token themes
-    for (let color of customTokenColors) {
+    for (const color of customTokenColors) {
         colorMap.getId(color);
     }
     const foregroundColorId = colorMap.getId(defaultForeground);
@@ -131,16 +131,16 @@ export class ColorMap {
     }
 }
 export class TokenTheme {
-    constructor(colorMap, root) {
-        this._colorMap = colorMap;
-        this._root = root;
-        this._cache = new Map();
-    }
     static createFromRawTokenTheme(source, customTokenColors) {
         return this.createFromParsedTokenTheme(parseTokenTheme(source), customTokenColors);
     }
     static createFromParsedTokenTheme(source, customTokenColors) {
         return resolveParsedTokenThemeRules(source, customTokenColors);
+    }
+    constructor(colorMap, root) {
+        this._colorMap = colorMap;
+        this._root = root;
+        this._cache = new Map();
     }
     getColorMap() {
         return this._colorMap.getColorMap();
@@ -155,28 +155,28 @@ export class TokenTheme {
             const rule = this._match(token);
             const standardToken = toStandardTokenType(token);
             result = (rule.metadata
-                | (standardToken << 8 /* TOKEN_TYPE_OFFSET */)) >>> 0;
+                | (standardToken << 8 /* MetadataConsts.TOKEN_TYPE_OFFSET */)) >>> 0;
             this._cache.set(token, result);
         }
         return (result
-            | (languageId << 0 /* LANGUAGEID_OFFSET */)) >>> 0;
+            | (languageId << 0 /* MetadataConsts.LANGUAGEID_OFFSET */)) >>> 0;
     }
 }
 const STANDARD_TOKEN_TYPE_REGEXP = /\b(comment|string|regex|regexp)\b/;
 export function toStandardTokenType(tokenType) {
     const m = tokenType.match(STANDARD_TOKEN_TYPE_REGEXP);
     if (!m) {
-        return 0 /* Other */;
+        return 0 /* StandardTokenType.Other */;
     }
     switch (m[1]) {
         case 'comment':
-            return 1 /* Comment */;
+            return 1 /* StandardTokenType.Comment */;
         case 'string':
-            return 2 /* String */;
+            return 2 /* StandardTokenType.String */;
         case 'regex':
-            return 3 /* RegEx */;
+            return 3 /* StandardTokenType.RegEx */;
         case 'regexp':
-            return 3 /* RegEx */;
+            return 3 /* StandardTokenType.RegEx */;
     }
     throw new Error('Unexpected match for standard token type!');
 }
@@ -195,26 +195,26 @@ export class ThemeTrieElementRule {
         this._fontStyle = fontStyle;
         this._foreground = foreground;
         this._background = background;
-        this.metadata = ((this._fontStyle << 10 /* FONT_STYLE_OFFSET */)
-            | (this._foreground << 14 /* FOREGROUND_OFFSET */)
-            | (this._background << 23 /* BACKGROUND_OFFSET */)) >>> 0;
+        this.metadata = ((this._fontStyle << 11 /* MetadataConsts.FONT_STYLE_OFFSET */)
+            | (this._foreground << 15 /* MetadataConsts.FOREGROUND_OFFSET */)
+            | (this._background << 24 /* MetadataConsts.BACKGROUND_OFFSET */)) >>> 0;
     }
     clone() {
         return new ThemeTrieElementRule(this._fontStyle, this._foreground, this._background);
     }
     acceptOverwrite(fontStyle, foreground, background) {
-        if (fontStyle !== -1 /* NotSet */) {
+        if (fontStyle !== -1 /* FontStyle.NotSet */) {
             this._fontStyle = fontStyle;
         }
-        if (foreground !== 0 /* None */) {
+        if (foreground !== 0 /* ColorId.None */) {
             this._foreground = foreground;
         }
-        if (background !== 0 /* None */) {
+        if (background !== 0 /* ColorId.None */) {
             this._background = background;
         }
-        this.metadata = ((this._fontStyle << 10 /* FONT_STYLE_OFFSET */)
-            | (this._foreground << 14 /* FOREGROUND_OFFSET */)
-            | (this._background << 23 /* BACKGROUND_OFFSET */)) >>> 0;
+        this.metadata = ((this._fontStyle << 11 /* MetadataConsts.FONT_STYLE_OFFSET */)
+            | (this._foreground << 15 /* MetadataConsts.FOREGROUND_OFFSET */)
+            | (this._background << 24 /* MetadataConsts.BACKGROUND_OFFSET */)) >>> 0;
     }
 }
 export class ThemeTrieElement {

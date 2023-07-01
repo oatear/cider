@@ -92,12 +92,11 @@ export class CancellationTokenSource {
         }
     }
     dispose(cancel = false) {
+        var _a;
         if (cancel) {
             this.cancel();
         }
-        if (this._parentListener) {
-            this._parentListener.dispose();
-        }
+        (_a = this._parentListener) === null || _a === void 0 ? void 0 : _a.dispose();
         if (!this._token) {
             // ensure to initialize with an empty token if we had none
             this._token = CancellationToken.None;

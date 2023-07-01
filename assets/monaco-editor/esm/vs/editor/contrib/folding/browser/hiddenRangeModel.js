@@ -7,6 +7,8 @@ import { Emitter } from '../../../../base/common/event.js';
 import { Range } from '../../../common/core/range.js';
 import { countEOL } from '../../../common/core/eolCounter.js';
 export class HiddenRangeModel {
+    get onDidChange() { return this._updateEventEmitter.event; }
+    get hiddenRanges() { return this._hiddenRanges; }
     constructor(model) {
         this._updateEventEmitter = new Emitter();
         this._hasLineChanges = false;
@@ -17,8 +19,6 @@ export class HiddenRangeModel {
             this.updateHiddenRanges();
         }
     }
-    get onDidChange() { return this._updateEventEmitter.event; }
-    get hiddenRanges() { return this._hiddenRanges; }
     notifyChangeModelContent(e) {
         if (this._hiddenRanges.length && !this._hasLineChanges) {
             this._hasLineChanges = e.changes.some(change => {
@@ -28,18 +28,18 @@ export class HiddenRangeModel {
     }
     updateHiddenRanges() {
         let updateHiddenAreas = false;
-        let newHiddenAreas = [];
+        const newHiddenAreas = [];
         let i = 0; // index into hidden
         let k = 0;
         let lastCollapsedStart = Number.MAX_VALUE;
         let lastCollapsedEnd = -1;
-        let ranges = this._foldingModel.regions;
+        const ranges = this._foldingModel.regions;
         for (; i < ranges.length; i++) {
             if (!ranges.isCollapsed(i)) {
                 continue;
             }
-            let startLineNumber = ranges.getStartLineNumber(i) + 1; // the first line is not hidden
-            let endLineNumber = ranges.getEndLineNumber(i);
+            const startLineNumber = ranges.getStartLineNumber(i) + 1; // the first line is not hidden
+            const endLineNumber = ranges.getEndLineNumber(i);
             if (lastCollapsedStart <= startLineNumber && endLineNumber <= lastCollapsedEnd) {
                 // ignore ranges contained in collapsed regions
                 continue;
@@ -60,26 +60,6 @@ export class HiddenRangeModel {
             this.applyHiddenRanges(newHiddenAreas);
         }
     }
-    applyMemento(state) {
-        if (!Array.isArray(state) || state.length === 0) {
-            return false;
-        }
-        let hiddenRanges = [];
-        for (let r of state) {
-            if (!r.startLineNumber || !r.endLineNumber) {
-                return false;
-            }
-            hiddenRanges.push(new Range(r.startLineNumber + 1, 1, r.endLineNumber, 1));
-        }
-        this.applyHiddenRanges(hiddenRanges);
-        return true;
-    }
-    /**
-     * Collapse state memento, for persistence only, only used if folding model is not yet initialized
-     */
-    getMemento() {
-        return this._hiddenRanges.map(r => ({ startLineNumber: r.startLineNumber - 1, endLineNumber: r.endLineNumber }));
-    }
     applyHiddenRanges(newHiddenAreas) {
         this._hiddenRanges = newHiddenAreas;
         this._hasLineChanges = false;
@@ -93,9 +73,9 @@ export class HiddenRangeModel {
     }
     adjustSelections(selections) {
         let hasChanges = false;
-        let editorModel = this._foldingModel.textModel;
+        const editorModel = this._foldingModel.textModel;
         let lastRange = null;
-        let adjustLine = (line) => {
+        const adjustLine = (line) => {
             if (!lastRange || !isInside(line, lastRange)) {
                 lastRange = findRange(this._hiddenRanges, line);
             }
@@ -106,12 +86,12 @@ export class HiddenRangeModel {
         };
         for (let i = 0, len = selections.length; i < len; i++) {
             let selection = selections[i];
-            let adjustedStartLine = adjustLine(selection.startLineNumber);
+            const adjustedStartLine = adjustLine(selection.startLineNumber);
             if (adjustedStartLine) {
                 selection = selection.setStartPosition(adjustedStartLine, editorModel.getLineMaxColumn(adjustedStartLine));
                 hasChanges = true;
             }
-            let adjustedEndLine = adjustLine(selection.endLineNumber);
+            const adjustedEndLine = adjustLine(selection.endLineNumber);
             if (adjustedEndLine) {
                 selection = selection.setEndPosition(adjustedEndLine, editorModel.getLineMaxColumn(adjustedEndLine));
                 hasChanges = true;
@@ -135,7 +115,7 @@ function isInside(line, range) {
     return line >= range.startLineNumber && line <= range.endLineNumber;
 }
 function findRange(ranges, line) {
-    let i = findFirstInSorted(ranges, r => line < r.startLineNumber) - 1;
+    const i = findFirstInSorted(ranges, r => line < r.startLineNumber) - 1;
     if (i >= 0 && ranges[i].endLineNumber >= line) {
         return ranges[i];
     }

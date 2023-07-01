@@ -16,13 +16,13 @@ export const BrowserFeatures = {
             || !!(navigator && navigator.clipboard && navigator.clipboard.readText))
     },
     keyboard: (() => {
-        if (platform.isNative || browser.isStandalone) {
-            return 0 /* Always */;
+        if (platform.isNative || browser.isStandalone()) {
+            return 0 /* KeyboardSupport.Always */;
         }
         if (navigator.keyboard || browser.isSafari) {
-            return 1 /* FullScreen */;
+            return 1 /* KeyboardSupport.FullScreen */;
         }
-        return 2 /* None */;
+        return 2 /* KeyboardSupport.None */;
     })(),
     // 'ontouchstart' in window always evaluates to true with typescript's modern typings. This causes `window` to be
     // `never` later in `window.navigator`. That's why we need the explicit `window as Window` cast

@@ -60,7 +60,7 @@ export class LineDecoration {
                 // Ignore decorations that sit outside this line
                 continue;
             }
-            if (range.isEmpty() && (d.type === 0 /* Regular */ || d.type === 3 /* RegularAffectingLetterSpacing */)) {
+            if (range.isEmpty() && (d.type === 0 /* InlineDecorationType.Regular */ || d.type === 3 /* InlineDecorationType.RegularAffectingLetterSpacing */)) {
                 // Ignore empty range decorations
                 continue;
             }
@@ -173,10 +173,10 @@ export class LineDecorationsNormalizer {
             let startColumn = d.startColumn;
             let endColumn = d.endColumn;
             const className = d.className;
-            const metadata = (d.type === 1 /* Before */
-                ? 2 /* PSEUDO_BEFORE */
-                : d.type === 2 /* After */
-                    ? 4 /* PSEUDO_AFTER */
+            const metadata = (d.type === 1 /* InlineDecorationType.Before */
+                ? 2 /* LinePartMetadata.PSEUDO_BEFORE */
+                : d.type === 2 /* InlineDecorationType.After */
+                    ? 4 /* LinePartMetadata.PSEUDO_AFTER */
                     : 0);
             // If the position would end up in the middle of a high-low surrogate pair, we move it to before the pair
             if (startColumn > 1) {
@@ -199,7 +199,7 @@ export class LineDecorationsNormalizer {
             }
             stack.insert(currentEndOffset, className, metadata);
         }
-        stack.consumeLowerThan(1073741824 /* MAX_SAFE_SMALL_INTEGER */, nextStartOffset, result);
+        stack.consumeLowerThan(1073741824 /* Constants.MAX_SAFE_SMALL_INTEGER */, nextStartOffset, result);
         return result;
     }
 }

@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 import { compareBy, findLastMaxBy, findMinBy } from '../../../base/common/arrays.js';
-import { CursorState } from './cursorCommon.js';
+import { CursorState } from '../cursorCommon.js';
 import { Cursor } from './oneCursor.js';
 import { Position } from '../core/position.js';
 import { Range } from '../core/range.js';

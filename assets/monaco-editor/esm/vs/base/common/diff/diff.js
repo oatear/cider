@@ -23,14 +23,14 @@ export function stringDiff(original, modified, pretty) {
 //
 // The code below has been ported from a C# implementation in VS
 //
-export class Debug {
+class Debug {
     static Assert(condition, message) {
         if (!condition) {
             throw new Error(message);
         }
     }
 }
-export class MyArray {
+class MyArray {
     /**
      * Copies a range of elements from an Array starting at the specified source index and pastes
      * them to another Array starting at the specified destination index. The length and the indexes
@@ -71,8 +71,8 @@ class DiffChangeHelper {
      */
     constructor() {
         this.m_changes = [];
-        this.m_originalStart = 1073741824 /* MAX_SAFE_SMALL_INTEGER */;
-        this.m_modifiedStart = 1073741824 /* MAX_SAFE_SMALL_INTEGER */;
+        this.m_originalStart = 1073741824 /* Constants.MAX_SAFE_SMALL_INTEGER */;
+        this.m_modifiedStart = 1073741824 /* Constants.MAX_SAFE_SMALL_INTEGER */;
         this.m_originalCount = 0;
         this.m_modifiedCount = 0;
     }
@@ -88,8 +88,8 @@ class DiffChangeHelper {
         // Reset for the next change
         this.m_originalCount = 0;
         this.m_modifiedCount = 0;
-        this.m_originalStart = 1073741824 /* MAX_SAFE_SMALL_INTEGER */;
-        this.m_modifiedStart = 1073741824 /* MAX_SAFE_SMALL_INTEGER */;
+        this.m_originalStart = 1073741824 /* Constants.MAX_SAFE_SMALL_INTEGER */;
+        this.m_modifiedStart = 1073741824 /* Constants.MAX_SAFE_SMALL_INTEGER */;
     }
     /**
      * Adds the original element at the given position to the elements
@@ -317,7 +317,7 @@ export class LcsDiff {
         let diagonalMin = diagonalForwardStart;
         let diagonalMax = diagonalForwardEnd;
         let diagonalRelative = (midOriginalArr[0] - midModifiedArr[0]) - diagonalForwardOffset;
-        let lastOriginalIndex = -1073741824 /* MIN_SAFE_SMALL_INTEGER */;
+        let lastOriginalIndex = -1073741824 /* Constants.MIN_SAFE_SMALL_INTEGER */;
         let historyIndex = this.m_forwardHistory.length - 1;
         do {
             // Get the diagonal index from the relative diagonal number
@@ -375,7 +375,7 @@ export class LcsDiff {
             diagonalMin = diagonalReverseStart;
             diagonalMax = diagonalReverseEnd;
             diagonalRelative = (midOriginalArr[0] - midModifiedArr[0]) - diagonalReverseOffset;
-            lastOriginalIndex = 1073741824 /* MAX_SAFE_SMALL_INTEGER */;
+            lastOriginalIndex = 1073741824 /* Constants.MAX_SAFE_SMALL_INTEGER */;
             historyIndex = (deltaIsEven) ? this.m_reverseHistory.length - 1 : this.m_reverseHistory.length - 2;
             do {
                 // Get the diagonal index from the relative diagonal number
@@ -521,7 +521,7 @@ export class LcsDiff {
                     if (originalIndex >= reversePoints[diagonal]) {
                         midOriginalArr[0] = originalIndex;
                         midModifiedArr[0] = modifiedIndex;
-                        if (tempOriginalIndex <= reversePoints[diagonal] && 1447 /* MaxDifferencesHistory */ > 0 && numDifferences <= (1447 /* MaxDifferencesHistory */ + 1)) {
+                        if (tempOriginalIndex <= reversePoints[diagonal] && 1447 /* LocalConstants.MaxDifferencesHistory */ > 0 && numDifferences <= (1447 /* LocalConstants.MaxDifferencesHistory */ + 1)) {
                             // BINGO! We overlapped, and we have the full trace in memory!
                             return this.WALKTRACE(diagonalForwardBase, diagonalForwardStart, diagonalForwardEnd, diagonalForwardOffset, diagonalReverseBase, diagonalReverseStart, diagonalReverseEnd, diagonalReverseOffset, forwardPoints, reversePoints, originalIndex, originalEnd, midOriginalArr, modifiedIndex, modifiedEnd, midModifiedArr, deltaIsEven, quitEarlyArr);
                         }
@@ -541,7 +541,7 @@ export class LcsDiff {
                 // Use the furthest distance we got in the forward direction.
                 midOriginalArr[0] = furthestOriginalIndex;
                 midModifiedArr[0] = furthestModifiedIndex;
-                if (matchLengthOfLongest > 0 && 1447 /* MaxDifferencesHistory */ > 0 && numDifferences <= (1447 /* MaxDifferencesHistory */ + 1)) {
+                if (matchLengthOfLongest > 0 && 1447 /* LocalConstants.MaxDifferencesHistory */ > 0 && numDifferences <= (1447 /* LocalConstants.MaxDifferencesHistory */ + 1)) {
                     // Enough of the history is in memory to walk it backwards
                     return this.WALKTRACE(diagonalForwardBase, diagonalForwardStart, diagonalForwardEnd, diagonalForwardOffset, diagonalReverseBase, diagonalReverseStart, diagonalReverseEnd, diagonalReverseOffset, forwardPoints, reversePoints, originalIndex, originalEnd, midOriginalArr, modifiedIndex, modifiedEnd, midModifiedArr, deltaIsEven, quitEarlyArr);
                 }
@@ -586,7 +586,7 @@ export class LcsDiff {
                     if (originalIndex <= forwardPoints[diagonal]) {
                         midOriginalArr[0] = originalIndex;
                         midModifiedArr[0] = modifiedIndex;
-                        if (tempOriginalIndex >= forwardPoints[diagonal] && 1447 /* MaxDifferencesHistory */ > 0 && numDifferences <= (1447 /* MaxDifferencesHistory */ + 1)) {
+                        if (tempOriginalIndex >= forwardPoints[diagonal] && 1447 /* LocalConstants.MaxDifferencesHistory */ > 0 && numDifferences <= (1447 /* LocalConstants.MaxDifferencesHistory */ + 1)) {
                             // BINGO! We overlapped, and we have the full trace in memory!
                             return this.WALKTRACE(diagonalForwardBase, diagonalForwardStart, diagonalForwardEnd, diagonalForwardOffset, diagonalReverseBase, diagonalReverseStart, diagonalReverseEnd, diagonalReverseOffset, forwardPoints, reversePoints, originalIndex, originalEnd, midOriginalArr, modifiedIndex, modifiedEnd, midModifiedArr, deltaIsEven, quitEarlyArr);
                         }
@@ -599,7 +599,7 @@ export class LcsDiff {
                 }
             }
             // Save current vectors to history before the next iteration
-            if (numDifferences <= 1447 /* MaxDifferencesHistory */) {
+            if (numDifferences <= 1447 /* LocalConstants.MaxDifferencesHistory */) {
                 // We are allocating space for one extra int, which we fill with
                 // the index of the diagonal base index
                 let temp = new Int32Array(diagonalForwardEnd - diagonalForwardStart + 2);
@@ -645,7 +645,7 @@ export class LcsDiff {
                 change.originalStart++;
                 change.modifiedStart++;
             }
-            let mergedChangeArr = [null];
+            const mergedChangeArr = [null];
             if (i < changes.length - 1 && this.ChangesOverlap(changes[i], changes[i + 1], mergedChangeArr)) {
                 changes[i] = mergedChangeArr[0];
                 changes.splice(i + 1, 1);
@@ -813,7 +813,7 @@ export class LcsDiff {
      * @returns The concatenated list
      */
     ConcatenateChanges(left, right) {
-        let mergedChangeArr = [];
+        const mergedChangeArr = [];
         if (left.length === 0 || right.length === 0) {
             return (right.length > 0) ? right : left;
         }

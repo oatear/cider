@@ -20,21 +20,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var _a;
 import { renderMarkdown } from '../../../../base/browser/markdownRenderer.js';
-import { IOpenerService } from '../../../../platform/opener/common/opener.js';
-import { ILanguageService } from '../../../common/services/language.js';
+import { createTrustedTypesPolicy } from '../../../../base/browser/trustedTypes.js';
 import { onUnexpectedError } from '../../../../base/common/errors.js';
-import { tokenizeToString } from '../../../common/languages/textToHtmlTokenizer.js';
 import { Emitter } from '../../../../base/common/event.js';
 import { DisposableStore } from '../../../../base/common/lifecycle.js';
+import './renderedMarkdown.css';
 import { applyFontInfo } from '../../../browser/config/domFontInfo.js';
+import { ILanguageService } from '../../../common/languages/language.js';
 import { PLAINTEXT_LANGUAGE_ID } from '../../../common/languages/modesRegistry.js';
+import { tokenizeToString } from '../../../common/languages/textToHtmlTokenizer.js';
+import { IOpenerService } from '../../../../platform/opener/common/opener.js';
 /**
  * Markdown renderer that can render codeblocks with the editor mechanics. This
  * renderer should always be preferred.
  */
-let MarkdownRenderer = class MarkdownRenderer {
+export let MarkdownRenderer = class MarkdownRenderer {
     constructor(_options, _languageService, _openerService) {
         this._options = _options;
         this._languageService = _languageService;
@@ -52,14 +53,14 @@ let MarkdownRenderer = class MarkdownRenderer {
         }
         const disposables = new DisposableStore();
         const rendered = disposables.add(renderMarkdown(markdown, Object.assign(Object.assign({}, this._getRenderOptions(markdown, disposables)), options), markedOptions));
+        rendered.element.classList.add('rendered-markdown');
         return {
             element: rendered.element,
             dispose: () => disposables.dispose()
         };
     }
-    _getRenderOptions(markdown, disposeables) {
+    _getRenderOptions(markdown, disposables) {
         return {
-            baseUrl: this._options.baseUrl,
             codeBlockRenderer: (languageAlias, value) => __awaiter(this, void 0, void 0, function* () {
                 var _a, _b, _c;
                 // In markdown,
@@ -80,23 +81,26 @@ let MarkdownRenderer = class MarkdownRenderer {
                 element.innerHTML = ((_c = (_b = MarkdownRenderer._ttpTokenizer) === null || _b === void 0 ? void 0 : _b.createHTML(html)) !== null && _c !== void 0 ? _c : html);
                 // use "good" font
                 if (this._options.editor) {
-                    const fontInfo = this._options.editor.getOption(44 /* fontInfo */);
+                    const fontInfo = this._options.editor.getOption(48 /* EditorOption.fontInfo */);
                     applyFontInfo(element, fontInfo);
                 }
                 else if (this._options.codeBlockFontFamily) {
                     element.style.fontFamily = this._options.codeBlockFontFamily;
                 }
+                if (this._options.codeBlockFontSize !== undefined) {
+                    element.style.fontSize = this._options.codeBlockFontSize;
+                }
                 return element;
             }),
             asyncRenderCallback: () => this._onDidRenderAsync.fire(),
             actionHandler: {
-                callback: (content) => this._openerService.open(content, { fromUserGesture: true, allowContributedOpeners: true, allowCommands: markdown.isTrusted }).catch(onUnexpectedError),
-                disposables: disposeables
+                callback: (link) => openLinkFromMarkdown(this._openerService, link, markdown.isTrusted),
+                disposables: disposables
             }
         };
     }
 };
-MarkdownRenderer._ttpTokenizer = (_a = window.trustedTypes) === null || _a === void 0 ? void 0 : _a.createPolicy('tokenizeToString', {
+MarkdownRenderer._ttpTokenizer = createTrustedTypesPolicy('tokenizeToString', {
     createHTML(html) {
         return html;
     }
@@ -105,4 +109,27 @@ MarkdownRenderer = __decorate([
     __param(1, ILanguageService),
     __param(2, IOpenerService)
 ], MarkdownRenderer);
-export { MarkdownRenderer };
+export function openLinkFromMarkdown(openerService, link, isTrusted) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            return yield openerService.open(link, {
+                fromUserGesture: true,
+                allowContributedOpeners: true,
+                allowCommands: toAllowCommandsOption(isTrusted),
+            });
+        }
+        catch (e) {
+            onUnexpectedError(e);
+            return false;
+        }
+    });
+}
+function toAllowCommandsOption(isTrusted) {
+    if (isTrusted === true) {
+        return true; // Allow all commands
+    }
+    if (isTrusted && Array.isArray(isTrusted.enabledCommands)) {
+        return isTrusted.enabledCommands; // Allow subset of commands
+    }
+    return false; // Block commands
+}

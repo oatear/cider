@@ -1,6 +1,7 @@
+"use strict";
 /*!-----------------------------------------------------------------------------
  * Copyright (c) Microsoft Corporation. All rights reserved.
- * Version: 0.32.1(29a273516805a852aa8edc5e05059f119b13eff0)
+ * Version: 0.39.0(ff3621a3fa6389873be5412d17554294ea1b0941)
  * Released under the MIT license
  * https://github.com/microsoft/monaco-editor/blob/main/LICENSE.txt
  *-----------------------------------------------------------------------------*/
@@ -10,24 +11,19 @@ var moduleExports = (() => {
   var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
   var __getOwnPropNames = Object.getOwnPropertyNames;
   var __hasOwnProp = Object.prototype.hasOwnProperty;
-  var __markAsModule = (target) => __defProp(target, "__esModule", { value: true });
   var __export = (target, all) => {
     for (var name in all)
       __defProp(target, name, { get: all[name], enumerable: true });
   };
-  var __reExport = (target, module, copyDefault, desc) => {
-    if (module && typeof module === "object" || typeof module === "function") {
-      for (let key of __getOwnPropNames(module))
-        if (!__hasOwnProp.call(target, key) && (copyDefault || key !== "default"))
-          __defProp(target, key, { get: () => module[key], enumerable: !(desc = __getOwnPropDesc(module, key)) || desc.enumerable });
+  var __copyProps = (to, from, except, desc) => {
+    if (from && typeof from === "object" || typeof from === "function") {
+      for (let key of __getOwnPropNames(from))
+        if (!__hasOwnProp.call(to, key) && key !== except)
+          __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
     }
-    return target;
+    return to;
   };
-  var __toCommonJS = /* @__PURE__ */ ((cache) => {
-    return (module, temp) => {
-      return cache && cache.get(module) || (temp = __reExport(__markAsModule({}), module, 1), cache && cache.set(module, temp), temp);
-    };
-  })(typeof WeakMap !== "undefined" ? /* @__PURE__ */ new WeakMap() : 0);
+  var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
   // src/basic-languages/elixir/elixir.ts
   var elixir_exports = {};
@@ -151,7 +147,7 @@ var moduleExports = (() => {
       whitespace: [[/\s+/, "white"]],
       comments: [[/(#)(.*)/, ["comment.punctuation", "comment"]]],
       keywordsShorthand: [
-        [/(@atomName)(:)/, ["constant", "constant.punctuation"]],
+        [/(@atomName)(:)(\s+)/, ["constant", "constant.punctuation", "white"]],
         [
           /"(?=([^"]|#\{.*?\}|\\")*":)/,
           { token: "constant.delimiter", next: "@doubleQuotedStringKeyword" }
@@ -430,10 +426,24 @@ var moduleExports = (() => {
           }
         ],
         [
+          /\@(module|type)?doc (~[sS])?'''/,
+          {
+            token: "comment.block.documentation",
+            next: "@singleQuotedHeredocDocstring"
+          }
+        ],
+        [
           /\@(module|type)?doc (~[sS])?"/,
           {
             token: "comment.block.documentation",
             next: "@doubleQuotedStringDocstring"
+          }
+        ],
+        [
+          /\@(module|type)?doc (~[sS])?'/,
+          {
+            token: "comment.block.documentation",
+            next: "@singleQuotedStringDocstring"
           }
         ],
         [/\@(module|type)?doc false/, "comment.block.documentation"],
@@ -443,8 +453,16 @@ var moduleExports = (() => {
         [/"""/, { token: "comment.block.documentation", next: "@pop" }],
         { include: "@docstringContent" }
       ],
+      singleQuotedHeredocDocstring: [
+        [/'''/, { token: "comment.block.documentation", next: "@pop" }],
+        { include: "@docstringContent" }
+      ],
       doubleQuotedStringDocstring: [
         [/"/, { token: "comment.block.documentation", next: "@pop" }],
+        { include: "@docstringContent" }
+      ],
+      singleQuotedStringDocstring: [
+        [/'/, { token: "comment.block.documentation", next: "@pop" }],
         { include: "@docstringContent" }
       ],
       symbols: [

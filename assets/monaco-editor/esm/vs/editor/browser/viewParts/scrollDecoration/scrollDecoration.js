@@ -5,8 +5,6 @@
 import './scrollDecoration.css';
 import { createFastDomNode } from '../../../../base/browser/fastDomNode.js';
 import { ViewPart } from '../../view/viewPart.js';
-import { scrollbarShadow } from '../../../../platform/theme/common/colorRegistry.js';
-import { registerThemingParticipant } from '../../../../platform/theme/common/themeService.js';
 export class ScrollDecorationViewPart extends ViewPart {
     constructor(context) {
         super(context);
@@ -15,7 +13,7 @@ export class ScrollDecorationViewPart extends ViewPart {
         this._updateWidth();
         this._shouldShow = false;
         const options = this._context.configuration.options;
-        const scrollbar = options.get(92 /* scrollbar */);
+        const scrollbar = options.get(99 /* EditorOption.scrollbar */);
         this._useShadows = scrollbar.useShadows;
         this._domNode = createFastDomNode(document.createElement('div'));
         this._domNode.setAttribute('role', 'presentation');
@@ -37,18 +35,18 @@ export class ScrollDecorationViewPart extends ViewPart {
     }
     _updateWidth() {
         const options = this._context.configuration.options;
-        const layoutInfo = options.get(131 /* layoutInfo */);
+        const layoutInfo = options.get(140 /* EditorOption.layoutInfo */);
         if (layoutInfo.minimap.renderMinimap === 0 || (layoutInfo.minimap.minimapWidth > 0 && layoutInfo.minimap.minimapLeft === 0)) {
             this._width = layoutInfo.width;
         }
         else {
-            this._width = layoutInfo.width - layoutInfo.minimap.minimapWidth - layoutInfo.verticalScrollbarWidth;
+            this._width = layoutInfo.width - layoutInfo.verticalScrollbarWidth;
         }
     }
     // --- begin event handlers
     onConfigurationChanged(e) {
         const options = this._context.configuration.options;
-        const scrollbar = options.get(92 /* scrollbar */);
+        const scrollbar = options.get(99 /* EditorOption.scrollbar */);
         this._useShadows = scrollbar.useShadows;
         this._updateWidth();
         this._updateShouldShow();
@@ -67,9 +65,3 @@ export class ScrollDecorationViewPart extends ViewPart {
         this._domNode.setClassName(this._shouldShow ? 'scroll-decoration' : '');
     }
 }
-registerThemingParticipant((theme, collector) => {
-    const shadow = theme.getColor(scrollbarShadow);
-    if (shadow) {
-        collector.addRule(`.monaco-editor .scroll-decoration { box-shadow: ${shadow} 0 6px 6px -6px inset; }`);
-    }
-});

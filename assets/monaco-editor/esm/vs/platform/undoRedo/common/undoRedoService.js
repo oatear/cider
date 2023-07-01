@@ -37,7 +37,7 @@ let stackElementCounter = 0;
 class ResourceStackElement {
     constructor(actual, resourceLabel, strResource, groupId, groupOrder, sourceId, sourceOrder) {
         this.id = (++stackElementCounter);
-        this.type = 0 /* Resource */;
+        this.type = 0 /* UndoRedoElementType.Resource */;
         this.actual = actual;
         this.label = actual.label;
         this.confirmBeforeUndo = actual.confirmBeforeUndo || false;
@@ -72,12 +72,12 @@ class RemovedResources {
         const externalRemoval = [];
         const noParallelUniverses = [];
         for (const [, element] of this.elements) {
-            const dest = (element.reason === 0 /* ExternalRemoval */
+            const dest = (element.reason === 0 /* RemovedResourceReason.ExternalRemoval */
                 ? externalRemoval
                 : noParallelUniverses);
             dest.push(element.resourceLabel);
         }
-        let messages = [];
+        const messages = [];
         if (externalRemoval.length > 0) {
             messages.push(nls.localize({ key: 'externalRemoval', comment: ['{0} is a list of filenames'] }, "The following files have been closed and modified on disk: {0}.", externalRemoval.join(', ')));
         }
@@ -102,7 +102,7 @@ class RemovedResources {
 class WorkspaceStackElement {
     constructor(actual, resourceLabels, strResources, groupId, groupOrder, sourceId, sourceOrder) {
         this.id = (++stackElementCounter);
-        this.type = 1 /* Workspace */;
+        this.type = 1 /* UndoRedoElementType.Workspace */;
         this.actual = actual;
         this.label = actual.label;
         this.confirmBeforeUndo = actual.confirmBeforeUndo || false;
@@ -140,7 +140,7 @@ class WorkspaceStackElement {
                 this.invalidatedResources = new RemovedResources();
             }
             if (!this.invalidatedResources.has(strResource)) {
-                this.invalidatedResources.set(strResource, new ResourceReasonPair(resourceLabel, 0 /* ExternalRemoval */));
+                this.invalidatedResources.set(strResource, new ResourceReasonPair(resourceLabel, 0 /* RemovedResourceReason.ExternalRemoval */));
             }
         }
     }
@@ -159,19 +159,19 @@ class ResourceEditStack {
     }
     dispose() {
         for (const element of this._past) {
-            if (element.type === 1 /* Workspace */) {
-                element.removeResource(this.resourceLabel, this.strResource, 0 /* ExternalRemoval */);
+            if (element.type === 1 /* UndoRedoElementType.Workspace */) {
+                element.removeResource(this.resourceLabel, this.strResource, 0 /* RemovedResourceReason.ExternalRemoval */);
             }
         }
         for (const element of this._future) {
-            if (element.type === 1 /* Workspace */) {
-                element.removeResource(this.resourceLabel, this.strResource, 0 /* ExternalRemoval */);
+            if (element.type === 1 /* UndoRedoElementType.Workspace */) {
+                element.removeResource(this.resourceLabel, this.strResource, 0 /* RemovedResourceReason.ExternalRemoval */);
             }
         }
         this.versionId++;
     }
     toString() {
-        let result = [];
+        const result = [];
         result.push(`* ${this.strResource}:`);
         for (let i = 0; i < this._past.length; i++) {
             result.push(`   * [UNDO] ${this._past[i]}`);
@@ -187,7 +187,7 @@ class ResourceEditStack {
         this.versionId++;
     }
     _setElementValidFlag(element, isValid) {
-        if (element.type === 1 /* Workspace */) {
+        if (element.type === 1 /* UndoRedoElementType.Workspace */) {
             element.setValid(this.resourceLabel, this.strResource, isValid);
         }
         else {
@@ -209,8 +209,8 @@ class ResourceEditStack {
     pushElement(element) {
         // remove the future
         for (const futureElement of this._future) {
-            if (futureElement.type === 1 /* Workspace */) {
-                futureElement.removeResource(this.resourceLabel, this.strResource, 1 /* NoParallelUniverses */);
+            if (futureElement.type === 1 /* UndoRedoElementType.Workspace */) {
+                futureElement.removeResource(this.resourceLabel, this.strResource, 1 /* RemovedResourceReason.NoParallelUniverses */);
             }
         }
         this._future = [];
@@ -238,8 +238,8 @@ class ResourceEditStack {
                 isOK = false;
                 removePastAfter = 0;
             }
-            if (!isOK && element.type === 1 /* Workspace */) {
-                element.removeResource(this.resourceLabel, this.strResource, 0 /* ExternalRemoval */);
+            if (!isOK && element.type === 1 /* UndoRedoElementType.Workspace */) {
+                element.removeResource(this.resourceLabel, this.strResource, 0 /* RemovedResourceReason.ExternalRemoval */);
             }
         }
         let removeFutureBefore = -1;
@@ -249,8 +249,8 @@ class ResourceEditStack {
                 isOK = false;
                 removeFutureBefore = i;
             }
-            if (!isOK && element.type === 1 /* Workspace */) {
-                element.removeResource(this.resourceLabel, this.strResource, 0 /* ExternalRemoval */);
+            if (!isOK && element.type === 1 /* UndoRedoElementType.Workspace */) {
+                element.removeResource(this.resourceLabel, this.strResource, 0 /* RemovedResourceReason.ExternalRemoval */);
             }
         }
         if (removePastAfter !== -1) {
@@ -358,7 +358,7 @@ class EditStackSnapshot {
 }
 const missingEditStack = new ResourceEditStack('', '');
 missingEditStack.locked = true;
-let UndoRedoService = class UndoRedoService {
+export let UndoRedoService = class UndoRedoService {
     constructor(_dialogService, _notificationService) {
         this._dialogService = _dialogService;
         this._notificationService = _notificationService;
@@ -376,14 +376,14 @@ let UndoRedoService = class UndoRedoService {
     _print(label) {
         console.log(`------------------------------------`);
         console.log(`AFTER ${label}: `);
-        let str = [];
+        const str = [];
         for (const element of this._editStacks) {
             str.push(element[1].toString());
         }
         console.log(str.join('\n'));
     }
     pushElement(element, group = UndoRedoGroup.None, source = UndoRedoSource.None) {
-        if (element.type === 0 /* Resource */) {
+        if (element.type === 0 /* UndoRedoElementType.Resource */) {
             const resourceLabel = getResourceLabel(element.resource);
             const strResource = this.getUriComparisonKey(element.resource);
             this._pushElement(new ResourceStackElement(element, resourceLabel, strResource, group.id, group.nextOrder(), source.id, source.nextOrder()));
@@ -628,7 +628,7 @@ let UndoRedoService = class UndoRedoService {
         });
     }
     _invokeResourcePrepare(element, callback) {
-        if (element.actual.type !== 1 /* Workspace */ || typeof element.actual.prepareUndoRedo === 'undefined') {
+        if (element.actual.type !== 1 /* UndoRedoElementType.Workspace */ || typeof element.actual.prepareUndoRedo === 'undefined') {
             // no preparation needed
             return callback(Disposable.None);
         }
@@ -734,18 +734,34 @@ let UndoRedoService = class UndoRedoService {
         return __awaiter(this, void 0, void 0, function* () {
             if (element.canSplit() && !this._isPartOfUndoGroup(element)) {
                 // this element can be split
-                const result = yield this._dialogService.show(Severity.Info, nls.localize('confirmWorkspace', "Would you like to undo '{0}' across all files?", element.label), [
-                    nls.localize({ key: 'ok', comment: ['{0} denotes a number that is > 1'] }, "Undo in {0} Files", editStackSnapshot.editStacks.length),
-                    nls.localize('nok', "Undo this File"),
-                    nls.localize('cancel', "Cancel"),
-                ], {
-                    cancelId: 2
+                let UndoChoice;
+                (function (UndoChoice) {
+                    UndoChoice[UndoChoice["All"] = 0] = "All";
+                    UndoChoice[UndoChoice["This"] = 1] = "This";
+                    UndoChoice[UndoChoice["Cancel"] = 2] = "Cancel";
+                })(UndoChoice || (UndoChoice = {}));
+                const { result } = yield this._dialogService.prompt({
+                    type: Severity.Info,
+                    message: nls.localize('confirmWorkspace', "Would you like to undo '{0}' across all files?", element.label),
+                    buttons: [
+                        {
+                            label: nls.localize({ key: 'ok', comment: ['{0} denotes a number that is > 1, && denotes a mnemonic'] }, "&&Undo in {0} Files", editStackSnapshot.editStacks.length),
+                            run: () => UndoChoice.All
+                        },
+                        {
+                            label: nls.localize({ key: 'nok', comment: ['&& denotes a mnemonic'] }, "Undo this &&File"),
+                            run: () => UndoChoice.This
+                        }
+                    ],
+                    cancelButton: {
+                        run: () => UndoChoice.Cancel
+                    }
                 });
-                if (result.choice === 2) {
+                if (result === UndoChoice.Cancel) {
                     // choice: cancel
                     return;
                 }
-                if (result.choice === 1) {
+                if (result === UndoChoice.This) {
                     // choice: undo this file
                     this._splitPastWorkspaceElement(element, null);
                     return this._undo(strResource, 0, true);
@@ -857,7 +873,7 @@ let UndoRedoService = class UndoRedoService {
             return this._confirmAndContinueUndo(strResource, sourceId, element);
         }
         try {
-            if (element.type === 1 /* Workspace */) {
+            if (element.type === 1 /* UndoRedoElementType.Workspace */) {
                 return this._workspaceUndo(strResource, element, undoConfirmed);
             }
             else {
@@ -872,17 +888,14 @@ let UndoRedoService = class UndoRedoService {
     }
     _confirmAndContinueUndo(strResource, sourceId, element) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield this._dialogService.show(Severity.Info, nls.localize('confirmDifferentSource', "Would you like to undo '{0}'?", element.label), [
-                nls.localize('confirmDifferentSource.yes', "Yes"),
-                nls.localize('confirmDifferentSource.no', "No"),
-            ], {
-                cancelId: 1
+            const result = yield this._dialogService.confirm({
+                message: nls.localize('confirmDifferentSource', "Would you like to undo '{0}'?", element.label),
+                primaryButton: nls.localize({ key: 'confirmDifferentSource.yes', comment: ['&& denotes a mnemonic'] }, "&&Yes"),
+                cancelButton: nls.localize('confirmDifferentSource.no', "No")
             });
-            if (result.choice === 1) {
-                // choice: cancel
+            if (!result.confirmed) {
                 return;
             }
-            // choice: undo
             return this._undo(strResource, sourceId, true);
         });
     }
@@ -1070,7 +1083,7 @@ let UndoRedoService = class UndoRedoService {
             }
         }
         try {
-            if (element.type === 1 /* Workspace */) {
+            if (element.type === 1 /* UndoRedoElementType.Workspace */) {
                 return this._workspaceRedo(strResource, element);
             }
             else {
@@ -1088,10 +1101,9 @@ UndoRedoService = __decorate([
     __param(0, IDialogService),
     __param(1, INotificationService)
 ], UndoRedoService);
-export { UndoRedoService };
 class WorkspaceVerificationError {
     constructor(returnValue) {
         this.returnValue = returnValue;
     }
 }
-registerSingleton(IUndoRedoService, UndoRedoService);
+registerSingleton(IUndoRedoService, UndoRedoService, 1 /* InstantiationType.Delayed */);

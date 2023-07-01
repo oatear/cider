@@ -2,15 +2,24 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 import { normalizeDriveLetter } from '../../../../base/common/labels.js';
 import * as path from '../../../../base/common/path.js';
 import { dirname } from '../../../../base/common/resources.js';
 import { commonPrefixLength, getLeadingWhitespace, isFalsyOrWhitespace, splitLines } from '../../../../base/common/strings.js';
 import { generateUuid } from '../../../../base/common/uuid.js';
-import { LanguageConfigurationRegistry } from '../../../common/languages/languageConfigurationRegistry.js';
+import { ILanguageConfigurationService } from '../../../common/languages/languageConfigurationRegistry.js';
 import { Text } from './snippetParser.js';
 import * as nls from '../../../../nls.js';
-import { isSingleFolderWorkspaceIdentifier, toWorkspaceIdentifier, WORKSPACE_EXTENSION } from '../../../../platform/workspaces/common/workspaces.js';
+import { WORKSPACE_EXTENSION, isSingleFolderWorkspaceIdentifier, toWorkspaceIdentifier, isEmptyWorkspaceIdentifier } from '../../../../platform/workspace/common/workspace.js';
 export const KnownSnippetVariableNames = Object.freeze({
     'CURRENT_YEAR': true,
     'CURRENT_YEAR_SHORT': true,
@@ -24,6 +33,7 @@ export const KnownSnippetVariableNames = Object.freeze({
     'CURRENT_MONTH_NAME': true,
     'CURRENT_MONTH_NAME_SHORT': true,
     'CURRENT_SECONDS_UNIX': true,
+    'CURRENT_TIMEZONE_OFFSET': true,
     'SELECTION': true,
     'CLIPBOARD': true,
     'TM_SELECTED_TEXT': true,
@@ -35,6 +45,8 @@ export const KnownSnippetVariableNames = Object.freeze({
     'TM_FILENAME_BASE': true,
     'TM_DIRECTORY': true,
     'TM_FILEPATH': true,
+    'CURSOR_INDEX': true,
+    'CURSOR_NUMBER': true,
     'RELATIVE_FILEPATH': true,
     'BLOCK_COMMENT_START': true,
     'BLOCK_COMMENT_END': true,
@@ -52,7 +64,7 @@ export class CompositeSnippetVariableResolver {
     }
     resolve(variable) {
         for (const delegate of this._delegates) {
-            let value = delegate.resolve(variable);
+            const value = delegate.resolve(variable);
             if (value !== undefined) {
                 return value;
             }
@@ -118,6 +130,12 @@ export class SelectionBasedVariableResolver {
         }
         else if (name === 'TM_LINE_NUMBER') {
             return String(this._selection.positionLineNumber);
+        }
+        else if (name === 'CURSOR_INDEX') {
+            return String(this._selectionIdx);
+        }
+        else if (name === 'CURSOR_NUMBER') {
+            return String(this._selectionIdx + 1);
         }
         return undefined;
     }
@@ -186,16 +204,17 @@ export class ClipboardBasedVariableResolver {
         return clipboardText;
     }
 }
-export class CommentBasedVariableResolver {
-    constructor(_model, _selection) {
+export let CommentBasedVariableResolver = class CommentBasedVariableResolver {
+    constructor(_model, _selection, _languageConfigurationService) {
         this._model = _model;
         this._selection = _selection;
+        this._languageConfigurationService = _languageConfigurationService;
         //
     }
     resolve(variable) {
         const { name } = variable;
         const langId = this._model.getLanguageIdAtPosition(this._selection.selectionStartLineNumber, this._selection.selectionStartColumn);
-        const config = LanguageConfigurationRegistry.getComments(langId);
+        const config = this._languageConfigurationService.getLanguageConfiguration(langId).comments;
         if (!config) {
             return undefined;
         }
@@ -210,7 +229,10 @@ export class CommentBasedVariableResolver {
         }
         return undefined;
     }
-}
+};
+CommentBasedVariableResolver = __decorate([
+    __param(2, ILanguageConfigurationService)
+], CommentBasedVariableResolver);
 export class TimeBasedVariableResolver {
     constructor() {
         this._date = new Date();
@@ -253,6 +275,15 @@ export class TimeBasedVariableResolver {
         else if (name === 'CURRENT_SECONDS_UNIX') {
             return String(Math.floor(this._date.getTime() / 1000));
         }
+        else if (name === 'CURRENT_TIMEZONE_OFFSET') {
+            const rawTimeOffset = this._date.getTimezoneOffset();
+            const sign = rawTimeOffset > 0 ? '-' : '+';
+            const hours = Math.trunc(Math.abs(rawTimeOffset / 60));
+            const hoursString = (hours < 10 ? '0' + hours : hours);
+            const minutes = Math.abs(rawTimeOffset) - hours * 60;
+            const minutesString = (minutes < 10 ? '0' + minutes : minutes);
+            return sign + hoursString + ':' + minutesString;
+        }
         return undefined;
     }
 }
@@ -270,7 +301,7 @@ export class WorkspaceBasedVariableResolver {
             return undefined;
         }
         const workspaceIdentifier = toWorkspaceIdentifier(this._workspaceService.getWorkspace());
-        if (!workspaceIdentifier) {
+        if (isEmptyWorkspaceIdentifier(workspaceIdentifier)) {
             return undefined;
         }
         if (variable.name === 'WORKSPACE_NAME') {
@@ -295,7 +326,7 @@ export class WorkspaceBasedVariableResolver {
         if (isSingleFolderWorkspaceIdentifier(workspaceIdentifier)) {
             return normalizeDriveLetter(workspaceIdentifier.uri.fsPath);
         }
-        let filename = path.basename(workspaceIdentifier.configPath.path);
+        const filename = path.basename(workspaceIdentifier.configPath.path);
         let folderpath = workspaceIdentifier.configPath.fsPath;
         if (folderpath.endsWith(filename)) {
             folderpath = folderpath.substr(0, folderpath.length - filename.length - 1);

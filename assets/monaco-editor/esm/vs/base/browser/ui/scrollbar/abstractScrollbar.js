@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 import * as dom from '../../dom.js';
 import { createFastDomNode } from '../../fastDomNode.js';
-import { GlobalMouseMoveMonitor, standardMouseMoveMerger } from '../../globalMouseMoveMonitor.js';
+import { GlobalPointerMoveMonitor } from '../../globalPointerMoveMonitor.js';
 import { ScrollbarArrow } from './scrollbarArrow.js';
 import { ScrollbarVisibilityController } from './scrollbarVisibilityController.js';
 import { Widget } from '../widget.js';
@@ -12,7 +12,7 @@ import * as platform from '../../../common/platform.js';
 /**
  * The orthogonal distance to the slider at which dragging "resets". This implements "snapping"
  */
-const MOUSE_DRAG_RESET_DISTANCE = 140;
+const POINTER_DRAG_RESET_DISTANCE = 140;
 export class AbstractScrollbar extends Widget {
     constructor(opts) {
         super();
@@ -23,14 +23,14 @@ export class AbstractScrollbar extends Widget {
         this._scrollbarState = opts.scrollbarState;
         this._visibilityController = this._register(new ScrollbarVisibilityController(opts.visibility, 'visible scrollbar ' + opts.extraScrollbarClassName, 'invisible scrollbar ' + opts.extraScrollbarClassName));
         this._visibilityController.setIsNeeded(this._scrollbarState.isNeeded());
-        this._mouseMoveMonitor = this._register(new GlobalMouseMoveMonitor());
+        this._pointerMoveMonitor = this._register(new GlobalPointerMoveMonitor());
         this._shouldRender = true;
         this.domNode = createFastDomNode(document.createElement('div'));
         this.domNode.setAttribute('role', 'presentation');
         this.domNode.setAttribute('aria-hidden', 'true');
         this._visibilityController.setDomNode(this.domNode);
         this.domNode.setPosition('absolute');
-        this.onmousedown(this.domNode.domNode, (e) => this._domNodeMouseDown(e));
+        this._register(dom.addDisposableListener(this.domNode.domNode, dom.EventType.POINTER_DOWN, (e) => this._domNodePointerDown(e)));
     }
     // ----------------- creation
     /**
@@ -59,12 +59,12 @@ export class AbstractScrollbar extends Widget {
         this.slider.setLayerHinting(true);
         this.slider.setContain('strict');
         this.domNode.domNode.appendChild(this.slider.domNode);
-        this.onmousedown(this.slider.domNode, (e) => {
-            if (e.leftButton) {
+        this._register(dom.addDisposableListener(this.slider.domNode, dom.EventType.POINTER_DOWN, (e) => {
+            if (e.button === 0) {
                 e.preventDefault();
-                this._sliderMouseDown(e, () => { });
+                this._sliderPointerDown(e);
             }
-        });
+        }));
         this.onclick(this.slider.domNode, e => {
             if (e.leftButton) {
                 e.stopPropagation();
@@ -118,70 +118,73 @@ export class AbstractScrollbar extends Widget {
         this._updateSlider(this._scrollbarState.getSliderSize(), this._scrollbarState.getArrowSize() + this._scrollbarState.getSliderPosition());
     }
     // ----------------- DOM events
-    _domNodeMouseDown(e) {
+    _domNodePointerDown(e) {
         if (e.target !== this.domNode.domNode) {
             return;
         }
-        this._onMouseDown(e);
+        this._onPointerDown(e);
     }
-    delegateMouseDown(e) {
+    delegatePointerDown(e) {
         const domTop = this.domNode.domNode.getClientRects()[0].top;
         const sliderStart = domTop + this._scrollbarState.getSliderPosition();
         const sliderStop = domTop + this._scrollbarState.getSliderPosition() + this._scrollbarState.getSliderSize();
-        const mousePos = this._sliderMousePosition(e);
-        if (sliderStart <= mousePos && mousePos <= sliderStop) {
-            // Act as if it was a mouse down on the slider
-            if (e.leftButton) {
+        const pointerPos = this._sliderPointerPosition(e);
+        if (sliderStart <= pointerPos && pointerPos <= sliderStop) {
+            // Act as if it was a pointer down on the slider
+            if (e.button === 0) {
                 e.preventDefault();
-                this._sliderMouseDown(e, () => { });
+                this._sliderPointerDown(e);
             }
         }
         else {
-            // Act as if it was a mouse down on the scrollbar
-            this._onMouseDown(e);
+            // Act as if it was a pointer down on the scrollbar
+            this._onPointerDown(e);
         }
     }
-    _onMouseDown(e) {
+    _onPointerDown(e) {
         let offsetX;
         let offsetY;
-        if (e.target === this.domNode.domNode && typeof e.browserEvent.offsetX === 'number' && typeof e.browserEvent.offsetY === 'number') {
-            offsetX = e.browserEvent.offsetX;
-            offsetY = e.browserEvent.offsetY;
+        if (e.target === this.domNode.domNode && typeof e.offsetX === 'number' && typeof e.offsetY === 'number') {
+            offsetX = e.offsetX;
+            offsetY = e.offsetY;
         }
         else {
             const domNodePosition = dom.getDomNodePagePosition(this.domNode.domNode);
-            offsetX = e.posx - domNodePosition.left;
-            offsetY = e.posy - domNodePosition.top;
+            offsetX = e.pageX - domNodePosition.left;
+            offsetY = e.pageY - domNodePosition.top;
         }
-        const offset = this._mouseDownRelativePosition(offsetX, offsetY);
+        const offset = this._pointerDownRelativePosition(offsetX, offsetY);
         this._setDesiredScrollPositionNow(this._scrollByPage
             ? this._scrollbarState.getDesiredScrollPositionFromOffsetPaged(offset)
             : this._scrollbarState.getDesiredScrollPositionFromOffset(offset));
-        if (e.leftButton) {
+        if (e.button === 0) {
+            // left button
             e.preventDefault();
-            this._sliderMouseDown(e, () => { });
+            this._sliderPointerDown(e);
         }
     }
-    _sliderMouseDown(e, onDragFinished) {
-        const initialMousePosition = this._sliderMousePosition(e);
-        const initialMouseOrthogonalPosition = this._sliderOrthogonalMousePosition(e);
+    _sliderPointerDown(e) {
+        if (!e.target || !(e.target instanceof Element)) {
+            return;
+        }
+        const initialPointerPosition = this._sliderPointerPosition(e);
+        const initialPointerOrthogonalPosition = this._sliderOrthogonalPointerPosition(e);
         const initialScrollbarState = this._scrollbarState.clone();
         this.slider.toggleClassName('active', true);
-        this._mouseMoveMonitor.startMonitoring(e.target, e.buttons, standardMouseMoveMerger, (mouseMoveData) => {
-            const mouseOrthogonalPosition = this._sliderOrthogonalMousePosition(mouseMoveData);
-            const mouseOrthogonalDelta = Math.abs(mouseOrthogonalPosition - initialMouseOrthogonalPosition);
-            if (platform.isWindows && mouseOrthogonalDelta > MOUSE_DRAG_RESET_DISTANCE) {
-                // The mouse has wondered away from the scrollbar => reset dragging
+        this._pointerMoveMonitor.startMonitoring(e.target, e.pointerId, e.buttons, (pointerMoveData) => {
+            const pointerOrthogonalPosition = this._sliderOrthogonalPointerPosition(pointerMoveData);
+            const pointerOrthogonalDelta = Math.abs(pointerOrthogonalPosition - initialPointerOrthogonalPosition);
+            if (platform.isWindows && pointerOrthogonalDelta > POINTER_DRAG_RESET_DISTANCE) {
+                // The pointer has wondered away from the scrollbar => reset dragging
                 this._setDesiredScrollPositionNow(initialScrollbarState.getScrollPosition());
                 return;
             }
-            const mousePosition = this._sliderMousePosition(mouseMoveData);
-            const mouseDelta = mousePosition - initialMousePosition;
-            this._setDesiredScrollPositionNow(initialScrollbarState.getDesiredScrollPositionFromDelta(mouseDelta));
+            const pointerPosition = this._sliderPointerPosition(pointerMoveData);
+            const pointerDelta = pointerPosition - initialPointerPosition;
+            this._setDesiredScrollPositionNow(initialScrollbarState.getDesiredScrollPositionFromDelta(pointerDelta));
         }, () => {
             this.slider.toggleClassName('active', false);
             this._host.onDragEnd();
-            onDragFinished();
         });
         this._host.onDragStart();
     }

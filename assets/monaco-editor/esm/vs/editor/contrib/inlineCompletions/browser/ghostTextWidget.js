@@ -11,208 +11,178 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a;
-import * as dom from '../../../../base/browser/dom.js';
-import { Disposable, DisposableStore, toDisposable } from '../../../../base/common/lifecycle.js';
+import { createTrustedTypesPolicy } from '../../../../base/browser/trustedTypes.js';
+import { Event } from '../../../../base/common/event.js';
+import { Disposable, toDisposable } from '../../../../base/common/lifecycle.js';
+import { autorun, derived, observableFromEvent, observableSignalFromEvent, observableValue } from '../../../../base/common/observable.js';
 import * as strings from '../../../../base/common/strings.js';
 import './ghostText.css';
 import { applyFontInfo } from '../../../browser/config/domFontInfo.js';
 import { EditorFontLigatures } from '../../../common/config/editorOptions.js';
-import { LineTokens } from '../../../common/tokens/lineTokens.js';
 import { Position } from '../../../common/core/position.js';
 import { Range } from '../../../common/core/range.js';
-import { createStringBuilder } from '../../../common/core/stringBuilder.js';
-import { ILanguageService } from '../../../common/services/language.js';
-import { ghostTextBackground, ghostTextBorder, ghostTextForeground } from '../../../common/core/editorColorRegistry.js';
+import { StringBuilder } from '../../../common/core/stringBuilder.js';
+import { ILanguageService } from '../../../common/languages/language.js';
+import { InjectedTextCursorStops } from '../../../common/model.js';
+import { LineTokens } from '../../../common/tokens/lineTokens.js';
 import { LineDecoration } from '../../../common/viewLayout/lineDecorations.js';
 import { RenderLineInput, renderViewLine } from '../../../common/viewLayout/viewLineRenderer.js';
-import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
-import { registerThemingParticipant } from '../../../../platform/theme/common/themeService.js';
-const ttPolicy = (_a = window.trustedTypes) === null || _a === void 0 ? void 0 : _a.createPolicy('editorGhostText', { createHTML: value => value });
-let GhostTextWidget = class GhostTextWidget extends Disposable {
-    constructor(editor, model, instantiationService, languageService) {
+import { GhostTextReplacement } from './ghostText.js';
+import { ColumnRange, applyObservableDecorations } from './utils.js';
+export let GhostTextWidget = class GhostTextWidget extends Disposable {
+    constructor(editor, model, languageService) {
         super();
         this.editor = editor;
         this.model = model;
-        this.instantiationService = instantiationService;
         this.languageService = languageService;
-        this.disposed = false;
-        this.partsWidget = this._register(this.instantiationService.createInstance(DecorationsWidget, this.editor));
-        this.additionalLinesWidget = this._register(new AdditionalLinesWidget(this.editor, this.languageService.languageIdCodec));
-        this.viewMoreContentWidget = undefined;
-        this._register(this.editor.onDidChangeConfiguration((e) => {
-            if (e.hasChanged(29 /* disableMonospaceOptimizations */)
-                || e.hasChanged(105 /* stopRenderingLineAfter */)
-                || e.hasChanged(88 /* renderWhitespace */)
-                || e.hasChanged(83 /* renderControlCharacters */)
-                || e.hasChanged(45 /* fontLigatures */)
-                || e.hasChanged(44 /* fontInfo */)
-                || e.hasChanged(59 /* lineHeight */)) {
-                this.update();
+        this.isDisposed = observableValue('isDisposed', false);
+        this.currentTextModel = observableFromEvent(this.editor.onDidChangeModel, () => this.editor.getModel());
+        this.uiState = derived('uiState', reader => {
+            if (this.isDisposed.read(reader)) {
+                return undefined;
             }
-        }));
-        this._register(toDisposable(() => {
-            var _a;
-            this.disposed = true;
-            this.update();
-            (_a = this.viewMoreContentWidget) === null || _a === void 0 ? void 0 : _a.dispose();
-            this.viewMoreContentWidget = undefined;
-        }));
-        this._register(model.onDidChange(() => {
-            this.update();
-        }));
-        this.update();
-    }
-    shouldShowHoverAtViewZone(viewZoneId) {
-        return (this.additionalLinesWidget.viewZoneId === viewZoneId);
-    }
-    update() {
-        var _a;
-        const ghostText = this.model.ghostText;
-        if (!this.editor.hasModel() || !ghostText || this.disposed) {
-            this.partsWidget.clear();
-            this.additionalLinesWidget.clear();
-            return;
-        }
-        const inlineTexts = new Array();
-        const additionalLines = new Array();
-        function addToAdditionalLines(lines, className) {
-            if (additionalLines.length > 0) {
-                const lastLine = additionalLines[additionalLines.length - 1];
-                if (className) {
-                    lastLine.decorations.push(new LineDecoration(lastLine.content.length + 1, lastLine.content.length + 1 + lines[0].length, className, 0 /* Regular */));
+            const textModel = this.currentTextModel.read(reader);
+            if (textModel !== this.model.targetTextModel.read(reader)) {
+                return undefined;
+            }
+            const ghostText = this.model.ghostText.read(reader);
+            if (!ghostText) {
+                return undefined;
+            }
+            const replacedRange = ghostText instanceof GhostTextReplacement ? ghostText.columnRange : undefined;
+            const inlineTexts = [];
+            const additionalLines = [];
+            function addToAdditionalLines(lines, className) {
+                if (additionalLines.length > 0) {
+                    const lastLine = additionalLines[additionalLines.length - 1];
+                    if (className) {
+                        lastLine.decorations.push(new LineDecoration(lastLine.content.length + 1, lastLine.content.length + 1 + lines[0].length, className, 0 /* InlineDecorationType.Regular */));
+                    }
+                    lastLine.content += lines[0];
+                    lines = lines.slice(1);
                 }
-                lastLine.content += lines[0];
-                lines = lines.slice(1);
-            }
-            for (const line of lines) {
-                additionalLines.push({
-                    content: line,
-                    decorations: className ? [new LineDecoration(1, line.length + 1, className, 0 /* Regular */)] : []
-                });
-            }
-        }
-        const textBufferLine = this.editor.getModel().getLineContent(ghostText.lineNumber);
-        this.editor.getModel().getLineTokens(ghostText.lineNumber);
-        let hiddenTextStartColumn = undefined;
-        let lastIdx = 0;
-        for (const part of ghostText.parts) {
-            let lines = part.lines;
-            if (hiddenTextStartColumn === undefined) {
-                inlineTexts.push({
-                    column: part.column,
-                    text: lines[0],
-                    preview: part.preview,
-                });
-                lines = lines.slice(1);
-            }
-            else {
-                addToAdditionalLines([textBufferLine.substring(lastIdx, part.column - 1)], undefined);
-            }
-            if (lines.length > 0) {
-                addToAdditionalLines(lines, 'ghost-text');
-                if (hiddenTextStartColumn === undefined && part.column <= textBufferLine.length) {
-                    hiddenTextStartColumn = part.column;
+                for (const line of lines) {
+                    additionalLines.push({
+                        content: line,
+                        decorations: className ? [new LineDecoration(1, line.length + 1, className, 0 /* InlineDecorationType.Regular */)] : []
+                    });
                 }
             }
-            lastIdx = part.column - 1;
-        }
-        if (hiddenTextStartColumn !== undefined) {
-            addToAdditionalLines([textBufferLine.substring(lastIdx)], undefined);
-        }
-        this.partsWidget.setParts(ghostText.lineNumber, inlineTexts, hiddenTextStartColumn !== undefined ? { column: hiddenTextStartColumn, length: textBufferLine.length + 1 - hiddenTextStartColumn } : undefined);
-        this.additionalLinesWidget.updateLines(ghostText.lineNumber, additionalLines, ghostText.additionalReservedLineCount);
-        if (ghostText.parts.some(p => p.lines.length < 0)) {
-            // Not supported at the moment, condition is always false.
-            this.viewMoreContentWidget = this.renderViewMoreLines(new Position(ghostText.lineNumber, this.editor.getModel().getLineMaxColumn(ghostText.lineNumber)), '', 0);
-        }
-        else {
-            (_a = this.viewMoreContentWidget) === null || _a === void 0 ? void 0 : _a.dispose();
-            this.viewMoreContentWidget = undefined;
-        }
+            const textBufferLine = textModel.getLineContent(ghostText.lineNumber);
+            let hiddenTextStartColumn = undefined;
+            let lastIdx = 0;
+            for (const part of ghostText.parts) {
+                let lines = part.lines;
+                if (hiddenTextStartColumn === undefined) {
+                    inlineTexts.push({
+                        column: part.column,
+                        text: lines[0],
+                        preview: part.preview,
+                    });
+                    lines = lines.slice(1);
+                }
+                else {
+                    addToAdditionalLines([textBufferLine.substring(lastIdx, part.column - 1)], undefined);
+                }
+                if (lines.length > 0) {
+                    addToAdditionalLines(lines, 'ghost-text');
+                    if (hiddenTextStartColumn === undefined && part.column <= textBufferLine.length) {
+                        hiddenTextStartColumn = part.column;
+                    }
+                }
+                lastIdx = part.column - 1;
+            }
+            if (hiddenTextStartColumn !== undefined) {
+                addToAdditionalLines([textBufferLine.substring(lastIdx)], undefined);
+            }
+            const hiddenRange = hiddenTextStartColumn !== undefined ? new ColumnRange(hiddenTextStartColumn, textBufferLine.length + 1) : undefined;
+            return {
+                replacedRange,
+                inlineTexts,
+                additionalLines,
+                hiddenRange,
+                lineNumber: ghostText.lineNumber,
+                additionalReservedLineCount: this.model.minReservedLineCount.read(reader),
+                targetTextModel: textModel,
+            };
+        });
+        this.decorations = derived('decorations', reader => {
+            const uiState = this.uiState.read(reader);
+            if (!uiState) {
+                return [];
+            }
+            const decorations = [];
+            if (uiState.replacedRange) {
+                decorations.push({
+                    range: uiState.replacedRange.toRange(uiState.lineNumber),
+                    options: { inlineClassName: 'inline-completion-text-to-replace', description: 'GhostTextReplacement' }
+                });
+            }
+            if (uiState.hiddenRange) {
+                decorations.push({
+                    range: uiState.hiddenRange.toRange(uiState.lineNumber),
+                    options: { inlineClassName: 'ghost-text-hidden', description: 'ghost-text-hidden', }
+                });
+            }
+            for (const p of uiState.inlineTexts) {
+                decorations.push({
+                    range: Range.fromPositions(new Position(uiState.lineNumber, p.column)),
+                    options: {
+                        description: 'ghost-text',
+                        after: { content: p.text, inlineClassName: p.preview ? 'ghost-text-decoration-preview' : 'ghost-text-decoration', cursorStops: InjectedTextCursorStops.Left },
+                        showIfCollapsed: true,
+                    }
+                });
+            }
+            return decorations;
+        });
+        this.additionalLinesWidget = this._register(new AdditionalLinesWidget(this.editor, this.languageService.languageIdCodec, derived('lines', (reader) => {
+            const uiState = this.uiState.read(reader);
+            return uiState ? {
+                lineNumber: uiState.lineNumber,
+                additionalLines: uiState.additionalLines,
+                minReservedLineCount: uiState.additionalReservedLineCount,
+                targetTextModel: uiState.targetTextModel,
+            } : undefined;
+        })));
+        this._register(toDisposable(() => { this.isDisposed.set(true, undefined); }));
+        this._register(applyObservableDecorations(this.editor, this.decorations));
     }
-    renderViewMoreLines(position, firstLineText, remainingLinesLength) {
-        const fontInfo = this.editor.getOption(44 /* fontInfo */);
-        const domNode = document.createElement('div');
-        domNode.className = 'suggest-preview-additional-widget';
-        applyFontInfo(domNode, fontInfo);
-        const spacer = document.createElement('span');
-        spacer.className = 'content-spacer';
-        spacer.append(firstLineText);
-        domNode.append(spacer);
-        const newline = document.createElement('span');
-        newline.className = 'content-newline suggest-preview-text';
-        newline.append('⏎  ');
-        domNode.append(newline);
-        const disposableStore = new DisposableStore();
-        const button = document.createElement('div');
-        button.className = 'button suggest-preview-text';
-        button.append(`+${remainingLinesLength} lines…`);
-        disposableStore.add(dom.addStandardDisposableListener(button, 'mousedown', (e) => {
-            var _a;
-            (_a = this.model) === null || _a === void 0 ? void 0 : _a.setExpanded(true);
-            e.preventDefault();
-            this.editor.focus();
-        }));
-        domNode.append(button);
-        return new ViewMoreLinesContentWidget(this.editor, position, domNode, disposableStore);
+    ownsViewZone(viewZoneId) {
+        return this.additionalLinesWidget.viewZoneId === viewZoneId;
     }
 };
 GhostTextWidget = __decorate([
-    __param(2, IInstantiationService),
-    __param(3, ILanguageService)
+    __param(2, ILanguageService)
 ], GhostTextWidget);
-export { GhostTextWidget };
-class DecorationsWidget {
-    constructor(editor) {
-        this.editor = editor;
-        this.decorationIds = [];
-        this.disposableStore = new DisposableStore();
-    }
-    dispose() {
-        this.clear();
-        this.disposableStore.dispose();
-    }
-    clear() {
-        this.editor.deltaDecorations(this.decorationIds, []);
-        this.disposableStore.clear();
-    }
-    setParts(lineNumber, parts, hiddenText) {
-        this.disposableStore.clear();
-        const textModel = this.editor.getModel();
-        if (!textModel) {
-            return;
-        }
-        const hiddenTextDecorations = new Array();
-        if (hiddenText) {
-            hiddenTextDecorations.push({
-                range: Range.fromPositions(new Position(lineNumber, hiddenText.column), new Position(lineNumber, hiddenText.column + hiddenText.length)),
-                options: {
-                    inlineClassName: 'ghost-text-hidden',
-                    description: 'ghost-text-hidden'
-                }
-            });
-        }
-        this.decorationIds = this.editor.deltaDecorations(this.decorationIds, parts.map(p => {
-            return ({
-                range: Range.fromPositions(new Position(lineNumber, p.column)),
-                options: {
-                    description: 'ghost-text',
-                    after: { content: p.text, inlineClassName: p.preview ? 'ghost-text-decoration-preview' : 'ghost-text-decoration' },
-                    showIfCollapsed: true,
-                }
-            });
-        }).concat(hiddenTextDecorations));
-    }
-}
-class AdditionalLinesWidget {
-    constructor(editor, languageIdCodec) {
+class AdditionalLinesWidget extends Disposable {
+    get viewZoneId() { return this._viewZoneId; }
+    constructor(editor, languageIdCodec, lines) {
+        super();
         this.editor = editor;
         this.languageIdCodec = languageIdCodec;
+        this.lines = lines;
         this._viewZoneId = undefined;
+        this.editorOptionsChanged = observableSignalFromEvent('editorOptionChanged', Event.filter(this.editor.onDidChangeConfiguration, e => e.hasChanged(31 /* EditorOption.disableMonospaceOptimizations */)
+            || e.hasChanged(113 /* EditorOption.stopRenderingLineAfter */)
+            || e.hasChanged(95 /* EditorOption.renderWhitespace */)
+            || e.hasChanged(90 /* EditorOption.renderControlCharacters */)
+            || e.hasChanged(49 /* EditorOption.fontLigatures */)
+            || e.hasChanged(48 /* EditorOption.fontInfo */)
+            || e.hasChanged(64 /* EditorOption.lineHeight */)));
+        this._register(autorun('update view zone', reader => {
+            const lines = this.lines.read(reader);
+            this.editorOptionsChanged.read(reader);
+            if (lines) {
+                this.updateLines(lines.lineNumber, lines.additionalLines, lines.minReservedLineCount);
+            }
+            else {
+                this.clear();
+            }
+        }));
     }
-    get viewZoneId() { return this._viewZoneId; }
     dispose() {
+        super.dispose();
         this.clear();
     }
     clear() {
@@ -242,87 +212,40 @@ class AdditionalLinesWidget {
                     afterLineNumber: lineNumber,
                     heightInLines: heightInLines,
                     domNode,
-                    afterColumnAffinity: 1 /* Right */
+                    afterColumnAffinity: 1 /* PositionAffinity.Right */
                 });
             }
         });
     }
 }
 function renderLines(domNode, tabSize, lines, opts, languageIdCodec) {
-    const disableMonospaceOptimizations = opts.get(29 /* disableMonospaceOptimizations */);
-    const stopRenderingLineAfter = opts.get(105 /* stopRenderingLineAfter */);
+    const disableMonospaceOptimizations = opts.get(31 /* EditorOption.disableMonospaceOptimizations */);
+    const stopRenderingLineAfter = opts.get(113 /* EditorOption.stopRenderingLineAfter */);
     // To avoid visual confusion, we don't want to render visible whitespace
     const renderWhitespace = 'none';
-    const renderControlCharacters = opts.get(83 /* renderControlCharacters */);
-    const fontLigatures = opts.get(45 /* fontLigatures */);
-    const fontInfo = opts.get(44 /* fontInfo */);
-    const lineHeight = opts.get(59 /* lineHeight */);
-    const sb = createStringBuilder(10000);
-    sb.appendASCIIString('<div class="suggest-preview-text">');
+    const renderControlCharacters = opts.get(90 /* EditorOption.renderControlCharacters */);
+    const fontLigatures = opts.get(49 /* EditorOption.fontLigatures */);
+    const fontInfo = opts.get(48 /* EditorOption.fontInfo */);
+    const lineHeight = opts.get(64 /* EditorOption.lineHeight */);
+    const sb = new StringBuilder(10000);
+    sb.appendString('<div class="suggest-preview-text">');
     for (let i = 0, len = lines.length; i < len; i++) {
         const lineData = lines[i];
         const line = lineData.content;
-        sb.appendASCIIString('<div class="view-line');
-        sb.appendASCIIString('" style="top:');
-        sb.appendASCIIString(String(i * lineHeight));
-        sb.appendASCIIString('px;width:1000000px;">');
+        sb.appendString('<div class="view-line');
+        sb.appendString('" style="top:');
+        sb.appendString(String(i * lineHeight));
+        sb.appendString('px;width:1000000px;">');
         const isBasicASCII = strings.isBasicASCII(line);
         const containsRTL = strings.containsRTL(line);
         const lineTokens = LineTokens.createEmpty(line, languageIdCodec);
         renderViewLine(new RenderLineInput((fontInfo.isMonospace && !disableMonospaceOptimizations), fontInfo.canUseHalfwidthRightwardsArrow, line, false, isBasicASCII, containsRTL, 0, lineTokens, lineData.decorations, tabSize, 0, fontInfo.spaceWidth, fontInfo.middotWidth, fontInfo.wsmiddotWidth, stopRenderingLineAfter, renderWhitespace, renderControlCharacters, fontLigatures !== EditorFontLigatures.OFF, null), sb);
-        sb.appendASCIIString('</div>');
+        sb.appendString('</div>');
     }
-    sb.appendASCIIString('</div>');
+    sb.appendString('</div>');
     applyFontInfo(domNode, fontInfo);
     const html = sb.build();
     const trustedhtml = ttPolicy ? ttPolicy.createHTML(html) : html;
     domNode.innerHTML = trustedhtml;
 }
-class ViewMoreLinesContentWidget extends Disposable {
-    constructor(editor, position, domNode, disposableStore) {
-        super();
-        this.editor = editor;
-        this.position = position;
-        this.domNode = domNode;
-        this.allowEditorOverflow = false;
-        this.suppressMouseDown = false;
-        this._register(disposableStore);
-        this._register(toDisposable(() => {
-            this.editor.removeContentWidget(this);
-        }));
-        this.editor.addContentWidget(this);
-    }
-    getId() {
-        return 'editor.widget.viewMoreLinesWidget';
-    }
-    getDomNode() {
-        return this.domNode;
-    }
-    getPosition() {
-        return {
-            position: this.position,
-            preference: [0 /* EXACT */]
-        };
-    }
-}
-registerThemingParticipant((theme, collector) => {
-    const foreground = theme.getColor(ghostTextForeground);
-    if (foreground) {
-        // `!important` ensures that other decorations don't cause a style conflict (#132017).
-        collector.addRule(`.monaco-editor .ghost-text-decoration { color: ${foreground.toString()} !important; }`);
-        collector.addRule(`.monaco-editor .ghost-text-decoration-preview { color: ${foreground.toString()} !important; }`);
-        collector.addRule(`.monaco-editor .suggest-preview-text .ghost-text { color: ${foreground.toString()} !important; }`);
-    }
-    const background = theme.getColor(ghostTextBackground);
-    if (background) {
-        collector.addRule(`.monaco-editor .ghost-text-decoration { background-color: ${background.toString()}; }`);
-        collector.addRule(`.monaco-editor .ghost-text-decoration-preview { background-color: ${background.toString()}; }`);
-        collector.addRule(`.monaco-editor .suggest-preview-text .ghost-text { background-color: ${background.toString()}; }`);
-    }
-    const border = theme.getColor(ghostTextBorder);
-    if (border) {
-        collector.addRule(`.monaco-editor .suggest-preview-text .ghost-text { border: 1px solid ${border}; }`);
-        collector.addRule(`.monaco-editor .ghost-text-decoration { border: 1px solid ${border}; }`);
-        collector.addRule(`.monaco-editor .ghost-text-decoration-preview { border: 1px solid ${border}; }`);
-    }
-});
+const ttPolicy = createTrustedTypesPolicy('editorGhostText', { createHTML: value => value });

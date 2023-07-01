@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 import * as dom from '../../dom.js';
+import { StandardKeyboardEvent } from '../../keyboardEvent.js';
 import { DomScrollableElement } from '../scrollbar/scrollableElement.js';
 import { Disposable } from '../../../common/lifecycle.js';
 import './hover.css';
@@ -26,9 +27,13 @@ export class HoverWidget extends Disposable {
     }
 }
 export class HoverAction extends Disposable {
+    static render(parent, actionOptions, keybindingLabel) {
+        return new HoverAction(parent, actionOptions, keybindingLabel);
+    }
     constructor(parent, actionOptions, keybindingLabel) {
         super();
         this.actionContainer = dom.append(parent, $('div.action-container'));
+        this.actionContainer.setAttribute('tabindex', '0');
         this.action = dom.append(this.actionContainer, $('a.action'));
         this.action.setAttribute('role', 'button');
         if (actionOptions.iconClass) {
@@ -36,15 +41,20 @@ export class HoverAction extends Disposable {
         }
         const label = dom.append(this.action, $('span'));
         label.textContent = keybindingLabel ? `${actionOptions.label} (${keybindingLabel})` : actionOptions.label;
-        this._register(dom.addDisposableListener(this.actionContainer, dom.EventType.MOUSE_DOWN, e => {
+        this._register(dom.addDisposableListener(this.actionContainer, dom.EventType.CLICK, e => {
             e.stopPropagation();
             e.preventDefault();
             actionOptions.run(this.actionContainer);
         }));
+        this._register(dom.addDisposableListener(this.actionContainer, dom.EventType.KEY_DOWN, e => {
+            const event = new StandardKeyboardEvent(e);
+            if (event.equals(3 /* KeyCode.Enter */) || event.equals(10 /* KeyCode.Space */)) {
+                e.stopPropagation();
+                e.preventDefault();
+                actionOptions.run(this.actionContainer);
+            }
+        }));
         this.setEnabled(true);
-    }
-    static render(parent, actionOptions, keybindingLabel) {
-        return new HoverAction(parent, actionOptions, keybindingLabel);
     }
     setEnabled(enabled) {
         if (enabled) {

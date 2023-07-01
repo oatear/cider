@@ -9,19 +9,18 @@ import { Disposable } from '../../../common/lifecycle.js';
 import './list.css';
 import { List } from './listWidget.js';
 class PagedRenderer {
+    get templateId() { return this.renderer.templateId; }
     constructor(renderer, modelProvider) {
         this.renderer = renderer;
         this.modelProvider = modelProvider;
     }
-    get templateId() { return this.renderer.templateId; }
     renderTemplate(container) {
         const data = this.renderer.renderTemplate(container);
         return { data, disposable: Disposable.None };
     }
     renderElement(index, _, data, height) {
-        if (data.disposable) {
-            data.disposable.dispose();
-        }
+        var _a;
+        (_a = data.disposable) === null || _a === void 0 ? void 0 : _a.dispose();
         if (!data.data) {
             return;
         }

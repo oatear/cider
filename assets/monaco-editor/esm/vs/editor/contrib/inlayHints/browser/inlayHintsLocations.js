@@ -14,12 +14,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import * as dom from '../../../../base/browser/dom.js';
 import { Action, Separator } from '../../../../base/common/actions.js';
 import { CancellationToken } from '../../../../base/common/cancellation.js';
-import { EditorExtensionsRegistry } from '../../../browser/editorExtensions.js';
+import { generateUuid } from '../../../../base/common/uuid.js';
 import { Range } from '../../../common/core/range.js';
 import { ITextModelService } from '../../../common/services/resolverService.js';
 import { DefinitionAction, SymbolNavigationAction, SymbolNavigationAnchor } from '../../gotoSymbol/browser/goToCommands.js';
 import { PeekContext } from '../../peekView/browser/peekView.js';
-import { isIMenuItem, MenuId, MenuRegistry } from '../../../../platform/actions/common/actions.js';
+import { isIMenuItem, MenuId, MenuItemAction, MenuRegistry } from '../../../../platform/actions/common/actions.js';
 import { ICommandService } from '../../../../platform/commands/common/commands.js';
 import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
 import { IContextMenuService } from '../../../../platform/contextview/browser/contextView.js';
@@ -40,15 +40,17 @@ export function showGoToContextMenu(accessor, editor, anchor, part) {
         const location = part.part.location;
         const menuActions = [];
         // from all registered (not active) context menu actions select those
-        // that are a symbol navigation action
+        // that are a symbol navigation actions
         const filter = new Set(MenuRegistry.getMenuItems(MenuId.EditorContext)
-            .map(item => isIMenuItem(item) ? item.command.id : ''));
-        for (const delegate of EditorExtensionsRegistry.getEditorActions()) {
-            if (delegate instanceof SymbolNavigationAction && filter.has(delegate.id)) {
-                menuActions.push(new Action(delegate.id, delegate.label, undefined, true, () => __awaiter(this, void 0, void 0, function* () {
+            .map(item => isIMenuItem(item) ? item.command.id : generateUuid()));
+        for (const delegate of SymbolNavigationAction.all()) {
+            if (filter.has(delegate.desc.id)) {
+                menuActions.push(new Action(delegate.desc.id, MenuItemAction.label(delegate.desc, { renderShortTitle: true }), undefined, true, () => __awaiter(this, void 0, void 0, function* () {
                     const ref = yield resolverService.createModelReference(location.uri);
                     try {
-                        yield instaService.invokeFunction(delegate.run.bind(delegate), editor, new SymbolNavigationAnchor(ref.object.textEditorModel, Range.getStartPosition(location.range)));
+                        const symbolAnchor = new SymbolNavigationAnchor(ref.object.textEditorModel, Range.getStartPosition(location.range));
+                        const range = part.item.anchor.range;
+                        yield instaService.invokeFunction(delegate.runEditorCommand.bind(delegate), editor, symbolAnchor, range);
                     }
                     finally {
                         ref.dispose();
@@ -74,7 +76,7 @@ export function showGoToContextMenu(accessor, editor, anchor, part) {
             })));
         }
         // show context menu
-        const useShadowDOM = editor.getOption(115 /* useShadowDOM */);
+        const useShadowDOM = editor.getOption(123 /* EditorOption.useShadowDOM */);
         contextMenuService.showContextMenu({
             domForShadowRoot: useShadowDOM ? (_a = editor.getDomNode()) !== null && _a !== void 0 ? _a : undefined : undefined,
             getAnchor: () => {
@@ -97,9 +99,9 @@ export function goToDefinitionWithLocation(accessor, event, editor, location) {
             const openToSide = event.hasSideBySideModifier;
             const contextKeyService = accessor.get(IContextKeyService);
             const isInPeek = PeekContext.inPeekEditor.getValue(contextKeyService);
-            const canPeek = !openToSide && editor.getOption(78 /* definitionLinkOpensInPeek */) && !isInPeek;
-            const action = new DefinitionAction({ openToSide, openInPeek: canPeek, muteMessage: true }, { alias: '', label: '', id: '', precondition: undefined });
-            return action.run(accessor, editor, { model: ref.object.textEditorModel, position: Range.getStartPosition(location.range) });
+            const canPeek = !openToSide && editor.getOption(85 /* EditorOption.definitionLinkOpensInPeek */) && !isInPeek;
+            const action = new DefinitionAction({ openToSide, openInPeek: canPeek, muteMessage: true }, { title: { value: '', original: '' }, id: '', precondition: undefined });
+            return action.run(accessor, new SymbolNavigationAnchor(ref.object.textEditorModel, Range.getStartPosition(location.range)), Range.lift(location.range));
         }));
         ref.dispose();
     });

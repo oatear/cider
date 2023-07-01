@@ -40,7 +40,10 @@ import { IStorageService } from '../../../../../platform/storage/common/storage.
 import { OneReference } from '../referencesModel.js';
 import { LayoutData, ReferenceWidget } from './referencesWidget.js';
 export const ctxReferenceSearchVisible = new RawContextKey('referenceSearchVisible', false, nls.localize('referenceSearchVisible', "Whether reference peek is visible, like 'Peek References' or 'Peek Definition'"));
-let ReferencesController = class ReferencesController {
+export let ReferencesController = class ReferencesController {
+    static get(editor) {
+        return editor.getContribution(ReferencesController.ID);
+    }
     constructor(_defaultTreeKeyboardSupport, _editor, contextKeyService, _editorService, _notificationService, _instantiationService, _storageService, _configurationService) {
         this._defaultTreeKeyboardSupport = _defaultTreeKeyboardSupport;
         this._editor = _editor;
@@ -53,9 +56,6 @@ let ReferencesController = class ReferencesController {
         this._requestIdPool = 0;
         this._ignoreModelChangeEvent = false;
         this._referenceSearchVisible = ctxReferenceSearchVisible.bindTo(contextKeyService);
-    }
-    static get(editor) {
-        return editor.getContribution(ReferencesController.ID);
     }
     dispose() {
         var _a, _b;
@@ -86,20 +86,20 @@ let ReferencesController = class ReferencesController {
             }
         }));
         const storageKey = 'peekViewLayout';
-        const data = LayoutData.fromJSON(this._storageService.get(storageKey, 0 /* GLOBAL */, '{}'));
+        const data = LayoutData.fromJSON(this._storageService.get(storageKey, 0 /* StorageScope.PROFILE */, '{}'));
         this._widget = this._instantiationService.createInstance(ReferenceWidget, this._editor, this._defaultTreeKeyboardSupport, data);
         this._widget.setTitle(nls.localize('labelLoading', "Loading..."));
         this._widget.show(range);
         this._disposables.add(this._widget.onDidClose(() => {
             modelPromise.cancel();
             if (this._widget) {
-                this._storageService.store(storageKey, JSON.stringify(this._widget.layoutData), 0 /* GLOBAL */, 1 /* MACHINE */);
+                this._storageService.store(storageKey, JSON.stringify(this._widget.layoutData), 0 /* StorageScope.PROFILE */, 1 /* StorageTarget.MACHINE */);
                 this._widget = undefined;
             }
             this.closeWidget();
         }));
         this._disposables.add(this._widget.onDidSelectReference(event => {
-            let { element, kind } = event;
+            const { element, kind } = event;
             if (!element) {
                 return;
             }
@@ -116,7 +116,7 @@ let ReferencesController = class ReferencesController {
                     break;
                 case 'goto':
                     if (peekMode) {
-                        this._gotoReference(element);
+                        this._gotoReference(element, true);
                     }
                     else {
                         this.openReference(element, false, true);
@@ -145,12 +145,12 @@ let ReferencesController = class ReferencesController {
                         this._widget.setMetaTitle('');
                     }
                     // set 'best' selection
-                    let uri = this._editor.getModel().uri;
-                    let pos = new Position(range.startLineNumber, range.startColumn);
-                    let selection = this._model.nearestReference(uri, pos);
+                    const uri = this._editor.getModel().uri;
+                    const pos = new Position(range.startLineNumber, range.startColumn);
+                    const selection = this._model.nearestReference(uri, pos);
                     if (selection) {
                         return this._widget.setSelection(selection).then(() => {
-                            if (this._widget && this._editor.getOption(77 /* peekWidgetDefaultFocus */) === 'editor') {
+                            if (this._widget && this._editor.getOption(84 /* EditorOption.peekWidgetDefaultFocus */) === 'editor') {
                                 this._widget.focusOnPreviewEditor();
                             }
                         });
@@ -192,7 +192,7 @@ let ReferencesController = class ReferencesController {
             const editorFocus = this._editor.hasTextFocus();
             const previewEditorFocus = this._widget.isPreviewEditorFocused();
             yield this._widget.setSelection(target);
-            yield this._gotoReference(target);
+            yield this._gotoReference(target, false);
             if (editorFocus) {
                 this._editor.focus();
             }
@@ -223,15 +223,14 @@ let ReferencesController = class ReferencesController {
         }
         this._requestIdPool += 1; // Cancel pending requests
     }
-    _gotoReference(ref) {
-        if (this._widget) {
-            this._widget.hide();
-        }
+    _gotoReference(ref, pinned) {
+        var _a;
+        (_a = this._widget) === null || _a === void 0 ? void 0 : _a.hide();
         this._ignoreModelChangeEvent = true;
         const range = Range.lift(ref.range).collapseToStart();
         return this._editorService.openCodeEditor({
             resource: ref.uri,
-            options: { selection: range }
+            options: { selection: range, selectionSource: "code.jump" /* TextEditorSelectionSource.JUMP */, pinned }
         }, this._editor).then(openedEditor => {
             var _a;
             this._ignoreModelChangeEvent = false;
@@ -267,7 +266,7 @@ let ReferencesController = class ReferencesController {
         const { uri, range } = ref;
         this._editorService.openCodeEditor({
             resource: uri,
-            options: { selection: range, pinned }
+            options: { selection: range, selectionSource: "code.jump" /* TextEditorSelectionSource.JUMP */, pinned }
         }, this._editor, sideBySide);
     }
 };
@@ -280,7 +279,6 @@ ReferencesController = __decorate([
     __param(6, IStorageService),
     __param(7, IConfigurationService)
 ], ReferencesController);
-export { ReferencesController };
 function withController(accessor, fn) {
     const outerEditor = getOuterEditor(accessor);
     if (!outerEditor) {
@@ -293,8 +291,8 @@ function withController(accessor, fn) {
 }
 KeybindingsRegistry.registerCommandAndKeybindingRule({
     id: 'togglePeekWidgetFocus',
-    weight: 100 /* EditorContrib */,
-    primary: KeyChord(2048 /* CtrlCmd */ | 41 /* KeyK */, 60 /* F2 */),
+    weight: 100 /* KeybindingWeight.EditorContrib */,
+    primary: KeyChord(2048 /* KeyMod.CtrlCmd */ | 41 /* KeyCode.KeyK */, 60 /* KeyCode.F2 */),
     when: ContextKeyExpr.or(ctxReferenceSearchVisible, PeekContext.inPeekEditor),
     handler(accessor) {
         withController(accessor, controller => {
@@ -304,9 +302,9 @@ KeybindingsRegistry.registerCommandAndKeybindingRule({
 });
 KeybindingsRegistry.registerCommandAndKeybindingRule({
     id: 'goToNextReference',
-    weight: 100 /* EditorContrib */ - 10,
-    primary: 62 /* F4 */,
-    secondary: [70 /* F12 */],
+    weight: 100 /* KeybindingWeight.EditorContrib */ - 10,
+    primary: 62 /* KeyCode.F4 */,
+    secondary: [70 /* KeyCode.F12 */],
     when: ContextKeyExpr.or(ctxReferenceSearchVisible, PeekContext.inPeekEditor),
     handler(accessor) {
         withController(accessor, controller => {
@@ -316,9 +314,9 @@ KeybindingsRegistry.registerCommandAndKeybindingRule({
 });
 KeybindingsRegistry.registerCommandAndKeybindingRule({
     id: 'goToPreviousReference',
-    weight: 100 /* EditorContrib */ - 10,
-    primary: 1024 /* Shift */ | 62 /* F4 */,
-    secondary: [1024 /* Shift */ | 70 /* F12 */],
+    weight: 100 /* KeybindingWeight.EditorContrib */ - 10,
+    primary: 1024 /* KeyMod.Shift */ | 62 /* KeyCode.F4 */,
+    secondary: [1024 /* KeyMod.Shift */ | 70 /* KeyCode.F12 */],
     when: ContextKeyExpr.or(ctxReferenceSearchVisible, PeekContext.inPeekEditor),
     handler(accessor) {
         withController(accessor, controller => {
@@ -334,25 +332,25 @@ CommandsRegistry.registerCommandAlias('closeReferenceSearchEditor', 'closeRefere
 CommandsRegistry.registerCommand('closeReferenceSearch', accessor => withController(accessor, controller => controller.closeWidget()));
 KeybindingsRegistry.registerKeybindingRule({
     id: 'closeReferenceSearch',
-    weight: 100 /* EditorContrib */ - 101,
-    primary: 9 /* Escape */,
-    secondary: [1024 /* Shift */ | 9 /* Escape */],
+    weight: 100 /* KeybindingWeight.EditorContrib */ - 101,
+    primary: 9 /* KeyCode.Escape */,
+    secondary: [1024 /* KeyMod.Shift */ | 9 /* KeyCode.Escape */],
     when: ContextKeyExpr.and(PeekContext.inPeekEditor, ContextKeyExpr.not('config.editor.stablePeek'))
 });
 KeybindingsRegistry.registerKeybindingRule({
     id: 'closeReferenceSearch',
-    weight: 200 /* WorkbenchContrib */ + 50,
-    primary: 9 /* Escape */,
-    secondary: [1024 /* Shift */ | 9 /* Escape */],
+    weight: 200 /* KeybindingWeight.WorkbenchContrib */ + 50,
+    primary: 9 /* KeyCode.Escape */,
+    secondary: [1024 /* KeyMod.Shift */ | 9 /* KeyCode.Escape */],
     when: ContextKeyExpr.and(ctxReferenceSearchVisible, ContextKeyExpr.not('config.editor.stablePeek'))
 });
 KeybindingsRegistry.registerCommandAndKeybindingRule({
     id: 'revealReference',
-    weight: 200 /* WorkbenchContrib */,
-    primary: 3 /* Enter */,
+    weight: 200 /* KeybindingWeight.WorkbenchContrib */,
+    primary: 3 /* KeyCode.Enter */,
     mac: {
-        primary: 3 /* Enter */,
-        secondary: [2048 /* CtrlCmd */ | 18 /* DownArrow */]
+        primary: 3 /* KeyCode.Enter */,
+        secondary: [2048 /* KeyMod.CtrlCmd */ | 18 /* KeyCode.DownArrow */]
     },
     when: ContextKeyExpr.and(ctxReferenceSearchVisible, WorkbenchListFocusContextKey, WorkbenchTreeElementCanCollapse.negate(), WorkbenchTreeElementCanExpand.negate()),
     handler(accessor) {
@@ -366,10 +364,10 @@ KeybindingsRegistry.registerCommandAndKeybindingRule({
 });
 KeybindingsRegistry.registerCommandAndKeybindingRule({
     id: 'openReferenceToSide',
-    weight: 100 /* EditorContrib */,
-    primary: 2048 /* CtrlCmd */ | 3 /* Enter */,
+    weight: 100 /* KeybindingWeight.EditorContrib */,
+    primary: 2048 /* KeyMod.CtrlCmd */ | 3 /* KeyCode.Enter */,
     mac: {
-        primary: 256 /* WinCtrl */ | 3 /* Enter */
+        primary: 256 /* KeyMod.WinCtrl */ | 3 /* KeyCode.Enter */
     },
     when: ContextKeyExpr.and(ctxReferenceSearchVisible, WorkbenchListFocusContextKey, WorkbenchTreeElementCanCollapse.negate(), WorkbenchTreeElementCanExpand.negate()),
     handler(accessor) {

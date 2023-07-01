@@ -14,6 +14,14 @@ export var OverviewRulerLane;
     OverviewRulerLane[OverviewRulerLane["Full"] = 7] = "Full";
 })(OverviewRulerLane || (OverviewRulerLane = {}));
 /**
+ * Vertical Lane in the glyph margin of the editor.
+ */
+export var GlyphMarginLane;
+(function (GlyphMarginLane) {
+    GlyphMarginLane[GlyphMarginLane["Left"] = 1] = "Left";
+    GlyphMarginLane[GlyphMarginLane["Right"] = 2] = "Right";
+})(GlyphMarginLane || (GlyphMarginLane = {}));
+/**
  * Position in the minimap to render the decoration.
  */
 export var MinimapPosition;
@@ -29,13 +37,23 @@ export var InjectedTextCursorStops;
     InjectedTextCursorStops[InjectedTextCursorStops["None"] = 3] = "None";
 })(InjectedTextCursorStops || (InjectedTextCursorStops = {}));
 export class TextModelResolvedOptions {
+    get originalIndentSize() {
+        return this._indentSizeIsTabSize ? 'tabSize' : this.indentSize;
+    }
     /**
      * @internal
      */
     constructor(src) {
         this._textModelResolvedOptionsBrand = undefined;
         this.tabSize = Math.max(1, src.tabSize | 0);
-        this.indentSize = src.tabSize | 0;
+        if (src.indentSize === 'tabSize') {
+            this.indentSize = this.tabSize;
+            this._indentSizeIsTabSize = true;
+        }
+        else {
+            this.indentSize = Math.max(1, src.indentSize | 0);
+            this._indentSizeIsTabSize = false;
+        }
         this.insertSpaces = Boolean(src.insertSpaces);
         this.defaultEOL = src.defaultEOL | 0;
         this.trimAutoWhitespace = Boolean(src.trimAutoWhitespace);
@@ -46,6 +64,7 @@ export class TextModelResolvedOptions {
      */
     equals(other) {
         return (this.tabSize === other.tabSize
+            && this._indentSizeIsTabSize === other._indentSizeIsTabSize
             && this.indentSize === other.indentSize
             && this.insertSpaces === other.insertSpaces
             && this.defaultEOL === other.defaultEOL
@@ -73,6 +92,12 @@ export class FindMatch {
         this.range = range;
         this.matches = matches;
     }
+}
+/**
+ * @internal
+ */
+export function isITextSnapshot(obj) {
+    return (obj && typeof obj.read === 'function');
 }
 /**
  * @internal

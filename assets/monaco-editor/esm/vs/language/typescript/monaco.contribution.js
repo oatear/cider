@@ -1,7 +1,7 @@
 import '../../editor/editor.api.js';
 /*!-----------------------------------------------------------------------------
  * Copyright (c) Microsoft Corporation. All rights reserved.
- * Version: 0.32.1(29a273516805a852aa8edc5e05059f119b13eff0)
+ * Version: 0.39.0(ff3621a3fa6389873be5412d17554294ea1b0941)
  * Released under the MIT license
  * https://github.com/microsoft/monaco-editor/blob/main/LICENSE.txt
  *-----------------------------------------------------------------------------*/
@@ -10,17 +10,18 @@ var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __reExport = (target, module, copyDefault, desc) => {
-  if (module && typeof module === "object" || typeof module === "function") {
-    for (let key of __getOwnPropNames(module))
-      if (!__hasOwnProp.call(target, key) && (copyDefault || key !== "default"))
-        __defProp(target, key, { get: () => module[key], enumerable: !(desc = __getOwnPropDesc(module, key)) || desc.enumerable });
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
   }
-  return target;
+  return to;
 };
+var __reExport = (target, mod, secondTarget) => (__copyProps(target, mod, "default"), secondTarget && __copyProps(secondTarget, mod, "default"));
 
 // src/language/typescript/lib/typescriptServicesMetadata.ts
-var typescriptVersion = "4.5.5";
+var typescriptVersion = "5.0.2";
 
 // src/fillers/monaco-editor-core.ts
 var monaco_editor_core_exports = {};
@@ -63,7 +64,7 @@ var ScriptTarget = /* @__PURE__ */ ((ScriptTarget2) => {
   ScriptTarget2[ScriptTarget2["ES2020"] = 7] = "ES2020";
   ScriptTarget2[ScriptTarget2["ESNext"] = 99] = "ESNext";
   ScriptTarget2[ScriptTarget2["JSON"] = 100] = "JSON";
-  ScriptTarget2[ScriptTarget2["Latest"] = 99] = "Latest";
+  ScriptTarget2[ScriptTarget2["Latest"] = 99 /* ESNext */] = "Latest";
   return ScriptTarget2;
 })(ScriptTarget || {});
 var ModuleResolutionKind = /* @__PURE__ */ ((ModuleResolutionKind2) => {
@@ -82,7 +83,8 @@ var LanguageServiceDefaultsImpl = class {
   _workerOptions;
   _onDidExtraLibsChangeTimeout;
   _inlayHintsOptions;
-  constructor(compilerOptions, diagnosticsOptions, workerOptions, inlayHintsOptions) {
+  _modeConfiguration;
+  constructor(compilerOptions, diagnosticsOptions, workerOptions, inlayHintsOptions, modeConfiguration) {
     this._extraLibs = /* @__PURE__ */ Object.create(null);
     this._removedExtraLibs = /* @__PURE__ */ Object.create(null);
     this._eagerModelSync = false;
@@ -90,6 +92,7 @@ var LanguageServiceDefaultsImpl = class {
     this.setDiagnosticsOptions(diagnosticsOptions);
     this.setWorkerOptions(workerOptions);
     this.setInlayHintsOptions(inlayHintsOptions);
+    this.setModeConfiguration(modeConfiguration);
     this._onDidExtraLibsChangeTimeout = -1;
   }
   get onDidChange() {
@@ -97,6 +100,9 @@ var LanguageServiceDefaultsImpl = class {
   }
   get onDidExtraLibsChange() {
     return this._onDidExtraLibsChange.event;
+  }
+  get modeConfiguration() {
+    return this._modeConfiguration;
   }
   get workerOptions() {
     return this._workerOptions;
@@ -207,10 +213,29 @@ var LanguageServiceDefaultsImpl = class {
   getEagerModelSync() {
     return this._eagerModelSync;
   }
+  setModeConfiguration(modeConfiguration) {
+    this._modeConfiguration = modeConfiguration || /* @__PURE__ */ Object.create(null);
+    this._onDidChange.fire(void 0);
+  }
 };
 var typescriptVersion2 = typescriptVersion;
-var typescriptDefaults = new LanguageServiceDefaultsImpl({ allowNonTsExtensions: true, target: 99 /* Latest */ }, { noSemanticValidation: false, noSyntaxValidation: false, onlyVisible: false }, {}, {});
-var javascriptDefaults = new LanguageServiceDefaultsImpl({ allowNonTsExtensions: true, allowJs: true, target: 99 /* Latest */ }, { noSemanticValidation: true, noSyntaxValidation: false, onlyVisible: false }, {}, {});
+var modeConfigurationDefault = {
+  completionItems: true,
+  hovers: true,
+  documentSymbols: true,
+  definitions: true,
+  references: true,
+  documentHighlights: true,
+  rename: true,
+  diagnostics: true,
+  documentRangeFormattingEdits: true,
+  signatureHelp: true,
+  onTypeFormattingEdits: true,
+  codeActions: true,
+  inlayHints: true
+};
+var typescriptDefaults = new LanguageServiceDefaultsImpl({ allowNonTsExtensions: true, target: 99 /* Latest */ }, { noSemanticValidation: false, noSyntaxValidation: false, onlyVisible: false }, {}, {}, modeConfigurationDefault);
+var javascriptDefaults = new LanguageServiceDefaultsImpl({ allowNonTsExtensions: true, allowJs: true, target: 99 /* Latest */ }, { noSemanticValidation: true, noSyntaxValidation: false, onlyVisible: false }, {}, {}, modeConfigurationDefault);
 var getTypeScriptWorker = () => {
   return getMode().then((mode) => mode.getTypeScriptWorker());
 };
@@ -235,7 +260,7 @@ function getMode() {
       __require(["vs/language/typescript/tsMode"], resolve, reject);
     });
   } else {
-    return import("./tsMode");
+    return import("./tsMode.js");
   }
 }
 monaco_editor_core_exports.languages.onLanguage("typescript", () => {

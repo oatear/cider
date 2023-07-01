@@ -4,7 +4,9 @@
  *--------------------------------------------------------------------------------------------*/
 import * as browser from '../../../base/browser/browser.js';
 import * as dom from '../../../base/browser/dom.js';
+import { DomEmitter } from '../../../base/browser/event.js';
 import { StandardKeyboardEvent } from '../../../base/browser/keyboardEvent.js';
+import { inputLatency } from '../../../base/browser/performance.js';
 import { RunOnceScheduler } from '../../../base/common/async.js';
 import { Emitter } from '../../../base/common/event.js';
 import { Disposable } from '../../../base/common/lifecycle.js';
@@ -66,6 +68,9 @@ class CompositionContext {
  * Composition events are generated for presentation purposes (composition input is reflected in onType).
  */
 export class TextAreaInput extends Disposable {
+    get textAreaState() {
+        return this._textAreaState;
+    }
     constructor(_host, _textArea, _OS, _browser) {
         super();
         this._host = _host;
@@ -104,12 +109,12 @@ export class TextAreaInput extends Disposable {
         let lastKeyDown = null;
         this._register(this._textArea.onKeyDown((_e) => {
             const e = new StandardKeyboardEvent(_e);
-            if (e.keyCode === 109 /* KEY_IN_COMPOSITION */
-                || (this._currentComposition && e.keyCode === 1 /* Backspace */)) {
+            if (e.keyCode === 114 /* KeyCode.KEY_IN_COMPOSITION */
+                || (this._currentComposition && e.keyCode === 1 /* KeyCode.Backspace */)) {
                 // Stop propagation for keyDown events if the IME is processing key input
                 e.stopPropagation();
             }
-            if (e.equals(9 /* Escape */)) {
+            if (e.equals(9 /* KeyCode.Escape */)) {
                 // Prevent default always for `Esc`, otherwise it will generate a keypress
                 // See https://msdn.microsoft.com/en-us/library/ie/ms536939(v=vs.85).aspx
                 e.preventDefault();
@@ -132,9 +137,9 @@ export class TextAreaInput extends Disposable {
                 return;
             }
             this._currentComposition = currentComposition;
-            if (this._OS === 2 /* Macintosh */
+            if (this._OS === 2 /* OperatingSystem.Macintosh */
                 && lastKeyDown
-                && lastKeyDown.equals(109 /* KEY_IN_COMPOSITION */)
+                && lastKeyDown.equals(114 /* KeyCode.KEY_IN_COMPOSITION */)
                 && this._textAreaState.selectionStart === this._textAreaState.selectionEnd
                 && this._textAreaState.selectionStart > 0
                 && this._textAreaState.value.substr(this._textAreaState.selectionStart - 1, 1) === e.data
@@ -170,7 +175,7 @@ export class TextAreaInput extends Disposable {
                 // For example, if the cursor is in the middle of a word like Mic|osoft
                 // and Microsoft is chosen from the keyboard's suggestions, the e.data will contain "Microsoft".
                 // This is not really usable because it doesn't tell us where the edit began and where it ended.
-                const newState = TextAreaState.readFromTextArea(this._textArea);
+                const newState = TextAreaState.readFromTextArea(this._textArea, this._textAreaState);
                 const typeInput = TextAreaState.deduceAndroidCompositionInput(this._textAreaState, newState);
                 this._textAreaState = newState;
                 this._onType.fire(typeInput);
@@ -178,7 +183,7 @@ export class TextAreaInput extends Disposable {
                 return;
             }
             const typeInput = currentComposition.handleCompositionUpdate(e.data);
-            this._textAreaState = TextAreaState.readFromTextArea(this._textArea);
+            this._textAreaState = TextAreaState.readFromTextArea(this._textArea, this._textAreaState);
             this._onType.fire(typeInput);
             this._onCompositionUpdate.fire(e);
         }));
@@ -198,7 +203,7 @@ export class TextAreaInput extends Disposable {
                 // For example, if the cursor is in the middle of a word like Mic|osoft
                 // and Microsoft is chosen from the keyboard's suggestions, the e.data will contain "Microsoft".
                 // This is not really usable because it doesn't tell us where the edit began and where it ended.
-                const newState = TextAreaState.readFromTextArea(this._textArea);
+                const newState = TextAreaState.readFromTextArea(this._textArea, this._textAreaState);
                 const typeInput = TextAreaState.deduceAndroidCompositionInput(this._textAreaState, newState);
                 this._textAreaState = newState;
                 this._onType.fire(typeInput);
@@ -206,7 +211,7 @@ export class TextAreaInput extends Disposable {
                 return;
             }
             const typeInput = currentComposition.handleCompositionUpdate(e.data);
-            this._textAreaState = TextAreaState.readFromTextArea(this._textArea);
+            this._textAreaState = TextAreaState.readFromTextArea(this._textArea, this._textAreaState);
             this._onType.fire(typeInput);
             this._onCompositionEnd.fire();
         }));
@@ -220,11 +225,15 @@ export class TextAreaInput extends Disposable {
             if (this._currentComposition) {
                 return;
             }
-            const newState = TextAreaState.readFromTextArea(this._textArea);
-            const typeInput = TextAreaState.deduceInput(this._textAreaState, newState, /*couldBeEmojiInput*/ this._OS === 2 /* Macintosh */);
-            if (typeInput.replacePrevCharCnt === 0 && typeInput.text.length === 1 && strings.isHighSurrogate(typeInput.text.charCodeAt(0))) {
-                // Ignore invalid input but keep it around for next time
-                return;
+            const newState = TextAreaState.readFromTextArea(this._textArea, this._textAreaState);
+            const typeInput = TextAreaState.deduceInput(this._textAreaState, newState, /*couldBeEmojiInput*/ this._OS === 2 /* OperatingSystem.Macintosh */);
+            if (typeInput.replacePrevCharCnt === 0 && typeInput.text.length === 1) {
+                // one character was typed
+                if (strings.isHighSurrogate(typeInput.text.charCodeAt(0))
+                    || typeInput.text.charCodeAt(0) === 0x7f /* Delete */) {
+                    // Ignore invalid input but keep it around for next time
+                    return;
+                }
             }
             this._textAreaState = newState;
             if (typeInput.text !== ''
@@ -320,6 +329,7 @@ export class TextAreaInput extends Disposable {
         // so throttle multiple `selectionchange` events that burst in a short period of time.
         let previousSelectionChangeEventTime = 0;
         return dom.addDisposableListener(document, 'selectionchange', (e) => {
+            inputLatency.onSelectionChange();
             if (!this._hasFocus) {
                 return;
             }
@@ -345,7 +355,7 @@ export class TextAreaInput extends Disposable {
                 // => ignore it, since we caused it
                 return;
             }
-            if (!this._textAreaState.selectionStartPosition || !this._textAreaState.selectionEndPosition) {
+            if (!this._textAreaState.selection) {
                 // Cannot correlate a position in the textarea with a position in the editor...
                 return;
             }
@@ -423,7 +433,7 @@ export class TextAreaInput extends Disposable {
             // Do not write to the text area when doing composition
             return;
         }
-        this._setAndWriteTextAreaState(reason, this._host.getScreenReaderContent(this._textAreaState));
+        this._setAndWriteTextAreaState(reason, this._host.getScreenReaderContent());
     }
     _ensureClipboardGetsEditorSelection(e) {
         const dataToCopy = this._host.getDataToCopy();
@@ -459,6 +469,11 @@ class ClipboardEventUtils {
                 // no problem!
             }
         }
+        if (text.length === 0 && metadata === null && clipboardData.files.length > 0) {
+            // no textual data pasted, generate text from file names
+            const files = Array.prototype.slice.call(clipboardData.files, 0);
+            return [files.map(file => file.name).join('\n'), null];
+        }
         return [text, metadata];
     }
     static setTextData(clipboardData, text, html, metadata) {
@@ -473,20 +488,25 @@ export class TextAreaWrapper extends Disposable {
     constructor(_actual) {
         super();
         this._actual = _actual;
-        this.onKeyDown = this._register(dom.createEventEmitter(this._actual, 'keydown')).event;
-        this.onKeyUp = this._register(dom.createEventEmitter(this._actual, 'keyup')).event;
-        this.onCompositionStart = this._register(dom.createEventEmitter(this._actual, 'compositionstart')).event;
-        this.onCompositionUpdate = this._register(dom.createEventEmitter(this._actual, 'compositionupdate')).event;
-        this.onCompositionEnd = this._register(dom.createEventEmitter(this._actual, 'compositionend')).event;
-        this.onInput = this._register(dom.createEventEmitter(this._actual, 'input')).event;
-        this.onCut = this._register(dom.createEventEmitter(this._actual, 'cut')).event;
-        this.onCopy = this._register(dom.createEventEmitter(this._actual, 'copy')).event;
-        this.onPaste = this._register(dom.createEventEmitter(this._actual, 'paste')).event;
-        this.onFocus = this._register(dom.createEventEmitter(this._actual, 'focus')).event;
-        this.onBlur = this._register(dom.createEventEmitter(this._actual, 'blur')).event;
+        this.onKeyDown = this._register(new DomEmitter(this._actual, 'keydown')).event;
+        this.onKeyUp = this._register(new DomEmitter(this._actual, 'keyup')).event;
+        this.onCompositionStart = this._register(new DomEmitter(this._actual, 'compositionstart')).event;
+        this.onCompositionUpdate = this._register(new DomEmitter(this._actual, 'compositionupdate')).event;
+        this.onCompositionEnd = this._register(new DomEmitter(this._actual, 'compositionend')).event;
+        this.onBeforeInput = this._register(new DomEmitter(this._actual, 'beforeinput')).event;
+        this.onInput = this._register(new DomEmitter(this._actual, 'input')).event;
+        this.onCut = this._register(new DomEmitter(this._actual, 'cut')).event;
+        this.onCopy = this._register(new DomEmitter(this._actual, 'copy')).event;
+        this.onPaste = this._register(new DomEmitter(this._actual, 'paste')).event;
+        this.onFocus = this._register(new DomEmitter(this._actual, 'focus')).event;
+        this.onBlur = this._register(new DomEmitter(this._actual, 'blur')).event;
         this._onSyntheticTap = this._register(new Emitter());
         this.onSyntheticTap = this._onSyntheticTap.event;
         this._ignoreSelectionChangeTime = 0;
+        this._register(this.onKeyDown(() => inputLatency.onKeyDown()));
+        this._register(this.onBeforeInput(() => inputLatency.onBeforeInput()));
+        this._register(this.onInput(() => inputLatency.onInput()));
+        this._register(this.onKeyUp(() => inputLatency.onKeyUp()));
         this._register(dom.addDisposableListener(this._actual, TextAreaSyntethicEvents.Tap, () => this._onSyntheticTap.fire()));
     }
     hasFocus() {

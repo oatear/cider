@@ -7,12 +7,9 @@ export class OvertypingCapturer {
     constructor(editor, suggestModel) {
         this._disposables = new DisposableStore();
         this._lastOvertyped = [];
-        this._empty = true;
+        this._locked = false;
         this._disposables.add(editor.onWillType(() => {
-            if (!this._empty) {
-                return;
-            }
-            if (!editor.hasModel()) {
+            if (this._locked || !editor.hasModel()) {
                 return;
             }
             const selections = editor.getSelections();
@@ -26,6 +23,9 @@ export class OvertypingCapturer {
                 }
             }
             if (!willOvertype) {
+                if (this._lastOvertyped.length !== 0) {
+                    this._lastOvertyped.length = 0;
+                }
                 return;
             }
             this._lastOvertyped = [];
@@ -38,16 +38,16 @@ export class OvertypingCapturer {
                 }
                 this._lastOvertyped[i] = { value: model.getValueInRange(selection), multiline: selection.startLineNumber !== selection.endLineNumber };
             }
-            this._empty = false;
+        }));
+        this._disposables.add(suggestModel.onDidTrigger(e => {
+            this._locked = true;
         }));
         this._disposables.add(suggestModel.onDidCancel(e => {
-            if (!this._empty && !e.retrigger) {
-                this._empty = true;
-            }
+            this._locked = false;
         }));
     }
     getLastOvertypedInfo(idx) {
-        if (!this._empty && idx >= 0 && idx < this._lastOvertyped.length) {
+        if (idx >= 0 && idx < this._lastOvertyped.length) {
             return this._lastOvertyped[idx];
         }
         return undefined;

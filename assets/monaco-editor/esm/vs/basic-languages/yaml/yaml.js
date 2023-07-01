@@ -1,9 +1,28 @@
 /*!-----------------------------------------------------------------------------
  * Copyright (c) Microsoft Corporation. All rights reserved.
- * Version: 0.32.1(29a273516805a852aa8edc5e05059f119b13eff0)
+ * Version: 0.39.0(ff3621a3fa6389873be5412d17554294ea1b0941)
  * Released under the MIT license
  * https://github.com/microsoft/monaco-editor/blob/main/LICENSE.txt
  *-----------------------------------------------------------------------------*/
+
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __reExport = (target, mod, secondTarget) => (__copyProps(target, mod, "default"), secondTarget && __copyProps(secondTarget, mod, "default"));
+
+// src/fillers/monaco-editor-core.ts
+var monaco_editor_core_exports = {};
+__reExport(monaco_editor_core_exports, monaco_editor_core_star);
+import * as monaco_editor_core_star from "../../editor/editor.api.js";
 
 // src/basic-languages/yaml/yaml.ts
 var conf = {
@@ -31,7 +50,15 @@ var conf = {
   ],
   folding: {
     offSide: true
-  }
+  },
+  onEnterRules: [
+    {
+      beforeText: /:\s*$/,
+      action: {
+        indentAction: monaco_editor_core_exports.languages.IndentAction.Indent
+      }
+    }
+  ]
 };
 var language = {
   tokenPostfix: ".yaml",
@@ -67,10 +94,10 @@ var language = {
       [/@numberInfinity(?![ \t]*\S+)/, "number.infinity"],
       [/@numberNaN(?![ \t]*\S+)/, "number.nan"],
       [/@numberDate(?![ \t]*\S+)/, "number.date"],
-      [/(".*?"|'.*?'|.*?)([ \t]*)(:)( |$)/, ["type", "white", "operators", "white"]],
+      [/(".*?"|'.*?'|[^#'"]*?)([ \t]*)(:)( |$)/, ["type", "white", "operators", "white"]],
       { include: "@flowScalars" },
       [
-        /[^#]+/,
+        /.+?(?=(\s+#|$))/,
         {
           cases: {
             "@keywords": "keyword",

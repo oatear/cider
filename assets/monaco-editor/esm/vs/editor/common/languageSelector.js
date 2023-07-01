@@ -4,12 +4,12 @@
  *--------------------------------------------------------------------------------------------*/
 import { match as matchGlobPattern } from '../../base/common/glob.js';
 import { normalize } from '../../base/common/path.js';
-export function score(selector, candidateUri, candidateLanguage, candidateIsSynchronized) {
+export function score(selector, candidateUri, candidateLanguage, candidateIsSynchronized, candidateNotebookUri, candidateNotebookType) {
     if (Array.isArray(selector)) {
         // array -> take max individual value
         let ret = 0;
         for (const filter of selector) {
-            const value = score(filter, candidateUri, candidateLanguage, candidateIsSynchronized);
+            const value = score(filter, candidateUri, candidateLanguage, candidateIsSynchronized, candidateNotebookUri, candidateNotebookType);
             if (value === 10) {
                 return value; // already at the highest
             }
@@ -38,9 +38,14 @@ export function score(selector, candidateUri, candidateLanguage, candidateIsSync
     }
     else if (selector) {
         // filter -> select accordingly, use defaults for scheme
-        const { language, pattern, scheme, hasAccessToAllModels } = selector; // TODO: microsoft/TypeScript#42768
+        const { language, pattern, scheme, hasAccessToAllModels, notebookType } = selector; // TODO: microsoft/TypeScript#42768
         if (!candidateIsSynchronized && !hasAccessToAllModels) {
             return 0;
+        }
+        // selector targets a notebook -> use the notebook uri instead
+        // of the "normal" document uri.
+        if (notebookType && candidateNotebookUri) {
+            candidateUri = candidateNotebookUri;
         }
         let ret = 0;
         if (scheme) {
@@ -59,6 +64,17 @@ export function score(selector, candidateUri, candidateLanguage, candidateIsSync
                 ret = 10;
             }
             else if (language === '*') {
+                ret = Math.max(ret, 5);
+            }
+            else {
+                return 0;
+            }
+        }
+        if (notebookType) {
+            if (notebookType === candidateNotebookType) {
+                ret = 10;
+            }
+            else if (notebookType === '*' && candidateNotebookType !== undefined) {
                 ret = Math.max(ret, 5);
             }
             else {

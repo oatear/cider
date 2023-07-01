@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 import { Emitter } from '../../../base/common/event.js';
 import { Iterable } from '../../../base/common/iterator.js';
-import { Disposable, toDisposable } from '../../../base/common/lifecycle.js';
+import { toDisposable } from '../../../base/common/lifecycle.js';
 import { LinkedList } from '../../../base/common/linkedList.js';
 import { validateConstraints } from '../../../base/common/types.js';
 import { createDecorator } from '../../instantiation/common/instantiation.js';
@@ -28,7 +28,7 @@ export const CommandsRegistry = new class {
         // add argument validation if rich command metadata is provided
         if (idOrCommand.description) {
             const constraints = [];
-            for (let arg of idOrCommand.description.args) {
+            for (const arg of idOrCommand.description.args) {
                 constraints.push(arg.constraint);
             }
             const actualHandler = idOrCommand.handler;
@@ -44,8 +44,8 @@ export const CommandsRegistry = new class {
             commands = new LinkedList();
             this._commands.set(id, commands);
         }
-        let removeFn = commands.unshift(idOrCommand);
-        let ret = toDisposable(() => {
+        const removeFn = commands.unshift(idOrCommand);
+        const ret = toDisposable(() => {
             removeFn();
             const command = this._commands.get(id);
             if (command === null || command === void 0 ? void 0 : command.isEmpty()) {
@@ -75,14 +75,6 @@ export const CommandsRegistry = new class {
             }
         }
         return result;
-    }
-};
-export const NullCommandService = {
-    _serviceBrand: undefined,
-    onWillExecuteCommand: () => Disposable.None,
-    onDidExecuteCommand: () => Disposable.None,
-    executeCommand() {
-        return Promise.resolve(undefined);
     }
 };
 CommandsRegistry.registerCommand('noop', () => { });

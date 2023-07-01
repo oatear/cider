@@ -23,17 +23,21 @@ export class ColorZone {
  * A zone in the overview ruler
  */
 export class OverviewRulerZone {
-    constructor(startLineNumber, endLineNumber, color) {
+    constructor(startLineNumber, endLineNumber, heightInLines, color) {
         this._overviewRulerZoneBrand = undefined;
         this.startLineNumber = startLineNumber;
         this.endLineNumber = endLineNumber;
+        this.heightInLines = heightInLines;
         this.color = color;
         this._colorZone = null;
     }
     static compare(a, b) {
         if (a.color === b.color) {
             if (a.startLineNumber === b.startLineNumber) {
-                return a.endLineNumber - b.endLineNumber;
+                if (a.heightInLines === b.heightInLines) {
+                    return a.endLineNumber - b.endLineNumber;
+                }
+                return a.heightInLines - b.heightInLines;
             }
             return a.startLineNumber - b.startLineNumber;
         }
@@ -124,7 +128,7 @@ export class OverviewZoneManager {
         const totalHeight = Math.floor(this.getCanvasHeight());
         const outerHeight = Math.floor(this._outerHeight);
         const heightRatio = totalHeight / outerHeight;
-        const halfMinimumHeight = Math.floor(4 /* MINIMUM_HEIGHT */ * this._pixelRatio / 2);
+        const halfMinimumHeight = Math.floor(4 /* Constants.MINIMUM_HEIGHT */ * this._pixelRatio / 2);
         const allColorZones = [];
         for (let i = 0, len = this._zones.length; i < len; i++) {
             const zone = this._zones[i];
@@ -135,8 +139,12 @@ export class OverviewZoneManager {
                     continue;
                 }
             }
-            const y1 = Math.floor(heightRatio * (this._getVerticalOffsetForLine(zone.startLineNumber)));
-            const y2 = Math.floor(heightRatio * (this._getVerticalOffsetForLine(zone.endLineNumber) + lineHeight));
+            const offset1 = this._getVerticalOffsetForLine(zone.startLineNumber);
+            const offset2 = (zone.heightInLines === 0
+                ? this._getVerticalOffsetForLine(zone.endLineNumber) + lineHeight
+                : offset1 + zone.heightInLines * lineHeight);
+            const y1 = Math.floor(heightRatio * offset1);
+            const y2 = Math.floor(heightRatio * offset2);
             let ycenter = Math.floor((y1 + y2) / 2);
             let halfHeight = (y2 - ycenter);
             if (halfHeight < halfMinimumHeight) {

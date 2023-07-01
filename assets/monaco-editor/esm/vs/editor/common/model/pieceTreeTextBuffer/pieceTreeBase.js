@@ -8,8 +8,8 @@ import { FindMatch } from '../../model.js';
 import { SENTINEL, TreeNode, fixInsert, leftest, rbDelete, righttest, updateTreeMetadata } from './rbTreeBase.js';
 import { Searcher, createFindMatch, isValidMatch } from '../textModelSearch.js';
 // const lfRegex = new RegExp(/\r\n|\r|\n/g);
-export const AverageBufferSize = 65535;
-export function createUintArray(arr) {
+const AverageBufferSize = 65535;
+function createUintArray(arr) {
     let r;
     if (arr[arr.length - 1] < 65536) {
         r = new Uint16Array(arr.length);
@@ -20,7 +20,7 @@ export function createUintArray(arr) {
     r.set(arr, 0);
     return r;
 }
-export class LineStarts {
+class LineStarts {
     constructor(lineStarts, cr, lf, crlf, isBasicASCII) {
         this.lineStarts = lineStarts;
         this.cr = cr;
@@ -34,8 +34,8 @@ export function createLineStartsFast(str, readonly = true) {
     let rLength = 1;
     for (let i = 0, len = str.length; i < len; i++) {
         const chr = str.charCodeAt(i);
-        if (chr === 13 /* CarriageReturn */) {
-            if (i + 1 < len && str.charCodeAt(i + 1) === 10 /* LineFeed */) {
+        if (chr === 13 /* CharCode.CarriageReturn */) {
+            if (i + 1 < len && str.charCodeAt(i + 1) === 10 /* CharCode.LineFeed */) {
                 // \r\n... case
                 r[rLength++] = i + 2;
                 i++; // skip \n
@@ -45,7 +45,7 @@ export function createLineStartsFast(str, readonly = true) {
                 r[rLength++] = i + 1;
             }
         }
-        else if (chr === 10 /* LineFeed */) {
+        else if (chr === 10 /* CharCode.LineFeed */) {
             r[rLength++] = i + 1;
         }
     }
@@ -64,8 +64,8 @@ export function createLineStarts(r, str) {
     let isBasicASCII = true;
     for (let i = 0, len = str.length; i < len; i++) {
         const chr = str.charCodeAt(i);
-        if (chr === 13 /* CarriageReturn */) {
-            if (i + 1 < len && str.charCodeAt(i + 1) === 10 /* LineFeed */) {
+        if (chr === 13 /* CharCode.CarriageReturn */) {
+            if (i + 1 < len && str.charCodeAt(i + 1) === 10 /* CharCode.LineFeed */) {
                 // \r\n... case
                 crlf++;
                 r[rLength++] = i + 2;
@@ -77,13 +77,13 @@ export function createLineStarts(r, str) {
                 r[rLength++] = i + 1;
             }
         }
-        else if (chr === 10 /* LineFeed */) {
+        else if (chr === 10 /* CharCode.LineFeed */) {
             lf++;
             r[rLength++] = i + 1;
         }
         else {
             if (isBasicASCII) {
-                if (chr !== 9 /* Tab */ && (chr < 32 || chr > 126)) {
+                if (chr !== 9 /* CharCode.Tab */ && (chr < 32 || chr > 126)) {
                     isBasicASCII = false;
                 }
             }
@@ -392,7 +392,7 @@ export class PieceTreeBase {
             const pieceEndLine = piece.end.line;
             let pieceStartOffset = lineStarts[pieceStartLine] + piece.start.column;
             if (danglingCR) {
-                if (buffer.charCodeAt(pieceStartOffset) === 10 /* LineFeed */) {
+                if (buffer.charCodeAt(pieceStartOffset) === 10 /* CharCode.LineFeed */) {
                     // pretend the \n was in the previous piece..
                     pieceStartOffset++;
                     pieceLength--;
@@ -406,7 +406,7 @@ export class PieceTreeBase {
             }
             if (pieceStartLine === pieceEndLine) {
                 // this piece has no new lines
-                if (!this._EOLNormalized && buffer.charCodeAt(pieceStartOffset + pieceLength - 1) === 13 /* CarriageReturn */) {
+                if (!this._EOLNormalized && buffer.charCodeAt(pieceStartOffset + pieceLength - 1) === 13 /* CharCode.CarriageReturn */) {
                     danglingCR = true;
                     currentLine += buffer.substr(pieceStartOffset, pieceLength - 1);
                 }
@@ -426,7 +426,7 @@ export class PieceTreeBase {
                     : buffer.substring(lineStarts[line], lineStarts[line + 1]).replace(/(\r\n|\r|\n)$/, ''));
                 lines[linesLength++] = currentLine;
             }
-            if (!this._EOLNormalized && buffer.charCodeAt(lineStarts[pieceEndLine] + piece.end.column - 1) === 13 /* CarriageReturn */) {
+            if (!this._EOLNormalized && buffer.charCodeAt(lineStarts[pieceEndLine] + piece.end.column - 1) === 13 /* CharCode.CarriageReturn */) {
                 danglingCR = true;
                 if (piece.end.column === 0) {
                     // The last line ended with a \r, let's undo the push, it will be pushed by next iteration
@@ -892,7 +892,7 @@ export class PieceTreeBase {
             while (text.length > AverageBufferSize) {
                 const lastChar = text.charCodeAt(AverageBufferSize - 1);
                 let splitText;
-                if (lastChar === 13 /* CarriageReturn */ || (lastChar >= 0xD800 && lastChar <= 0xDBFF)) {
+                if (lastChar === 13 /* CharCode.CarriageReturn */ || (lastChar >= 0xD800 && lastChar <= 0xDBFF)) {
                     // last character is \r or a high surrogate => keep it back
                     splitText = text.substring(0, AverageBufferSize - 1);
                     text = text.substring(AverageBufferSize - 1);
@@ -1375,11 +1375,10 @@ export class PieceTreeBase {
             return '';
         }
         const buffer = this._buffers[node.piece.bufferIndex];
-        let currentContent;
         const piece = node.piece;
         const startOffset = this.offsetInBuffer(piece.bufferIndex, piece.start);
         const endOffset = this.offsetInBuffer(piece.bufferIndex, piece.end);
-        currentContent = buffer.buffer.substring(startOffset, endOffset);
+        const currentContent = buffer.buffer.substring(startOffset, endOffset);
         return currentContent;
     }
     getPieceContent(piece) {
@@ -1397,7 +1396,7 @@ export class PieceTreeBase {
      *                        z
      */
     rbInsertRight(node, p) {
-        const z = new TreeNode(p, 1 /* Red */);
+        const z = new TreeNode(p, 1 /* NodeColor.Red */);
         z.left = SENTINEL;
         z.right = SENTINEL;
         z.parent = SENTINEL;
@@ -1406,7 +1405,7 @@ export class PieceTreeBase {
         const x = this.root;
         if (x === SENTINEL) {
             this.root = z;
-            z.color = 0 /* Black */;
+            z.color = 0 /* NodeColor.Black */;
         }
         else if (node.right === SENTINEL) {
             node.right = z;
@@ -1428,7 +1427,7 @@ export class PieceTreeBase {
      *                        z
      */
     rbInsertLeft(node, p) {
-        const z = new TreeNode(p, 1 /* Red */);
+        const z = new TreeNode(p, 1 /* NodeColor.Red */);
         z.left = SENTINEL;
         z.right = SENTINEL;
         z.parent = SENTINEL;
@@ -1436,7 +1435,7 @@ export class PieceTreeBase {
         z.lf_left = 0;
         if (this.root === SENTINEL) {
             this.root = z;
-            z.color = 0 /* Black */;
+            z.color = 0 /* NodeColor.Black */;
         }
         else if (node.left === SENTINEL) {
             node.left = z;

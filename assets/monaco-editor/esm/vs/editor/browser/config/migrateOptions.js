@@ -2,144 +2,163 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-import { forEach } from '../../../base/common/collections.js';
+export class EditorSettingMigration {
+    constructor(key, migrate) {
+        this.key = key;
+        this.migrate = migrate;
+    }
+    apply(options) {
+        const value = EditorSettingMigration._read(options, this.key);
+        const read = (key) => EditorSettingMigration._read(options, key);
+        const write = (key, value) => EditorSettingMigration._write(options, key, value);
+        this.migrate(value, read, write);
+    }
+    static _read(source, key) {
+        if (typeof source === 'undefined') {
+            return undefined;
+        }
+        const firstDotIndex = key.indexOf('.');
+        if (firstDotIndex >= 0) {
+            const firstSegment = key.substring(0, firstDotIndex);
+            return this._read(source[firstSegment], key.substring(firstDotIndex + 1));
+        }
+        return source[key];
+    }
+    static _write(target, key, value) {
+        const firstDotIndex = key.indexOf('.');
+        if (firstDotIndex >= 0) {
+            const firstSegment = key.substring(0, firstDotIndex);
+            target[firstSegment] = target[firstSegment] || {};
+            this._write(target[firstSegment], key.substring(firstDotIndex + 1), value);
+            return;
+        }
+        target[key] = value;
+    }
+}
+EditorSettingMigration.items = [];
+function registerEditorSettingMigration(key, migrate) {
+    EditorSettingMigration.items.push(new EditorSettingMigration(key, migrate));
+}
+function registerSimpleEditorSettingMigration(key, values) {
+    registerEditorSettingMigration(key, (value, read, write) => {
+        if (typeof value !== 'undefined') {
+            for (const [oldValue, newValue] of values) {
+                if (value === oldValue) {
+                    write(key, newValue);
+                    return;
+                }
+            }
+        }
+    });
+}
 /**
  * Compatibility with old options
  */
 export function migrateOptions(options) {
-    const wordWrap = options.wordWrap;
-    if (wordWrap === true) {
-        options.wordWrap = 'on';
-    }
-    else if (wordWrap === false) {
-        options.wordWrap = 'off';
-    }
-    const lineNumbers = options.lineNumbers;
-    if (lineNumbers === true) {
-        options.lineNumbers = 'on';
-    }
-    else if (lineNumbers === false) {
-        options.lineNumbers = 'off';
-    }
-    const autoClosingBrackets = options.autoClosingBrackets;
-    if (autoClosingBrackets === false) {
-        options.autoClosingBrackets = 'never';
-        options.autoClosingQuotes = 'never';
-        options.autoSurround = 'never';
-    }
-    const cursorBlinking = options.cursorBlinking;
-    if (cursorBlinking === 'visible') {
-        options.cursorBlinking = 'solid';
-    }
-    const renderWhitespace = options.renderWhitespace;
-    if (renderWhitespace === true) {
-        options.renderWhitespace = 'boundary';
-    }
-    else if (renderWhitespace === false) {
-        options.renderWhitespace = 'none';
-    }
-    const renderLineHighlight = options.renderLineHighlight;
-    if (renderLineHighlight === true) {
-        options.renderLineHighlight = 'line';
-    }
-    else if (renderLineHighlight === false) {
-        options.renderLineHighlight = 'none';
-    }
-    const acceptSuggestionOnEnter = options.acceptSuggestionOnEnter;
-    if (acceptSuggestionOnEnter === true) {
-        options.acceptSuggestionOnEnter = 'on';
-    }
-    else if (acceptSuggestionOnEnter === false) {
-        options.acceptSuggestionOnEnter = 'off';
-    }
-    const tabCompletion = options.tabCompletion;
-    if (tabCompletion === false) {
-        options.tabCompletion = 'off';
-    }
-    else if (tabCompletion === true) {
-        options.tabCompletion = 'onlySnippets';
-    }
-    const suggest = options.suggest;
-    if (suggest && typeof suggest.filteredTypes === 'object' && suggest.filteredTypes) {
-        const mapping = {};
-        mapping['method'] = 'showMethods';
-        mapping['function'] = 'showFunctions';
-        mapping['constructor'] = 'showConstructors';
-        mapping['deprecated'] = 'showDeprecated';
-        mapping['field'] = 'showFields';
-        mapping['variable'] = 'showVariables';
-        mapping['class'] = 'showClasses';
-        mapping['struct'] = 'showStructs';
-        mapping['interface'] = 'showInterfaces';
-        mapping['module'] = 'showModules';
-        mapping['property'] = 'showProperties';
-        mapping['event'] = 'showEvents';
-        mapping['operator'] = 'showOperators';
-        mapping['unit'] = 'showUnits';
-        mapping['value'] = 'showValues';
-        mapping['constant'] = 'showConstants';
-        mapping['enum'] = 'showEnums';
-        mapping['enumMember'] = 'showEnumMembers';
-        mapping['keyword'] = 'showKeywords';
-        mapping['text'] = 'showWords';
-        mapping['color'] = 'showColors';
-        mapping['file'] = 'showFiles';
-        mapping['reference'] = 'showReferences';
-        mapping['folder'] = 'showFolders';
-        mapping['typeParameter'] = 'showTypeParameters';
-        mapping['snippet'] = 'showSnippets';
-        forEach(mapping, entry => {
-            const value = suggest.filteredTypes[entry.key];
-            if (value === false) {
-                suggest[entry.value] = value;
-            }
-        });
-        // delete (<any>suggest).filteredTypes;
-    }
-    const hover = options.hover;
-    if (hover === true) {
-        options.hover = {
-            enabled: true
-        };
-    }
-    else if (hover === false) {
-        options.hover = {
-            enabled: false
-        };
-    }
-    const parameterHints = options.parameterHints;
-    if (parameterHints === true) {
-        options.parameterHints = {
-            enabled: true
-        };
-    }
-    else if (parameterHints === false) {
-        options.parameterHints = {
-            enabled: false
-        };
-    }
-    const autoIndent = options.autoIndent;
-    if (autoIndent === true) {
-        options.autoIndent = 'full';
-    }
-    else if (autoIndent === false) {
-        options.autoIndent = 'advanced';
-    }
-    const matchBrackets = options.matchBrackets;
-    if (matchBrackets === true) {
-        options.matchBrackets = 'always';
-    }
-    else if (matchBrackets === false) {
-        options.matchBrackets = 'never';
-    }
-    const { renderIndentGuides, highlightActiveIndentGuide } = options;
-    if (!options.guides) {
-        options.guides = {};
-    }
-    if (renderIndentGuides !== undefined) {
-        options.guides.indentation = !!renderIndentGuides;
-    }
-    if (highlightActiveIndentGuide !== undefined) {
-        options.guides.highlightActiveIndentation = !!highlightActiveIndentGuide;
-    }
+    EditorSettingMigration.items.forEach(migration => migration.apply(options));
 }
+registerSimpleEditorSettingMigration('wordWrap', [[true, 'on'], [false, 'off']]);
+registerSimpleEditorSettingMigration('lineNumbers', [[true, 'on'], [false, 'off']]);
+registerSimpleEditorSettingMigration('cursorBlinking', [['visible', 'solid']]);
+registerSimpleEditorSettingMigration('renderWhitespace', [[true, 'boundary'], [false, 'none']]);
+registerSimpleEditorSettingMigration('renderLineHighlight', [[true, 'line'], [false, 'none']]);
+registerSimpleEditorSettingMigration('acceptSuggestionOnEnter', [[true, 'on'], [false, 'off']]);
+registerSimpleEditorSettingMigration('tabCompletion', [[false, 'off'], [true, 'onlySnippets']]);
+registerSimpleEditorSettingMigration('hover', [[true, { enabled: true }], [false, { enabled: false }]]);
+registerSimpleEditorSettingMigration('parameterHints', [[true, { enabled: true }], [false, { enabled: false }]]);
+registerSimpleEditorSettingMigration('autoIndent', [[false, 'advanced'], [true, 'full']]);
+registerSimpleEditorSettingMigration('matchBrackets', [[true, 'always'], [false, 'never']]);
+registerSimpleEditorSettingMigration('renderFinalNewline', [[true, 'on'], [false, 'off']]);
+registerSimpleEditorSettingMigration('cursorSmoothCaretAnimation', [[true, 'on'], [false, 'off']]);
+registerEditorSettingMigration('autoClosingBrackets', (value, read, write) => {
+    if (value === false) {
+        write('autoClosingBrackets', 'never');
+        if (typeof read('autoClosingQuotes') === 'undefined') {
+            write('autoClosingQuotes', 'never');
+        }
+        if (typeof read('autoSurround') === 'undefined') {
+            write('autoSurround', 'never');
+        }
+    }
+});
+registerEditorSettingMigration('renderIndentGuides', (value, read, write) => {
+    if (typeof value !== 'undefined') {
+        write('renderIndentGuides', undefined);
+        if (typeof read('guides.indentation') === 'undefined') {
+            write('guides.indentation', !!value);
+        }
+    }
+});
+registerEditorSettingMigration('highlightActiveIndentGuide', (value, read, write) => {
+    if (typeof value !== 'undefined') {
+        write('highlightActiveIndentGuide', undefined);
+        if (typeof read('guides.highlightActiveIndentation') === 'undefined') {
+            write('guides.highlightActiveIndentation', !!value);
+        }
+    }
+});
+const suggestFilteredTypesMapping = {
+    method: 'showMethods',
+    function: 'showFunctions',
+    constructor: 'showConstructors',
+    deprecated: 'showDeprecated',
+    field: 'showFields',
+    variable: 'showVariables',
+    class: 'showClasses',
+    struct: 'showStructs',
+    interface: 'showInterfaces',
+    module: 'showModules',
+    property: 'showProperties',
+    event: 'showEvents',
+    operator: 'showOperators',
+    unit: 'showUnits',
+    value: 'showValues',
+    constant: 'showConstants',
+    enum: 'showEnums',
+    enumMember: 'showEnumMembers',
+    keyword: 'showKeywords',
+    text: 'showWords',
+    color: 'showColors',
+    file: 'showFiles',
+    reference: 'showReferences',
+    folder: 'showFolders',
+    typeParameter: 'showTypeParameters',
+    snippet: 'showSnippets',
+};
+registerEditorSettingMigration('suggest.filteredTypes', (value, read, write) => {
+    if (value && typeof value === 'object') {
+        for (const entry of Object.entries(suggestFilteredTypesMapping)) {
+            const v = value[entry[0]];
+            if (v === false) {
+                if (typeof read(`suggest.${entry[1]}`) === 'undefined') {
+                    write(`suggest.${entry[1]}`, false);
+                }
+            }
+        }
+        write('suggest.filteredTypes', undefined);
+    }
+});
+registerEditorSettingMigration('quickSuggestions', (input, read, write) => {
+    if (typeof input === 'boolean') {
+        const value = input ? 'on' : 'off';
+        const newValue = { comments: value, strings: value, other: value };
+        write('quickSuggestions', newValue);
+    }
+});
+// Sticky Scroll
+registerEditorSettingMigration('experimental.stickyScroll.enabled', (value, read, write) => {
+    if (typeof value === 'boolean') {
+        write('experimental.stickyScroll.enabled', undefined);
+        if (typeof read('stickyScroll.enabled') === 'undefined') {
+            write('stickyScroll.enabled', value);
+        }
+    }
+});
+registerEditorSettingMigration('experimental.stickyScroll.maxLineCount', (value, read, write) => {
+    if (typeof value === 'number') {
+        write('experimental.stickyScroll.maxLineCount', undefined);
+        if (typeof read('stickyScroll.maxLineCount') === 'undefined') {
+            write('stickyScroll.maxLineCount', value);
+        }
+    }
+});

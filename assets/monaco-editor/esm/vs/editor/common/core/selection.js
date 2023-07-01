@@ -42,15 +42,15 @@ export class Selection extends Range {
      */
     getDirection() {
         if (this.selectionStartLineNumber === this.startLineNumber && this.selectionStartColumn === this.startColumn) {
-            return 0 /* LTR */;
+            return 0 /* SelectionDirection.LTR */;
         }
-        return 1 /* RTL */;
+        return 1 /* SelectionDirection.RTL */;
     }
     /**
      * Create a new selection with a different `positionLineNumber` and `positionColumn`.
      */
     setEndPosition(endLineNumber, endColumn) {
-        if (this.getDirection() === 0 /* LTR */) {
+        if (this.getDirection() === 0 /* SelectionDirection.LTR */) {
             return new Selection(this.startLineNumber, this.startColumn, endLineNumber, endColumn);
         }
         return new Selection(endLineNumber, endColumn, this.startLineNumber, this.startColumn);
@@ -71,7 +71,7 @@ export class Selection extends Range {
      * Create a new selection with a different `selectionStartLineNumber` and `selectionStartColumn`.
      */
     setStartPosition(startLineNumber, startColumn) {
-        if (this.getDirection() === 0 /* LTR */) {
+        if (this.getDirection() === 0 /* SelectionDirection.LTR */) {
             return new Selection(startLineNumber, startColumn, this.endLineNumber, this.endColumn);
         }
         return new Selection(this.endLineNumber, this.endColumn, startLineNumber, startColumn);
@@ -87,7 +87,7 @@ export class Selection extends Range {
      * Creates a `Selection` from a range, given a direction.
      */
     static fromRange(range, direction) {
-        if (direction === 0 /* LTR */) {
+        if (direction === 0 /* SelectionDirection.LTR */) {
             return new Selection(range.startLineNumber, range.startColumn, range.endLineNumber, range.endColumn);
         }
         else {
@@ -134,7 +134,7 @@ export class Selection extends Range {
      * Create with a direction.
      */
     static createWithDirection(startLineNumber, startColumn, endLineNumber, endColumn, direction) {
-        if (direction === 0 /* LTR */) {
+        if (direction === 0 /* SelectionDirection.LTR */) {
             return new Selection(startLineNumber, startColumn, endLineNumber, endColumn);
         }
         return new Selection(endLineNumber, endColumn, startLineNumber, startColumn);

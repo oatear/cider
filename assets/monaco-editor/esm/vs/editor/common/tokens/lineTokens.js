@@ -2,21 +2,21 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-import { TokenMetadata } from '../languages.js';
+import { TokenMetadata } from '../encodedTokenAttributes.js';
 export class LineTokens {
-    constructor(tokens, text, decoder) {
-        this._lineTokensBrand = undefined;
-        this._tokens = tokens;
-        this._tokensCount = (this._tokens.length >>> 1);
-        this._text = text;
-        this._languageIdCodec = decoder;
-    }
     static createEmpty(lineContent, decoder) {
         const defaultMetadata = LineTokens.defaultTokenMetadata;
         const tokens = new Uint32Array(2);
         tokens[0] = lineContent.length;
         tokens[1] = defaultMetadata;
         return new LineTokens(tokens, lineContent, decoder);
+    }
+    constructor(tokens, text, decoder) {
+        this._lineTokensBrand = undefined;
+        this._tokens = tokens;
+        this._tokensCount = (this._tokens.length >>> 1);
+        this._text = text;
+        this._languageIdCodec = decoder;
     }
     equals(other) {
         if (other instanceof LineTokens) {
@@ -170,9 +170,9 @@ export class LineTokens {
         return new LineTokens(new Uint32Array(newTokens), text, this._languageIdCodec);
     }
 }
-LineTokens.defaultTokenMetadata = ((0 /* None */ << 10 /* FONT_STYLE_OFFSET */)
-    | (1 /* DefaultForeground */ << 14 /* FOREGROUND_OFFSET */)
-    | (2 /* DefaultBackground */ << 23 /* BACKGROUND_OFFSET */)) >>> 0;
+LineTokens.defaultTokenMetadata = ((0 /* FontStyle.None */ << 11 /* MetadataConsts.FONT_STYLE_OFFSET */)
+    | (1 /* ColorId.DefaultForeground */ << 15 /* MetadataConsts.FOREGROUND_OFFSET */)
+    | (2 /* ColorId.DefaultBackground */ << 24 /* MetadataConsts.BACKGROUND_OFFSET */)) >>> 0;
 class SliceLineTokens {
     constructor(source, startOffset, endOffset, deltaOffset) {
         this._source = source;

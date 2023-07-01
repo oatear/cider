@@ -2,14 +2,15 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
+import './margin.css';
 import { createFastDomNode } from '../../../../base/browser/fastDomNode.js';
 import { ViewPart } from '../../view/viewPart.js';
 export class Margin extends ViewPart {
     constructor(context) {
         super(context);
         const options = this._context.configuration.options;
-        const layoutInfo = options.get(131 /* layoutInfo */);
-        this._canUseLayerHinting = !options.get(28 /* disableLayerHinting */);
+        const layoutInfo = options.get(140 /* EditorOption.layoutInfo */);
+        this._canUseLayerHinting = !options.get(30 /* EditorOption.disableLayerHinting */);
         this._contentLeft = layoutInfo.contentLeft;
         this._glyphMarginLeft = layoutInfo.glyphMarginLeft;
         this._glyphMarginWidth = layoutInfo.glyphMarginWidth;
@@ -31,8 +32,8 @@ export class Margin extends ViewPart {
     // --- begin event handlers
     onConfigurationChanged(e) {
         const options = this._context.configuration.options;
-        const layoutInfo = options.get(131 /* layoutInfo */);
-        this._canUseLayerHinting = !options.get(28 /* disableLayerHinting */);
+        const layoutInfo = options.get(140 /* EditorOption.layoutInfo */);
+        this._canUseLayerHinting = !options.get(30 /* EditorOption.disableLayerHinting */);
         this._contentLeft = layoutInfo.contentLeft;
         this._glyphMarginLeft = layoutInfo.glyphMarginLeft;
         this._glyphMarginWidth = layoutInfo.glyphMarginWidth;

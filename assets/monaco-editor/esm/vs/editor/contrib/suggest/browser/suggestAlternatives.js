@@ -12,7 +12,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 import { IContextKeyService, RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
-let SuggestAlternatives = class SuggestAlternatives {
+export let SuggestAlternatives = class SuggestAlternatives {
     constructor(_editor, contextKeyService) {
         this._editor = _editor;
         this._index = 0;
@@ -36,7 +36,7 @@ let SuggestAlternatives = class SuggestAlternatives {
             return;
         }
         // no alternative suggestions -> nothing to do
-        let nextIndex = SuggestAlternatives._moveIndex(true, model, index);
+        const nextIndex = SuggestAlternatives._moveIndex(true, model, index);
         if (nextIndex === index) {
             this.reset();
             return;
@@ -53,7 +53,7 @@ let SuggestAlternatives = class SuggestAlternatives {
     }
     static _moveIndex(fwd, model, index) {
         let newIndex = index;
-        while (true) {
+        for (let rounds = model.items.length; rounds > 0; rounds--) {
             newIndex = (newIndex + model.items.length + (fwd ? +1 : -1)) % model.items.length;
             if (newIndex === index) {
                 break;
@@ -89,4 +89,3 @@ SuggestAlternatives.OtherSuggestions = new RawContextKey('hasOtherSuggestions', 
 SuggestAlternatives = __decorate([
     __param(1, IContextKeyService)
 ], SuggestAlternatives);
-export { SuggestAlternatives };

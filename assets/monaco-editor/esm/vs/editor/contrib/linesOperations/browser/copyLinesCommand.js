@@ -9,7 +9,7 @@ export class CopyLinesCommand {
         this._selection = selection;
         this._isCopyingDown = isCopyingDown;
         this._noop = noop || false;
-        this._selectionDirection = 0 /* LTR */;
+        this._selectionDirection = 0 /* SelectionDirection.LTR */;
         this._selectionId = null;
         this._startLineNumberDelta = 0;
         this._endLineNumberDelta = 0;
@@ -22,7 +22,7 @@ export class CopyLinesCommand {
             this._endLineNumberDelta = 1;
             s = s.setEndPosition(s.endLineNumber - 1, model.getLineMaxColumn(s.endLineNumber - 1));
         }
-        let sourceLines = [];
+        const sourceLines = [];
         for (let i = s.startLineNumber; i <= s.endLineNumber; i++) {
             sourceLines.push(model.getLineContent(i));
         }

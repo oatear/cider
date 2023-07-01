@@ -16,7 +16,8 @@ import { onUnexpectedExternalError } from '../../../../base/common/errors.js';
 import { assertType } from '../../../../base/common/types.js';
 import { URI } from '../../../../base/common/uri.js';
 import { Position } from '../../../common/core/position.js';
-import * as modes from '../../../common/languages.js';
+import * as languages from '../../../common/languages.js';
+import { ILanguageFeaturesService } from '../../../common/services/languageFeatures.js';
 import { ITextModelService } from '../../../common/services/resolverService.js';
 import { CommandsRegistry } from '../../../../platform/commands/common/commands.js';
 import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
@@ -24,9 +25,9 @@ export const Context = {
     Visible: new RawContextKey('parameterHintsVisible', false),
     MultipleSignatures: new RawContextKey('parameterHintsMultipleSignatures', false),
 };
-export function provideSignatureHelp(model, position, context, token) {
+export function provideSignatureHelp(registry, model, position, context, token) {
     return __awaiter(this, void 0, void 0, function* () {
-        const supports = modes.SignatureHelpProviderRegistry.ordered(model);
+        const supports = registry.ordered(model);
         for (const support of supports) {
             try {
                 const result = yield support.provideSignatureHelp(model, position, token, context);
@@ -46,10 +47,11 @@ CommandsRegistry.registerCommand('_executeSignatureHelpProvider', (accessor, ...
     assertType(URI.isUri(uri));
     assertType(Position.isIPosition(position));
     assertType(typeof triggerCharacter === 'string' || !triggerCharacter);
+    const languageFeaturesService = accessor.get(ILanguageFeaturesService);
     const ref = yield accessor.get(ITextModelService).createModelReference(uri);
     try {
-        const result = yield provideSignatureHelp(ref.object.textEditorModel, Position.lift(position), {
-            triggerKind: modes.SignatureHelpTriggerKind.Invoke,
+        const result = yield provideSignatureHelp(languageFeaturesService.signatureHelpProvider, ref.object.textEditorModel, Position.lift(position), {
+            triggerKind: languages.SignatureHelpTriggerKind.Invoke,
             isRetrigger: false,
             triggerCharacter,
         }, CancellationToken.None);

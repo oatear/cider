@@ -9,7 +9,7 @@ import { buildReplaceStringWithCasePreserved } from '../../../../base/common/sea
 class StaticValueReplacePattern {
     constructor(staticValue) {
         this.staticValue = staticValue;
-        this.kind = 0 /* StaticValue */;
+        this.kind = 0 /* ReplacePatternKind.StaticValue */;
     }
 }
 /**
@@ -18,10 +18,16 @@ class StaticValueReplacePattern {
 class DynamicPiecesReplacePattern {
     constructor(pieces) {
         this.pieces = pieces;
-        this.kind = 1 /* DynamicPieces */;
+        this.kind = 1 /* ReplacePatternKind.DynamicPieces */;
     }
 }
 export class ReplacePattern {
+    static fromStaticValue(value) {
+        return new ReplacePattern([ReplacePiece.staticValue(value)]);
+    }
+    get hasReplacementPatterns() {
+        return (this._state.kind === 1 /* ReplacePatternKind.DynamicPieces */);
+    }
     constructor(pieces) {
         if (!pieces || pieces.length === 0) {
             this._state = new StaticValueReplacePattern('');
@@ -33,14 +39,8 @@ export class ReplacePattern {
             this._state = new DynamicPiecesReplacePattern(pieces);
         }
     }
-    static fromStaticValue(value) {
-        return new ReplacePattern([ReplacePiece.staticValue(value)]);
-    }
-    get hasReplacementPatterns() {
-        return (this._state.kind === 1 /* DynamicPieces */);
-    }
     buildReplaceString(matches, preserveCase) {
-        if (this._state.kind === 0 /* StaticValue */) {
+        if (this._state.kind === 0 /* ReplacePatternKind.StaticValue */) {
             if (preserveCase) {
                 return buildReplaceStringWithCasePreserved(matches, this._state.staticValue);
             }
@@ -50,7 +50,7 @@ export class ReplacePattern {
         }
         let result = '';
         for (let i = 0, len = this._state.pieces.length; i < len; i++) {
-            let piece = this._state.pieces[i];
+            const piece = this._state.pieces[i];
             if (piece.staticValue !== null) {
                 // static value ReplacePiece
                 result += piece.staticValue;
@@ -59,8 +59,8 @@ export class ReplacePattern {
             // match index ReplacePiece
             let match = ReplacePattern._substitute(piece.matchIndex, matches);
             if (piece.caseOps !== null && piece.caseOps.length > 0) {
-                let repl = [];
-                let lenOps = piece.caseOps.length;
+                const repl = [];
+                const lenOps = piece.caseOps.length;
                 let opIdx = 0;
                 for (let idx = 0, len = match.length; idx < len; idx++) {
                     if (opIdx >= lenOps) {
@@ -103,7 +103,7 @@ export class ReplacePattern {
         while (matchIndex > 0) {
             if (matchIndex < matches.length) {
                 // A match can be undefined
-                let match = (matches[matchIndex] || '');
+                const match = (matches[matchIndex] || '');
                 return match + remainder;
             }
             remainder = String(matchIndex % 10) + remainder;
@@ -116,6 +116,12 @@ export class ReplacePattern {
  * A replace piece can either be a static string or an index to a specific match.
  */
 export class ReplacePiece {
+    static staticValue(value) {
+        return new ReplacePiece(value, -1, null);
+    }
+    static caseOps(index, caseOps) {
+        return new ReplacePiece(null, index, caseOps);
+    }
     constructor(staticValue, matchIndex, caseOps) {
         this.staticValue = staticValue;
         this.matchIndex = matchIndex;
@@ -125,12 +131,6 @@ export class ReplacePiece {
         else {
             this.caseOps = caseOps.slice(0);
         }
-    }
-    static staticValue(value) {
-        return new ReplacePiece(value, -1, null);
-    }
-    static caseOps(index, caseOps) {
-        return new ReplacePiece(null, index, caseOps);
     }
 }
 class ReplacePieceBuilder {
@@ -191,44 +191,44 @@ export function parseReplaceString(replaceString) {
     if (!replaceString || replaceString.length === 0) {
         return new ReplacePattern(null);
     }
-    let caseOps = [];
-    let result = new ReplacePieceBuilder(replaceString);
+    const caseOps = [];
+    const result = new ReplacePieceBuilder(replaceString);
     for (let i = 0, len = replaceString.length; i < len; i++) {
-        let chCode = replaceString.charCodeAt(i);
-        if (chCode === 92 /* Backslash */) {
+        const chCode = replaceString.charCodeAt(i);
+        if (chCode === 92 /* CharCode.Backslash */) {
             // move to next char
             i++;
             if (i >= len) {
                 // string ends with a \
                 break;
             }
-            let nextChCode = replaceString.charCodeAt(i);
+            const nextChCode = replaceString.charCodeAt(i);
             // let replaceWithCharacter: string | null = null;
             switch (nextChCode) {
-                case 92 /* Backslash */:
+                case 92 /* CharCode.Backslash */:
                     // \\ => inserts a "\"
                     result.emitUnchanged(i - 1);
                     result.emitStatic('\\', i + 1);
                     break;
-                case 110 /* n */:
+                case 110 /* CharCode.n */:
                     // \n => inserts a LF
                     result.emitUnchanged(i - 1);
                     result.emitStatic('\n', i + 1);
                     break;
-                case 116 /* t */:
+                case 116 /* CharCode.t */:
                     // \t => inserts a TAB
                     result.emitUnchanged(i - 1);
                     result.emitStatic('\t', i + 1);
                     break;
                 // Case modification of string replacements, patterned after Boost, but only applied
                 // to the replacement text, not subsequent content.
-                case 117 /* u */:
+                case 117 /* CharCode.u */:
                 // \u => upper-cases one character.
-                case 85 /* U */:
+                case 85 /* CharCode.U */:
                 // \U => upper-cases ALL following characters.
-                case 108 /* l */:
+                case 108 /* CharCode.l */:
                 // \l => lower-cases one character.
-                case 76 /* L */:
+                case 76 /* CharCode.L */:
                     // \L => lower-cases ALL following characters.
                     result.emitUnchanged(i - 1);
                     result.emitStatic('', i + 1);
@@ -237,38 +237,38 @@ export function parseReplaceString(replaceString) {
             }
             continue;
         }
-        if (chCode === 36 /* DollarSign */) {
+        if (chCode === 36 /* CharCode.DollarSign */) {
             // move to next char
             i++;
             if (i >= len) {
                 // string ends with a $
                 break;
             }
-            let nextChCode = replaceString.charCodeAt(i);
-            if (nextChCode === 36 /* DollarSign */) {
+            const nextChCode = replaceString.charCodeAt(i);
+            if (nextChCode === 36 /* CharCode.DollarSign */) {
                 // $$ => inserts a "$"
                 result.emitUnchanged(i - 1);
                 result.emitStatic('$', i + 1);
                 continue;
             }
-            if (nextChCode === 48 /* Digit0 */ || nextChCode === 38 /* Ampersand */) {
+            if (nextChCode === 48 /* CharCode.Digit0 */ || nextChCode === 38 /* CharCode.Ampersand */) {
                 // $& and $0 => inserts the matched substring.
                 result.emitUnchanged(i - 1);
                 result.emitMatchIndex(0, i + 1, caseOps);
                 caseOps.length = 0;
                 continue;
             }
-            if (49 /* Digit1 */ <= nextChCode && nextChCode <= 57 /* Digit9 */) {
+            if (49 /* CharCode.Digit1 */ <= nextChCode && nextChCode <= 57 /* CharCode.Digit9 */) {
                 // $n
-                let matchIndex = nextChCode - 48 /* Digit0 */;
+                let matchIndex = nextChCode - 48 /* CharCode.Digit0 */;
                 // peek next char to probe for $nn
                 if (i + 1 < len) {
-                    let nextNextChCode = replaceString.charCodeAt(i + 1);
-                    if (48 /* Digit0 */ <= nextNextChCode && nextNextChCode <= 57 /* Digit9 */) {
+                    const nextNextChCode = replaceString.charCodeAt(i + 1);
+                    if (48 /* CharCode.Digit0 */ <= nextNextChCode && nextNextChCode <= 57 /* CharCode.Digit9 */) {
                         // $nn
                         // move to next char
                         i++;
-                        matchIndex = matchIndex * 10 + (nextNextChCode - 48 /* Digit0 */);
+                        matchIndex = matchIndex * 10 + (nextNextChCode - 48 /* CharCode.Digit0 */);
                         result.emitUnchanged(i - 2);
                         result.emitMatchIndex(matchIndex, i + 1, caseOps);
                         caseOps.length = 0;

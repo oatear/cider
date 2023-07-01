@@ -10,26 +10,26 @@ import { EditorKeybindingCancellationTokenSource } from './keybindingCancellatio
 export class EditorState {
     constructor(editor, flags) {
         this.flags = flags;
-        if ((this.flags & 1 /* Value */) !== 0) {
+        if ((this.flags & 1 /* CodeEditorStateFlag.Value */) !== 0) {
             const model = editor.getModel();
             this.modelVersionId = model ? strings.format('{0}#{1}', model.uri.toString(), model.getVersionId()) : null;
         }
         else {
             this.modelVersionId = null;
         }
-        if ((this.flags & 4 /* Position */) !== 0) {
+        if ((this.flags & 4 /* CodeEditorStateFlag.Position */) !== 0) {
             this.position = editor.getPosition();
         }
         else {
             this.position = null;
         }
-        if ((this.flags & 2 /* Selection */) !== 0) {
+        if ((this.flags & 2 /* CodeEditorStateFlag.Selection */) !== 0) {
             this.selection = editor.getSelection();
         }
         else {
             this.selection = null;
         }
-        if ((this.flags & 8 /* Scroll */) !== 0) {
+        if ((this.flags & 8 /* CodeEditorStateFlag.Scroll */) !== 0) {
             this.scrollLeft = editor.getScrollLeft();
             this.scrollTop = editor.getScrollTop();
         }
@@ -70,24 +70,24 @@ export class EditorStateCancellationTokenSource extends EditorKeybindingCancella
     constructor(editor, flags, range, parent) {
         super(editor, parent);
         this._listener = new DisposableStore();
-        if (flags & 4 /* Position */) {
+        if (flags & 4 /* CodeEditorStateFlag.Position */) {
             this._listener.add(editor.onDidChangeCursorPosition(e => {
                 if (!range || !Range.containsPosition(range, e.position)) {
                     this.cancel();
                 }
             }));
         }
-        if (flags & 2 /* Selection */) {
+        if (flags & 2 /* CodeEditorStateFlag.Selection */) {
             this._listener.add(editor.onDidChangeCursorSelection(e => {
                 if (!range || !Range.containsRange(range, e.selection)) {
                     this.cancel();
                 }
             }));
         }
-        if (flags & 8 /* Scroll */) {
+        if (flags & 8 /* CodeEditorStateFlag.Scroll */) {
             this._listener.add(editor.onDidScrollChange(_ => this.cancel()));
         }
-        if (flags & 1 /* Value */) {
+        if (flags & 1 /* CodeEditorStateFlag.Value */) {
             this._listener.add(editor.onDidChangeModel(_ => this.cancel()));
             this._listener.add(editor.onDidChangeModelContent(_ => this.cancel()));
         }

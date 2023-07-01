@@ -14,11 +14,11 @@ import { ObjectTreeModel } from './objectTreeModel.js';
 import { memoize } from '../../../common/decorators.js';
 import { Iterable } from '../../../common/iterator.js';
 export class ObjectTree extends AbstractTree {
+    get onDidChangeCollapseState() { return this.model.onDidChangeCollapseState; }
     constructor(user, container, delegate, renderers, options = {}) {
         super(user, container, delegate, renderers, options);
         this.user = user;
     }
-    get onDidChangeCollapseState() { return this.model.onDidChangeCollapseState; }
     setChildren(element, children = Iterable.empty(), options) {
         this.model.setChildren(element, children, options);
     }
@@ -37,6 +37,9 @@ export class ObjectTree extends AbstractTree {
     }
 }
 class CompressibleRenderer {
+    get compressedTreeNodeProvider() {
+        return this._compressedTreeNodeProvider();
+    }
     constructor(_compressedTreeNodeProvider, renderer) {
         this._compressedTreeNodeProvider = _compressedTreeNodeProvider;
         this.renderer = renderer;
@@ -44,9 +47,6 @@ class CompressibleRenderer {
         if (renderer.onDidChangeTwistieState) {
             this.onDidChangeTwistieState = renderer.onDidChangeTwistieState;
         }
-    }
-    get compressedTreeNodeProvider() {
-        return this._compressedTreeNodeProvider();
     }
     renderTemplate(container) {
         const data = this.renderer.renderTemplate(container);
@@ -64,15 +64,12 @@ class CompressibleRenderer {
         }
     }
     disposeElement(node, index, templateData, height) {
+        var _a, _b, _c, _d;
         if (templateData.compressedTreeNode) {
-            if (this.renderer.disposeCompressedElements) {
-                this.renderer.disposeCompressedElements(templateData.compressedTreeNode, index, templateData.data, height);
-            }
+            (_b = (_a = this.renderer).disposeCompressedElements) === null || _b === void 0 ? void 0 : _b.call(_a, templateData.compressedTreeNode, index, templateData.data, height);
         }
         else {
-            if (this.renderer.disposeElement) {
-                this.renderer.disposeElement(node, index, templateData.data, height);
-            }
+            (_d = (_c = this.renderer).disposeElement) === null || _d === void 0 ? void 0 : _d.call(_c, node, index, templateData.data, height);
         }
     }
     disposeTemplate(templateData) {

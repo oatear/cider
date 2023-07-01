@@ -3,11 +3,11 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 import * as dom from '../../base/browser/dom.js';
-import { GlobalMouseMoveMonitor } from '../../base/browser/globalMouseMoveMonitor.js';
+import { GlobalPointerMoveMonitor } from '../../base/browser/globalPointerMoveMonitor.js';
 import { StandardMouseEvent } from '../../base/browser/mouseEvent.js';
 import { RunOnceScheduler } from '../../base/common/async.js';
 import { Disposable } from '../../base/common/lifecycle.js';
-import { asCssVariableName } from '../../platform/theme/common/colorRegistry.js';
+import { asCssVariable } from '../../platform/theme/common/colorRegistry.js';
 /**
  * Coordinates relative to the whole document (e.g. mouse event's pageX and pageY)
  */
@@ -18,7 +18,7 @@ export class PageCoordinates {
         this._pageCoordinatesBrand = undefined;
     }
     toClientCoordinates() {
-        return new ClientCoordinates(this.x - dom.StandardWindow.scrollX, this.y - dom.StandardWindow.scrollY);
+        return new ClientCoordinates(this.x - window.scrollX, this.y - window.scrollY);
     }
 }
 /**
@@ -35,7 +35,7 @@ export class ClientCoordinates {
         this._clientCoordinatesBrand = undefined;
     }
     toPageCoordinates() {
-        return new PageCoordinates(this.clientX + dom.StandardWindow.scrollX, this.clientY + dom.StandardWindow.scrollY);
+        return new PageCoordinates(this.clientX + window.scrollX, this.clientY + window.scrollY);
     }
 }
 /**
@@ -85,9 +85,10 @@ export function createCoordinatesRelativeToEditor(editorViewDomNode, editorPageP
     return new CoordinatesRelativeToEditor(relativeX, relativeY);
 }
 export class EditorMouseEvent extends StandardMouseEvent {
-    constructor(e, editorViewDomNode) {
+    constructor(e, isFromPointerCapture, editorViewDomNode) {
         super(e);
         this._editorMouseEventBrand = undefined;
+        this.isFromPointerCapture = isFromPointerCapture;
         this.pos = new PageCoordinates(this.posx, this.posy);
         this.editorPos = createEditorPagePosition(editorViewDomNode);
         this.relativePos = createCoordinatesRelativeToEditor(editorViewDomNode, this.editorPos, this.pos);
@@ -98,7 +99,7 @@ export class EditorMouseEventFactory {
         this._editorViewDomNode = editorViewDomNode;
     }
     _create(e) {
-        return new EditorMouseEvent(e, this._editorViewDomNode);
+        return new EditorMouseEvent(e, false, this._editorViewDomNode);
     }
     onContextMenu(target, callback) {
         return dom.addDisposableListener(target, 'contextmenu', (e) => {
@@ -111,20 +112,22 @@ export class EditorMouseEventFactory {
         });
     }
     onMouseDown(target, callback) {
-        return dom.addDisposableListener(target, 'mousedown', (e) => {
+        return dom.addDisposableListener(target, dom.EventType.MOUSE_DOWN, (e) => {
             callback(this._create(e));
+        });
+    }
+    onPointerDown(target, callback) {
+        return dom.addDisposableListener(target, dom.EventType.POINTER_DOWN, (e) => {
+            callback(this._create(e), e.pointerId);
         });
     }
     onMouseLeave(target, callback) {
-        return dom.addDisposableNonBubblingMouseOutListener(target, (e) => {
+        return dom.addDisposableListener(target, dom.EventType.MOUSE_LEAVE, (e) => {
             callback(this._create(e));
         });
     }
-    onMouseMoveThrottled(target, callback, merger, minimumTimeMs) {
-        const myMerger = (lastEvent, currentEvent) => {
-            return merger(lastEvent, this._create(currentEvent));
-        };
-        return dom.addDisposableThrottledListener(target, 'mousemove', callback, myMerger, minimumTimeMs);
+    onMouseMove(target, callback) {
+        return dom.addDisposableListener(target, 'mousemove', (e) => callback(this._create(e)));
     }
 }
 export class EditorPointerEventFactory {
@@ -132,7 +135,7 @@ export class EditorPointerEventFactory {
         this._editorViewDomNode = editorViewDomNode;
     }
     _create(e) {
-        return new EditorMouseEvent(e, this._editorViewDomNode);
+        return new EditorMouseEvent(e, false, this._editorViewDomNode);
     }
     onPointerUp(target, callback) {
         return dom.addDisposableListener(target, 'pointerup', (e) => {
@@ -140,50 +143,46 @@ export class EditorPointerEventFactory {
         });
     }
     onPointerDown(target, callback) {
-        return dom.addDisposableListener(target, 'pointerdown', (e) => {
-            callback(this._create(e));
+        return dom.addDisposableListener(target, dom.EventType.POINTER_DOWN, (e) => {
+            callback(this._create(e), e.pointerId);
         });
     }
     onPointerLeave(target, callback) {
-        return dom.addDisposableNonBubblingPointerOutListener(target, (e) => {
+        return dom.addDisposableListener(target, dom.EventType.POINTER_LEAVE, (e) => {
             callback(this._create(e));
         });
     }
-    onPointerMoveThrottled(target, callback, merger, minimumTimeMs) {
-        const myMerger = (lastEvent, currentEvent) => {
-            return merger(lastEvent, this._create(currentEvent));
-        };
-        return dom.addDisposableThrottledListener(target, 'pointermove', callback, myMerger, minimumTimeMs);
+    onPointerMove(target, callback) {
+        return dom.addDisposableListener(target, 'pointermove', (e) => callback(this._create(e)));
     }
 }
-export class GlobalEditorMouseMoveMonitor extends Disposable {
+export class GlobalEditorPointerMoveMonitor extends Disposable {
     constructor(editorViewDomNode) {
         super();
         this._editorViewDomNode = editorViewDomNode;
-        this._globalMouseMoveMonitor = this._register(new GlobalMouseMoveMonitor());
+        this._globalPointerMoveMonitor = this._register(new GlobalPointerMoveMonitor());
         this._keydownListener = null;
     }
-    startMonitoring(initialElement, initialButtons, merger, mouseMoveCallback, onStopCallback) {
+    startMonitoring(initialElement, pointerId, initialButtons, pointerMoveCallback, onStopCallback) {
         // Add a <<capture>> keydown event listener that will cancel the monitoring
         // if something other than a modifier key is pressed
         this._keydownListener = dom.addStandardDisposableListener(document, 'keydown', (e) => {
-            const kb = e.toKeybinding();
-            if (kb.isModifierKey()) {
+            const chord = e.toKeyCodeChord();
+            if (chord.isModifierKey()) {
                 // Allow modifier keys
                 return;
             }
-            this._globalMouseMoveMonitor.stopMonitoring(true, e.browserEvent);
+            this._globalPointerMoveMonitor.stopMonitoring(true, e.browserEvent);
         }, true);
-        const myMerger = (lastEvent, currentEvent) => {
-            return merger(lastEvent, new EditorMouseEvent(currentEvent, this._editorViewDomNode));
-        };
-        this._globalMouseMoveMonitor.startMonitoring(initialElement, initialButtons, myMerger, mouseMoveCallback, (e) => {
+        this._globalPointerMoveMonitor.startMonitoring(initialElement, pointerId, initialButtons, (e) => {
+            pointerMoveCallback(new EditorMouseEvent(e, true, this._editorViewDomNode));
+        }, (e) => {
             this._keydownListener.dispose();
             onStopCallback(e);
         });
     }
     stopMonitoring() {
-        this._globalMouseMoveMonitor.stopMonitoring(true);
+        this._globalPointerMoveMonitor.stopMonitoring(true);
     }
 }
 /**
@@ -251,7 +250,7 @@ class RefCountedCssRule {
             const value = properties[prop];
             let cssValue;
             if (typeof value === 'object') {
-                cssValue = `var(${asCssVariableName(value.id)})`;
+                cssValue = asCssVariable(value.id);
             }
             else {
                 cssValue = value;

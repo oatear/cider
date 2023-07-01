@@ -25,10 +25,10 @@ export class AtomicTabMoveOperations {
             }
             const chCode = lineContent.charCodeAt(i);
             switch (chCode) {
-                case 32 /* Space */:
+                case 32 /* CharCode.Space */:
                     visibleColumn += 1;
                     break;
-                case 9 /* Tab */:
+                case 9 /* CharCode.Tab */:
                     // Skip to the next multiple of tabSize.
                     visibleColumn = CursorColumns.nextRenderTabStop(visibleColumn, tabSize);
                     break;
@@ -62,13 +62,13 @@ export class AtomicTabMoveOperations {
         // where it is the same as the current position is handled in the switch.
         let left;
         switch (direction) {
-            case 0 /* Left */:
+            case 0 /* Direction.Left */:
                 left = true;
                 break;
-            case 1 /* Right */:
+            case 1 /* Direction.Right */:
                 left = false;
                 break;
-            case 2 /* Nearest */:
+            case 2 /* Direction.Nearest */:
                 // The code below assumes the output position is either left or right
                 // of the input position. If it is the same, return immediately.
                 if (visibleColumn % tabSize === 0) {
@@ -97,10 +97,10 @@ export class AtomicTabMoveOperations {
                 }
                 const chCode = lineContent.charCodeAt(i);
                 switch (chCode) {
-                    case 32 /* Space */:
+                    case 32 /* CharCode.Space */:
                         currentVisibleColumn += 1;
                         break;
-                    case 9 /* Tab */:
+                    case 9 /* CharCode.Tab */:
                         currentVisibleColumn = CursorColumns.nextRenderTabStop(currentVisibleColumn, tabSize);
                         break;
                     default:
@@ -123,10 +123,10 @@ export class AtomicTabMoveOperations {
             }
             const chCode = lineContent.charCodeAt(i);
             switch (chCode) {
-                case 32 /* Space */:
+                case 32 /* CharCode.Space */:
                     currentVisibleColumn += 1;
                     break;
-                case 9 /* Tab */:
+                case 9 /* CharCode.Tab */:
                     currentVisibleColumn = CursorColumns.nextRenderTabStop(currentVisibleColumn, tabSize);
                     break;
                 default:

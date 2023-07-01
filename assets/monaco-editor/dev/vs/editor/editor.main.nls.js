@@ -1,6 +1,6 @@
 /*!-----------------------------------------------------------
  * Copyright (c) Microsoft Corporation. All rights reserved.
- * Version: 0.32.1(8ad5e3bceab16a4d0856c43a374b511dffb1e795)
+ * Version: 0.39.0(ff3621a3fa6389873be5412d17554294ea1b0941)
  * Released under the MIT license
  * https://github.com/microsoft/vscode/blob/main/LICENSE.txt
  *-----------------------------------------------------------*/
@@ -15,7 +15,7 @@ define("vs/editor/editor.main.nls", {
 	"vs/base/browser/ui/findinput/findInput": [
 		"input"
 	],
-	"vs/base/browser/ui/findinput/findInputCheckboxes": [
+	"vs/base/browser/ui/findinput/findInputToggles": [
 		"Match Case",
 		"Match Whole Word",
 		"Use Regular Expression"
@@ -31,17 +31,26 @@ define("vs/editor/editor.main.nls", {
 		"Error: {0}",
 		"Warning: {0}",
 		"Info: {0}",
-		"for history"
+		"for history",
+		"Cleared Input"
 	],
 	"vs/base/browser/ui/keybindingLabel/keybindingLabel": [
 		"Unbound"
 	],
+	"vs/base/browser/ui/selectBox/selectBoxCustom": [
+		"Select Box"
+	],
+	"vs/base/browser/ui/toolbar/toolbar": [
+		"More Actions..."
+	],
 	"vs/base/browser/ui/tree/abstractTree": [
-		"Clear",
-		"Disable Filter on Type",
-		"Enable Filter on Type",
-		"No elements found",
-		"Matched {0} out of {1} elements"
+		"Filter",
+		"Fuzzy Match",
+		"Type to filter",
+		"Type to search",
+		"Type to search",
+		"Close",
+		"No elements found."
 	],
 	"vs/base/common/actions": [
 		"(empty)"
@@ -76,29 +85,17 @@ define("vs/editor/editor.main.nls", {
 		"Alt",
 		"Super"
 	],
-	"vs/base/parts/quickinput/browser/quickInput": [
-		"Back",
-		"Press 'Enter' to confirm your input or 'Escape' to cancel",
-		"{0}/{1}",
-		"Type to narrow down results.",
-		"{0} Results",
-		"{0} Selected",
-		"OK",
-		"Custom",
-		"Back ({0})",
-		"Back"
-	],
-	"vs/base/parts/quickinput/browser/quickInputList": [
-		"Quick Input"
-	],
-	"vs/editor/browser/controller/coreCommands": [
-		"Stick to the end even when going to longer lines",
-		"Stick to the end even when going to longer lines",
-		"Removed secondary cursors"
+	"vs/base/common/platform": [
+		"_"
 	],
 	"vs/editor/browser/controller/textAreaHandler": [
 		"editor",
 		"The editor is not accessible at this time. Press {0} for options."
+	],
+	"vs/editor/browser/coreCommands": [
+		"Stick to the end even when going to longer lines",
+		"Stick to the end even when going to longer lines",
+		"Removed secondary cursors"
 	],
 	"vs/editor/browser/editorExtensions": [
 		"&&Undo",
@@ -109,12 +106,15 @@ define("vs/editor/editor.main.nls", {
 		"Select All"
 	],
 	"vs/editor/browser/widget/codeEditorWidget": [
-		"The number of cursors has been limited to {0}."
+		"The number of cursors has been limited to {0}. Consider using [find and replace](https://code.visualstudio.com/docs/editor/codebasics#_find-and-replace) for larger changes or increase the editor multi cursor limit setting.",
+		"Increase Multi Cursor Limit"
 	],
 	"vs/editor/browser/widget/diffEditorWidget": [
 		"Line decoration for inserts in the diff editor.",
 		"Line decoration for removals in the diff editor.",
-		"Cannot compare files because one file is too large."
+		" use Shift + F7 to navigate changes",
+		"Cannot compare files because one file is too large.",
+		"Click to revert change"
 	],
 	"vs/editor/browser/widget/diffReview": [
 		"Icon for 'Insert' in diff review.",
@@ -146,9 +146,10 @@ define("vs/editor/editor.main.nls", {
 	],
 	"vs/editor/common/config/editorConfigurationSchema": [
 		"Editor",
-		"The number of spaces a tab is equal to. This setting is overridden based on the file contents when `#editor.detectIndentation#` is on.",
-		"Insert spaces when pressing `Tab`. This setting is overridden based on the file contents when `#editor.detectIndentation#` is on.",
-		"Controls whether `#editor.tabSize#` and `#editor.insertSpaces#` will be automatically detected when a file is opened based on the file contents.",
+		"The number of spaces a tab is equal to. This setting is overridden based on the file contents when {0} is on.",
+		"The number of spaces used for indentation or `\"tabSize\"` to use the value from `#editor.tabSize#`. This setting is overridden based on the file contents when `#editor.detectIndentation#` is on.",
+		"Insert spaces when pressing `Tab`. This setting is overridden based on the file contents when {0} is on.",
+		"Controls whether {0} and {1} will be automatically detected when a file is opened based on the file contents.",
 		"Remove trailing auto inserted whitespace.",
 		"Special handling for large files to disable certain memory intensive features.",
 		"Controls whether completions should be computed based on words in the document.",
@@ -160,8 +161,11 @@ define("vs/editor/editor.main.nls", {
 		"Semantic highlighting disabled for all color themes.",
 		"Semantic highlighting is configured by the current color theme's `semanticHighlighting` setting.",
 		"Controls whether the semanticHighlighting is shown for the languages that support it.",
-		"Keep peek editors open even when double clicking their content or when hitting `Escape`.",
+		"Keep peek editors open even when double-clicking their content or when hitting `Escape`.",
 		"Lines above this length will not be tokenized for performance reasons",
+		"Controls whether the tokenization should happen asynchronously on a web worker.",
+		"Controls whether async tokenization should be logged. For debugging only.",
+		"Controls whether async tokenization should be verified against legacy background tokenization. Might slow down tokenization. For debugging only.",
 		"Defines the bracket symbols that increase or decrease the indentation.",
 		"The opening bracket character or string sequence.",
 		"The closing bracket character or string sequence.",
@@ -171,18 +175,23 @@ define("vs/editor/editor.main.nls", {
 		"Timeout in milliseconds after which diff computation is cancelled. Use 0 for no timeout.",
 		"Maximum file size in MB for which to compute diffs. Use 0 for no limit.",
 		"Controls whether the diff editor shows the diff side by side or inline.",
+		"When enabled, the diff editor shows arrows in its glyph margin to revert changes.",
 		"When enabled, the diff editor ignores changes in leading or trailing whitespace.",
 		"Controls whether the diff editor shows +/- indicators for added/removed changes.",
 		"Controls whether the editor shows CodeLens.",
 		"Lines will never wrap.",
 		"Lines will wrap at the viewport width.",
-		"Lines will wrap according to the `#editor.wordWrap#` setting."
+		"Lines will wrap according to the {0} setting.",
+		"Uses the legacy diffing algorithm.",
+		"Uses the advanced diffing algorithm.",
+		"Controls whether the diff editor shows unchanged regions. Only works when 'diffEditor.experimental.useVersion2' is set.",
+		"Controls whether the diff editor uses the new or the old implementation."
 	],
 	"vs/editor/common/config/editorOptions": [
-		"The editor will use platform APIs to detect when a Screen Reader is attached.",
-		"The editor will be permanently optimized for usage with a Screen Reader. Word wrapping will be disabled.",
-		"The editor will never be optimized for usage with a Screen Reader.",
-		"Controls whether the editor should run in a mode where it is optimized for screen readers. Setting to on will disable word wrapping.",
+		"Use platform APIs to detect when a Screen Reader is attached",
+		"Optimize for usage with a Screen Reader",
+		"Assume a screen reader is not attached",
+		"Controls if the UI should run in a mode where it is optimized for screen readers.",
 		"Controls whether a space character is inserted when commenting.",
 		"Controls if empty lines should be ignored with toggle, add or remove actions for line comments.",
 		"Controls whether copying without a selection copies the current line.",
@@ -201,12 +210,15 @@ define("vs/editor/editor.main.nls", {
 		"Enables/Disables font ligatures ('calt' and 'liga' font features). Change this to a string for fine-grained control of the 'font-feature-settings' CSS property.",
 		"Explicit 'font-feature-settings' CSS property. A boolean can be passed instead if one only needs to turn on/off ligatures.",
 		"Configures font ligatures or font features. Can be either a boolean to enable/disable ligatures or a string for the value of the CSS 'font-feature-settings' property.",
+		"Enables/Disables the translation from font-weight to font-variation-settings. Change this to a string for fine-grained control of the 'font-variation-settings' CSS property.",
+		"Explicit 'font-variation-settings' CSS property. A boolean can be passed instead if one only needs to translate font-weight to font-variation-settings.",
+		"Configures font variations. Can be either a boolean to enable/disable the translation from font-weight to font-variation-settings or a string for the value of the CSS 'font-variation-settings' property.",
 		"Controls the font size in pixels.",
 		"Only \"normal\" and \"bold\" keywords or numbers between 1 and 1000 are allowed.",
 		"Controls the font weight. Accepts \"normal\" and \"bold\" keywords or numbers between 1 and 1000.",
-		"Show peek view of the results (default)",
-		"Go to the primary result and show a peek view",
-		"Go to the primary result and enable peek-less navigation to others",
+		"Show Peek view of the results (default)",
+		"Go to the primary result and show a Peek view",
+		"Go to the primary result and enable Peek-less navigation to others",
 		"This setting is deprecated, please use separate settings like 'editor.editor.gotoLocation.multipleDefinitions' or 'editor.editor.gotoLocation.multipleImplementations' instead.",
 		"Controls the behavior the 'Go to Definition'-command when multiple target locations exist.",
 		"Controls the behavior the 'Go to Type Definition'-command when multiple target locations exist.",
@@ -222,12 +234,24 @@ define("vs/editor/editor.main.nls", {
 		"Controls the delay in milliseconds after which the hover is shown.",
 		"Controls whether the hover should remain visible when mouse is moved over it.",
 		"Prefer showing hovers above the line, if there's space.",
-		"Enables the code action lightbulb in the editor.",
+		"Assumes that all characters are of the same width. This is a fast algorithm that works correctly for monospace fonts and certain scripts (like Latin characters) where glyphs are of equal width.",
+		"Delegates wrapping points computation to the browser. This is a slow algorithm, that might cause freezes for large files, but it works correctly in all cases.",
+		"Controls the algorithm that computes wrapping points. Note that when in accessibility mode, advanced will be used for the best experience.",
+		"Enables the Code Action lightbulb in the editor.",
+		"Shows the nested current scopes during the scroll at the top of the editor.",
+		"Defines the maximum number of sticky lines to show.",
+		"Defines the model to use for determining which lines to stick. If the outline model does not exist, it will fall back on the folding provider model which falls back on the indentation model. This order is respected in all three cases.",
 		"Enables the inlay hints in the editor.",
-		"Controls font size of inlay hints in the editor. A default of 90% of `#editor.fontSize#` is used when the configured value is less than `5` or greater than the editor font size.",
-		"Controls font family of inlay hints in the editor. When set to empty, the `#editor.fontFamily#` is used.",
+		"Inlay hints are enabled",
+		"Inlay hints are showing by default and hide when holding {0}",
+		"Inlay hints are hidden by default and show when holding {0}",
+		"Inlay hints are disabled",
+		"Controls font size of inlay hints in the editor. As default the {0} is used when the configured value is less than {1} or greater than the editor font size.",
+		"Controls font family of inlay hints in the editor. When set to empty, the {0} is used.",
+		"Enables the padding around the inlay hints in the editor.",
 		"Controls the line height. \n - Use 0 to automatically compute the line height from the font size.\n - Values between 0 and 8 will be used as a multiplier with the font size.\n - Values greater than or equal to 8 will be used as effective values.",
 		"Controls whether the minimap is shown.",
+		"Controls whether the minimap is hidden automatically.",
 		"The minimap has the same size as the editor contents (and might scroll).",
 		"The minimap will stretch or shrink as necessary to fill the height of the editor (no scrolling).",
 		"The minimap will shrink as necessary to never be larger than the editor (no scrolling).",
@@ -241,10 +265,13 @@ define("vs/editor/editor.main.nls", {
 		"Controls the amount of space between the bottom edge of the editor and the last line.",
 		"Enables a pop-up that shows parameter documentation and type information as you type.",
 		"Controls whether the parameter hints menu cycles or closes when reaching the end of the list.",
+		"Quick suggestions show inside the suggest widget",
+		"Quick suggestions show as ghost text",
+		"Quick suggestions are disabled",
 		"Enable quick suggestions inside strings.",
 		"Enable quick suggestions inside comments.",
 		"Enable quick suggestions outside of strings and comments.",
-		"Controls whether suggestions should automatically show up while typing.",
+		"Controls whether suggestions should automatically show up while typing. This can be controlled for typing in comments, strings, and other code. Quick suggestion can be configured to show as ghost text or with the suggest widget. Also be aware of the '{0}'-setting which controls if suggestions are triggered by special characters.",
 		"Line numbers are not rendered.",
 		"Line numbers are rendered as absolute number.",
 		"Line numbers are rendered as distance in lines to cursor position.",
@@ -267,12 +294,17 @@ define("vs/editor/editor.main.nls", {
 		"Controls whether all non-basic ASCII characters are highlighted. Only characters between U+0020 and U+007E, tab, line-feed and carriage-return are considered basic ASCII.",
 		"Controls whether characters that just reserve space or have no width at all are highlighted.",
 		"Controls whether characters are highlighted that can be confused with basic ASCII characters, except those that are common in the current user locale.",
-		"Controls whether characters in comments should also be subject to unicode highlighting.",
-		"Controls whether characters in strings should also be subject to unicode highlighting.",
+		"Controls whether characters in comments should also be subject to Unicode highlighting.",
+		"Controls whether characters in strings should also be subject to Unicode highlighting.",
 		"Defines allowed characters that are not being highlighted.",
 		"Unicode characters that are common in allowed locales are not being highlighted.",
 		"Controls whether to automatically show inline suggestions in the editor.",
-		"Controls whether bracket pair colorization is enabled or not. Use 'workbench.colorCustomizations' to override the bracket highlight colors.",
+		"Show the inline suggestion toolbar whenever an inline suggestion is shown.",
+		"Show the inline suggestion toolbar when hovering over an inline suggestion.",
+		"Controls when to show the inline suggestion toolbar.",
+		"Controls how inline suggestions interact with the suggest widget. If enabled, the suggest widget is not shown automatically when inline suggestions are available.",
+		"Controls whether bracket pair colorization is enabled or not. Use {0} to override the bracket highlight colors.",
+		"Controls whether each bracket type has its own independent color pool.",
 		"Enables bracket pair guides.",
 		"Enables bracket pair guides only for the active bracket pair.",
 		"Disables bracket pair guides.",
@@ -281,8 +313,11 @@ define("vs/editor/editor.main.nls", {
 		"Enables horizontal guides only for the active bracket pair.",
 		"Disables horizontal bracket pair guides.",
 		"Controls whether horizontal bracket pair guides are enabled or not.",
-		"Controls whether bracket pair guides are enabled or not.",
+		"Controls whether the editor should highlight the active bracket pair.",
 		"Controls whether the editor should render indent guides.",
+		"Highlights the active indent guide.",
+		"Highlights the active indent guide even if bracket guides are highlighted.",
+		"Do not highlight the active indent guide.",
 		"Controls whether the editor should highlight the active indent guide.",
 		"Insert suggestion without overwriting text right of the cursor.",
 		"Insert suggestion and overwrite text right of the cursor.",
@@ -290,17 +325,23 @@ define("vs/editor/editor.main.nls", {
 		"Controls whether filtering and sorting suggestions accounts for small typos.",
 		"Controls whether sorting favors words that appear close to the cursor.",
 		"Controls whether remembered suggestion selections are shared between multiple workspaces and windows (needs `#editor.suggestSelection#`).",
+		"Always select a suggestion when automatically triggering IntelliSense.",
+		"Never select a suggestion when automatically triggering IntelliSense.",
+		"Select a suggestion only when triggering IntelliSense from a trigger character.",
+		"Select a suggestion only when triggering IntelliSense as you type.",
+		"Controls whether a suggestion is selected when the widget shows. Note that this only applies to automatically triggered suggestions (`#editor.quickSuggestions#` and `#editor.suggestOnTriggerCharacters#`) and that a suggestion is always selected when explicitly invoked, e.g via `Ctrl+Space`.",
 		"Controls whether an active snippet prevents quick suggestions.",
 		"Controls whether to show or hide icons in suggestions.",
 		"Controls the visibility of the status bar at the bottom of the suggest widget.",
 		"Controls whether to preview the suggestion outcome in the editor.",
-		"Controls whether suggest details show inline with the label or only in the details widget",
+		"Controls whether suggest details show inline with the label or only in the details widget.",
 		"This setting is deprecated. The suggest widget can now be resized.",
 		"This setting is deprecated, please use separate settings like 'editor.suggest.showKeywords' or 'editor.suggest.showSnippets' instead.",
 		"When enabled IntelliSense shows `method`-suggestions.",
 		"When enabled IntelliSense shows `function`-suggestions.",
 		"When enabled IntelliSense shows `constructor`-suggestions.",
 		"When enabled IntelliSense shows `deprecated`-suggestions.",
+		"When enabled IntelliSense filtering requires that the first character matches on a word start. For example, `c` on `Console` or `WebContext` but _not_ on `description`. When disabled IntelliSense will show more results but still sorts them by match quality.",
 		"When enabled IntelliSense shows `field`-suggestions.",
 		"When enabled IntelliSense shows `variable`-suggestions.",
 		"When enabled IntelliSense shows `class`-suggestions.",
@@ -327,11 +368,25 @@ define("vs/editor/editor.main.nls", {
 		"When enabled IntelliSense shows `user`-suggestions.",
 		"When enabled IntelliSense shows `issues`-suggestions.",
 		"Whether leading and trailing whitespace should always be selected.",
+		"No indentation. Wrapped lines begin at column 1.",
+		"Wrapped lines get the same indentation as the parent.",
+		"Wrapped lines get +1 indentation toward the parent.",
+		"Wrapped lines get +2 indentation toward the parent.",
+		"Controls the indentation of wrapped lines.",
+		"Controls whether you can drag and drop a file into a text editor by holding down `shift` (instead of opening the file in an editor).",
+		"Controls if a widget is shown when dropping files into the editor. This widget lets you control how the file is dropped.",
+		"Show the drop selector widget after a file is dropped into the editor.",
+		"Never show the drop selector widget. Instead the default drop provider is always used.",
+		"Controls whether you can paste content in different ways.",
+		"Controls if a widget is shown when pasting content in to the editor. This widget lets you control how the file is pasted.",
+		"Show the paste selector widget after content is pasted into the editor.",
+		"Never show the paste selector widget. Instead the default pasting behavior is always used.",
 		"Controls whether suggestions should be accepted on commit characters. For example, in JavaScript, the semi-colon (`;`) can be a commit character that accepts a suggestion and types that character.",
 		"Only accept a suggestion with `Enter` when it makes a textual change.",
 		"Controls whether suggestions should be accepted on `Enter`, in addition to `Tab`. Helps to avoid ambiguity between inserting new lines or accepting suggestions.",
 		"Controls the number of lines in the editor that can be read out by a screen reader at once. When we detect a screen reader we automatically set the default to be 500. Warning: this has a performance implication for numbers larger than the default.",
 		"Editor content",
+		"Control whether inline suggestions are announced by a screen reader.",
 		"Use language configurations to determine when to autoclose brackets.",
 		"Autoclose brackets only when the cursor is to the left of whitespace.",
 		"Controls whether the editor should automatically close brackets after the user adds an opening bracket.",
@@ -355,19 +410,27 @@ define("vs/editor/editor.main.nls", {
 		"Emulate selection behavior of tab characters when using spaces for indentation. Selection will stick to tab stops.",
 		"Controls whether the editor shows CodeLens.",
 		"Controls the font family for CodeLens.",
-		"Controls the font size in pixels for CodeLens. When set to `0`, 90% of `#editor.fontSize#` is used.",
+		"Controls the font size in pixels for CodeLens. When set to 0, 90% of `#editor.fontSize#` is used.",
 		"Controls whether the editor should render the inline color decorators and color picker.",
+		"Controls the max number of color decorators that can be rendered in an editor at once.",
 		"Enable that the selection with the mouse and keys is doing column selection.",
 		"Controls whether syntax highlighting should be copied into the clipboard.",
 		"Control the cursor animation style.",
+		"Smooth caret animation is disabled.",
+		"Smooth caret animation is enabled only when the user moves the cursor with an explicit gesture.",
+		"Smooth caret animation is always enabled.",
 		"Controls whether the smooth caret animation should be enabled.",
 		"Controls the cursor style.",
-		"Controls the minimal number of visible leading and trailing lines surrounding the cursor. Known as 'scrollOff' or 'scrollOffset' in some other editors.",
+		"Controls the minimal number of visible leading lines (minimum 0) and trailing lines (minimum 1) surrounding the cursor. Known as 'scrollOff' or 'scrollOffset' in some other editors.",
 		"`cursorSurroundingLines` is enforced only when triggered via the keyboard or API.",
 		"`cursorSurroundingLines` is enforced always.",
 		"Controls when `cursorSurroundingLines` should be enforced.",
 		"Controls the width of the cursor when `#editor.cursorStyle#` is set to `line`.",
 		"Controls whether the editor should allow moving selections via drag and drop.",
+		"Use a new rendering method with svgs.",
+		"Use a new rendering method with font characters.",
+		"Use the stable rendering method.",
+		"Controls whether whitespace is rendered with a new, experimental method.",
 		"Scrolling speed multiplier when pressing `Alt`.",
 		"Controls whether the editor has code folding enabled.",
 		"Use a language-specific folding strategy if available, else the indentation-based one.",
@@ -383,7 +446,7 @@ define("vs/editor/editor.main.nls", {
 		"Controls whether the editor should render the vertical glyph margin. Glyph margin is mostly used for debugging.",
 		"Controls whether the cursor should be hidden in the overview ruler.",
 		"Controls the letter spacing in pixels.",
-		"Controls whether the editor has linked editing enabled. Depending on the language, related symbols, e.g. HTML tags, are updated while editing.",
+		"Controls whether the editor has linked editing enabled. Depending on the language, related symbols such as HTML tags, are updated while editing.",
 		"Controls whether the editor should detect links and make them clickable.",
 		"Highlight matching brackets.",
 		"A multiplier to be used on the `deltaX` and `deltaY` of mouse wheel scroll events.",
@@ -391,10 +454,11 @@ define("vs/editor/editor.main.nls", {
 		"Merge multiple cursors when they are overlapping.",
 		"Maps to `Control` on Windows and Linux and to `Command` on macOS.",
 		"Maps to `Alt` on Windows and Linux and to `Option` on macOS.",
-		"The modifier to be used to add multiple cursors with the mouse. The Go to Definition and Open Link mouse gestures will adapt such that they do not conflict with the multicursor modifier. [Read more](https://code.visualstudio.com/docs/editor/codebasics#_multicursor-modifier).",
+		"The modifier to be used to add multiple cursors with the mouse. The Go to Definition and Open Link mouse gestures will adapt such that they do not conflict with the [multicursor modifier](https://code.visualstudio.com/docs/editor/codebasics#_multicursor-modifier).",
 		"Each cursor pastes a single line of the text.",
 		"Each cursor pastes the full text.",
 		"Controls pasting when the line count of the pasted text matches the cursor count.",
+		"Controls the max number of cursors that can be in an active editor at once.",
 		"Controls whether the editor should highlight semantic symbol occurrences.",
 		"Controls whether a border should be drawn around the overview ruler.",
 		"Focus the tree when opening peek",
@@ -420,6 +484,7 @@ define("vs/editor/editor.main.nls", {
 		"Controls whether the Linux primary clipboard should be supported.",
 		"Controls whether the editor should highlight matches similar to the selection.",
 		"Always show the folding controls.",
+		"Never show the folding controls and reduce the gutter size.",
 		"Only show the folding controls when the mouse is over the gutter.",
 		"Controls when the folding controls on the gutter are shown.",
 		"Controls fading out of unused code.",
@@ -430,8 +495,8 @@ define("vs/editor/editor.main.nls", {
 		"Do not show snippet suggestions.",
 		"Controls whether snippets are shown with other suggestions and how they are sorted.",
 		"Controls whether the editor will scroll using an animation.",
-		"Font size for the suggest widget. When set to `0`, the value of `#editor.fontSize#` is used.",
-		"Line height for the suggest widget. When set to `0`, the value of `#editor.lineHeight#` is used. The minimum value is 8.",
+		"Font size for the suggest widget. When set to {0}, the value of {1} is used.",
+		"Line height for the suggest widget. When set to {0}, the value of {1} is used. The minimum value is 8.",
 		"Controls whether suggestions should automatically show up when typing trigger characters.",
 		"Always select the first suggestion.",
 		"Select recent suggestions unless further typing selects one, e.g. `console.| -> console.log` because `log` has been completed recently.",
@@ -446,6 +511,9 @@ define("vs/editor/editor.main.nls", {
 		"Unusual line terminators prompt to be removed.",
 		"Remove unusual line terminators that might cause problems.",
 		"Inserting and deleting whitespace follows tab stops.",
+		"Use the default line break rule.",
+		"Word breaks should not be used for Chinese/Japanese/Korean (CJK) text. Non-CJK text behavior is the same as for normal.",
+		"Controls the word break rules used for Chinese/Japanese/Korean (CJK) text.",
 		"Characters that will be used as word separators when doing word related navigations or operations.",
 		"Lines will never wrap.",
 		"Lines will wrap at the viewport width.",
@@ -453,14 +521,8 @@ define("vs/editor/editor.main.nls", {
 		"Lines will wrap at the minimum of viewport and `#editor.wordWrapColumn#`.",
 		"Controls how lines should wrap.",
 		"Controls the wrapping column of the editor when `#editor.wordWrap#` is `wordWrapColumn` or `bounded`.",
-		"No indentation. Wrapped lines begin at column 1.",
-		"Wrapped lines get the same indentation as the parent.",
-		"Wrapped lines get +1 indentation toward the parent.",
-		"Wrapped lines get +2 indentation toward the parent.",
-		"Controls the indentation of wrapped lines.",
-		"Assumes that all characters are of the same width. This is a fast algorithm that works correctly for monospace fonts and certain scripts (like Latin characters) where glyphs are of equal width.",
-		"Delegates wrapping points computation to the browser. This is a slow algorithm, that might cause freezes for large files, but it works correctly in all cases.",
-		"Controls the algorithm that computes wrapping points."
+		"Controls whether inline color decorations should be shown using the default document color provider",
+		"Controls whether the editor receives tabs or defers them to the workbench for navigation."
 	],
 	"vs/editor/common/core/editorColorRegistry": [
 		"Background color for the highlight of line at the cursor position.",
@@ -478,12 +540,13 @@ define("vs/editor/editor.main.nls", {
 		"Color of editor active line number",
 		"Id is deprecated. Use 'editorLineNumber.activeForeground' instead.",
 		"Color of editor active line number",
+		"Color of the final editor line when editor.renderFinalNewline is set to dimmed.",
 		"Color of the editor rulers.",
 		"Foreground color of editor CodeLens",
 		"Background color behind matching brackets",
 		"Color for matching brackets boxes",
 		"Color of the overview ruler border.",
-		"Background color of the editor overview ruler. Only used when the minimap is enabled and placed on the right side of the editor.",
+		"Background color of the editor overview ruler.",
 		"Background color of the editor gutter. The gutter contains the glyph margins and the line numbers.",
 		"Border color of unnecessary (unused) source code in the editor.",
 		"Opacity of unnecessary (unused) source code in the editor. For example, \"#000000c0\" will render the code with 75% opacity. For high contrast themes, use the  'editorUnnecessaryCode.border' theme color to underline unnecessary code instead of fading it out.",
@@ -513,7 +576,8 @@ define("vs/editor/editor.main.nls", {
 		"Background color of active bracket pair guides (4). Requires enabling bracket pair guides.",
 		"Background color of active bracket pair guides (5). Requires enabling bracket pair guides.",
 		"Background color of active bracket pair guides (6). Requires enabling bracket pair guides.",
-		"Border color used to highlight unicode characters."
+		"Border color used to highlight unicode characters.",
+		"Background color used to highlight unicode characters."
 	],
 	"vs/editor/common/editorContextKeys": [
 		"Whether the editor text has focus (cursor is blinking)",
@@ -521,11 +585,17 @@ define("vs/editor/editor.main.nls", {
 		"Whether an editor or a rich text input has focus (cursor is blinking)",
 		"Whether the editor is read only",
 		"Whether the context is a diff editor",
+		"Whether the context is an embedded diff editor",
 		"Whether `editor.columnSelection` is enabled",
 		"Whether the editor has text selected",
 		"Whether the editor has multiple selections",
 		"Whether `Tab` will move focus out of the editor",
 		"Whether the editor hover is visible",
+		"Whether the editor hover is focused",
+		"Whether the sticky scroll is focused",
+		"Whether the sticky scroll is visible",
+		"Whether the standalone color picker is visible",
+		"Whether the standalone color picker is focused",
 		"Whether the editor is part of a larger editor (e.g. notebooks)",
 		"The language identifier of the editor",
 		"Whether the editor has a completion item provider",
@@ -577,6 +647,7 @@ define("vs/editor/editor.main.nls", {
 		"Press Control+H now to open a browser window with more information related to editor accessibility.",
 		"You can dismiss this tooltip and return to the editor by pressing Escape or Shift+Escape.",
 		"Show Accessibility Help",
+		"Accessibility Help",
 		"Developer: Inspect Tokens",
 		"Go to Line/Column...",
 		"Show all Quick Access Providers",
@@ -588,6 +659,10 @@ define("vs/editor/editor.main.nls", {
 		"Press Alt+F1 for Accessibility Options.",
 		"Toggle High Contrast Theme",
 		"Made {0} edits in {1} files"
+	],
+	"vs/editor/common/viewLayout/viewLineRenderer": [
+		"Show more ({0})",
+		"{0} chars"
 	],
 	"vs/editor/contrib/anchorSelect/browser/anchorSelect": [
 		"Selection Anchor",
@@ -601,6 +676,7 @@ define("vs/editor/editor.main.nls", {
 		"Overview ruler marker color for matching brackets.",
 		"Go to Bracket",
 		"Select to Bracket",
+		"Remove Brackets",
 		"Go to &&Bracket"
 	],
 	"vs/editor/contrib/caretOperations/browser/caretOperations": [
@@ -621,11 +697,17 @@ define("vs/editor/editor.main.nls", {
 		"Copy",
 		"Copy As",
 		"Copy As",
+		"Share",
+		"Share",
+		"Share",
 		"&&Paste",
 		"Paste",
 		"Paste",
 		"Paste",
 		"Copy With Syntax Highlighting"
+	],
+	"vs/editor/contrib/codeAction/browser/codeAction": [
+		"An unknown error occurred while applying the code action"
 	],
 	"vs/editor/contrib/codeAction/browser/codeActionCommands": [
 		"Kind of the code action to run.",
@@ -634,7 +716,6 @@ define("vs/editor/editor.main.nls", {
 		"Apply the first returned code action if it is the only one.",
 		"Do not apply the returned code actions.",
 		"Controls if only preferred code actions should be returned.",
-		"An unknown error occurred while applying the code action",
 		"Quick Fix...",
 		"No code actions available",
 		"No preferred code actions for '{0}' available",
@@ -658,6 +739,23 @@ define("vs/editor/editor.main.nls", {
 		"Auto Fix...",
 		"No auto fixes available"
 	],
+	"vs/editor/contrib/codeAction/browser/codeActionContributions": [
+		"Enable/disable showing group headers in the Code Action menu."
+	],
+	"vs/editor/contrib/codeAction/browser/codeActionController": [
+		"Hide Disabled",
+		"Show Disabled"
+	],
+	"vs/editor/contrib/codeAction/browser/codeActionMenu": [
+		"More Actions...",
+		"Quick Fix...",
+		"Extract...",
+		"Inline...",
+		"Rewrite...",
+		"Move...",
+		"Surround With...",
+		"Source Action..."
+	],
 	"vs/editor/contrib/codeAction/browser/lightBulbWidget": [
 		"Show Code Actions. Preferred Quick Fix Available ({0})",
 		"Show Code Actions ({0})",
@@ -667,7 +765,14 @@ define("vs/editor/editor.main.nls", {
 		"Show CodeLens Commands For Current Line"
 	],
 	"vs/editor/contrib/colorPicker/browser/colorPickerWidget": [
-		"Click to toggle color options (rgb/hsl/hex)"
+		"Click to toggle color options (rgb/hsl/hex)",
+		"Icon to close the color picker"
+	],
+	"vs/editor/contrib/colorPicker/browser/standaloneColorPickerActions": [
+		"Show or Focus Standalone Color Picker",
+		"&&Show or Focus Standalone Color Picker",
+		"Hide the Color Picker",
+		"Insert Color with Standalone Color Picker"
 	],
 	"vs/editor/contrib/comment/browser/comment": [
 		"Toggle Line Comment",
@@ -678,11 +783,46 @@ define("vs/editor/editor.main.nls", {
 		"Toggle &&Block Comment"
 	],
 	"vs/editor/contrib/contextmenu/browser/contextmenu": [
+		"Minimap",
+		"Render Characters",
+		"Vertical size",
+		"Proportional",
+		"Fill",
+		"Fit",
+		"Slider",
+		"Mouse Over",
+		"Always",
 		"Show Editor Context Menu"
 	],
 	"vs/editor/contrib/cursorUndo/browser/cursorUndo": [
 		"Cursor Undo",
 		"Cursor Redo"
+	],
+	"vs/editor/contrib/dropOrPasteInto/browser/copyPasteContribution": [
+		"Paste As...",
+		"The id of the paste edit to try applying. If not provided, the editor will show a picker."
+	],
+	"vs/editor/contrib/dropOrPasteInto/browser/copyPasteController": [
+		"Whether the paste widget is showing",
+		"Show paste options...",
+		"Running paste handlers. Click to cancel",
+		"Select Paste Action",
+		"Running paste handlers"
+	],
+	"vs/editor/contrib/dropOrPasteInto/browser/defaultProviders": [
+		"Built-in",
+		"Insert Plain Text",
+		"Insert Uris",
+		"Insert Uri",
+		"Insert Paths",
+		"Insert Path",
+		"Insert Relative Paths",
+		"Insert Relative Path"
+	],
+	"vs/editor/contrib/dropOrPasteInto/browser/dropIntoEditorController": [
+		"Whether the drop widget is showing",
+		"Show drop options...",
+		"Running drop handlers. Click to cancel"
 	],
 	"vs/editor/contrib/editorState/browser/keybindingCancellation": [
 		"Whether the editor runs a cancellable operation, e.g. like 'Peek References'"
@@ -698,6 +838,11 @@ define("vs/editor/editor.main.nls", {
 		"Find With Selection",
 		"Find Next",
 		"Find Previous",
+		"Go to Match...",
+		"No matches. Try searching for something else.",
+		"Type a number to go to a specific match (between 1 and {0})",
+		"Please type a number between 1 and {0}",
+		"Please type a number between 1 and {0}",
 		"Find Next Selection",
 		"Find Previous Selection",
 		"Replace",
@@ -732,7 +877,6 @@ define("vs/editor/editor.main.nls", {
 		"Ctrl+Enter now inserts line break instead of replacing all. You can modify the keybinding for editor.action.replaceAll to override this behavior."
 	],
 	"vs/editor/contrib/folding/browser/folding": [
-		"The number of foldable regions is limited to a maximum of {0}. Increase configuration option ['Folding Maximum Regions'](command:workbench.action.openSettings?[\"editor.foldingMaximumRegions\"]) to enable more.",
 		"Unfold",
 		"Unfold Recursively",
 		"Fold",
@@ -748,13 +892,17 @@ define("vs/editor/editor.main.nls", {
 		"Go to Parent Fold",
 		"Go to Previous Folding Range",
 		"Go to Next Folding Range",
-		"Fold Level {0}",
-		"Background color behind folded ranges. The color must not be opaque so as not to hide underlying decorations.",
-		"Color of the folding control in the editor gutter."
+		"Create Folding Range from Selection",
+		"Remove Manual Folding Ranges",
+		"Fold Level {0}"
 	],
 	"vs/editor/contrib/folding/browser/foldingDecorations": [
+		"Background color behind folded ranges. The color must not be opaque so as not to hide underlying decorations.",
+		"Color of the folding control in the editor gutter.",
 		"Icon for expanded ranges in the editor glyph margin.",
-		"Icon for collapsed ranges in the editor glyph margin."
+		"Icon for collapsed ranges in the editor glyph margin.",
+		"Icon for manually collapsed ranges in the editor glyph margin.",
+		"Icon for manually expanded ranges in the editor glyph margin."
 	],
 	"vs/editor/contrib/fontZoom/browser/fontZoom": [
 		"Editor Font Zoom In",
@@ -803,12 +951,14 @@ define("vs/editor/editor.main.nls", {
 		"No definition found for '{0}'",
 		"No definition found",
 		"Go to Definition",
+		"Go to &&Definition",
 		"Open Definition to the Side",
 		"Peek Definition",
 		"Declarations",
 		"No declaration found for '{0}'",
 		"No declaration found",
 		"Go to Declaration",
+		"Go to &&Declaration",
 		"No declaration found for '{0}'",
 		"No declaration found",
 		"Peek Declaration",
@@ -816,27 +966,25 @@ define("vs/editor/editor.main.nls", {
 		"No type definition found for '{0}'",
 		"No type definition found",
 		"Go to Type Definition",
+		"Go to &&Type Definition",
 		"Peek Type Definition",
 		"Implementations",
 		"No implementation found for '{0}'",
 		"No implementation found",
 		"Go to Implementations",
+		"Go to &&Implementations",
 		"Peek Implementations",
 		"No references found for '{0}'",
 		"No references found",
 		"Go to References",
+		"Go to &&References",
 		"References",
 		"Peek References",
 		"References",
 		"Go to Any Symbol",
 		"Locations",
 		"No results for '{0}'",
-		"References",
-		"Go to &&Definition",
-		"Go to &&Declaration",
-		"Go to &&Type Definition",
-		"Go to &&Implementations",
-		"Go to &&References"
+		"References"
 	],
 	"vs/editor/contrib/gotoSymbol/browser/link/goToDefinitionAtPosition": [
 		"Click to show {0} definitions."
@@ -857,8 +1005,8 @@ define("vs/editor/editor.main.nls", {
 		"References"
 	],
 	"vs/editor/contrib/gotoSymbol/browser/referencesModel": [
-		"symbol in {0} on line {1} at column {2}",
-		"symbol in {0} on line {1} at column {2}, {3}",
+		"in {0} on line {1} at column {2}",
+		"{0} in {1} on line {2} at column {3}",
 		"1 symbol in {0}, full path {1}",
 		"{0} symbols in {1}, full path {2}",
 		"No results found",
@@ -872,11 +1020,21 @@ define("vs/editor/editor.main.nls", {
 		"Symbol {0} of {1}"
 	],
 	"vs/editor/contrib/hover/browser/hover": [
-		"Show Hover",
-		"Show Definition Preview Hover"
+		"Show or Focus Hover",
+		"Show Definition Preview Hover",
+		"Scroll Up Hover",
+		"Scroll Down Hover",
+		"Scroll Left Hover",
+		"Scroll Right Hover",
+		"Page Up Hover",
+		"Page Down Hover",
+		"Go To Top Hover",
+		"Go To Bottom Hover",
+		"Escape Focus Hover"
 	],
 	"vs/editor/contrib/hover/browser/markdownHoverParticipant": [
 		"Loading...",
+		"Rendering paused for long line for performance reasons. This can be configured via `editor.stopRenderingLineAfter`.",
 		"Tokenization is skipped for long lines for performance reasons. This can be configured via `editor.maxTokenizationLineLength`."
 	],
 	"vs/editor/contrib/hover/browser/markerHoverParticipant": [
@@ -894,26 +1052,54 @@ define("vs/editor/editor.main.nls", {
 		"Convert Indentation to Spaces",
 		"Convert Indentation to Tabs",
 		"Configured Tab Size",
+		"Default Tab Size",
+		"Current Tab Size",
 		"Select Tab Size for Current File",
 		"Indent Using Tabs",
 		"Indent Using Spaces",
+		"Change Tab Display Size",
 		"Detect Indentation from Content",
 		"Reindent Lines",
 		"Reindent Selected Lines"
 	],
-	"vs/editor/contrib/inlineCompletions/browser/ghostTextController": [
+	"vs/editor/contrib/inlayHints/browser/inlayHintsHover": [
+		"Double-click to insert",
+		"cmd + click",
+		"ctrl + click",
+		"option + click",
+		"alt + click",
+		"Go to Definition ({0}), right click for more",
+		"Go to Definition ({0})",
+		"Execute Command"
+	],
+	"vs/editor/contrib/inlineCompletions/browser/commands": [
+		"Show Next Inline Suggestion",
+		"Show Previous Inline Suggestion",
+		"Trigger Inline Suggestion",
+		"Accept Next Word Of Inline Suggestion",
+		"Accept Word",
+		"Accept Next Line Of Inline Suggestion",
+		"Accept Line",
+		"Accept Inline Suggestion",
+		"Accept",
+		"Hide Inline Suggestion",
+		"Always Show Toolbar"
+	],
+	"vs/editor/contrib/inlineCompletions/browser/hoverParticipant": [
+		"Suggestion:"
+	],
+	"vs/editor/contrib/inlineCompletions/browser/inlineCompletionContextKeys": [
 		"Whether an inline suggestion is visible",
 		"Whether the inline suggestion starts with whitespace",
 		"Whether the inline suggestion starts with whitespace that is less than what would be inserted by tab",
-		"Show Next Inline Suggestion",
-		"Show Previous Inline Suggestion",
-		"Trigger Inline Suggestion"
+		"Whether suggestions should be suppressed for the current suggestion"
 	],
-	"vs/editor/contrib/inlineCompletions/browser/inlineCompletionsHoverParticipant": [
-		"Next",
+	"vs/editor/contrib/inlineCompletions/browser/inlineCompletionsHintsWidget": [
+		"Icon for show next parameter hint.",
+		"Icon for show previous parameter hint.",
+		"{0} ({1})",
 		"Previous",
-		"Accept",
-		"Suggestion:"
+		"Next"
 	],
 	"vs/editor/contrib/lineSelection/browser/lineSelection": [
 		"Expand Line Selection"
@@ -945,13 +1131,17 @@ define("vs/editor/editor.main.nls", {
 		"Transform to Uppercase",
 		"Transform to Lowercase",
 		"Transform to Title Case",
-		"Transform to Snake Case"
+		"Transform to Snake Case",
+		"Transform to Camel Case",
+		"Transform to Kebab Case"
 	],
 	"vs/editor/contrib/linkedEditing/browser/linkedEditing": [
 		"Start Linked Editing",
 		"Background color when the editor auto renames on type."
 	],
 	"vs/editor/contrib/links/browser/links": [
+		"Failed to open this link because it is not well-formed: {0}",
+		"Failed to open this link because its target is missing.",
 		"Execute command",
 		"Follow link",
 		"cmd + click",
@@ -959,13 +1149,10 @@ define("vs/editor/editor.main.nls", {
 		"option + click",
 		"alt + click",
 		"Execute command {0}",
-		"Failed to open this link because it is not well-formed: {0}",
-		"Failed to open this link because its target is missing.",
 		"Open Link"
 	],
 	"vs/editor/contrib/message/browser/messageController": [
-		"Whether the editor is currently showing an inline message",
-		"Cannot edit in read-only editor"
+		"Whether the editor is currently showing an inline message"
 	],
 	"vs/editor/contrib/multicursor/browser/multicursor": [
 		"Cursor added: {0}",
@@ -986,7 +1173,11 @@ define("vs/editor/editor.main.nls", {
 		"Move Last Selection To Previous Find Match",
 		"Select All Occurrences of Find Match",
 		"Select All &&Occurrences",
-		"Change All Occurrences"
+		"Change All Occurrences",
+		"Focus Next Cursor",
+		"Focuses the next cursor",
+		"Focus Previous Cursor",
+		"Focuses the previous cursor"
 	],
 	"vs/editor/contrib/parameterHints/browser/parameterHints": [
 		"Trigger Parameter Hints"
@@ -1011,6 +1202,7 @@ define("vs/editor/editor.main.nls", {
 		"Foreground color of the selected entry in the peek view result list.",
 		"Background color of the peek view editor.",
 		"Background color of the gutter in the peek view editor.",
+		"Background color of sticky scroll in the peek view editor.",
 		"Match highlight color in the peek view result list.",
 		"Match highlight color in the peek view editor.",
 		"Match highlight border in the peek view editor."
@@ -1057,11 +1249,15 @@ define("vs/editor/editor.main.nls", {
 		"fields ({0})",
 		"constants ({0})"
 	],
+	"vs/editor/contrib/readOnlyMessage/browser/contribution": [
+		"Cannot edit in read-only input",
+		"Cannot edit in read-only editor"
+	],
 	"vs/editor/contrib/rename/browser/rename": [
 		"No result.",
 		"An unknown error occurred while resolving rename location",
-		"Renaming '{0}'",
-		"Renaming {0}",
+		"Renaming '{0}' to '{1}'",
+		"Renaming {0} to {1}",
 		"Successfully renamed '{0}' to '{1}'. Summary: {2}",
 		"Rename failed to apply edits",
 		"Rename failed to compute edits",
@@ -1082,7 +1278,8 @@ define("vs/editor/editor.main.nls", {
 	"vs/editor/contrib/snippet/browser/snippetController2": [
 		"Whether the editor in current in snippet mode",
 		"Whether there is a next tab stop when in snippet mode",
-		"Whether there is a previous tab stop when in snippet mode"
+		"Whether there is a previous tab stop when in snippet mode",
+		"Go to next placeholder..."
 	],
 	"vs/editor/contrib/snippet/browser/snippetVariables": [
 		"Sunday",
@@ -1124,8 +1321,20 @@ define("vs/editor/editor.main.nls", {
 		"Nov",
 		"Dec"
 	],
+	"vs/editor/contrib/stickyScroll/browser/stickyScrollActions": [
+		"Toggle Sticky Scroll",
+		"&&Toggle Sticky Scroll",
+		"Sticky Scroll",
+		"&&Sticky Scroll",
+		"Focus Sticky Scroll",
+		"&&Focus Sticky Scroll",
+		"Select next sticky scroll line",
+		"Select previous sticky scroll line",
+		"Go to focused sticky scroll line",
+		"Select Editor"
+	],
 	"vs/editor/contrib/suggest/browser/suggest": [
-		"Whether suggestion are visible",
+		"Whether any suggestion is focused",
 		"Whether suggestion details are visible",
 		"Whether there are multiple suggestions to pick from",
 		"Whether inserting the current suggestion yields in a change or has everything already been typed",
@@ -1223,6 +1432,7 @@ define("vs/editor/editor.main.nls", {
 		"This document contains many non-basic ASCII unicode characters",
 		"This document contains many ambiguous unicode characters",
 		"This document contains many invisible unicode characters",
+		"The character {0} could be confused with the ASCII character {1}, which is more common in source code.",
 		"The character {0} could be confused with the character {1}, which is more common in source code.",
 		"The character {0} is invisible.",
 		"The character {0} is not a basic ASCII character.",
@@ -1247,16 +1457,21 @@ define("vs/editor/editor.main.nls", {
 		"Unusual Line Terminators",
 		"Detected unusual line terminators",
 		"The file '{0}' contains one or more unusual line terminator characters, like Line Separator (LS) or Paragraph Separator (PS).\n\nIt is recommended to remove them from the file. This can be configured via `editor.unusualLineTerminators`.",
-		"Remove Unusual Line Terminators",
+		"&&Remove Unusual Line Terminators",
 		"Ignore"
 	],
-	"vs/editor/contrib/wordHighlighter/browser/wordHighlighter": [
+	"vs/editor/contrib/wordHighlighter/browser/highlightDecorations": [
 		"Background color of a symbol during read-access, like reading a variable. The color must not be opaque so as not to hide underlying decorations.",
 		"Background color of a symbol during write-access, like writing to a variable. The color must not be opaque so as not to hide underlying decorations.",
+		"Background color of a textual occurrence for a symbol. The color must not be opaque so as not to hide underlying decorations.",
 		"Border color of a symbol during read-access, like reading a variable.",
 		"Border color of a symbol during write-access, like writing to a variable.",
+		"Border color of a textual occurrence for a symbol.",
 		"Overview ruler marker color for symbol highlights. The color must not be opaque so as not to hide underlying decorations.",
 		"Overview ruler marker color for write-access symbol highlights. The color must not be opaque so as not to hide underlying decorations.",
+		"Overview ruler marker color of a textual occurrence for a symbol. The color must not be opaque so as not to hide underlying decorations."
+	],
+	"vs/editor/contrib/wordHighlighter/browser/wordHighlighter": [
 		"Go to Next Symbol Highlight",
 		"Go to Previous Symbol Highlight",
 		"Trigger Symbol Highlight"
@@ -1264,23 +1479,84 @@ define("vs/editor/editor.main.nls", {
 	"vs/editor/contrib/wordOperations/browser/wordOperations": [
 		"Delete Word"
 	],
+	"vs/platform/action/common/actionCommonCategories": [
+		"View",
+		"Help",
+		"Test",
+		"File",
+		"Preferences",
+		"Developer"
+	],
+	"vs/platform/actionWidget/browser/actionList": [
+		"{0} to apply, {1} to preview",
+		"{0} to apply",
+		"{0}, Disabled Reason: {1}",
+		"Action Widget"
+	],
+	"vs/platform/actionWidget/browser/actionWidget": [
+		"Whether the action widget list is visible",
+		"Hide action widget",
+		"Select previous action",
+		"Select next action",
+		"Accept selected action",
+		"Preview selected action"
+	],
 	"vs/platform/actions/browser/menuEntryActionViewItem": [
 		"{0} ({1})",
-		"{0} ({1})"
+		"{0} ({1})",
+		"{0}\n[{1}] {2}"
+	],
+	"vs/platform/actions/browser/toolbar": [
+		"Hide",
+		"Reset Menu"
+	],
+	"vs/platform/actions/common/menuService": [
+		"Hide '{0}'"
+	],
+	"vs/platform/audioCues/browser/audioCueService": [
+		"Error on Line",
+		"Warning on Line",
+		"Folded Area on Line",
+		"Breakpoint on Line",
+		"Inline Suggestion on Line",
+		"Terminal Quick Fix",
+		"Debugger Stopped on Breakpoint",
+		"No Inlay Hints on Line",
+		"Task Completed",
+		"Task Failed",
+		"Terminal Command Failed",
+		"Terminal Bell",
+		"Notebook Cell Completed",
+		"Notebook Cell Failed",
+		"Diff Line Inserted",
+		"Diff Line Deleted",
+		"Diff Line Modified"
 	],
 	"vs/platform/configuration/common/configurationRegistry": [
 		"Default Language Configuration Overrides",
-		"Configure settings to be overridden for {0} language.",
+		"Configure settings to be overridden for the {0} language.",
 		"Configure editor settings to be overridden for a language.",
 		"This setting does not support per-language configuration.",
 		"Configure editor settings to be overridden for a language.",
 		"This setting does not support per-language configuration.",
 		"Cannot register an empty property",
 		"Cannot register '{0}'. This matches property pattern '\\\\[.*\\\\]$' for describing language specific editor settings. Use 'configurationDefaults' contribution.",
-		"Cannot register '{0}'. This property is already registered."
+		"Cannot register '{0}'. This property is already registered.",
+		"Cannot register '{0}'. The associated policy {1} is already registered with {2}."
 	],
 	"vs/platform/contextkey/browser/contextKeyService": [
 		"A command that returns information about context keys"
+	],
+	"vs/platform/contextkey/common/contextkey": [
+		"Empty context key expression",
+		"Did you forget to write an expression? You can also put 'false' or 'true' to always evaluate to false or true, respectively.",
+		"'in' after 'not'.",
+		"closing parenthesis ')'",
+		"Unexpected token",
+		"Did you forget to put && or || before the token?",
+		"Unexpected end of expression",
+		"Did you forget to put a context key?",
+		"Expected: {0}\nReceived: '{1}'."
 	],
 	"vs/platform/contextkey/common/contextkeys": [
 		"Whether the operating system is macOS",
@@ -1288,11 +1564,25 @@ define("vs/editor/editor.main.nls", {
 		"Whether the operating system is Windows",
 		"Whether the platform is a web browser",
 		"Whether the operating system is macOS on a non-browser platform",
-		"Whether the operating system is IOS",
+		"Whether the operating system is iOS",
+		"Whether the platform is a mobile web browser",
+		"Quality type of VS Code",
 		"Whether keyboard focus is inside an input box"
+	],
+	"vs/platform/contextkey/common/scanner": [
+		"Did you mean {0}?",
+		"Did you mean {0} or {1}?",
+		"Did you mean {0}, {1} or {2}?",
+		"Did you forget to open or close the quote?",
+		"Did you forget to escape the '/' (slash) character? Put two backslashes before it to escape, e.g., '\\\\/'."
+	],
+	"vs/platform/history/browser/contextScopedHistoryWidget": [
+		"Whether suggestion are visible"
 	],
 	"vs/platform/keybinding/common/abstractKeybindingService": [
 		"({0}) was pressed. Waiting for second key of chord...",
+		"({0}) was pressed. Waiting for next key of chord...",
+		"The key combination ({0}, {1}) is not a command.",
 		"The key combination ({0}, {1}) is not a command."
 	],
 	"vs/platform/list/browser/listService": [
@@ -1302,17 +1592,25 @@ define("vs/editor/editor.main.nls", {
 		"The modifier to be used to add an item in trees and lists to a multi-selection with the mouse (for example in the explorer, open editors and scm view). The 'Open to Side' mouse gestures - if supported - will adapt such that they do not conflict with the multiselect modifier.",
 		"Controls how to open items in trees and lists using the mouse (if supported). Note that some trees and lists might choose to ignore this setting if it is not applicable.",
 		"Controls whether lists and trees support horizontal scrolling in the workbench. Warning: turning on this setting has a performance implication.",
+		"Controls whether clicks in the scrollbar scroll page by page.",
 		"Controls tree indentation in pixels.",
 		"Controls whether the tree should render indent guides.",
 		"Controls whether lists and trees have smooth scrolling.",
 		"A multiplier to be used on the `deltaX` and `deltaY` of mouse wheel scroll events.",
 		"Scrolling speed multiplier when pressing `Alt`.",
+		"Highlight elements when searching. Further up and down navigation will traverse only the highlighted elements.",
+		"Filter elements when searching.",
+		"Controls the default find mode for lists and trees in the workbench.",
 		"Simple keyboard navigation focuses elements which match the keyboard input. Matching is done only on prefixes.",
 		"Highlight keyboard navigation highlights elements which match the keyboard input. Further up and down navigation will traverse only the highlighted elements.",
 		"Filter keyboard navigation will filter out and hide all the elements which do not match the keyboard input.",
 		"Controls the keyboard navigation style for lists and trees in the workbench. Can be simple, highlight and filter.",
-		"Controls whether keyboard navigation in lists and trees is automatically triggered simply by typing. If set to `false`, keyboard navigation is only triggered when executing the `list.toggleKeyboardNavigation` command, for which you can assign a keyboard shortcut.",
-		"Controls how tree folders are expanded when clicking the folder names. Note that some trees and lists might choose to ignore this setting if it is not applicable."
+		"Please use 'workbench.list.defaultFindMode' and\t'workbench.list.typeNavigationMode' instead.",
+		"Use fuzzy matching when searching.",
+		"Use contiguous matching when searching.",
+		"Controls the type of matching used when searching lists and trees in the workbench.",
+		"Controls how tree folders are expanded when clicking the folder names. Note that some trees and lists might choose to ignore this setting if it is not applicable.",
+		"Controls the how type navigation works in lists and trees in the workbench. When set to 'trigger', type navigation begins once the 'list.triggerTypeNavigation' command is run."
 	],
 	"vs/platform/markers/common/markers": [
 		"Error",
@@ -1320,18 +1618,37 @@ define("vs/editor/editor.main.nls", {
 		"Info"
 	],
 	"vs/platform/quickinput/browser/commandsQuickAccess": [
-		"{0}, {1}",
 		"recently used",
+		"commonly used",
 		"other commands",
-		"Command '{0}' resulted in an error ({1})"
+		"{0}, {1}",
+		"Command '{0}' resulted in an error"
 	],
 	"vs/platform/quickinput/browser/helpQuickAccess": [
-		"global commands",
-		"editor commands",
 		"{0}, {1}"
+	],
+	"vs/platform/quickinput/browser/quickInput": [
+		"Back",
+		"Press 'Enter' to confirm your input or 'Escape' to cancel",
+		"{0}/{1}",
+		"Type to narrow down results.",
+		"Toggle all checkboxes",
+		"{0} Results",
+		"{0} Selected",
+		"OK",
+		"Custom",
+		"Back ({0})",
+		"Back"
+	],
+	"vs/platform/quickinput/browser/quickInputList": [
+		"Quick Input"
+	],
+	"vs/platform/quickinput/browser/quickInputUtils": [
+		"Click to execute command '{0}'"
 	],
 	"vs/platform/theme/common/colorRegistry": [
 		"Overall foreground color. This color is only used if not overridden by a component.",
+		"Overall foreground for disabled elements. This color is only used if not overridden by a component.",
 		"Overall foreground color for error messages. This color is only used if not overridden by a component.",
 		"Foreground color for description text providing additional information, for example for a label.",
 		"The default color for icons in the workbench.",
@@ -1347,6 +1664,7 @@ define("vs/editor/editor.main.nls", {
 		"Border color for block quotes in text.",
 		"Background color for code blocks in text.",
 		"Shadow color of widgets such as find/replace inside the editor.",
+		"Border color of widgets such as find/replace inside the editor.",
 		"Input box background.",
 		"Input box foreground.",
 		"Input box border.",
@@ -1368,10 +1686,8 @@ define("vs/editor/editor.main.nls", {
 		"Dropdown list background.",
 		"Dropdown foreground.",
 		"Dropdown border.",
-		"Background color of checkbox widget.",
-		"Foreground color of checkbox widget.",
-		"Border color of checkbox widget.",
 		"Button foreground color.",
+		"Button separator color.",
 		"Button background color.",
 		"Button background color when hovering.",
 		"Button border color.",
@@ -1387,18 +1703,20 @@ define("vs/editor/editor.main.nls", {
 		"Background color of the progress bar that can show for long running operations.",
 		"Background color of error text in the editor. The color must not be opaque so as not to hide underlying decorations.",
 		"Foreground color of error squigglies in the editor.",
-		"Border color of error boxes in the editor.",
+		"If set, color of double underlines for errors in the editor.",
 		"Background color of warning text in the editor. The color must not be opaque so as not to hide underlying decorations.",
 		"Foreground color of warning squigglies in the editor.",
-		"Border color of warning boxes in the editor.",
+		"If set, color of double underlines for warnings in the editor.",
 		"Background color of info text in the editor. The color must not be opaque so as not to hide underlying decorations.",
 		"Foreground color of info squigglies in the editor.",
-		"Border color of info boxes in the editor.",
+		"If set, color of double underlines for infos in the editor.",
 		"Foreground color of hint squigglies in the editor.",
-		"Border color of hint boxes in the editor.",
+		"If set, color of double underlines for hints in the editor.",
 		"Border color of active sashes.",
 		"Editor background color.",
 		"Editor default foreground color.",
+		"Sticky scroll background color for the editor",
+		"Sticky scroll on hover background color for the editor",
 		"Background color of editor widgets, such as find/replace.",
 		"Foreground color of editor widgets, such as find/replace.",
 		"Border color of editor widgets. The color is only used if the widget chooses to have a border and if the color is not overridden by a widget.",
@@ -1425,6 +1743,7 @@ define("vs/editor/editor.main.nls", {
 		"Border color of the range limiting the search. The color must not be opaque so as not to hide underlying decorations.",
 		"Color of the Search Editor query matches.",
 		"Border color of the Search Editor query matches.",
+		"Color of the text in the search viewlet's completion message.",
 		"Highlight below the word for which a hover is shown. The color must not be opaque so as not to hide underlying decorations.",
 		"Background color of the editor hover.",
 		"Foreground color of the editor hover.",
@@ -1441,13 +1760,21 @@ define("vs/editor/editor.main.nls", {
 		"The color used for the lightbulb auto fix actions icon.",
 		"Background color for text that got inserted. The color must not be opaque so as not to hide underlying decorations.",
 		"Background color for text that got removed. The color must not be opaque so as not to hide underlying decorations.",
+		"Background color for lines that got inserted. The color must not be opaque so as not to hide underlying decorations.",
+		"Background color for lines that got removed. The color must not be opaque so as not to hide underlying decorations.",
+		"Background color for the margin where lines got inserted.",
+		"Background color for the margin where lines got removed.",
+		"Diff overview ruler foreground for inserted content.",
+		"Diff overview ruler foreground for removed content.",
 		"Outline color for the text that got inserted.",
 		"Outline color for text that got removed.",
 		"Border color between the two text editors.",
 		"Color of the diff editor's diagonal fill. The diagonal fill is used in side-by-side diff views.",
+		"The color of unchanged blocks in diff editor.",
 		"List/Tree background color for the focused item when the list/tree is active. An active list/tree has keyboard focus, an inactive does not.",
 		"List/Tree foreground color for the focused item when the list/tree is active. An active list/tree has keyboard focus, an inactive does not.",
 		"List/Tree outline color for the focused item when the list/tree is active. An active list/tree has keyboard focus, an inactive does not.",
+		"List/Tree outline color for the focused item when the list/tree is active and selected. An active list/tree has keyboard focus, an inactive does not.",
 		"List/Tree background color for the selected item when the list/tree is active. An active list/tree has keyboard focus, an inactive does not.",
 		"List/Tree foreground color for the selected item when the list/tree is active. An active list/tree has keyboard focus, an inactive does not.",
 		"List/Tree icon foreground color for the selected item when the list/tree is active. An active list/tree has keyboard focus, an inactive does not.",
@@ -1467,12 +1794,19 @@ define("vs/editor/editor.main.nls", {
 		"Background color of the type filter widget in lists and trees.",
 		"Outline color of the type filter widget in lists and trees.",
 		"Outline color of the type filter widget in lists and trees, when there are no matches.",
+		"Shadow color of the type filter widget in lists and trees.",
 		"Background color of the filtered match.",
 		"Border color of the filtered match.",
 		"Tree stroke color for the indentation guides.",
+		"Tree stroke color for the indentation guides that are not active.",
 		"Table border color between columns.",
 		"Background color for odd table rows.",
 		"List/Tree foreground color for items that are deemphasized. ",
+		"Background color of checkbox widget.",
+		"Background color of checkbox widget when the element it's in is selected.",
+		"Foreground color of checkbox widget.",
+		"Border color of checkbox widget.",
+		"Border color of checkbox widget when the element it's in is selected.",
 		"Please use quickInputList.focusBackground instead",
 		"Quick picker foreground color for the focused item.",
 		"Quick picker icon foreground color for the focused item.",
@@ -1546,12 +1880,11 @@ define("vs/editor/editor.main.nls", {
 		"Could not undo '{0}' across all files because there is already an undo or redo operation running on {1}",
 		"Could not undo '{0}' across all files because an undo or redo operation occurred in the meantime",
 		"Would you like to undo '{0}' across all files?",
-		"Undo in {0} Files",
-		"Undo this File",
-		"Cancel",
+		"&&Undo in {0} Files",
+		"Undo this &&File",
 		"Could not undo '{0}' because there is already an undo or redo operation running.",
 		"Would you like to undo '{0}'?",
-		"Yes",
+		"&&Yes",
 		"No",
 		"Could not redo '{0}' across all files. {1}",
 		"Could not redo '{0}' across all files. {1}",
@@ -1560,7 +1893,7 @@ define("vs/editor/editor.main.nls", {
 		"Could not redo '{0}' across all files because an undo or redo operation occurred in the meantime",
 		"Could not redo '{0}' because there is already an undo or redo operation running."
 	],
-	"vs/platform/workspaces/common/workspaces": [
+	"vs/platform/workspace/common/workspace": [
 		"Code Workspace"
 	]
 });

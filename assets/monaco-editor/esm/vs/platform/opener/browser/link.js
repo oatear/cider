@@ -18,43 +18,8 @@ import { EventType as TouchEventType, Gesture } from '../../../base/browser/touc
 import { Event } from '../../../base/common/event.js';
 import { Disposable } from '../../../base/common/lifecycle.js';
 import { IOpenerService } from '../common/opener.js';
-import { textLinkActiveForeground, textLinkForeground } from '../../theme/common/colorRegistry.js';
-import { registerThemingParticipant } from '../../theme/common/themeService.js';
-let Link = class Link extends Disposable {
-    constructor(container, _link, options = {}, openerService) {
-        var _a;
-        super();
-        this._link = _link;
-        this._enabled = true;
-        this.el = append(container, $('a.monaco-link', {
-            tabIndex: (_a = _link.tabIndex) !== null && _a !== void 0 ? _a : 0,
-            href: _link.href,
-            title: _link.title
-        }, _link.label));
-        this.el.setAttribute('role', 'button');
-        const onClickEmitter = this._register(new DomEmitter(this.el, 'click'));
-        const onKeyPress = this._register(new DomEmitter(this.el, 'keypress'));
-        const onEnterPress = Event.chain(onKeyPress.event)
-            .map(e => new StandardKeyboardEvent(e))
-            .filter(e => e.keyCode === 3 /* Enter */)
-            .event;
-        const onTap = this._register(new DomEmitter(this.el, TouchEventType.Tap)).event;
-        this._register(Gesture.addTarget(this.el));
-        const onOpen = Event.any(onClickEmitter.event, onEnterPress, onTap);
-        this._register(onOpen(e => {
-            if (!this.enabled) {
-                return;
-            }
-            EventHelper.stop(e, true);
-            if (options === null || options === void 0 ? void 0 : options.opener) {
-                options.opener(this._link.href);
-            }
-            else {
-                openerService.open(this._link.href, { allowCommands: true });
-            }
-        }));
-        this.enabled = true;
-    }
+import './link.css';
+export let Link = class Link extends Disposable {
     get enabled() {
         return this._enabled;
     }
@@ -77,18 +42,41 @@ let Link = class Link extends Disposable {
         }
         this._enabled = enabled;
     }
+    constructor(container, _link, options = {}, openerService) {
+        var _a;
+        super();
+        this._link = _link;
+        this._enabled = true;
+        this.el = append(container, $('a.monaco-link', {
+            tabIndex: (_a = _link.tabIndex) !== null && _a !== void 0 ? _a : 0,
+            href: _link.href,
+            title: _link.title
+        }, _link.label));
+        this.el.setAttribute('role', 'button');
+        const onClickEmitter = this._register(new DomEmitter(this.el, 'click'));
+        const onKeyPress = this._register(new DomEmitter(this.el, 'keypress'));
+        const onEnterPress = Event.chain(onKeyPress.event)
+            .map(e => new StandardKeyboardEvent(e))
+            .filter(e => e.keyCode === 3 /* KeyCode.Enter */)
+            .event;
+        const onTap = this._register(new DomEmitter(this.el, TouchEventType.Tap)).event;
+        this._register(Gesture.addTarget(this.el));
+        const onOpen = Event.any(onClickEmitter.event, onEnterPress, onTap);
+        this._register(onOpen(e => {
+            if (!this.enabled) {
+                return;
+            }
+            EventHelper.stop(e, true);
+            if (options === null || options === void 0 ? void 0 : options.opener) {
+                options.opener(this._link.href);
+            }
+            else {
+                openerService.open(this._link.href, { allowCommands: true });
+            }
+        }));
+        this.enabled = true;
+    }
 };
 Link = __decorate([
     __param(3, IOpenerService)
 ], Link);
-export { Link };
-registerThemingParticipant((theme, collector) => {
-    const textLinkForegroundColor = theme.getColor(textLinkForeground);
-    if (textLinkForegroundColor) {
-        collector.addRule(`.monaco-link { color: ${textLinkForegroundColor}; }`);
-    }
-    const textLinkActiveForegroundColor = theme.getColor(textLinkActiveForeground);
-    if (textLinkActiveForegroundColor) {
-        collector.addRule(`.monaco-link:hover { color: ${textLinkActiveForegroundColor}; }`);
-    }
-});

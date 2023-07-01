@@ -8,15 +8,16 @@ import { editorLineHighlight, editorLineHighlightBorder } from '../../../common/
 import * as arrays from '../../../../base/common/arrays.js';
 import { registerThemingParticipant } from '../../../../platform/theme/common/themeService.js';
 import { Selection } from '../../../common/core/selection.js';
+import { isHighContrast } from '../../../../platform/theme/common/theme.js';
 export class AbstractLineHighlightOverlay extends DynamicViewOverlay {
     constructor(context) {
         super();
         this._context = context;
         const options = this._context.configuration.options;
-        const layoutInfo = options.get(131 /* layoutInfo */);
-        this._lineHeight = options.get(59 /* lineHeight */);
-        this._renderLineHighlight = options.get(85 /* renderLineHighlight */);
-        this._renderLineHighlightOnlyWhenFocus = options.get(86 /* renderLineHighlightOnlyWhenFocus */);
+        const layoutInfo = options.get(140 /* EditorOption.layoutInfo */);
+        this._lineHeight = options.get(64 /* EditorOption.lineHeight */);
+        this._renderLineHighlight = options.get(92 /* EditorOption.renderLineHighlight */);
+        this._renderLineHighlightOnlyWhenFocus = options.get(93 /* EditorOption.renderLineHighlightOnlyWhenFocus */);
         this._contentLeft = layoutInfo.contentLeft;
         this._contentWidth = layoutInfo.contentWidth;
         this._selectionIsEmpty = true;
@@ -51,10 +52,10 @@ export class AbstractLineHighlightOverlay extends DynamicViewOverlay {
     }
     onConfigurationChanged(e) {
         const options = this._context.configuration.options;
-        const layoutInfo = options.get(131 /* layoutInfo */);
-        this._lineHeight = options.get(59 /* lineHeight */);
-        this._renderLineHighlight = options.get(85 /* renderLineHighlight */);
-        this._renderLineHighlightOnlyWhenFocus = options.get(86 /* renderLineHighlightOnlyWhenFocus */);
+        const layoutInfo = options.get(140 /* EditorOption.layoutInfo */);
+        this._lineHeight = options.get(64 /* EditorOption.lineHeight */);
+        this._renderLineHighlight = options.get(92 /* EditorOption.renderLineHighlight */);
+        this._renderLineHighlightOnlyWhenFocus = options.get(93 /* EditorOption.renderLineHighlightOnlyWhenFocus */);
         this._contentLeft = layoutInfo.contentLeft;
         this._contentWidth = layoutInfo.contentWidth;
         return true;
@@ -166,7 +167,7 @@ registerThemingParticipant((theme, collector) => {
         if (lineHighlightBorder) {
             collector.addRule(`.monaco-editor .view-overlays .current-line { border: 2px solid ${lineHighlightBorder}; }`);
             collector.addRule(`.monaco-editor .margin-view-overlays .current-line-margin { border: 2px solid ${lineHighlightBorder}; }`);
-            if (theme.type === 'hc') {
+            if (isHighContrast(theme.type)) {
                 collector.addRule(`.monaco-editor .view-overlays .current-line { border-width: 1px; }`);
                 collector.addRule(`.monaco-editor .margin-view-overlays .current-line-margin { border-width: 1px; }`);
             }

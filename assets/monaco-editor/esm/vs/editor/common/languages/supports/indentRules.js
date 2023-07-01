@@ -45,16 +45,16 @@ export class IndentRulesSupport {
     getIndentMetadata(text) {
         let ret = 0;
         if (this.shouldIncrease(text)) {
-            ret += 1 /* INCREASE_MASK */;
+            ret += 1 /* IndentConsts.INCREASE_MASK */;
         }
         if (this.shouldDecrease(text)) {
-            ret += 2 /* DECREASE_MASK */;
+            ret += 2 /* IndentConsts.DECREASE_MASK */;
         }
         if (this.shouldIndentNextLine(text)) {
-            ret += 4 /* INDENT_NEXTLINE_MASK */;
+            ret += 4 /* IndentConsts.INDENT_NEXTLINE_MASK */;
         }
         if (this.shouldIgnore(text)) {
-            ret += 8 /* UNINDENT_MASK */;
+            ret += 8 /* IndentConsts.UNINDENT_MASK */;
         }
         return ret;
     }

@@ -15,7 +15,7 @@ import { AsyncIterableObject } from '../../../../base/common/async.js';
 import { CancellationToken } from '../../../../base/common/cancellation.js';
 import { onUnexpectedExternalError } from '../../../../base/common/errors.js';
 import { registerModelAndPositionCommand } from '../../../browser/editorExtensions.js';
-import { HoverProviderRegistry } from '../../../common/languages.js';
+import { ILanguageFeaturesService } from '../../../common/services/languageFeatures.js';
 export class HoverProviderResult {
     constructor(provider, hover, ordinal) {
         this.provider = provider;
@@ -37,15 +37,18 @@ function executeProvider(provider, ordinal, model, position, token) {
         return undefined;
     });
 }
-export function getHover(model, position, token) {
-    const providers = HoverProviderRegistry.ordered(model);
+export function getHover(registry, model, position, token) {
+    const providers = registry.ordered(model);
     const promises = providers.map((provider, index) => executeProvider(provider, index, model, position, token));
     return AsyncIterableObject.fromPromises(promises).coalesce();
 }
-export function getHoverPromise(model, position, token) {
-    return getHover(model, position, token).map(item => item.hover).toPromise();
+export function getHoverPromise(registry, model, position, token) {
+    return getHover(registry, model, position, token).map(item => item.hover).toPromise();
 }
-registerModelAndPositionCommand('_executeHoverProvider', (model, position) => getHoverPromise(model, position, CancellationToken.None));
+registerModelAndPositionCommand('_executeHoverProvider', (accessor, model, position) => {
+    const languageFeaturesService = accessor.get(ILanguageFeaturesService);
+    return getHoverPromise(languageFeaturesService.hoverProvider, model, position, CancellationToken.None);
+});
 function isValid(result) {
     const hasRange = (typeof result.range !== 'undefined');
     const hasHtmlContent = typeof result.contents !== 'undefined' && result.contents && result.contents.length > 0;

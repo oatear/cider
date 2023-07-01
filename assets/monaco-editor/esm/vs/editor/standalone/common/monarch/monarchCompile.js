@@ -246,10 +246,10 @@ function compileAction(lexer, ruleName, action) {
             }
             if (typeof (action.bracket) === 'string') {
                 if (action.bracket === '@open') {
-                    newAction.bracket = 1 /* Open */;
+                    newAction.bracket = 1 /* monarchCommon.MonarchBracket.Open */;
                 }
                 else if (action.bracket === '@close') {
-                    newAction.bracket = -1 /* Close */;
+                    newAction.bracket = -1 /* monarchCommon.MonarchBracket.Close */;
                 }
                 else {
                     throw monarchCommon.createError(lexer, 'a \'bracket\' attribute must be either \'@open\' or \'@close\', in rule: ' + ruleName);
@@ -301,7 +301,7 @@ function compileAction(lexer, ruleName, action) {
         // build an array of test cases
         const cases = [];
         // for each case, push a test function and result value
-        for (let tkey in action.cases) {
+        for (const tkey in action.cases) {
             if (action.cases.hasOwnProperty(tkey)) {
                 const val = compileAction(lexer, ruleName, action.cases[tkey]);
                 // what kind of case
@@ -462,7 +462,7 @@ export function compile(languageId, json) {
         throw monarchCommon.createError(lexer, 'a language definition must define the \'tokenizer\' attribute as an object');
     }
     lexer.tokenizer = [];
-    for (let key in json.tokenizer) {
+    for (const key in json.tokenizer) {
         if (json.tokenizer.hasOwnProperty(key)) {
             if (!lexer.start) {
                 lexer.start = key;
@@ -488,7 +488,7 @@ export function compile(languageId, json) {
         ];
     }
     const brackets = [];
-    for (let el of json.brackets) {
+    for (const el of json.brackets) {
         let desc = el;
         if (desc && Array.isArray(desc) && desc.length === 3) {
             desc = { token: desc[2], open: desc[0], close: desc[1] };

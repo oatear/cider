@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 import * as types from '../../../base/common/types.js';
-import { CursorState, SingleCursorState } from './cursorCommon.js';
+import { CursorState, SingleCursorState } from '../cursorCommon.js';
 import { MoveOperations } from './cursorMoveOperations.js';
 import { WordOperations } from './cursorWordOperations.js';
 import { Position } from '../core/position.js';
@@ -40,7 +40,7 @@ export class CursorMoveCommands {
         return result;
     }
     static moveToBeginningOfLine(viewModel, cursors, inSelectionMode) {
-        let result = [];
+        const result = [];
         for (let i = 0, len = cursors.length; i < len; i++) {
             const cursor = cursors[i];
             result[i] = this._moveToLineStart(viewModel, cursor, inSelectionMode);
@@ -110,7 +110,7 @@ export class CursorMoveCommands {
                 endLineNumber++;
                 endColumn = 1;
             }
-            result[i] = CursorState.fromModelState(new SingleCursorState(new Range(startLineNumber, 1, startLineNumber, 1), 0, new Position(endLineNumber, endColumn), 0));
+            result[i] = CursorState.fromModelState(new SingleCursorState(new Range(startLineNumber, 1, startLineNumber, 1), 0 /* SelectionStartKind.Simple */, 0, new Position(endLineNumber, endColumn), 0));
         }
         return result;
     }
@@ -133,14 +133,14 @@ export class CursorMoveCommands {
     static selectAll(viewModel, cursor) {
         const lineCount = viewModel.model.getLineCount();
         const maxColumn = viewModel.model.getLineMaxColumn(lineCount);
-        return CursorState.fromModelState(new SingleCursorState(new Range(1, 1, 1, 1), 0, new Position(lineCount, maxColumn), 0));
+        return CursorState.fromModelState(new SingleCursorState(new Range(1, 1, 1, 1), 0 /* SelectionStartKind.Simple */, 0, new Position(lineCount, maxColumn), 0));
     }
     static line(viewModel, cursor, inSelectionMode, _position, _viewPosition) {
         const position = viewModel.model.validatePosition(_position);
         const viewPosition = (_viewPosition
             ? viewModel.coordinatesConverter.validateViewPosition(new Position(_viewPosition.lineNumber, _viewPosition.column), position)
             : viewModel.coordinatesConverter.convertModelPositionToViewPosition(position));
-        if (!inSelectionMode || !cursor.modelState.hasSelection()) {
+        if (!inSelectionMode) {
             // Entering line selection for the first time
             const lineCount = viewModel.model.getLineCount();
             let selectToLineNumber = position.lineNumber + 1;
@@ -149,12 +149,12 @@ export class CursorMoveCommands {
                 selectToLineNumber = lineCount;
                 selectToColumn = viewModel.model.getLineMaxColumn(selectToLineNumber);
             }
-            return CursorState.fromModelState(new SingleCursorState(new Range(position.lineNumber, 1, selectToLineNumber, selectToColumn), 0, new Position(selectToLineNumber, selectToColumn), 0));
+            return CursorState.fromModelState(new SingleCursorState(new Range(position.lineNumber, 1, selectToLineNumber, selectToColumn), 2 /* SelectionStartKind.Line */, 0, new Position(selectToLineNumber, selectToColumn), 0));
         }
         // Continuing line selection
         const enteringLineNumber = cursor.modelState.selectionStart.getStartPosition().lineNumber;
         if (position.lineNumber < enteringLineNumber) {
-            return CursorState.fromViewState(cursor.viewState.move(cursor.modelState.hasSelection(), viewPosition.lineNumber, 1, 0));
+            return CursorState.fromViewState(cursor.viewState.move(true, viewPosition.lineNumber, 1, 0));
         }
         else if (position.lineNumber > enteringLineNumber) {
             const lineCount = viewModel.getLineCount();
@@ -164,11 +164,11 @@ export class CursorMoveCommands {
                 selectToViewLineNumber = lineCount;
                 selectToViewColumn = viewModel.getLineMaxColumn(selectToViewLineNumber);
             }
-            return CursorState.fromViewState(cursor.viewState.move(cursor.modelState.hasSelection(), selectToViewLineNumber, selectToViewColumn, 0));
+            return CursorState.fromViewState(cursor.viewState.move(true, selectToViewLineNumber, selectToViewColumn, 0));
         }
         else {
             const endPositionOfSelectionStart = cursor.modelState.selectionStart.getEndPosition();
-            return CursorState.fromModelState(cursor.modelState.move(cursor.modelState.hasSelection(), endPositionOfSelectionStart.lineNumber, endPositionOfSelectionStart.column, 0));
+            return CursorState.fromModelState(cursor.modelState.move(true, endPositionOfSelectionStart.lineNumber, endPositionOfSelectionStart.column, 0));
         }
     }
     static word(viewModel, cursor, inSelectionMode, _position) {
@@ -181,9 +181,17 @@ export class CursorMoveCommands {
         }
         const lineNumber = cursor.viewState.position.lineNumber;
         const column = cursor.viewState.position.column;
-        return CursorState.fromViewState(new SingleCursorState(new Range(lineNumber, column, lineNumber, column), 0, new Position(lineNumber, column), 0));
+        return CursorState.fromViewState(new SingleCursorState(new Range(lineNumber, column, lineNumber, column), 0 /* SelectionStartKind.Simple */, 0, new Position(lineNumber, column), 0));
     }
     static moveTo(viewModel, cursor, inSelectionMode, _position, _viewPosition) {
+        if (inSelectionMode) {
+            if (cursor.modelState.selectionStartKind === 1 /* SelectionStartKind.Word */) {
+                return this.word(viewModel, cursor, inSelectionMode, _position);
+            }
+            if (cursor.modelState.selectionStartKind === 2 /* SelectionStartKind.Line */) {
+                return this.line(viewModel, cursor, inSelectionMode, _position, _viewPosition);
+            }
+        }
         const position = viewModel.model.validatePosition(_position);
         const viewPosition = (_viewPosition
             ? viewModel.coordinatesConverter.validateViewPosition(new Position(_viewPosition.lineNumber, _viewPosition.column), position)
@@ -192,8 +200,8 @@ export class CursorMoveCommands {
     }
     static simpleMove(viewModel, cursors, direction, inSelectionMode, value, unit) {
         switch (direction) {
-            case 0 /* Left */: {
-                if (unit === 4 /* HalfLine */) {
+            case 0 /* CursorMove.Direction.Left */: {
+                if (unit === 4 /* CursorMove.Unit.HalfLine */) {
                     // Move left by half the current line length
                     return this._moveHalfLineLeft(viewModel, cursors, inSelectionMode);
                 }
@@ -202,8 +210,8 @@ export class CursorMoveCommands {
                     return this._moveLeft(viewModel, cursors, inSelectionMode, value);
                 }
             }
-            case 1 /* Right */: {
-                if (unit === 4 /* HalfLine */) {
+            case 1 /* CursorMove.Direction.Right */: {
+                if (unit === 4 /* CursorMove.Unit.HalfLine */) {
                     // Move right by half the current line length
                     return this._moveHalfLineRight(viewModel, cursors, inSelectionMode);
                 }
@@ -212,8 +220,8 @@ export class CursorMoveCommands {
                     return this._moveRight(viewModel, cursors, inSelectionMode, value);
                 }
             }
-            case 2 /* Up */: {
-                if (unit === 2 /* WrappedLine */) {
+            case 2 /* CursorMove.Direction.Up */: {
+                if (unit === 2 /* CursorMove.Unit.WrappedLine */) {
                     // Move up by view lines
                     return this._moveUpByViewLines(viewModel, cursors, inSelectionMode, value);
                 }
@@ -222,8 +230,8 @@ export class CursorMoveCommands {
                     return this._moveUpByModelLines(viewModel, cursors, inSelectionMode, value);
                 }
             }
-            case 3 /* Down */: {
-                if (unit === 2 /* WrappedLine */) {
+            case 3 /* CursorMove.Direction.Down */: {
+                if (unit === 2 /* CursorMove.Unit.WrappedLine */) {
                     // Move down by view lines
                     return this._moveDownByViewLines(viewModel, cursors, inSelectionMode, value);
                 }
@@ -232,39 +240,39 @@ export class CursorMoveCommands {
                     return this._moveDownByModelLines(viewModel, cursors, inSelectionMode, value);
                 }
             }
-            case 4 /* PrevBlankLine */: {
-                if (unit === 2 /* WrappedLine */) {
+            case 4 /* CursorMove.Direction.PrevBlankLine */: {
+                if (unit === 2 /* CursorMove.Unit.WrappedLine */) {
                     return cursors.map(cursor => CursorState.fromViewState(MoveOperations.moveToPrevBlankLine(viewModel.cursorConfig, viewModel, cursor.viewState, inSelectionMode)));
                 }
                 else {
                     return cursors.map(cursor => CursorState.fromModelState(MoveOperations.moveToPrevBlankLine(viewModel.cursorConfig, viewModel.model, cursor.modelState, inSelectionMode)));
                 }
             }
-            case 5 /* NextBlankLine */: {
-                if (unit === 2 /* WrappedLine */) {
+            case 5 /* CursorMove.Direction.NextBlankLine */: {
+                if (unit === 2 /* CursorMove.Unit.WrappedLine */) {
                     return cursors.map(cursor => CursorState.fromViewState(MoveOperations.moveToNextBlankLine(viewModel.cursorConfig, viewModel, cursor.viewState, inSelectionMode)));
                 }
                 else {
                     return cursors.map(cursor => CursorState.fromModelState(MoveOperations.moveToNextBlankLine(viewModel.cursorConfig, viewModel.model, cursor.modelState, inSelectionMode)));
                 }
             }
-            case 6 /* WrappedLineStart */: {
+            case 6 /* CursorMove.Direction.WrappedLineStart */: {
                 // Move to the beginning of the current view line
                 return this._moveToViewMinColumn(viewModel, cursors, inSelectionMode);
             }
-            case 7 /* WrappedLineFirstNonWhitespaceCharacter */: {
+            case 7 /* CursorMove.Direction.WrappedLineFirstNonWhitespaceCharacter */: {
                 // Move to the first non-whitespace column of the current view line
                 return this._moveToViewFirstNonWhitespaceColumn(viewModel, cursors, inSelectionMode);
             }
-            case 8 /* WrappedLineColumnCenter */: {
+            case 8 /* CursorMove.Direction.WrappedLineColumnCenter */: {
                 // Move to the "center" of the current view line
                 return this._moveToViewCenterColumn(viewModel, cursors, inSelectionMode);
             }
-            case 9 /* WrappedLineEnd */: {
+            case 9 /* CursorMove.Direction.WrappedLineEnd */: {
                 // Move to the end of the current view line
                 return this._moveToViewMaxColumn(viewModel, cursors, inSelectionMode);
             }
-            case 10 /* WrappedLineLastNonWhitespaceCharacter */: {
+            case 10 /* CursorMove.Direction.WrappedLineLastNonWhitespaceCharacter */: {
                 // Move to the last non-whitespace column of the current view line
                 return this._moveToViewLastNonWhitespaceColumn(viewModel, cursors, inSelectionMode);
             }
@@ -276,25 +284,25 @@ export class CursorMoveCommands {
         const visibleViewRange = viewModel.getCompletelyVisibleViewRange();
         const visibleModelRange = viewModel.coordinatesConverter.convertViewRangeToModelRange(visibleViewRange);
         switch (direction) {
-            case 11 /* ViewPortTop */: {
+            case 11 /* CursorMove.Direction.ViewPortTop */: {
                 // Move to the nth line start in the viewport (from the top)
                 const modelLineNumber = this._firstLineNumberInRange(viewModel.model, visibleModelRange, value);
                 const modelColumn = viewModel.model.getLineFirstNonWhitespaceColumn(modelLineNumber);
                 return [this._moveToModelPosition(viewModel, cursors[0], inSelectionMode, modelLineNumber, modelColumn)];
             }
-            case 13 /* ViewPortBottom */: {
+            case 13 /* CursorMove.Direction.ViewPortBottom */: {
                 // Move to the nth line start in the viewport (from the bottom)
                 const modelLineNumber = this._lastLineNumberInRange(viewModel.model, visibleModelRange, value);
                 const modelColumn = viewModel.model.getLineFirstNonWhitespaceColumn(modelLineNumber);
                 return [this._moveToModelPosition(viewModel, cursors[0], inSelectionMode, modelLineNumber, modelColumn)];
             }
-            case 12 /* ViewPortCenter */: {
+            case 12 /* CursorMove.Direction.ViewPortCenter */: {
                 // Move to the line start in the viewport center
                 const modelLineNumber = Math.round((visibleModelRange.startLineNumber + visibleModelRange.endLineNumber) / 2);
                 const modelColumn = viewModel.model.getLineFirstNonWhitespaceColumn(modelLineNumber);
                 return [this._moveToModelPosition(viewModel, cursors[0], inSelectionMode, modelLineNumber, modelColumn)];
             }
-            case 14 /* ViewPortIfOutside */: {
+            case 14 /* CursorMove.Direction.ViewPortIfOutside */: {
                 // Move to a position inside the viewport
                 const result = [];
                 for (let i = 0, len = cursors.length; i < len; i++) {
@@ -569,67 +577,67 @@ export var CursorMove;
         let direction;
         switch (args.to) {
             case CursorMove.RawDirection.Left:
-                direction = 0 /* Left */;
+                direction = 0 /* Direction.Left */;
                 break;
             case CursorMove.RawDirection.Right:
-                direction = 1 /* Right */;
+                direction = 1 /* Direction.Right */;
                 break;
             case CursorMove.RawDirection.Up:
-                direction = 2 /* Up */;
+                direction = 2 /* Direction.Up */;
                 break;
             case CursorMove.RawDirection.Down:
-                direction = 3 /* Down */;
+                direction = 3 /* Direction.Down */;
                 break;
             case CursorMove.RawDirection.PrevBlankLine:
-                direction = 4 /* PrevBlankLine */;
+                direction = 4 /* Direction.PrevBlankLine */;
                 break;
             case CursorMove.RawDirection.NextBlankLine:
-                direction = 5 /* NextBlankLine */;
+                direction = 5 /* Direction.NextBlankLine */;
                 break;
             case CursorMove.RawDirection.WrappedLineStart:
-                direction = 6 /* WrappedLineStart */;
+                direction = 6 /* Direction.WrappedLineStart */;
                 break;
             case CursorMove.RawDirection.WrappedLineFirstNonWhitespaceCharacter:
-                direction = 7 /* WrappedLineFirstNonWhitespaceCharacter */;
+                direction = 7 /* Direction.WrappedLineFirstNonWhitespaceCharacter */;
                 break;
             case CursorMove.RawDirection.WrappedLineColumnCenter:
-                direction = 8 /* WrappedLineColumnCenter */;
+                direction = 8 /* Direction.WrappedLineColumnCenter */;
                 break;
             case CursorMove.RawDirection.WrappedLineEnd:
-                direction = 9 /* WrappedLineEnd */;
+                direction = 9 /* Direction.WrappedLineEnd */;
                 break;
             case CursorMove.RawDirection.WrappedLineLastNonWhitespaceCharacter:
-                direction = 10 /* WrappedLineLastNonWhitespaceCharacter */;
+                direction = 10 /* Direction.WrappedLineLastNonWhitespaceCharacter */;
                 break;
             case CursorMove.RawDirection.ViewPortTop:
-                direction = 11 /* ViewPortTop */;
+                direction = 11 /* Direction.ViewPortTop */;
                 break;
             case CursorMove.RawDirection.ViewPortBottom:
-                direction = 13 /* ViewPortBottom */;
+                direction = 13 /* Direction.ViewPortBottom */;
                 break;
             case CursorMove.RawDirection.ViewPortCenter:
-                direction = 12 /* ViewPortCenter */;
+                direction = 12 /* Direction.ViewPortCenter */;
                 break;
             case CursorMove.RawDirection.ViewPortIfOutside:
-                direction = 14 /* ViewPortIfOutside */;
+                direction = 14 /* Direction.ViewPortIfOutside */;
                 break;
             default:
                 // illegal arguments
                 return null;
         }
-        let unit = 0 /* None */;
+        let unit = 0 /* Unit.None */;
         switch (args.by) {
             case CursorMove.RawUnit.Line:
-                unit = 1 /* Line */;
+                unit = 1 /* Unit.Line */;
                 break;
             case CursorMove.RawUnit.WrappedLine:
-                unit = 2 /* WrappedLine */;
+                unit = 2 /* Unit.WrappedLine */;
                 break;
             case CursorMove.RawUnit.Character:
-                unit = 3 /* Character */;
+                unit = 3 /* Unit.Character */;
                 break;
             case CursorMove.RawUnit.HalfLine:
-                unit = 4 /* HalfLine */;
+                unit = 4 /* Unit.HalfLine */;
                 break;
         }
         return {

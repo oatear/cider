@@ -6,7 +6,7 @@ import { createDecorator } from '../../instantiation/common/instantiation.js';
 export const IConfigurationService = createDecorator('configurationService');
 export function toValuesTree(properties, conflictReporter) {
     const root = Object.create(null);
-    for (let key in properties) {
+    for (const key in properties) {
         addToValueTree(root, key, properties[key], conflictReporter);
     }
     return root;
@@ -16,7 +16,7 @@ export function addToValueTree(settingsTreeRoot, key, value, conflictReporter) {
     const last = segments.pop();
     let curr = settingsTreeRoot;
     for (let i = 0; i < segments.length; i++) {
-        let s = segments[i];
+        const s = segments[i];
         let obj = curr[s];
         switch (typeof obj) {
             case 'undefined':
@@ -80,4 +80,7 @@ export function getConfigurationValue(config, settingPath, defaultValue) {
     const path = settingPath.split('.');
     const result = accessSetting(config, path);
     return typeof result === 'undefined' ? defaultValue : result;
+}
+export function getLanguageTagSettingPlainKey(settingKey) {
+    return settingKey.replace(/[\[\]]/g, '');
 }

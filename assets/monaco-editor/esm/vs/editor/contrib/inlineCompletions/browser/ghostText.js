@@ -1,15 +1,8 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-import { Emitter } from '../../../../base/common/event.js';
-import { Disposable } from '../../../../base/common/lifecycle.js';
-import { Range } from '../../../common/core/range.js';
+import { applyEdits } from './utils.js';
 export class GhostText {
-    constructor(lineNumber, parts, additionalReservedLineCount = 0) {
+    constructor(lineNumber, parts) {
         this.lineNumber = lineNumber;
         this.parts = parts;
-        this.additionalReservedLineCount = additionalReservedLineCount;
     }
     renderForScreenReader(lineText) {
         if (this.parts.length === 0) {
@@ -23,36 +16,12 @@ export class GhostText {
         })));
         return text.substring(this.parts[0].column - 1);
     }
-}
-class PositionOffsetTransformer {
-    constructor(text) {
-        this.lineStartOffsetByLineIdx = [];
-        this.lineStartOffsetByLineIdx.push(0);
-        for (let i = 0; i < text.length; i++) {
-            if (text.charAt(i) === '\n') {
-                this.lineStartOffsetByLineIdx.push(i + 1);
-            }
-        }
+    isEmpty() {
+        return this.parts.every(p => p.lines.length === 0);
     }
-    getOffset(position) {
-        return this.lineStartOffsetByLineIdx[position.lineNumber - 1] + position.column - 1;
+    get lineCount() {
+        return 1 + this.parts.reduce((r, p) => r + p.lines.length - 1, 0);
     }
-}
-function applyEdits(text, edits) {
-    const transformer = new PositionOffsetTransformer(text);
-    const offsetEdits = edits.map(e => {
-        const range = Range.lift(e.range);
-        return ({
-            startOffset: transformer.getOffset(range.getStartPosition()),
-            endOffset: transformer.getOffset(range.getEndPosition()),
-            text: e.text
-        });
-    });
-    offsetEdits.sort((a, b) => b.startOffset - a.startOffset);
-    for (const edit of offsetEdits) {
-        text = text.substring(0, edit.startOffset) + edit.text + text.substring(edit.endOffset);
-    }
-    return text;
 }
 export class GhostTextPart {
     constructor(column, lines, 
@@ -65,21 +34,23 @@ export class GhostTextPart {
         this.preview = preview;
     }
 }
-export class BaseGhostTextWidgetModel extends Disposable {
-    constructor(editor) {
-        super();
-        this.editor = editor;
-        this._expanded = undefined;
-        this.onDidChangeEmitter = new Emitter();
-        this.onDidChange = this.onDidChangeEmitter.event;
-        this._register(editor.onDidChangeConfiguration((e) => {
-            if (e.hasChanged(106 /* suggest */) && this._expanded === undefined) {
-                this.onDidChangeEmitter.fire();
-            }
-        }));
+export class GhostTextReplacement {
+    constructor(lineNumber, columnRange, newLines, additionalReservedLineCount = 0) {
+        this.lineNumber = lineNumber;
+        this.columnRange = columnRange;
+        this.newLines = newLines;
+        this.additionalReservedLineCount = additionalReservedLineCount;
+        this.parts = [
+            new GhostTextPart(this.columnRange.endColumnExclusive, this.newLines, false),
+        ];
     }
-    setExpanded(expanded) {
-        this._expanded = true;
-        this.onDidChangeEmitter.fire();
+    renderForScreenReader(_lineText) {
+        return this.newLines.join('\n');
+    }
+    get lineCount() {
+        return this.newLines.length;
+    }
+    isEmpty() {
+        return this.parts.every(p => p.lines.length === 0);
     }
 }

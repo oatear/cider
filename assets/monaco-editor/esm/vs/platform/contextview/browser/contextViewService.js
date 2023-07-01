@@ -14,33 +14,34 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 import { ContextView } from '../../../base/browser/ui/contextview/contextview.js';
 import { Disposable, toDisposable } from '../../../base/common/lifecycle.js';
 import { ILayoutService } from '../../layout/browser/layoutService.js';
-let ContextViewService = class ContextViewService extends Disposable {
+export let ContextViewService = class ContextViewService extends Disposable {
     constructor(layoutService) {
         super();
         this.layoutService = layoutService;
         this.currentViewDisposable = Disposable.None;
         this.container = layoutService.hasContainer ? layoutService.container : null;
-        this.contextView = this._register(new ContextView(this.container, 1 /* ABSOLUTE */));
+        this.contextView = this._register(new ContextView(this.container, 1 /* ContextViewDOMPosition.ABSOLUTE */));
         this.layout();
         this._register(layoutService.onDidLayout(() => this.layout()));
     }
     // ContextView
     setContainer(container, domPosition) {
-        this.contextView.setContainer(container, domPosition || 1 /* ABSOLUTE */);
+        this.contextView.setContainer(container, domPosition || 1 /* ContextViewDOMPosition.ABSOLUTE */);
     }
     showContextView(delegate, container, shadowRoot) {
         if (container) {
-            if (container !== this.container) {
+            if (container !== this.container || this.shadowRoot !== shadowRoot) {
                 this.container = container;
-                this.setContainer(container, shadowRoot ? 3 /* FIXED_SHADOW */ : 2 /* FIXED */);
+                this.setContainer(container, shadowRoot ? 3 /* ContextViewDOMPosition.FIXED_SHADOW */ : 2 /* ContextViewDOMPosition.FIXED */);
             }
         }
         else {
             if (this.layoutService.hasContainer && this.container !== this.layoutService.container) {
                 this.container = this.layoutService.container;
-                this.setContainer(this.container, 1 /* ABSOLUTE */);
+                this.setContainer(this.container, 1 /* ContextViewDOMPosition.ABSOLUTE */);
             }
         }
+        this.shadowRoot = shadowRoot;
         this.contextView.show(delegate);
         const disposable = toDisposable(() => {
             if (this.currentViewDisposable === disposable) {
@@ -63,4 +64,3 @@ let ContextViewService = class ContextViewService extends Disposable {
 ContextViewService = __decorate([
     __param(0, ILayoutService)
 ], ContextViewService);
-export { ContextViewService };

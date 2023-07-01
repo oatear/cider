@@ -2,7 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-import { ViewEventHandler } from '../../common/viewModel/viewEventHandler.js';
+import { ViewEventHandler } from '../../common/viewEventHandler.js';
 export class ViewPart extends ViewEventHandler {
     constructor(context) {
         super();
@@ -21,7 +21,7 @@ export class PartFingerprints {
     static read(target) {
         const r = target.getAttribute('data-mprt');
         if (r === null) {
-            return 0 /* None */;
+            return 0 /* PartFingerprint.None */;
         }
         return parseInt(r, 10);
     }

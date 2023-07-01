@@ -8,11 +8,10 @@ import { isEmptyMarkdownString } from '../../../../base/common/htmlContent.js';
 import { Disposable, DisposableStore } from '../../../../base/common/lifecycle.js';
 import { MarkdownRenderer } from '../../markdownRenderer/browser/markdownRenderer.js';
 import { HoverOperation } from './hoverOperation.js';
-import { NullOpenerService } from '../../../../platform/opener/common/opener.js';
 import { HoverWidget } from '../../../../base/browser/ui/hover/hoverWidget.js';
 const $ = dom.$;
 export class MarginHoverWidget extends Disposable {
-    constructor(editor, languageService, openerService = NullOpenerService) {
+    constructor(editor, languageService, openerService) {
         super();
         this._renderDisposeables = this._register(new DisposableStore());
         this._editor = editor;
@@ -28,7 +27,7 @@ export class MarginHoverWidget extends Disposable {
         }));
         this._register(this._editor.onDidChangeModelDecorations(() => this._onModelDecorationsChanged()));
         this._register(this._editor.onDidChangeConfiguration((e) => {
-            if (e.hasChanged(44 /* fontInfo */)) {
+            if (e.hasChanged(48 /* EditorOption.fontInfo */)) {
                 this._updateFont();
             }
         }));
@@ -56,7 +55,7 @@ export class MarginHoverWidget extends Disposable {
             // The decorations have changed and the hover is visible,
             // we need to recompute the displayed text
             this._hoverOperation.cancel();
-            this._hoverOperation.start(0 /* Delayed */);
+            this._hoverOperation.start(0 /* HoverStartMode.Delayed */);
         }
     }
     startShowingAt(lineNumber) {
@@ -67,7 +66,7 @@ export class MarginHoverWidget extends Disposable {
         this._hoverOperation.cancel();
         this.hide();
         this._computer.lineNumber = lineNumber;
-        this._hoverOperation.start(0 /* Delayed */);
+        this._hoverOperation.start(0 /* HoverStartMode.Delayed */);
     }
     hide() {
         this._computer.lineNumber = -1;
@@ -113,7 +112,7 @@ export class MarginHoverWidget extends Disposable {
         const editorLayout = this._editor.getLayoutInfo();
         const topForLineNumber = this._editor.getTopForLineNumber(lineNumber);
         const editorScrollTop = this._editor.getScrollTop();
-        const lineHeight = this._editor.getOption(59 /* lineHeight */);
+        const lineHeight = this._editor.getOption(64 /* EditorOption.lineHeight */);
         const nodeHeight = this._hover.containerDomNode.clientHeight;
         const top = topForLineNumber - editorScrollTop - ((nodeHeight - lineHeight) / 2);
         this._hover.containerDomNode.style.left = `${editorLayout.glyphMarginLeft + editorLayout.glyphMarginWidth}px`;
@@ -122,15 +121,15 @@ export class MarginHoverWidget extends Disposable {
 }
 MarginHoverWidget.ID = 'editor.contrib.modesGlyphHoverWidget';
 class MarginHoverComputer {
-    constructor(_editor) {
-        this._editor = _editor;
-        this._lineNumber = -1;
-    }
     get lineNumber() {
         return this._lineNumber;
     }
     set lineNumber(value) {
         this._lineNumber = value;
+    }
+    constructor(_editor) {
+        this._editor = _editor;
+        this._lineNumber = -1;
     }
     computeSync() {
         const toHoverMessage = (contents) => {

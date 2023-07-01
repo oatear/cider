@@ -6,7 +6,9 @@ import { Disposable } from '../../../../base/common/lifecycle.js';
 import { registerEditorContribution } from '../../../browser/editorExtensions.js';
 import { Range } from '../../../common/core/range.js';
 import { ColorDecorationInjectedTextMarker } from './colorDetector.js';
+import { ColorHoverParticipant } from './colorHoverParticipant.js';
 import { ModesHoverController } from '../../hover/browser/hover.js';
+import { HoverParticipantRegistry } from '../../hover/browser/hoverTypes.js';
 export class ColorContribution extends Disposable {
     constructor(_editor) {
         super();
@@ -18,7 +20,7 @@ export class ColorContribution extends Disposable {
     }
     onMouseDown(mouseEvent) {
         const target = mouseEvent.target;
-        if (target.type !== 6 /* CONTENT_TEXT */) {
+        if (target.type !== 6 /* MouseTargetType.CONTENT_TEXT */) {
             return;
         }
         if (!target.detail.injectedText) {
@@ -36,9 +38,10 @@ export class ColorContribution extends Disposable {
         }
         if (!hoverController.isColorPickerVisible()) {
             const range = new Range(target.range.startLineNumber, target.range.startColumn + 1, target.range.endLineNumber, target.range.endColumn + 1);
-            hoverController.showContentHover(range, 1 /* Immediate */, false);
+            hoverController.showContentHover(range, 1 /* HoverStartMode.Immediate */, 0 /* HoverStartSource.Mouse */, false);
         }
     }
 }
 ColorContribution.ID = 'editor.contrib.colorContribution'; // ms
-registerEditorContribution(ColorContribution.ID, ColorContribution);
+registerEditorContribution(ColorContribution.ID, ColorContribution, 2 /* EditorContributionInstantiation.BeforeFirstInteraction */);
+HoverParticipantRegistry.register(ColorHoverParticipant);

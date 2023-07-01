@@ -11,8 +11,8 @@ export class DecorationsOverlay extends DynamicViewOverlay {
         super();
         this._context = context;
         const options = this._context.configuration.options;
-        this._lineHeight = options.get(59 /* lineHeight */);
-        this._typicalHalfwidthCharacterWidth = options.get(44 /* fontInfo */).typicalHalfwidthCharacterWidth;
+        this._lineHeight = options.get(64 /* EditorOption.lineHeight */);
+        this._typicalHalfwidthCharacterWidth = options.get(48 /* EditorOption.fontInfo */).typicalHalfwidthCharacterWidth;
         this._renderResult = null;
         this._context.addEventHandler(this);
     }
@@ -24,8 +24,8 @@ export class DecorationsOverlay extends DynamicViewOverlay {
     // --- begin event handlers
     onConfigurationChanged(e) {
         const options = this._context.configuration.options;
-        this._lineHeight = options.get(59 /* lineHeight */);
-        this._typicalHalfwidthCharacterWidth = options.get(44 /* fontInfo */).typicalHalfwidthCharacterWidth;
+        this._lineHeight = options.get(64 /* EditorOption.lineHeight */);
+        this._typicalHalfwidthCharacterWidth = options.get(48 /* EditorOption.fontInfo */).typicalHalfwidthCharacterWidth;
         return true;
     }
     onDecorationsChanged(e) {
@@ -128,7 +128,7 @@ export class DecorationsOverlay extends DynamicViewOverlay {
             const showIfCollapsed = Boolean(d.options.showIfCollapsed);
             let range = d.range;
             if (showIfCollapsed && range.endColumn === 1 && range.endLineNumber !== range.startLineNumber) {
-                range = new Range(range.startLineNumber, range.startColumn, range.endLineNumber - 1, this._context.model.getLineMaxColumn(range.endLineNumber - 1));
+                range = new Range(range.startLineNumber, range.startColumn, range.endLineNumber - 1, this._context.viewModel.getLineMaxColumn(range.endLineNumber - 1));
             }
             if (prevClassName === className && prevShowIfCollapsed === showIfCollapsed && Range.areIntersectingOrTouching(prevRange, range)) {
                 // merge into previous decoration

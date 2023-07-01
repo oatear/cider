@@ -6,7 +6,7 @@ import * as arrays from '../../../base/common/arrays.js';
 import { Position } from '../core/position.js';
 import { ContiguousTokensEditing, EMPTY_LINE_TOKENS, toUint32Array } from './contiguousTokensEditing.js';
 import { LineTokens } from './lineTokens.js';
-import { TokenMetadata } from '../languages.js';
+import { TokenMetadata } from '../encodedTokenAttributes.js';
 /**
  * Represents contiguous tokens in a text model.
  */
@@ -19,6 +19,9 @@ export class ContiguousTokensStore {
     flush() {
         this._lineTokens = [];
         this._len = 0;
+    }
+    get hasTokens() {
+        return this._lineTokens.length > 0;
     }
     getTokens(topLevelLanguageId, lineIndex, lineText) {
         let rawLineTokens = null;
@@ -158,11 +161,44 @@ export class ContiguousTokensStore {
         this._lineTokens[lineIndex] = ContiguousTokensEditing.insert(this._lineTokens[lineIndex], position.column - 1, firstLineLength);
         this._insertLines(position.lineNumber, eolCount);
     }
+    //#endregion
+    setMultilineTokens(tokens, textModel) {
+        if (tokens.length === 0) {
+            return { changes: [] };
+        }
+        const ranges = [];
+        for (let i = 0, len = tokens.length; i < len; i++) {
+            const element = tokens[i];
+            let minChangedLineNumber = 0;
+            let maxChangedLineNumber = 0;
+            let hasChange = false;
+            for (let lineNumber = element.startLineNumber; lineNumber <= element.endLineNumber; lineNumber++) {
+                if (hasChange) {
+                    this.setTokens(textModel.getLanguageId(), lineNumber - 1, textModel.getLineLength(lineNumber), element.getLineTokens(lineNumber), false);
+                    maxChangedLineNumber = lineNumber;
+                }
+                else {
+                    const lineHasChange = this.setTokens(textModel.getLanguageId(), lineNumber - 1, textModel.getLineLength(lineNumber), element.getLineTokens(lineNumber), true);
+                    if (lineHasChange) {
+                        hasChange = true;
+                        minChangedLineNumber = lineNumber;
+                        maxChangedLineNumber = lineNumber;
+                    }
+                }
+            }
+            if (hasChange) {
+                ranges.push({ fromLineNumber: minChangedLineNumber, toLineNumber: maxChangedLineNumber, });
+            }
+        }
+        return { changes: ranges };
+    }
 }
 function getDefaultMetadata(topLevelLanguageId) {
-    return ((topLevelLanguageId << 0 /* LANGUAGEID_OFFSET */)
-        | (0 /* Other */ << 8 /* TOKEN_TYPE_OFFSET */)
-        | (0 /* None */ << 10 /* FONT_STYLE_OFFSET */)
-        | (1 /* DefaultForeground */ << 14 /* FOREGROUND_OFFSET */)
-        | (2 /* DefaultBackground */ << 23 /* BACKGROUND_OFFSET */)) >>> 0;
+    return ((topLevelLanguageId << 0 /* MetadataConsts.LANGUAGEID_OFFSET */)
+        | (0 /* StandardTokenType.Other */ << 8 /* MetadataConsts.TOKEN_TYPE_OFFSET */)
+        | (0 /* FontStyle.None */ << 11 /* MetadataConsts.FONT_STYLE_OFFSET */)
+        | (1 /* ColorId.DefaultForeground */ << 15 /* MetadataConsts.FOREGROUND_OFFSET */)
+        | (2 /* ColorId.DefaultBackground */ << 24 /* MetadataConsts.BACKGROUND_OFFSET */)
+        // If there is no grammar, we just take a guess and try to match brackets.
+        | (1024 /* MetadataConsts.BALANCED_BRACKETS_MASK */)) >>> 0;
 }

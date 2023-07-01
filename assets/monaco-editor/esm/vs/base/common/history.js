@@ -18,10 +18,8 @@ export class HistoryNavigator {
         this._onChange();
     }
     next() {
-        if (this._currentPosition() !== this._elements.length - 1) {
-            return this._navigator.next();
-        }
-        return null;
+        // This will navigate past the end of the last element, and in that case the input should be cleared
+        return this._navigator.next();
     }
     previous() {
         if (this._currentPosition() !== 0) {
@@ -37,6 +35,12 @@ export class HistoryNavigator {
     }
     last() {
         return this._navigator.last();
+    }
+    isLast() {
+        return this._currentPosition() >= this._elements.length - 1;
+    }
+    isNowhere() {
+        return this._navigator.current() === null;
     }
     has(t) {
         return this._history.has(t);

@@ -5,7 +5,7 @@
 import { LineTokens } from '../tokens/lineTokens.js';
 import { Position } from '../core/position.js';
 import { LineInjectedText } from '../textModelEvents.js';
-import { SingleLineInlineDecoration, ViewLineData } from './viewModel.js';
+import { SingleLineInlineDecoration, ViewLineData } from '../viewModel.js';
 export function createModelLineProjection(lineBreakData, isVisible) {
     if (lineBreakData === null) {
         // No mapping needed
@@ -135,14 +135,14 @@ class ModelLineProjection {
         }
         let lineWithInjections;
         if (injectionOffsets) {
-            lineWithInjections = model.getLineTokens(modelLineNumber).withInserted(injectionOffsets.map((offset, idx) => ({
+            lineWithInjections = model.tokenization.getLineTokens(modelLineNumber).withInserted(injectionOffsets.map((offset, idx) => ({
                 offset,
                 text: injectionOptions[idx].content,
                 tokenMetadata: LineTokens.defaultTokenMetadata
             })));
         }
         else {
-            lineWithInjections = model.getLineTokens(modelLineNumber);
+            lineWithInjections = model.tokenization.getLineTokens(modelLineNumber);
         }
         for (let outputLineIndex = outputLineIdx; outputLineIndex < outputLineIdx + lineCount; outputLineIndex++) {
             const globalIndex = globalStartIndex + outputLineIndex - outputLineIdx;
@@ -174,7 +174,7 @@ class ModelLineProjection {
         this._assertVisible();
         return this._projectionData.translateToInputOffset(outputLineIndex, outputColumn - 1) + 1;
     }
-    getViewPositionOfModelPosition(deltaLineNumber, inputColumn, affinity = 2 /* None */) {
+    getViewPositionOfModelPosition(deltaLineNumber, inputColumn, affinity = 2 /* PositionAffinity.None */) {
         this._assertVisible();
         const r = this._projectionData.translateToOutputPosition(inputColumn - 1, affinity);
         return r.toPosition(deltaLineNumber);
@@ -232,7 +232,7 @@ class IdentityModelLineProjection {
         return model.getLineMaxColumn(modelLineNumber);
     }
     getViewLineData(model, modelLineNumber, _outputLineIndex) {
-        const lineTokens = model.getLineTokens(modelLineNumber);
+        const lineTokens = model.tokenization.getLineTokens(modelLineNumber);
         const lineContent = lineTokens.getLineContent();
         return new ViewLineData(lineContent, false, 1, lineContent.length + 1, 0, lineTokens.inflate(), null);
     }
@@ -315,7 +315,7 @@ class HiddenModelLineProjection {
     }
 }
 HiddenModelLineProjection.INSTANCE = new HiddenModelLineProjection();
-let _spaces = [''];
+const _spaces = [''];
 function spaces(count) {
     if (count >= _spaces.length) {
         for (let i = 1; i <= count; i++) {

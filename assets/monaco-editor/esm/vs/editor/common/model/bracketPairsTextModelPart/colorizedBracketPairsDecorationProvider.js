@@ -15,30 +15,35 @@ export class ColorizedBracketPairsDecorationProvider extends Disposable {
         this.onDidChangeEmitter = new Emitter();
         this.onDidChange = this.onDidChangeEmitter.event;
         this.colorizationOptions = textModel.getOptions().bracketPairColorizationOptions;
-        this._register(textModel.onDidChangeOptions(e => {
-            this.colorizationOptions = textModel.getOptions().bracketPairColorizationOptions;
-        }));
         this._register(textModel.bracketPairs.onDidChange(e => {
             this.onDidChangeEmitter.fire();
         }));
     }
-    getDecorationsInRange(range, ownerId, filterOutValidation) {
+    //#region TextModel events
+    handleDidChangeOptions(e) {
+        this.colorizationOptions = this.textModel.getOptions().bracketPairColorizationOptions;
+    }
+    //#endregion
+    getDecorationsInRange(range, ownerId, filterOutValidation, onlyMinimapDecorations) {
+        if (onlyMinimapDecorations) {
+            // Bracket pair colorization decorations are not rendered in the minimap
+            return [];
+        }
         if (ownerId === undefined) {
             return [];
         }
         if (!this.colorizationOptions.enabled) {
             return [];
         }
-        const result = new Array();
-        const bracketsInRange = this.textModel.bracketPairs.getBracketsInRange(range);
-        for (const bracket of bracketsInRange) {
-            result.push({
-                id: `bracket${bracket.range.toString()}-${bracket.nestingLevel}`,
-                options: { description: 'BracketPairColorization', inlineClassName: this.colorProvider.getInlineClassName(bracket) },
-                ownerId: 0,
-                range: bracket.range
-            });
-        }
+        const result = this.textModel.bracketPairs.getBracketsInRange(range, true).map(bracket => ({
+            id: `bracket${bracket.range.toString()}-${bracket.nestingLevel}`,
+            options: {
+                description: 'BracketPairColorization',
+                inlineClassName: this.colorProvider.getInlineClassName(bracket, this.colorizationOptions.independentColorPoolPerBracketType),
+            },
+            ownerId: 0,
+            range: bracket.range,
+        })).toArray();
         return result;
     }
     getAllDecorations(ownerId, filterOutValidation) {
@@ -55,11 +60,11 @@ class ColorProvider {
     constructor() {
         this.unexpectedClosingBracketClassName = 'unexpected-closing-bracket';
     }
-    getInlineClassName(bracket) {
+    getInlineClassName(bracket, independentColorPoolPerBracketType) {
         if (bracket.isInvalid) {
             return this.unexpectedClosingBracketClassName;
         }
-        return this.getInlineClassNameOfLevel(bracket.nestingLevel);
+        return this.getInlineClassNameOfLevel(independentColorPoolPerBracketType ? bracket.nestingLevelOfEqualBracketType : bracket.nestingLevel);
     }
     getInlineClassNameOfLevel(level) {
         // To support a dynamic amount of colors up to 6 colors,

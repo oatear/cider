@@ -2,9 +2,10 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-var _a;
 import { createFastDomNode } from '../../../base/browser/fastDomNode.js';
-import { createStringBuilder } from '../../common/core/stringBuilder.js';
+import { createTrustedTypesPolicy } from '../../../base/browser/trustedTypes.js';
+import { BugIndicatingError } from '../../../base/common/errors.js';
+import { StringBuilder } from '../../common/core/stringBuilder.js';
 export class RenderedLinesCollection {
     constructor(createLine) {
         this._createLine = createLine;
@@ -41,7 +42,7 @@ export class RenderedLinesCollection {
     getLine(lineNumber) {
         const lineIndex = lineNumber - this._rendLineNumberStart;
         if (lineIndex < 0 || lineIndex >= this._lines.length) {
-            throw new Error('Illegal value for lineNumber');
+            throw new BugIndicatingError('Illegal value for lineNumber');
         }
         return this._lines[lineIndex];
     }
@@ -98,7 +99,8 @@ export class RenderedLinesCollection {
         const deleted = this._lines.splice(deleteStartIndex, deleteCount);
         return deleted;
     }
-    onLinesChanged(changeFromLineNumber, changeToLineNumber) {
+    onLinesChanged(changeFromLineNumber, changeCount) {
+        const changeToLineNumber = changeFromLineNumber + changeCount - 1;
         if (this.getCount() === 0) {
             // no lines
             return false;
@@ -190,7 +192,7 @@ export class VisibleLinesCollection {
     }
     // ---- begin view event handlers
     onConfigurationChanged(e) {
-        if (e.hasChanged(131 /* layoutInfo */)) {
+        if (e.hasChanged(140 /* EditorOption.layoutInfo */)) {
             return true;
         }
         return false;
@@ -201,7 +203,7 @@ export class VisibleLinesCollection {
         return true;
     }
     onLinesChanged(e) {
-        return this._linesCollection.onLinesChanged(e.fromLineNumber, e.toLineNumber);
+        return this._linesCollection.onLinesChanged(e.fromLineNumber, e.count);
     }
     onLinesDeleted(e) {
         const deleted = this._linesCollection.onLinesDeleted(e.fromLineNumber, e.toLineNumber);
@@ -459,5 +461,5 @@ class ViewLayerRenderer {
         }
     }
 }
-ViewLayerRenderer._ttPolicy = (_a = window.trustedTypes) === null || _a === void 0 ? void 0 : _a.createPolicy('editorViewLayer', { createHTML: value => value });
-ViewLayerRenderer._sb = createStringBuilder(100000);
+ViewLayerRenderer._ttPolicy = createTrustedTypesPolicy('editorViewLayer', { createHTML: value => value });
+ViewLayerRenderer._sb = new StringBuilder(100000);

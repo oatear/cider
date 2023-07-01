@@ -19,7 +19,7 @@ import { IInstantiationService } from '../../instantiation/common/instantiation.
 import { DefaultQuickAccessFilterValue, Extensions } from '../common/quickAccess.js';
 import { IQuickInputService, ItemActivation } from '../common/quickInput.js';
 import { Registry } from '../../registry/common/platform.js';
-let QuickAccessController = class QuickAccessController extends Disposable {
+export let QuickAccessController = class QuickAccessController extends Disposable {
     constructor(quickInputService, instantiationService) {
         super();
         this.quickInputService = quickInputService;
@@ -88,9 +88,6 @@ let QuickAccessController = class QuickAccessController extends Disposable {
         }
         picker.contextKey = descriptor === null || descriptor === void 0 ? void 0 : descriptor.contextKey;
         picker.filterValue = (value) => value.substring(descriptor ? descriptor.prefix.length : 0);
-        if (descriptor === null || descriptor === void 0 ? void 0 : descriptor.placeholder) {
-            picker.ariaLabel = descriptor === null || descriptor === void 0 ? void 0 : descriptor.placeholder;
-        }
         // Pick mode: setup a promise that can be resolved
         // with the selected items and prevent execution
         let pickPromise = undefined;
@@ -102,13 +99,13 @@ let QuickAccessController = class QuickAccessController extends Disposable {
             }));
         }
         // Register listeners
-        disposables.add(this.registerPickerListeners(picker, provider, descriptor, value));
+        disposables.add(this.registerPickerListeners(picker, provider, descriptor, value, options === null || options === void 0 ? void 0 : options.providerOptions));
         // Ask provider to fill the picker as needed if we have one
         // and pass over a cancellation token that will indicate when
         // the picker is hiding without a pick being made.
         const cts = disposables.add(new CancellationTokenSource());
         if (provider) {
-            disposables.add(provider.provide(picker, cts.token));
+            disposables.add(provider.provide(picker, cts.token, options === null || options === void 0 ? void 0 : options.providerOptions));
         }
         // Finally, trigger disposal and cancellation when the picker
         // hides depending on items selected or not.
@@ -143,7 +140,7 @@ let QuickAccessController = class QuickAccessController extends Disposable {
         }
         picker.valueSelection = valueSelection;
     }
-    registerPickerListeners(picker, provider, descriptor, value) {
+    registerPickerListeners(picker, provider, descriptor, value, providerOptions) {
         const disposables = new DisposableStore();
         // Remember as last visible picker and clean up once picker get's disposed
         const visibleQuickAccess = this.visibleQuickAccess = { picker, descriptor, value };
@@ -157,7 +154,12 @@ let QuickAccessController = class QuickAccessController extends Disposable {
         disposables.add(picker.onDidChangeValue(value => {
             const [providerForValue] = this.getOrInstantiateProvider(value);
             if (providerForValue !== provider) {
-                this.show(value, { preserveValue: true } /* do not rewrite value from user typing! */);
+                this.show(value, {
+                    // do not rewrite value from user typing!
+                    preserveValue: true,
+                    // persist the value of the providerOptions from the original showing
+                    providerOptions
+                });
             }
             else {
                 visibleQuickAccess.value = value; // remember the value in our visible one
@@ -188,4 +190,3 @@ QuickAccessController = __decorate([
     __param(0, IQuickInputService),
     __param(1, IInstantiationService)
 ], QuickAccessController);
-export { QuickAccessController };

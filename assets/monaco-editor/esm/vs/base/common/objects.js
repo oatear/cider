@@ -2,23 +2,17 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-import { isArray, isObject, isUndefinedOrNull } from './types.js';
+import { isTypedArray, isObject, isUndefinedOrNull } from './types.js';
 export function deepClone(obj) {
     if (!obj || typeof obj !== 'object') {
         return obj;
     }
     if (obj instanceof RegExp) {
-        // See https://github.com/microsoft/TypeScript/issues/10990
         return obj;
     }
     const result = Array.isArray(obj) ? [] : {};
-    Object.keys(obj).forEach((key) => {
-        if (obj[key] && typeof obj[key] === 'object') {
-            result[key] = deepClone(obj[key]);
-        }
-        else {
-            result[key] = obj[key];
-        }
+    Object.entries(obj).forEach(([key, value]) => {
+        result[key] = value && typeof value === 'object' ? deepClone(value) : value;
     });
     return result;
 }
@@ -33,7 +27,7 @@ export function deepFreeze(obj) {
         for (const key in obj) {
             if (_hasOwnProperty.call(obj, key)) {
                 const prop = obj[key];
-                if (typeof prop === 'object' && !Object.isFrozen(prop)) {
+                if (typeof prop === 'object' && !Object.isFrozen(prop) && !isTypedArray(prop)) {
                     stack.push(prop);
                 }
             }
@@ -53,7 +47,7 @@ function _cloneAndChange(obj, changer, seen) {
     if (typeof changed !== 'undefined') {
         return changed;
     }
-    if (isArray(obj)) {
+    if (Array.isArray(obj)) {
         const r1 = [];
         for (const e of obj) {
             r1.push(_cloneAndChange(e, changer, seen));
@@ -66,7 +60,7 @@ function _cloneAndChange(obj, changer, seen) {
         }
         seen.add(obj);
         const r2 = {};
-        for (let i2 in obj) {
+        for (const i2 in obj) {
             if (_hasOwnProperty.call(obj, i2)) {
                 r2[i2] = _cloneAndChange(obj[i2], changer, seen);
             }
@@ -153,7 +147,34 @@ export function equals(one, other) {
     }
     return true;
 }
-export function getOrDefault(obj, fn, defaultValue) {
-    const result = fn(obj);
-    return typeof result === 'undefined' ? defaultValue : result;
+export function getAllPropertyNames(obj) {
+    let res = [];
+    let proto = Object.getPrototypeOf(obj);
+    while (Object.prototype !== proto) {
+        res = res.concat(Object.getOwnPropertyNames(proto));
+        proto = Object.getPrototypeOf(proto);
+    }
+    return res;
+}
+export function getAllMethodNames(obj) {
+    const methods = [];
+    for (const prop of getAllPropertyNames(obj)) {
+        if (typeof obj[prop] === 'function') {
+            methods.push(prop);
+        }
+    }
+    return methods;
+}
+export function createProxyObject(methodNames, invoke) {
+    const createProxyMethod = (method) => {
+        return function () {
+            const args = Array.prototype.slice.call(arguments, 0);
+            return invoke(method, args);
+        };
+    };
+    const result = {};
+    for (const methodName of methodNames) {
+        result[methodName] = createProxyMethod(methodName);
+    }
+    return result;
 }

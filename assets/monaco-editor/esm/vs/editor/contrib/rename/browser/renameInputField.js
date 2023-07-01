@@ -17,10 +17,10 @@ import { Position } from '../../../common/core/position.js';
 import { localize } from '../../../../nls.js';
 import { IContextKeyService, RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
 import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
-import { editorWidgetBackground, inputBackground, inputBorder, inputForeground, widgetShadow } from '../../../../platform/theme/common/colorRegistry.js';
+import { editorWidgetBackground, inputBackground, inputBorder, inputForeground, widgetBorder, widgetShadow } from '../../../../platform/theme/common/colorRegistry.js';
 import { IThemeService } from '../../../../platform/theme/common/themeService.js';
 export const CONTEXT_RENAME_INPUT_VISIBLE = new RawContextKey('renameInputVisible', false, localize('renameInputVisible', "Whether the rename input widget is visible"));
-let RenameInputField = class RenameInputField {
+export let RenameInputField = class RenameInputField {
     constructor(_editor, _acceptKeybindings, _themeService, _keybindingService, contextKeyService) {
         this._editor = _editor;
         this._acceptKeybindings = _acceptKeybindings;
@@ -31,7 +31,7 @@ let RenameInputField = class RenameInputField {
         this._visibleContextKey = CONTEXT_RENAME_INPUT_VISIBLE.bindTo(contextKeyService);
         this._editor.addContentWidget(this);
         this._disposables.add(this._editor.onDidChangeConfiguration(e => {
-            if (e.hasChanged(44 /* fontInfo */)) {
+            if (e.hasChanged(48 /* EditorOption.fontInfo */)) {
                 this._updateFont();
             }
         }));
@@ -56,14 +56,6 @@ let RenameInputField = class RenameInputField {
             this._label = document.createElement('div');
             this._label.className = 'rename-label';
             this._domNode.appendChild(this._label);
-            const updateLabel = () => {
-                var _a, _b;
-                const [accept, preview] = this._acceptKeybindings;
-                this._keybindingService.lookupKeybinding(accept);
-                this._label.innerText = localize({ key: 'label', comment: ['placeholders are keybindings, e.g "F2 to Rename, Shift+F2 to Preview"'] }, "{0} to Rename, {1} to Preview", (_a = this._keybindingService.lookupKeybinding(accept)) === null || _a === void 0 ? void 0 : _a.getLabel(), (_b = this._keybindingService.lookupKeybinding(preview)) === null || _b === void 0 ? void 0 : _b.getLabel());
-            };
-            updateLabel();
-            this._disposables.add(this._keybindingService.onDidUpdateKeybindings(updateLabel));
             this._updateFont();
             this._updateStyles(this._themeService.getColorTheme());
         }
@@ -75,8 +67,10 @@ let RenameInputField = class RenameInputField {
             return;
         }
         const widgetShadowColor = theme.getColor(widgetShadow);
+        const widgetBorderColor = theme.getColor(widgetBorder);
         this._domNode.style.backgroundColor = String((_a = theme.getColor(editorWidgetBackground)) !== null && _a !== void 0 ? _a : '');
         this._domNode.style.boxShadow = widgetShadowColor ? ` 0 0 8px 2px ${widgetShadowColor}` : '';
+        this._domNode.style.border = widgetBorderColor ? `1px solid ${widgetBorderColor}` : '';
         this._domNode.style.color = String((_b = theme.getColor(inputForeground)) !== null && _b !== void 0 ? _b : '');
         this._input.style.backgroundColor = String((_c = theme.getColor(inputBackground)) !== null && _c !== void 0 ? _c : '');
         // this._input.style.color = String(theme.getColor(inputForeground) ?? '');
@@ -89,7 +83,7 @@ let RenameInputField = class RenameInputField {
         if (!this._input || !this._label) {
             return;
         }
-        const fontInfo = this._editor.getOption(44 /* fontInfo */);
+        const fontInfo = this._editor.getOption(48 /* EditorOption.fontInfo */);
         this._input.style.fontFamily = fontInfo.fontFamily;
         this._input.style.fontWeight = fontInfo.fontWeight;
         this._input.style.fontSize = `${fontInfo.fontSize}px`;
@@ -101,8 +95,14 @@ let RenameInputField = class RenameInputField {
         }
         return {
             position: this._position,
-            preference: [2 /* BELOW */, 1 /* ABOVE */]
+            preference: [2 /* ContentWidgetPositionPreference.BELOW */, 1 /* ContentWidgetPositionPreference.ABOVE */]
         };
+    }
+    beforeRender() {
+        var _a, _b;
+        const [accept, preview] = this._acceptKeybindings;
+        this._label.innerText = localize({ key: 'label', comment: ['placeholders are keybindings, e.g "F2 to Rename, Shift+F2 to Preview"'] }, "{0} to Rename, {1} to Preview", (_a = this._keybindingService.lookupKeybinding(accept)) === null || _a === void 0 ? void 0 : _a.getLabel(), (_b = this._keybindingService.lookupKeybinding(preview)) === null || _b === void 0 ? void 0 : _b.getLabel());
+        return null;
     }
     afterRender(position) {
         if (!position) {
@@ -111,14 +111,12 @@ let RenameInputField = class RenameInputField {
         }
     }
     acceptInput(wantsPreview) {
-        if (this._currentAcceptInput) {
-            this._currentAcceptInput(wantsPreview);
-        }
+        var _a;
+        (_a = this._currentAcceptInput) === null || _a === void 0 ? void 0 : _a.call(this, wantsPreview);
     }
     cancelInput(focusEditor) {
-        if (this._currentCancelInput) {
-            this._currentCancelInput(focusEditor);
-        }
+        var _a;
+        (_a = this._currentCancelInput) === null || _a === void 0 ? void 0 : _a.call(this, focusEditor);
     }
     getInput(where, value, selectionStart, selectionEnd, supportPreview, token) {
         this._domNode.classList.toggle('preview', supportPreview);
@@ -148,8 +146,8 @@ let RenameInputField = class RenameInputField {
                     wantsPreview: supportPreview && wantsPreview
                 });
             };
-            token.onCancellationRequested(() => this.cancelInput(true));
-            disposeOnDone.add(this._editor.onDidBlurEditorWidget(() => this.cancelInput(false)));
+            disposeOnDone.add(token.onCancellationRequested(() => this.cancelInput(true)));
+            disposeOnDone.add(this._editor.onDidBlurEditorWidget(() => this.cancelInput(!document.hasFocus())));
             this._show();
         }).finally(() => {
             disposeOnDone.dispose();
@@ -157,7 +155,7 @@ let RenameInputField = class RenameInputField {
         });
     }
     _show() {
-        this._editor.revealLineInCenterIfOutsideViewport(this._position.lineNumber, 0 /* Smooth */);
+        this._editor.revealLineInCenterIfOutsideViewport(this._position.lineNumber, 0 /* ScrollType.Smooth */);
         this._visible = true;
         this._visibleContextKey.set(true);
         this._editor.layoutContentWidget(this);
@@ -177,4 +175,3 @@ RenameInputField = __decorate([
     __param(3, IKeybindingService),
     __param(4, IContextKeyService)
 ], RenameInputField);
-export { RenameInputField };

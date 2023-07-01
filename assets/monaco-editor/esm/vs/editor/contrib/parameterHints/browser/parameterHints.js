@@ -11,40 +11,57 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+import { Lazy } from '../../../../base/common/lazy.js';
 import { Disposable } from '../../../../base/common/lifecycle.js';
 import { EditorAction, EditorCommand, registerEditorAction, registerEditorCommand, registerEditorContribution } from '../../../browser/editorExtensions.js';
 import { EditorContextKeys } from '../../../common/editorContextKeys.js';
-import * as modes from '../../../common/languages.js';
+import * as languages from '../../../common/languages.js';
+import { ILanguageFeaturesService } from '../../../common/services/languageFeatures.js';
+import { ParameterHintsModel } from './parameterHintsModel.js';
 import { Context } from './provideSignatureHelp.js';
 import * as nls from '../../../../nls.js';
 import { ContextKeyExpr } from '../../../../platform/contextkey/common/contextkey.js';
 import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
 import { ParameterHintsWidget } from './parameterHintsWidget.js';
 let ParameterHintsController = class ParameterHintsController extends Disposable {
-    constructor(editor, instantiationService) {
-        super();
-        this.editor = editor;
-        this.widget = this._register(instantiationService.createInstance(ParameterHintsWidget, this.editor));
-    }
     static get(editor) {
         return editor.getContribution(ParameterHintsController.ID);
     }
+    constructor(editor, instantiationService, languageFeaturesService) {
+        super();
+        this.editor = editor;
+        this.model = this._register(new ParameterHintsModel(editor, languageFeaturesService.signatureHelpProvider));
+        this._register(this.model.onChangedHints(newParameterHints => {
+            var _a;
+            if (newParameterHints) {
+                this.widget.value.show();
+                this.widget.value.render(newParameterHints);
+            }
+            else {
+                (_a = this.widget.rawValue) === null || _a === void 0 ? void 0 : _a.hide();
+            }
+        }));
+        this.widget = new Lazy(() => this._register(instantiationService.createInstance(ParameterHintsWidget, this.editor, this.model)));
+    }
     cancel() {
-        this.widget.cancel();
+        this.model.cancel();
     }
     previous() {
-        this.widget.previous();
+        var _a;
+        (_a = this.widget.rawValue) === null || _a === void 0 ? void 0 : _a.previous();
     }
     next() {
-        this.widget.next();
+        var _a;
+        (_a = this.widget.rawValue) === null || _a === void 0 ? void 0 : _a.next();
     }
     trigger(context) {
-        this.widget.trigger(context);
+        this.model.trigger(context, 0);
     }
 };
 ParameterHintsController.ID = 'editor.controller.parameterHints';
 ParameterHintsController = __decorate([
-    __param(1, IInstantiationService)
+    __param(1, IInstantiationService),
+    __param(2, ILanguageFeaturesService)
 ], ParameterHintsController);
 export class TriggerParameterHintsAction extends EditorAction {
     constructor() {
@@ -55,23 +72,21 @@ export class TriggerParameterHintsAction extends EditorAction {
             precondition: EditorContextKeys.hasSignatureHelpProvider,
             kbOpts: {
                 kbExpr: EditorContextKeys.editorTextFocus,
-                primary: 2048 /* CtrlCmd */ | 1024 /* Shift */ | 10 /* Space */,
-                weight: 100 /* EditorContrib */
+                primary: 2048 /* KeyMod.CtrlCmd */ | 1024 /* KeyMod.Shift */ | 10 /* KeyCode.Space */,
+                weight: 100 /* KeybindingWeight.EditorContrib */
             }
         });
     }
     run(accessor, editor) {
         const controller = ParameterHintsController.get(editor);
-        if (controller) {
-            controller.trigger({
-                triggerKind: modes.SignatureHelpTriggerKind.Invoke
-            });
-        }
+        controller === null || controller === void 0 ? void 0 : controller.trigger({
+            triggerKind: languages.SignatureHelpTriggerKind.Invoke
+        });
     }
 }
-registerEditorContribution(ParameterHintsController.ID, ParameterHintsController);
+registerEditorContribution(ParameterHintsController.ID, ParameterHintsController, 2 /* EditorContributionInstantiation.BeforeFirstInteraction */);
 registerEditorAction(TriggerParameterHintsAction);
-const weight = 100 /* EditorContrib */ + 75;
+const weight = 100 /* KeybindingWeight.EditorContrib */ + 75;
 const ParameterHintsCommand = EditorCommand.bindToContribution(ParameterHintsController.get);
 registerEditorCommand(new ParameterHintsCommand({
     id: 'closeParameterHints',
@@ -80,8 +95,8 @@ registerEditorCommand(new ParameterHintsCommand({
     kbOpts: {
         weight: weight,
         kbExpr: EditorContextKeys.focus,
-        primary: 9 /* Escape */,
-        secondary: [1024 /* Shift */ | 9 /* Escape */]
+        primary: 9 /* KeyCode.Escape */,
+        secondary: [1024 /* KeyMod.Shift */ | 9 /* KeyCode.Escape */]
     }
 }));
 registerEditorCommand(new ParameterHintsCommand({
@@ -91,9 +106,9 @@ registerEditorCommand(new ParameterHintsCommand({
     kbOpts: {
         weight: weight,
         kbExpr: EditorContextKeys.focus,
-        primary: 16 /* UpArrow */,
-        secondary: [512 /* Alt */ | 16 /* UpArrow */],
-        mac: { primary: 16 /* UpArrow */, secondary: [512 /* Alt */ | 16 /* UpArrow */, 256 /* WinCtrl */ | 46 /* KeyP */] }
+        primary: 16 /* KeyCode.UpArrow */,
+        secondary: [512 /* KeyMod.Alt */ | 16 /* KeyCode.UpArrow */],
+        mac: { primary: 16 /* KeyCode.UpArrow */, secondary: [512 /* KeyMod.Alt */ | 16 /* KeyCode.UpArrow */, 256 /* KeyMod.WinCtrl */ | 46 /* KeyCode.KeyP */] }
     }
 }));
 registerEditorCommand(new ParameterHintsCommand({
@@ -103,8 +118,8 @@ registerEditorCommand(new ParameterHintsCommand({
     kbOpts: {
         weight: weight,
         kbExpr: EditorContextKeys.focus,
-        primary: 18 /* DownArrow */,
-        secondary: [512 /* Alt */ | 18 /* DownArrow */],
-        mac: { primary: 18 /* DownArrow */, secondary: [512 /* Alt */ | 18 /* DownArrow */, 256 /* WinCtrl */ | 44 /* KeyN */] }
+        primary: 18 /* KeyCode.DownArrow */,
+        secondary: [512 /* KeyMod.Alt */ | 18 /* KeyCode.DownArrow */],
+        mac: { primary: 18 /* KeyCode.DownArrow */, secondary: [512 /* KeyMod.Alt */ | 18 /* KeyCode.DownArrow */, 256 /* KeyMod.WinCtrl */ | 44 /* KeyCode.KeyN */] }
     }
 }));

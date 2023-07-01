@@ -2,37 +2,31 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-import { compareBy, findMaxBy, numberComparator } from '../../../../base/common/arrays.js';
-import { RunOnceScheduler } from '../../../../base/common/async.js';
-import { Emitter, Event } from '../../../../base/common/event.js';
+import { Event } from '../../../../base/common/event.js';
 import { Disposable } from '../../../../base/common/lifecycle.js';
 import { Position } from '../../../common/core/position.js';
 import { Range } from '../../../common/core/range.js';
+import { SelectedSuggestionInfo } from '../../../common/languages.js';
 import { SnippetParser } from '../../snippet/browser/snippetParser.js';
 import { SnippetSession } from '../../snippet/browser/snippetSession.js';
 import { SuggestController } from '../../suggest/browser/suggestController.js';
-import { minimizeInlineCompletion } from './inlineCompletionsModel.js';
-import { normalizedInlineCompletionsEquals } from './inlineCompletionToGhostText.js';
-export class SuggestWidgetInlineCompletionProvider extends Disposable {
-    constructor(editor, suggestControllerPreselector) {
+import { observableValue, transaction } from '../../../../base/common/observable.js';
+import { SingleTextEdit } from './singleTextEdit.js';
+import { compareBy, findMaxBy, numberComparator } from '../../../../base/common/arrays.js';
+export class SuggestWidgetAdaptor extends Disposable {
+    get selectedItem() {
+        return this._selectedItem;
+    }
+    constructor(editor, suggestControllerPreselector, checkModelVersion) {
         super();
         this.editor = editor;
         this.suggestControllerPreselector = suggestControllerPreselector;
+        this.checkModelVersion = checkModelVersion;
         this.isSuggestWidgetVisible = false;
         this.isShiftKeyPressed = false;
         this._isActive = false;
         this._currentSuggestItemInfo = undefined;
-        this.onDidChangeEmitter = new Emitter();
-        this.onDidChange = this.onDidChangeEmitter.event;
-        // This delay fixes a suggest widget issue when typing "." immediately restarts the suggestion session.
-        this.setInactiveDelayed = this._register(new RunOnceScheduler(() => {
-            if (!this.isSuggestWidgetVisible) {
-                if (this._isActive) {
-                    this._isActive = false;
-                    this.onDidChangeEmitter.fire();
-                }
-            }
-        }, 100));
+        this._selectedItem = observableValue('suggestWidgetInlineCompletionProvider.selectedItem', undefined);
         // See the command acceptAlternativeSelectedSuggestion that is bound to shift+tab
         this._register(editor.onKeyDown(e => {
             if (e.shiftKey && !this.isShiftKeyPressed) {
@@ -51,24 +45,26 @@ export class SuggestWidgetInlineCompletionProvider extends Disposable {
             this._register(suggestController.registerSelector({
                 priority: 100,
                 select: (model, pos, suggestItems) => {
+                    var _a;
+                    transaction(tx => this.checkModelVersion(tx));
                     const textModel = this.editor.getModel();
-                    const normalizedItemToPreselect = minimizeInlineCompletion(textModel, this.suggestControllerPreselector());
-                    if (!normalizedItemToPreselect) {
+                    if (!textModel) {
+                        // Should not happen
+                        return -1;
+                    }
+                    const itemToPreselect = (_a = this.suggestControllerPreselector()) === null || _a === void 0 ? void 0 : _a.removeCommonPrefix(textModel);
+                    if (!itemToPreselect) {
                         return -1;
                     }
                     const position = Position.lift(pos);
                     const candidates = suggestItems
                         .map((suggestItem, index) => {
-                        const inlineSuggestItem = suggestionToSuggestItemInfo(suggestController, position, suggestItem, this.isShiftKeyPressed);
-                        const normalizedSuggestItem = minimizeInlineCompletion(textModel, inlineSuggestItem === null || inlineSuggestItem === void 0 ? void 0 : inlineSuggestItem.normalizedInlineCompletion);
-                        if (!normalizedSuggestItem) {
-                            return undefined;
-                        }
-                        const valid = rangeStartsWith(normalizedItemToPreselect.range, normalizedSuggestItem.range) &&
-                            normalizedItemToPreselect.text.startsWith(normalizedSuggestItem.text);
-                        return { index, valid, prefixLength: normalizedSuggestItem.text.length, suggestItem };
+                        const suggestItemInfo = SuggestItemInfo.fromSuggestion(suggestController, textModel, position, suggestItem, this.isShiftKeyPressed);
+                        const suggestItemTextEdit = suggestItemInfo.toSingleTextEdit().removeCommonPrefix(textModel);
+                        const valid = itemToPreselect.augments(suggestItemTextEdit);
+                        return { index, valid, prefixLength: suggestItemTextEdit.text.length, suggestItem };
                     })
-                        .filter(item => item && item.valid);
+                        .filter(item => item && item.valid && item.prefixLength > 0);
                     const result = findMaxBy(candidates, compareBy(s => s.prefixLength, numberComparator));
                     return result ? result.index : -1;
                 }
@@ -85,8 +81,7 @@ export class SuggestWidgetInlineCompletionProvider extends Disposable {
                 }));
                 this._register(suggestController.widget.value.onDidHide(() => {
                     this.isSuggestWidgetVisible = false;
-                    this.setInactiveDelayed.schedule();
-                    this.update(this._isActive);
+                    this.update(false);
                 }));
                 this._register(suggestController.widget.value.onDidFocus(() => {
                     this.isSuggestWidgetVisible = true;
@@ -99,64 +94,73 @@ export class SuggestWidgetInlineCompletionProvider extends Disposable {
         }
         this.update(this._isActive);
     }
-    /**
-     * Returns undefined if the suggest widget is not active.
-    */
-    get state() {
-        if (!this._isActive) {
-            return undefined;
-        }
-        return { selectedItem: this._currentSuggestItemInfo };
-    }
     update(newActive) {
         const newInlineCompletion = this.getSuggestItemInfo();
-        let shouldFire = false;
-        if (!suggestItemInfoEquals(this._currentSuggestItemInfo, newInlineCompletion)) {
-            this._currentSuggestItemInfo = newInlineCompletion;
-            shouldFire = true;
-        }
-        if (this._isActive !== newActive) {
+        if (this._isActive !== newActive || !suggestItemInfoEquals(this._currentSuggestItemInfo, newInlineCompletion)) {
             this._isActive = newActive;
-            shouldFire = true;
-        }
-        if (shouldFire) {
-            this.onDidChangeEmitter.fire();
+            this._currentSuggestItemInfo = newInlineCompletion;
+            transaction(tx => {
+                this.checkModelVersion(tx);
+                this._selectedItem.set(this._isActive ? this._currentSuggestItemInfo : undefined, tx);
+            });
         }
     }
     getSuggestItemInfo() {
         const suggestController = SuggestController.get(this.editor);
-        if (!suggestController) {
-            return undefined;
-        }
-        if (!this.isSuggestWidgetVisible) {
+        if (!suggestController || !this.isSuggestWidgetVisible) {
             return undefined;
         }
         const focusedItem = suggestController.widget.value.getFocusedItem();
-        if (!focusedItem) {
+        const position = this.editor.getPosition();
+        const model = this.editor.getModel();
+        if (!focusedItem || !position || !model) {
             return undefined;
         }
-        // TODO: item.isResolved
-        return suggestionToSuggestItemInfo(suggestController, this.editor.getPosition(), focusedItem.item, this.isShiftKeyPressed);
+        return SuggestItemInfo.fromSuggestion(suggestController, model, position, focusedItem.item, this.isShiftKeyPressed);
     }
     stopForceRenderingAbove() {
         const suggestController = SuggestController.get(this.editor);
-        if (suggestController) {
-            suggestController.stopForceRenderingAbove();
-        }
+        suggestController === null || suggestController === void 0 ? void 0 : suggestController.stopForceRenderingAbove();
     }
     forceRenderingAbove() {
         const suggestController = SuggestController.get(this.editor);
-        if (suggestController) {
-            suggestController.forceRenderingAbove();
-        }
+        suggestController === null || suggestController === void 0 ? void 0 : suggestController.forceRenderingAbove();
     }
 }
-export function rangeStartsWith(rangeToTest, prefix) {
-    return (prefix.startLineNumber === rangeToTest.startLineNumber &&
-        prefix.startColumn === rangeToTest.startColumn &&
-        (prefix.endLineNumber < rangeToTest.endLineNumber ||
-            (prefix.endLineNumber === rangeToTest.endLineNumber &&
-                prefix.endColumn <= rangeToTest.endColumn)));
+export class SuggestItemInfo {
+    static fromSuggestion(suggestController, model, position, item, toggleMode) {
+        let { insertText } = item.completion;
+        let isSnippetText = false;
+        if (item.completion.insertTextRules & 4 /* CompletionItemInsertTextRule.InsertAsSnippet */) {
+            const snippet = new SnippetParser().parse(insertText);
+            if (snippet.children.length < 100) {
+                // Adjust whitespace is expensive.
+                SnippetSession.adjustWhitespace(model, position, true, snippet);
+            }
+            insertText = snippet.toString();
+            isSnippetText = true;
+        }
+        const info = suggestController.getOverwriteInfo(item, toggleMode);
+        return new SuggestItemInfo(Range.fromPositions(position.delta(0, -info.overwriteBefore), position.delta(0, Math.max(info.overwriteAfter, 0))), insertText, item.completion.kind, isSnippetText);
+    }
+    constructor(range, insertText, completionItemKind, isSnippetText) {
+        this.range = range;
+        this.insertText = insertText;
+        this.completionItemKind = completionItemKind;
+        this.isSnippetText = isSnippetText;
+    }
+    equals(other) {
+        return this.range.equalsRange(other.range)
+            && this.insertText === other.insertText
+            && this.completionItemKind === other.completionItemKind
+            && this.isSnippetText === other.isSnippetText;
+    }
+    toSelectedSuggestionInfo() {
+        return new SelectedSuggestionInfo(this.range, this.insertText, this.completionItemKind, this.isSnippetText);
+    }
+    toSingleTextEdit() {
+        return new SingleTextEdit(this.range, this.insertText);
+    }
 }
 function suggestItemInfoEquals(a, b) {
     if (a === b) {
@@ -165,45 +169,5 @@ function suggestItemInfoEquals(a, b) {
     if (!a || !b) {
         return false;
     }
-    return a.completionItemKind === b.completionItemKind &&
-        a.isSnippetText === b.isSnippetText &&
-        normalizedInlineCompletionsEquals(a.normalizedInlineCompletion, b.normalizedInlineCompletion);
-}
-function suggestionToSuggestItemInfo(suggestController, position, item, toggleMode) {
-    // additionalTextEdits might not be resolved here, this could be problematic.
-    if (Array.isArray(item.completion.additionalTextEdits) && item.completion.additionalTextEdits.length > 0) {
-        // cannot represent additional text edits
-        return {
-            completionItemKind: item.completion.kind,
-            isSnippetText: false,
-            normalizedInlineCompletion: {
-                // Dummy element, so that space is reserved, but no text is shown
-                range: Range.fromPositions(position, position),
-                text: ''
-            },
-        };
-    }
-    let { insertText } = item.completion;
-    let isSnippetText = false;
-    if (item.completion.insertTextRules & 4 /* InsertAsSnippet */) {
-        const snippet = new SnippetParser().parse(insertText);
-        const model = suggestController.editor.getModel();
-        // Ignore snippets that are too large.
-        // Adjust whitespace is expensive for them.
-        if (snippet.children.length > 100) {
-            return undefined;
-        }
-        SnippetSession.adjustWhitespace(model, position, snippet, true, true);
-        insertText = snippet.toString();
-        isSnippetText = true;
-    }
-    const info = suggestController.getOverwriteInfo(item, toggleMode);
-    return {
-        isSnippetText,
-        completionItemKind: item.completion.kind,
-        normalizedInlineCompletion: {
-            text: insertText,
-            range: Range.fromPositions(position.delta(0, -info.overwriteBefore), position.delta(0, Math.max(info.overwriteAfter, 0))),
-        }
-    };
+    return a.equals(b);
 }

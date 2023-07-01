@@ -2,8 +2,19 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 import './standalone-tokens.css';
+import { Disposable, DisposableStore } from '../../../base/common/lifecycle.js';
 import { splitLines } from '../../../base/common/strings.js';
+import { URI } from '../../../base/common/uri.js';
 import { FontMeasurements } from '../../browser/config/fontMeasurements.js';
 import { ICodeEditorService } from '../../browser/services/codeEditorService.js';
 import { DiffNavigator } from '../../browser/widget/diffNavigator.js';
@@ -13,17 +24,26 @@ import { EditorType } from '../../common/editorCommon.js';
 import { FindMatch, TextModelResolvedOptions } from '../../common/model.js';
 import * as languages from '../../common/languages.js';
 import { ILanguageConfigurationService } from '../../common/languages/languageConfigurationRegistry.js';
-import { NullState, nullTokenize } from '../../common/languages/nullMode.js';
-import { ILanguageService } from '../../common/services/language.js';
+import { NullState, nullTokenize } from '../../common/languages/nullTokenize.js';
+import { ILanguageService } from '../../common/languages/language.js';
 import { IModelService } from '../../common/services/model.js';
 import { createWebWorker as actualCreateWebWorker } from '../../browser/services/webWorker.js';
 import * as standaloneEnums from '../../common/standalone/standaloneEnums.js';
 import { Colorizer } from './colorizer.js';
 import { createTextModel, StandaloneDiffEditor, StandaloneEditor } from './standaloneCodeEditor.js';
-import { StandaloneServices } from './standaloneServices.js';
+import { StandaloneKeybindingService, StandaloneServices } from './standaloneServices.js';
 import { IStandaloneThemeService } from '../common/standaloneTheme.js';
 import { CommandsRegistry } from '../../../platform/commands/common/commands.js';
 import { IMarkerService } from '../../../platform/markers/common/markers.js';
+import { IKeybindingService } from '../../../platform/keybinding/common/keybinding.js';
+import { EditorCommand } from '../../browser/editorExtensions.js';
+import { MenuRegistry, MenuId } from '../../../platform/actions/common/actions.js';
+import { ContextKeyExpr } from '../../../platform/contextkey/common/contextkey.js';
+import { PLAINTEXT_LANGUAGE_ID } from '../../common/languages/modesRegistry.js';
+import { LineRangeMapping, RangeMapping } from '../../common/diff/linesDiffComputer.js';
+import { LineRange } from '../../common/core/lineRange.js';
+import { EditorZoom } from '../../common/config/editorZoom.js';
+import { IOpenerService } from '../../../platform/opener/common/opener.js';
 /**
  * Create a new editor under `domElement`.
  * `domElement` should be empty (not contain other dom nodes).
@@ -45,6 +65,30 @@ export function onDidCreateEditor(listener) {
     });
 }
 /**
+ * Emitted when an diff editor is created.
+ * @event
+ */
+export function onDidCreateDiffEditor(listener) {
+    const codeEditorService = StandaloneServices.get(ICodeEditorService);
+    return codeEditorService.onDiffEditorAdd((editor) => {
+        listener(editor);
+    });
+}
+/**
+ * Get all the created editors.
+ */
+export function getEditors() {
+    const codeEditorService = StandaloneServices.get(ICodeEditorService);
+    return codeEditorService.listCodeEditors();
+}
+/**
+ * Get all the created diff editors.
+ */
+export function getDiffEditors() {
+    const codeEditorService = StandaloneServices.get(ICodeEditorService);
+    return codeEditorService.listDiffEditors();
+}
+/**
  * Create a new diff editor under `domElement`.
  * `domElement` should be empty (not contain other dom nodes).
  * The editor will read the size of `domElement`.
@@ -54,7 +98,87 @@ export function createDiffEditor(domElement, options, override) {
     return instantiationService.createInstance(StandaloneDiffEditor, domElement, options);
 }
 export function createDiffNavigator(diffEditor, opts) {
-    return new DiffNavigator(diffEditor, opts);
+    const instantiationService = StandaloneServices.initialize({});
+    return instantiationService.createInstance(DiffNavigator, diffEditor, opts);
+}
+/**
+ * Add a command.
+ */
+export function addCommand(descriptor) {
+    if ((typeof descriptor.id !== 'string') || (typeof descriptor.run !== 'function')) {
+        throw new Error('Invalid command descriptor, `id` and `run` are required properties!');
+    }
+    return CommandsRegistry.registerCommand(descriptor.id, descriptor.run);
+}
+/**
+ * Add an action to all editors.
+ */
+export function addEditorAction(descriptor) {
+    if ((typeof descriptor.id !== 'string') || (typeof descriptor.label !== 'string') || (typeof descriptor.run !== 'function')) {
+        throw new Error('Invalid action descriptor, `id`, `label` and `run` are required properties!');
+    }
+    const precondition = ContextKeyExpr.deserialize(descriptor.precondition);
+    const run = (accessor, ...args) => {
+        return EditorCommand.runEditorCommand(accessor, args, precondition, (accessor, editor, args) => Promise.resolve(descriptor.run(editor, ...args)));
+    };
+    const toDispose = new DisposableStore();
+    // Register the command
+    toDispose.add(CommandsRegistry.registerCommand(descriptor.id, run));
+    // Register the context menu item
+    if (descriptor.contextMenuGroupId) {
+        const menuItem = {
+            command: {
+                id: descriptor.id,
+                title: descriptor.label
+            },
+            when: precondition,
+            group: descriptor.contextMenuGroupId,
+            order: descriptor.contextMenuOrder || 0
+        };
+        toDispose.add(MenuRegistry.appendMenuItem(MenuId.EditorContext, menuItem));
+    }
+    // Register the keybindings
+    if (Array.isArray(descriptor.keybindings)) {
+        const keybindingService = StandaloneServices.get(IKeybindingService);
+        if (!(keybindingService instanceof StandaloneKeybindingService)) {
+            console.warn('Cannot add keybinding because the editor is configured with an unrecognized KeybindingService');
+        }
+        else {
+            const keybindingsWhen = ContextKeyExpr.and(precondition, ContextKeyExpr.deserialize(descriptor.keybindingContext));
+            toDispose.add(keybindingService.addDynamicKeybindings(descriptor.keybindings.map((keybinding) => {
+                return {
+                    keybinding,
+                    command: descriptor.id,
+                    when: keybindingsWhen
+                };
+            })));
+        }
+    }
+    return toDispose;
+}
+/**
+ * Add a keybinding rule.
+ */
+export function addKeybindingRule(rule) {
+    return addKeybindingRules([rule]);
+}
+/**
+ * Add keybinding rules.
+ */
+export function addKeybindingRules(rules) {
+    const keybindingService = StandaloneServices.get(IKeybindingService);
+    if (!(keybindingService instanceof StandaloneKeybindingService)) {
+        console.warn('Cannot add keybinding because the editor is configured with an unrecognized KeybindingService');
+        return Disposable.None;
+    }
+    return keybindingService.addDynamicKeybindings(rules.map((rule) => {
+        return {
+            keybinding: rule.keybinding,
+            command: rule.command,
+            commandArgs: rule.commandArgs,
+            when: ContextKeyExpr.deserialize(rule.when),
+        };
+    }));
 }
 /**
  * Create a new editor model.
@@ -68,10 +192,10 @@ export function createModel(value, language, uri) {
 /**
  * Change the language for a model.
  */
-export function setModelLanguage(model, languageId) {
+export function setModelLanguage(model, mimeTypeOrLanguageId) {
     const languageService = StandaloneServices.get(ILanguageService);
-    const modelService = StandaloneServices.get(IModelService);
-    modelService.setMode(model, languageService.createById(languageId));
+    const languageId = languageService.getLanguageIdByMimeType(mimeTypeOrLanguageId) || mimeTypeOrLanguageId || PLAINTEXT_LANGUAGE_ID;
+    model.setLanguage(languageService.createById(languageId));
 }
 /**
  * Set the markers for a model.
@@ -81,6 +205,13 @@ export function setModelMarkers(model, owner, markers) {
         const markerService = StandaloneServices.get(IMarkerService);
         markerService.changeOne(owner, model.uri, markers);
     }
+}
+/**
+ * Remove all markers of an owner.
+ */
+export function removeAllMarkers(owner) {
+    const markerService = StandaloneServices.get(IMarkerService);
+    markerService.changeAll(owner, []);
 }
 /**
  * Get markers for owner and/or resource
@@ -233,19 +364,75 @@ export function registerCommand(id, handler) {
     return CommandsRegistry.registerCommand({ id, handler });
 }
 /**
+ * Registers a handler that is called when a link is opened in any editor. The handler callback should return `true` if the link was handled and `false` otherwise.
+ * The handler that was registered last will be called first when a link is opened.
+ *
+ * Returns a disposable that can unregister the opener again.
+ */
+export function registerLinkOpener(opener) {
+    const openerService = StandaloneServices.get(IOpenerService);
+    return openerService.registerOpener({
+        open(resource) {
+            return __awaiter(this, void 0, void 0, function* () {
+                if (typeof resource === 'string') {
+                    resource = URI.parse(resource);
+                }
+                return opener.open(resource);
+            });
+        }
+    });
+}
+/**
+ * Registers a handler that is called when a resource other than the current model should be opened in the editor (e.g. "go to definition").
+ * The handler callback should return `true` if the request was handled and `false` otherwise.
+ *
+ * Returns a disposable that can unregister the opener again.
+ *
+ * If no handler is registered the default behavior is to do nothing for models other than the currently attached one.
+ */
+export function registerEditorOpener(opener) {
+    const codeEditorService = StandaloneServices.get(ICodeEditorService);
+    return codeEditorService.registerCodeEditorOpenHandler((input, source, sideBySide) => __awaiter(this, void 0, void 0, function* () {
+        var _a;
+        if (!source) {
+            return null;
+        }
+        const selection = (_a = input.options) === null || _a === void 0 ? void 0 : _a.selection;
+        let selectionOrPosition;
+        if (selection && typeof selection.endLineNumber === 'number' && typeof selection.endColumn === 'number') {
+            selectionOrPosition = selection;
+        }
+        else if (selection) {
+            selectionOrPosition = { lineNumber: selection.startLineNumber, column: selection.startColumn };
+        }
+        if (yield opener.openCodeEditor(source, input.resource, selectionOrPosition)) {
+            return source; // return source editor to indicate that this handler has successfully handled the opening
+        }
+        return null; // fallback to other registered handlers
+    }));
+}
+/**
  * @internal
  */
 export function createMonacoEditorAPI() {
     return {
         // methods
         create: create,
+        getEditors: getEditors,
+        getDiffEditors: getDiffEditors,
         onDidCreateEditor: onDidCreateEditor,
+        onDidCreateDiffEditor: onDidCreateDiffEditor,
         createDiffEditor: createDiffEditor,
         createDiffNavigator: createDiffNavigator,
+        addCommand: addCommand,
+        addEditorAction: addEditorAction,
+        addKeybindingRule: addKeybindingRule,
+        addKeybindingRules: addKeybindingRules,
         createModel: createModel,
         setModelLanguage: setModelLanguage,
         setModelMarkers: setModelMarkers,
         getModelMarkers: getModelMarkers,
+        removeAllMarkers: removeAllMarkers,
         onDidChangeMarkers: onDidChangeMarkers,
         getModels: getModels,
         getModel: getModel,
@@ -261,6 +448,8 @@ export function createMonacoEditorAPI() {
         setTheme: setTheme,
         remeasureFonts: remeasureFonts,
         registerCommand: registerCommand,
+        registerLinkOpener: registerLinkOpener,
+        registerEditorOpener: registerEditorOpener,
         // enums
         AccessibilitySupport: standaloneEnums.AccessibilitySupport,
         ContentWidgetPositionPreference: standaloneEnums.ContentWidgetPositionPreference,
@@ -274,6 +463,7 @@ export function createMonacoEditorAPI() {
         MouseTargetType: standaloneEnums.MouseTargetType,
         OverlayWidgetPositionPreference: standaloneEnums.OverlayWidgetPositionPreference,
         OverviewRulerLane: standaloneEnums.OverviewRulerLane,
+        GlyphMarginLane: standaloneEnums.GlyphMarginLane,
         RenderLineNumbersType: standaloneEnums.RenderLineNumbersType,
         RenderMinimap: standaloneEnums.RenderMinimap,
         ScrollbarVisibility: standaloneEnums.ScrollbarVisibility,
@@ -291,6 +481,10 @@ export function createMonacoEditorAPI() {
         TextModelResolvedOptions: TextModelResolvedOptions,
         FindMatch: FindMatch,
         ApplyUpdateResult: ApplyUpdateResult,
+        LineRange: LineRange,
+        LineRangeMapping: LineRangeMapping,
+        RangeMapping: RangeMapping,
+        EditorZoom: EditorZoom,
         // vars
         EditorType: EditorType,
         EditorOptions: EditorOptions

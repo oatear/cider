@@ -9,11 +9,6 @@ import { countEOL } from '../core/eolCounter.js';
  * Represents sparse tokens over a contiguous range of lines.
  */
 export class SparseMultilineTokens {
-    constructor(startLineNumber, tokens) {
-        this._startLineNumber = startLineNumber;
-        this._tokens = tokens;
-        this._endLineNumber = this._startLineNumber + this._tokens.getMaxDeltaLine();
-    }
     static create(startLineNumber, tokens) {
         return new SparseMultilineTokens(startLineNumber, new SparseMultilineTokensStorage(tokens));
     }
@@ -28,6 +23,11 @@ export class SparseMultilineTokens {
      */
     get endLineNumber() {
         return this._endLineNumber;
+    }
+    constructor(startLineNumber, tokens) {
+        this._startLineNumber = startLineNumber;
+        this._tokens = tokens;
+        this._endLineNumber = this._startLineNumber + this._tokens.getMaxDeltaLine();
     }
     toString() {
         return this._tokens.toString(this._startLineNumber);
@@ -68,7 +68,7 @@ export class SparseMultilineTokens {
     }
     applyEdit(range, text) {
         const [eolCount, firstLineLength, lastLineLength] = countEOL(text);
-        this.acceptEdit(range, eolCount, firstLineLength, lastLineLength, text.length > 0 ? text.charCodeAt(0) : 0 /* Null */);
+        this.acceptEdit(range, eolCount, firstLineLength, lastLineLength, text.length > 0 ? text.charCodeAt(0) : 0 /* CharCode.Null */);
     }
     acceptEdit(range, eolCount, firstLineLength, lastLineLength, firstCharCode) {
         this._acceptDeleteRange(range);
@@ -367,19 +367,10 @@ class SparseMultilineTokensStorage {
                 // 3a, 3b, 3c
                 if (tokenDeltaLine === endDeltaLine && tokenEndCharacter > endCharacter) {
                     // 3c. The token starts inside the deletion range, and ends after the deletion range
-                    // => the token moves left and shrinks
-                    if (tokenDeltaLine === startDeltaLine) {
-                        // the deletion started on the same line as the token
-                        // => the token moves left and shrinks
-                        tokenStartCharacter = startCharacter;
-                        tokenEndCharacter = tokenStartCharacter + (tokenEndCharacter - endCharacter);
-                    }
-                    else {
-                        // the deletion started on a line above the token
-                        // => the token moves to the beginning of the line
-                        tokenStartCharacter = 0;
-                        tokenEndCharacter = tokenStartCharacter + (tokenEndCharacter - endCharacter);
-                    }
+                    // => the token moves to continue right after the deletion
+                    tokenDeltaLine = startDeltaLine;
+                    tokenStartCharacter = startCharacter;
+                    tokenEndCharacter = tokenStartCharacter + (tokenEndCharacter - endCharacter);
                 }
                 else {
                     // 3a. The token is inside the deletion range
@@ -436,9 +427,9 @@ class SparseMultilineTokensStorage {
         //
         const isInsertingPreciselyOneWordCharacter = (eolCount === 0
             && firstLineLength === 1
-            && ((firstCharCode >= 48 /* Digit0 */ && firstCharCode <= 57 /* Digit9 */)
-                || (firstCharCode >= 65 /* A */ && firstCharCode <= 90 /* Z */)
-                || (firstCharCode >= 97 /* a */ && firstCharCode <= 122 /* z */)));
+            && ((firstCharCode >= 48 /* CharCode.Digit0 */ && firstCharCode <= 57 /* CharCode.Digit9 */)
+                || (firstCharCode >= 65 /* CharCode.A */ && firstCharCode <= 90 /* CharCode.Z */)
+                || (firstCharCode >= 97 /* CharCode.a */ && firstCharCode <= 122 /* CharCode.z */)));
         const tokens = this._tokens;
         const tokenCount = this._tokenCount;
         for (let i = 0; i < tokenCount; i++) {

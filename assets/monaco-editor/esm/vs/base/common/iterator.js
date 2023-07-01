@@ -17,6 +17,15 @@ export var Iterable;
         yield element;
     }
     Iterable.single = single;
+    function wrap(iterableOrElement) {
+        if (is(iterableOrElement)) {
+            return iterableOrElement;
+        }
+        else {
+            return single(iterableOrElement);
+        }
+    }
+    Iterable.wrap = wrap;
     function from(iterable) {
         return iterable || _empty;
     }
@@ -70,14 +79,6 @@ export var Iterable;
         }
     }
     Iterable.concat = concat;
-    function* concatNested(iterables) {
-        for (const iterable of iterables) {
-            for (const element of iterable) {
-                yield element;
-            }
-        }
-    }
-    Iterable.concatNested = concatNested;
     function reduce(iterable, reducer, initialValue) {
         let value = initialValue;
         for (const element of iterable) {
@@ -124,26 +125,4 @@ export var Iterable;
         return [consumed, { [Symbol.iterator]() { return iterator; } }];
     }
     Iterable.consume = consume;
-    /**
-     * Returns whether the iterables are the same length and all items are
-     * equal using the comparator function.
-     */
-    function equals(a, b, comparator = (at, bt) => at === bt) {
-        const ai = a[Symbol.iterator]();
-        const bi = b[Symbol.iterator]();
-        while (true) {
-            const an = ai.next();
-            const bn = bi.next();
-            if (an.done !== bn.done) {
-                return false;
-            }
-            else if (an.done) {
-                return true;
-            }
-            else if (!comparator(an.value, bn.value)) {
-                return false;
-            }
-        }
-    }
-    Iterable.equals = equals;
 })(Iterable || (Iterable = {}));

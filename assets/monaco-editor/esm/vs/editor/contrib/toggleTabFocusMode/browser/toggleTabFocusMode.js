@@ -4,27 +4,28 @@
  *--------------------------------------------------------------------------------------------*/
 import { alert } from '../../../../base/browser/ui/aria/aria.js';
 import { TabFocus } from '../../../browser/config/tabFocus.js';
-import { EditorAction, registerEditorAction } from '../../../browser/editorExtensions.js';
 import * as nls from '../../../../nls.js';
-export class ToggleTabFocusModeAction extends EditorAction {
+import { Action2, registerAction2 } from '../../../../platform/actions/common/actions.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+export class ToggleTabFocusModeAction extends Action2 {
     constructor() {
         super({
             id: ToggleTabFocusModeAction.ID,
-            label: nls.localize({ key: 'toggle.tabMovesFocus', comment: ['Turn on/off use of tab key for moving focus around VS Code'] }, "Toggle Tab Key Moves Focus"),
-            alias: 'Toggle Tab Key Moves Focus',
+            title: { value: nls.localize({ key: 'toggle.tabMovesFocus', comment: ['Turn on/off use of tab key for moving focus around VS Code'] }, 'Toggle Tab Key Moves Focus'), original: 'Toggle Tab Key Moves Focus' },
             precondition: undefined,
-            kbOpts: {
-                kbExpr: null,
-                primary: 2048 /* CtrlCmd */ | 43 /* KeyM */,
-                mac: { primary: 256 /* WinCtrl */ | 1024 /* Shift */ | 43 /* KeyM */ },
-                weight: 100 /* EditorContrib */
-            }
+            keybinding: {
+                primary: 2048 /* KeyMod.CtrlCmd */ | 43 /* KeyCode.KeyM */,
+                mac: { primary: 256 /* KeyMod.WinCtrl */ | 1024 /* KeyMod.Shift */ | 43 /* KeyCode.KeyM */ },
+                weight: 100 /* KeybindingWeight.EditorContrib */
+            },
+            f1: true
         });
     }
-    run(accessor, editor) {
-        const oldValue = TabFocus.getTabFocusMode();
+    run(accessor) {
+        const context = accessor.get(IContextKeyService).getContextKeyValue('focusedView') === 'terminal' ? "terminalFocus" /* TabFocusContext.Terminal */ : "editorFocus" /* TabFocusContext.Editor */;
+        const oldValue = TabFocus.getTabFocusMode(context);
         const newValue = !oldValue;
-        TabFocus.setTabFocusMode(newValue);
+        TabFocus.setTabFocusMode(newValue, context);
         if (newValue) {
             alert(nls.localize('toggle.tabMovesFocus.on', "Pressing Tab will now move focus to the next focusable element"));
         }
@@ -34,4 +35,4 @@ export class ToggleTabFocusModeAction extends EditorAction {
     }
 }
 ToggleTabFocusModeAction.ID = 'editor.action.toggleTabFocusMode';
-registerEditorAction(ToggleTabFocusModeAction);
+registerAction2(ToggleTabFocusModeAction);

@@ -14,7 +14,7 @@ export class VerticalScrollbar extends AbstractScrollbar {
         super({
             lazyRender: options.lazyRender,
             host: host,
-            scrollbarState: new ScrollbarState((options.verticalHasArrows ? options.arrowSize : 0), (options.vertical === 2 /* Hidden */ ? 0 : options.verticalScrollbarSize), 
+            scrollbarState: new ScrollbarState((options.verticalHasArrows ? options.arrowSize : 0), (options.vertical === 2 /* ScrollbarVisibility.Hidden */ ? 0 : options.verticalScrollbarSize), 
             // give priority to vertical scroll bar over horizontal and let it scroll all the way to the bottom
             0, scrollDimensions.height, scrollDimensions.scrollHeight, scrollPosition.scrollTop),
             visibility: options.vertical,
@@ -66,14 +66,14 @@ export class VerticalScrollbar extends AbstractScrollbar {
         this._shouldRender = this._onElementSize(e.height) || this._shouldRender;
         return this._shouldRender;
     }
-    _mouseDownRelativePosition(offsetX, offsetY) {
+    _pointerDownRelativePosition(offsetX, offsetY) {
         return offsetY;
     }
-    _sliderMousePosition(e) {
-        return e.posy;
+    _sliderPointerPosition(e) {
+        return e.pageY;
     }
-    _sliderOrthogonalMousePosition(e) {
-        return e.posx;
+    _sliderOrthogonalPointerPosition(e) {
+        return e.pageX;
     }
     _updateScrollbarSize(size) {
         this.slider.setWidth(size);
@@ -82,7 +82,7 @@ export class VerticalScrollbar extends AbstractScrollbar {
         target.scrollTop = scrollPosition;
     }
     updateOptions(options) {
-        this.updateScrollbarSize(options.vertical === 2 /* Hidden */ ? 0 : options.verticalScrollbarSize);
+        this.updateScrollbarSize(options.vertical === 2 /* ScrollbarVisibility.Hidden */ ? 0 : options.verticalScrollbarSize);
         // give priority to vertical scroll bar over horizontal and let it scroll all the way to the bottom
         this._scrollbarState.setOppositeScrollbarSize(0);
         this._visibilityController.setVisibility(options.vertical);

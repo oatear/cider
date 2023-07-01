@@ -20,8 +20,11 @@ export class RestrictedRenderingContext {
     getScrolledTopFromAbsoluteTop(absoluteTop) {
         return absoluteTop - this.scrollTop;
     }
-    getVerticalOffsetForLineNumber(lineNumber) {
-        return this._viewLayout.getVerticalOffsetForLineNumber(lineNumber);
+    getVerticalOffsetForLineNumber(lineNumber, includeViewZones) {
+        return this._viewLayout.getVerticalOffsetForLineNumber(lineNumber, includeViewZones);
+    }
+    getVerticalOffsetAfterLineNumber(lineNumber, includeViewZones) {
+        return this._viewLayout.getVerticalOffsetAfterLineNumber(lineNumber, includeViewZones);
     }
     getDecorationsInViewport() {
         return this.viewportData.getDecorationsInViewport();
@@ -48,11 +51,6 @@ export class LineVisibleRanges {
     }
 }
 export class HorizontalRange {
-    constructor(left, width) {
-        this._horizontalRangeBrand = undefined;
-        this.left = Math.round(left);
-        this.width = Math.round(width);
-    }
     static from(ranges) {
         const result = new Array(ranges.length);
         for (let i = 0, len = ranges.length; i < len; i++) {
@@ -60,6 +58,11 @@ export class HorizontalRange {
             result[i] = new HorizontalRange(range.left, range.width);
         }
         return result;
+    }
+    constructor(left, width) {
+        this._horizontalRangeBrand = undefined;
+        this.left = Math.round(left);
+        this.width = Math.round(width);
     }
     toString() {
         return `[${this.left},${this.width}]`;

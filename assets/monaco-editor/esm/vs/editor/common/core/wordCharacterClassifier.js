@@ -5,12 +5,12 @@
 import { CharacterClassifier } from './characterClassifier.js';
 export class WordCharacterClassifier extends CharacterClassifier {
     constructor(wordSeparators) {
-        super(0 /* Regular */);
+        super(0 /* WordCharacterClass.Regular */);
         for (let i = 0, len = wordSeparators.length; i < len; i++) {
-            this.set(wordSeparators.charCodeAt(i), 2 /* WordSeparator */);
+            this.set(wordSeparators.charCodeAt(i), 2 /* WordCharacterClass.WordSeparator */);
         }
-        this.set(32 /* Space */, 1 /* Whitespace */);
-        this.set(9 /* Tab */, 1 /* Whitespace */);
+        this.set(32 /* CharCode.Space */, 1 /* WordCharacterClass.Whitespace */);
+        this.set(9 /* CharCode.Tab */, 1 /* WordCharacterClass.Whitespace */);
     }
 }
 function once(computeFn) {

@@ -22,15 +22,15 @@ export class WordSelectionRangeProvider {
         if (!obj) {
             return;
         }
-        let { word, startColumn } = obj;
-        let offset = pos.column - startColumn;
+        const { word, startColumn } = obj;
+        const offset = pos.column - startColumn;
         let start = offset;
         let end = offset;
         let lastCh = 0;
         // LEFT anchor (start)
         for (; start >= 0; start--) {
-            let ch = word.charCodeAt(start);
-            if ((start !== offset) && (ch === 95 /* Underline */ || ch === 45 /* Dash */)) {
+            const ch = word.charCodeAt(start);
+            if ((start !== offset) && (ch === 95 /* CharCode.Underline */ || ch === 45 /* CharCode.Dash */)) {
                 // foo-bar OR foo_bar
                 break;
             }
@@ -43,12 +43,12 @@ export class WordSelectionRangeProvider {
         start += 1;
         // RIGHT anchor (end)
         for (; end < word.length; end++) {
-            let ch = word.charCodeAt(end);
+            const ch = word.charCodeAt(end);
             if (isUpperAsciiLetter(ch) && isLowerAsciiLetter(lastCh)) {
                 // fooBar
                 break;
             }
-            else if (ch === 95 /* Underline */ || ch === 45 /* Dash */) {
+            else if (ch === 95 /* CharCode.Underline */ || ch === 45 /* CharCode.Dash */) {
                 // foo-bar OR foo_bar
                 break;
             }

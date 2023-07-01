@@ -42,7 +42,7 @@ export class BasicInplaceReplace {
     numberReplace(value, up) {
         const precision = Math.pow(10, value.length - (value.lastIndexOf('.') + 1));
         let n1 = Number(value);
-        let n2 = parseFloat(value);
+        const n2 = parseFloat(value);
         if (!isNaN(n1) && !isNaN(n2) && n1 === n2) {
             if (n1 === 0 && !up) {
                 return null; // don't do negative

@@ -2,8 +2,8 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
+import { getAllMethodNames } from '../../../base/common/objects.js';
 import { EditorWorkerClient } from './editorWorkerService.js';
-import * as types from '../../../base/common/types.js';
 /**
  * Create a new web worker that has model syncing capabilities built in.
  * Specify an AMD module to load that will `create` an object that will be proxied.
@@ -34,7 +34,7 @@ class MonacoWebWorkerImpl extends EditorWorkerClient {
     _getForeignProxy() {
         if (!this._foreignProxy) {
             this._foreignProxy = this._getProxy().then((proxy) => {
-                const foreignHostMethods = this._foreignModuleHost ? types.getAllMethodNames(this._foreignModuleHost) : [];
+                const foreignHostMethods = this._foreignModuleHost ? getAllMethodNames(this._foreignModuleHost) : [];
                 return proxy.loadForeignModule(this._foreignModuleId, this._foreignModuleCreateData, foreignHostMethods).then((foreignMethods) => {
                     this._foreignModuleCreateData = null;
                     const proxyMethodRequest = (method, args) => {

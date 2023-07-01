@@ -101,7 +101,7 @@ let SymbolNavigationService = class SymbolNavigationService {
             resource: reference.uri,
             options: {
                 selection: Range.collapseToStart(reference.range),
-                selectionRevealType: 3 /* NearTopIfOutsideViewport */
+                selectionRevealType: 3 /* TextEditorSelectionRevealType.NearTopIfOutsideViewport */
             }
         }, source).finally(() => {
             this._ignoreEditorChange = false;
@@ -123,15 +123,15 @@ SymbolNavigationService = __decorate([
     __param(2, INotificationService),
     __param(3, IKeybindingService)
 ], SymbolNavigationService);
-registerSingleton(ISymbolNavigationService, SymbolNavigationService, true);
+registerSingleton(ISymbolNavigationService, SymbolNavigationService, 1 /* InstantiationType.Delayed */);
 registerEditorCommand(new class extends EditorCommand {
     constructor() {
         super({
             id: 'editor.gotoNextSymbolFromResult',
             precondition: ctxHasSymbols,
             kbOpts: {
-                weight: 100 /* EditorContrib */,
-                primary: 70 /* F12 */
+                weight: 100 /* KeybindingWeight.EditorContrib */,
+                primary: 70 /* KeyCode.F12 */
             }
         });
     }
@@ -141,9 +141,9 @@ registerEditorCommand(new class extends EditorCommand {
 });
 KeybindingsRegistry.registerCommandAndKeybindingRule({
     id: 'editor.gotoNextSymbolFromResult.cancel',
-    weight: 100 /* EditorContrib */,
+    weight: 100 /* KeybindingWeight.EditorContrib */,
     when: ctxHasSymbols,
-    primary: 9 /* Escape */,
+    primary: 9 /* KeyCode.Escape */,
     handler(accessor) {
         accessor.get(ISymbolNavigationService).reset();
     }

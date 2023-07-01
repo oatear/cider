@@ -1,6 +1,6 @@
 /*!-----------------------------------------------------------------------------
  * Copyright (c) Microsoft Corporation. All rights reserved.
- * Version: 0.32.1(29a273516805a852aa8edc5e05059f119b13eff0)
+ * Version: 0.39.0(ff3621a3fa6389873be5412d17554294ea1b0941)
  * Released under the MIT license
  * https://github.com/microsoft/monaco-editor/blob/main/LICENSE.txt
  *-----------------------------------------------------------------------------*/
@@ -9,14 +9,15 @@ var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __reExport = (target, module, copyDefault, desc) => {
-  if (module && typeof module === "object" || typeof module === "function") {
-    for (let key of __getOwnPropNames(module))
-      if (!__hasOwnProp.call(target, key) && (copyDefault || key !== "default"))
-        __defProp(target, key, { get: () => module[key], enumerable: !(desc = __getOwnPropDesc(module, key)) || desc.enumerable });
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
   }
-  return target;
+  return to;
 };
+var __reExport = (target, mod, secondTarget) => (__copyProps(target, mod, "default"), secondTarget && __copyProps(secondTarget, mod, "default"));
 
 // src/fillers/monaco-editor-core.ts
 var monaco_editor_core_exports = {};
@@ -1719,7 +1720,8 @@ function toWorkspaceEdit(edit) {
     for (let e of edit.changes[uri]) {
       resourceEdits.push({
         resource: _uri,
-        edit: {
+        versionId: void 0,
+        textEdit: {
           range: toRange(e.range),
           text: e.newText
         }
@@ -1833,6 +1835,7 @@ var DocumentRangeFormattingEditProvider = class {
   constructor(_worker) {
     this._worker = _worker;
   }
+  canFormatMultipleRanges = false;
   provideDocumentRangeFormattingEdits(model, range, options, token) {
     const resource = model.uri;
     return this._worker(resource).then((worker) => {
@@ -1988,6 +1991,12 @@ function setupMode(defaults) {
     }
     if (modeConfiguration.selectionRanges) {
       providers.push(monaco_editor_core_exports.languages.registerSelectionRangeProvider(languageId, new SelectionRangeAdapter(worker)));
+    }
+    if (modeConfiguration.documentFormattingEdits) {
+      providers.push(monaco_editor_core_exports.languages.registerDocumentFormattingEditProvider(languageId, new DocumentFormattingEditProvider(worker)));
+    }
+    if (modeConfiguration.documentRangeFormattingEdits) {
+      providers.push(monaco_editor_core_exports.languages.registerDocumentRangeFormattingEditProvider(languageId, new DocumentRangeFormattingEditProvider(worker)));
     }
   }
   registerProviders();

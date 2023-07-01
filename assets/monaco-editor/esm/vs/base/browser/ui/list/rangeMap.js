@@ -9,7 +9,7 @@ import { Range } from '../../../common/range.js';
  */
 export function groupIntersect(range, groups) {
     const result = [];
-    for (let r of groups) {
+    for (const r of groups) {
         if (range.start >= r.range.end) {
             continue;
         }
@@ -42,7 +42,7 @@ export function shift({ start, end }, much) {
 export function consolidate(groups) {
     const result = [];
     let previousGroup = null;
-    for (let group of groups) {
+    for (const group of groups) {
         const start = group.range.start;
         const end = group.range.end;
         const size = group.size;
@@ -104,7 +104,7 @@ export class RangeMap {
         }
         let index = 0;
         let size = 0;
-        for (let group of this.groups) {
+        for (const group of this.groups) {
             const count = group.range.end - group.range.start;
             const newSize = size + (count * group.size);
             if (position < newSize) {
@@ -131,7 +131,7 @@ export class RangeMap {
         }
         let position = 0;
         let count = 0;
-        for (let group of this.groups) {
+        for (const group of this.groups) {
             const groupCount = group.range.end - group.range.start;
             const newCount = count + groupCount;
             if (index < newCount) {

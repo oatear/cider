@@ -1,606 +1,8 @@
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 var _a, _b;
-import { compare, compareIgnoreCase, compareSubstring, compareSubstringIgnoreCase } from './strings.js';
-export class StringIterator {
-    constructor() {
-        this._value = '';
-        this._pos = 0;
-    }
-    reset(key) {
-        this._value = key;
-        this._pos = 0;
-        return this;
-    }
-    next() {
-        this._pos += 1;
-        return this;
-    }
-    hasNext() {
-        return this._pos < this._value.length - 1;
-    }
-    cmp(a) {
-        const aCode = a.charCodeAt(0);
-        const thisCode = this._value.charCodeAt(this._pos);
-        return aCode - thisCode;
-    }
-    value() {
-        return this._value[this._pos];
-    }
-}
-export class ConfigKeysIterator {
-    constructor(_caseSensitive = true) {
-        this._caseSensitive = _caseSensitive;
-    }
-    reset(key) {
-        this._value = key;
-        this._from = 0;
-        this._to = 0;
-        return this.next();
-    }
-    hasNext() {
-        return this._to < this._value.length;
-    }
-    next() {
-        // this._data = key.split(/[\\/]/).filter(s => !!s);
-        this._from = this._to;
-        let justSeps = true;
-        for (; this._to < this._value.length; this._to++) {
-            const ch = this._value.charCodeAt(this._to);
-            if (ch === 46 /* Period */) {
-                if (justSeps) {
-                    this._from++;
-                }
-                else {
-                    break;
-                }
-            }
-            else {
-                justSeps = false;
-            }
-        }
-        return this;
-    }
-    cmp(a) {
-        return this._caseSensitive
-            ? compareSubstring(a, this._value, 0, a.length, this._from, this._to)
-            : compareSubstringIgnoreCase(a, this._value, 0, a.length, this._from, this._to);
-    }
-    value() {
-        return this._value.substring(this._from, this._to);
-    }
-}
-export class PathIterator {
-    constructor(_splitOnBackslash = true, _caseSensitive = true) {
-        this._splitOnBackslash = _splitOnBackslash;
-        this._caseSensitive = _caseSensitive;
-    }
-    reset(key) {
-        this._from = 0;
-        this._to = 0;
-        this._value = key;
-        this._valueLen = key.length;
-        for (let pos = key.length - 1; pos >= 0; pos--, this._valueLen--) {
-            const ch = this._value.charCodeAt(pos);
-            if (!(ch === 47 /* Slash */ || this._splitOnBackslash && ch === 92 /* Backslash */)) {
-                break;
-            }
-        }
-        return this.next();
-    }
-    hasNext() {
-        return this._to < this._valueLen;
-    }
-    next() {
-        // this._data = key.split(/[\\/]/).filter(s => !!s);
-        this._from = this._to;
-        let justSeps = true;
-        for (; this._to < this._valueLen; this._to++) {
-            const ch = this._value.charCodeAt(this._to);
-            if (ch === 47 /* Slash */ || this._splitOnBackslash && ch === 92 /* Backslash */) {
-                if (justSeps) {
-                    this._from++;
-                }
-                else {
-                    break;
-                }
-            }
-            else {
-                justSeps = false;
-            }
-        }
-        return this;
-    }
-    cmp(a) {
-        return this._caseSensitive
-            ? compareSubstring(a, this._value, 0, a.length, this._from, this._to)
-            : compareSubstringIgnoreCase(a, this._value, 0, a.length, this._from, this._to);
-    }
-    value() {
-        return this._value.substring(this._from, this._to);
-    }
-}
-export class UriIterator {
-    constructor(_ignorePathCasing) {
-        this._ignorePathCasing = _ignorePathCasing;
-        this._states = [];
-        this._stateIdx = 0;
-    }
-    reset(key) {
-        this._value = key;
-        this._states = [];
-        if (this._value.scheme) {
-            this._states.push(1 /* Scheme */);
-        }
-        if (this._value.authority) {
-            this._states.push(2 /* Authority */);
-        }
-        if (this._value.path) {
-            this._pathIterator = new PathIterator(false, !this._ignorePathCasing(key));
-            this._pathIterator.reset(key.path);
-            if (this._pathIterator.value()) {
-                this._states.push(3 /* Path */);
-            }
-        }
-        if (this._value.query) {
-            this._states.push(4 /* Query */);
-        }
-        if (this._value.fragment) {
-            this._states.push(5 /* Fragment */);
-        }
-        this._stateIdx = 0;
-        return this;
-    }
-    next() {
-        if (this._states[this._stateIdx] === 3 /* Path */ && this._pathIterator.hasNext()) {
-            this._pathIterator.next();
-        }
-        else {
-            this._stateIdx += 1;
-        }
-        return this;
-    }
-    hasNext() {
-        return (this._states[this._stateIdx] === 3 /* Path */ && this._pathIterator.hasNext())
-            || this._stateIdx < this._states.length - 1;
-    }
-    cmp(a) {
-        if (this._states[this._stateIdx] === 1 /* Scheme */) {
-            return compareIgnoreCase(a, this._value.scheme);
-        }
-        else if (this._states[this._stateIdx] === 2 /* Authority */) {
-            return compareIgnoreCase(a, this._value.authority);
-        }
-        else if (this._states[this._stateIdx] === 3 /* Path */) {
-            return this._pathIterator.cmp(a);
-        }
-        else if (this._states[this._stateIdx] === 4 /* Query */) {
-            return compare(a, this._value.query);
-        }
-        else if (this._states[this._stateIdx] === 5 /* Fragment */) {
-            return compare(a, this._value.fragment);
-        }
-        throw new Error();
-    }
-    value() {
-        if (this._states[this._stateIdx] === 1 /* Scheme */) {
-            return this._value.scheme;
-        }
-        else if (this._states[this._stateIdx] === 2 /* Authority */) {
-            return this._value.authority;
-        }
-        else if (this._states[this._stateIdx] === 3 /* Path */) {
-            return this._pathIterator.value();
-        }
-        else if (this._states[this._stateIdx] === 4 /* Query */) {
-            return this._value.query;
-        }
-        else if (this._states[this._stateIdx] === 5 /* Fragment */) {
-            return this._value.fragment;
-        }
-        throw new Error();
-    }
-}
-class TernarySearchTreeNode {
-    constructor() {
-        this.height = 1;
-    }
-    rotateLeft() {
-        const tmp = this.right;
-        this.right = tmp.left;
-        tmp.left = this;
-        this.updateHeight();
-        tmp.updateHeight();
-        return tmp;
-    }
-    rotateRight() {
-        const tmp = this.left;
-        this.left = tmp.right;
-        tmp.right = this;
-        this.updateHeight();
-        tmp.updateHeight();
-        return tmp;
-    }
-    updateHeight() {
-        this.height = 1 + Math.max(this.heightLeft, this.heightRight);
-    }
-    balanceFactor() {
-        return this.heightRight - this.heightLeft;
-    }
-    get heightLeft() {
-        var _c, _d;
-        return (_d = (_c = this.left) === null || _c === void 0 ? void 0 : _c.height) !== null && _d !== void 0 ? _d : 0;
-    }
-    get heightRight() {
-        var _c, _d;
-        return (_d = (_c = this.right) === null || _c === void 0 ? void 0 : _c.height) !== null && _d !== void 0 ? _d : 0;
-    }
-}
-export class TernarySearchTree {
-    constructor(segments) {
-        this._iter = segments;
-    }
-    static forUris(ignorePathCasing = () => false) {
-        return new TernarySearchTree(new UriIterator(ignorePathCasing));
-    }
-    static forStrings() {
-        return new TernarySearchTree(new StringIterator());
-    }
-    static forConfigKeys() {
-        return new TernarySearchTree(new ConfigKeysIterator());
-    }
-    clear() {
-        this._root = undefined;
-    }
-    set(key, element) {
-        const iter = this._iter.reset(key);
-        let node;
-        if (!this._root) {
-            this._root = new TernarySearchTreeNode();
-            this._root.segment = iter.value();
-        }
-        const stack = [];
-        // find insert_node
-        node = this._root;
-        while (true) {
-            const val = iter.cmp(node.segment);
-            if (val > 0) {
-                // left
-                if (!node.left) {
-                    node.left = new TernarySearchTreeNode();
-                    node.left.segment = iter.value();
-                }
-                stack.push([-1 /* Left */, node]);
-                node = node.left;
-            }
-            else if (val < 0) {
-                // right
-                if (!node.right) {
-                    node.right = new TernarySearchTreeNode();
-                    node.right.segment = iter.value();
-                }
-                stack.push([1 /* Right */, node]);
-                node = node.right;
-            }
-            else if (iter.hasNext()) {
-                // mid
-                iter.next();
-                if (!node.mid) {
-                    node.mid = new TernarySearchTreeNode();
-                    node.mid.segment = iter.value();
-                }
-                stack.push([0 /* Mid */, node]);
-                node = node.mid;
-            }
-            else {
-                break;
-            }
-        }
-        // set value
-        const oldElement = node.value;
-        node.value = element;
-        node.key = key;
-        // balance
-        for (let i = stack.length - 1; i >= 0; i--) {
-            const node = stack[i][1];
-            node.updateHeight();
-            const bf = node.balanceFactor();
-            if (bf < -1 || bf > 1) {
-                // needs rotate
-                const d1 = stack[i][0];
-                const d2 = stack[i + 1][0];
-                if (d1 === 1 /* Right */ && d2 === 1 /* Right */) {
-                    //right, right -> rotate left
-                    stack[i][1] = node.rotateLeft();
-                }
-                else if (d1 === -1 /* Left */ && d2 === -1 /* Left */) {
-                    // left, left -> rotate right
-                    stack[i][1] = node.rotateRight();
-                }
-                else if (d1 === 1 /* Right */ && d2 === -1 /* Left */) {
-                    // right, left -> double rotate right, left
-                    node.right = stack[i + 1][1] = stack[i + 1][1].rotateRight();
-                    stack[i][1] = node.rotateLeft();
-                }
-                else if (d1 === -1 /* Left */ && d2 === 1 /* Right */) {
-                    // left, right -> double rotate left, right
-                    node.left = stack[i + 1][1] = stack[i + 1][1].rotateLeft();
-                    stack[i][1] = node.rotateRight();
-                }
-                else {
-                    throw new Error();
-                }
-                // patch path to parent
-                if (i > 0) {
-                    switch (stack[i - 1][0]) {
-                        case -1 /* Left */:
-                            stack[i - 1][1].left = stack[i][1];
-                            break;
-                        case 1 /* Right */:
-                            stack[i - 1][1].right = stack[i][1];
-                            break;
-                        case 0 /* Mid */:
-                            stack[i - 1][1].mid = stack[i][1];
-                            break;
-                    }
-                }
-                else {
-                    this._root = stack[0][1];
-                }
-            }
-        }
-        return oldElement;
-    }
-    get(key) {
-        var _c;
-        return (_c = this._getNode(key)) === null || _c === void 0 ? void 0 : _c.value;
-    }
-    _getNode(key) {
-        const iter = this._iter.reset(key);
-        let node = this._root;
-        while (node) {
-            const val = iter.cmp(node.segment);
-            if (val > 0) {
-                // left
-                node = node.left;
-            }
-            else if (val < 0) {
-                // right
-                node = node.right;
-            }
-            else if (iter.hasNext()) {
-                // mid
-                iter.next();
-                node = node.mid;
-            }
-            else {
-                break;
-            }
-        }
-        return node;
-    }
-    has(key) {
-        const node = this._getNode(key);
-        return !((node === null || node === void 0 ? void 0 : node.value) === undefined && (node === null || node === void 0 ? void 0 : node.mid) === undefined);
-    }
-    delete(key) {
-        return this._delete(key, false);
-    }
-    deleteSuperstr(key) {
-        return this._delete(key, true);
-    }
-    _delete(key, superStr) {
-        var _c;
-        const iter = this._iter.reset(key);
-        const stack = [];
-        let node = this._root;
-        // find node
-        while (node) {
-            const val = iter.cmp(node.segment);
-            if (val > 0) {
-                // left
-                stack.push([-1 /* Left */, node]);
-                node = node.left;
-            }
-            else if (val < 0) {
-                // right
-                stack.push([1 /* Right */, node]);
-                node = node.right;
-            }
-            else if (iter.hasNext()) {
-                // mid
-                iter.next();
-                stack.push([0 /* Mid */, node]);
-                node = node.mid;
-            }
-            else {
-                break;
-            }
-        }
-        if (!node) {
-            // node not found
-            return;
-        }
-        if (superStr) {
-            // removing children, reset height
-            node.left = undefined;
-            node.mid = undefined;
-            node.right = undefined;
-            node.height = 1;
-        }
-        else {
-            // removing element
-            node.key = undefined;
-            node.value = undefined;
-        }
-        // BST node removal
-        if (!node.mid && !node.value) {
-            if (node.left && node.right) {
-                // full node
-                const min = this._min(node.right);
-                const { key, value, segment } = min;
-                this._delete(min.key, false);
-                node.key = key;
-                node.value = value;
-                node.segment = segment;
-            }
-            else {
-                // empty or half empty
-                const newChild = (_c = node.left) !== null && _c !== void 0 ? _c : node.right;
-                if (stack.length > 0) {
-                    const [dir, parent] = stack[stack.length - 1];
-                    switch (dir) {
-                        case -1 /* Left */:
-                            parent.left = newChild;
-                            break;
-                        case 0 /* Mid */:
-                            parent.mid = newChild;
-                            break;
-                        case 1 /* Right */:
-                            parent.right = newChild;
-                            break;
-                    }
-                }
-                else {
-                    this._root = newChild;
-                }
-            }
-        }
-        // AVL balance
-        for (let i = stack.length - 1; i >= 0; i--) {
-            const node = stack[i][1];
-            node.updateHeight();
-            const bf = node.balanceFactor();
-            if (bf > 1) {
-                // right heavy
-                if (node.right.balanceFactor() >= 0) {
-                    // right, right -> rotate left
-                    stack[i][1] = node.rotateLeft();
-                }
-                else {
-                    // right, left -> double rotate
-                    node.right = node.right.rotateRight();
-                    stack[i][1] = node.rotateLeft();
-                }
-            }
-            else if (bf < -1) {
-                // left heavy
-                if (node.left.balanceFactor() <= 0) {
-                    // left, left -> rotate right
-                    stack[i][1] = node.rotateRight();
-                }
-                else {
-                    // left, right -> double rotate
-                    node.left = node.left.rotateLeft();
-                    stack[i][1] = node.rotateRight();
-                }
-            }
-            // patch path to parent
-            if (i > 0) {
-                switch (stack[i - 1][0]) {
-                    case -1 /* Left */:
-                        stack[i - 1][1].left = stack[i][1];
-                        break;
-                    case 1 /* Right */:
-                        stack[i - 1][1].right = stack[i][1];
-                        break;
-                    case 0 /* Mid */:
-                        stack[i - 1][1].mid = stack[i][1];
-                        break;
-                }
-            }
-            else {
-                this._root = stack[0][1];
-            }
-        }
-    }
-    _min(node) {
-        while (node.left) {
-            node = node.left;
-        }
-        return node;
-    }
-    findSubstr(key) {
-        const iter = this._iter.reset(key);
-        let node = this._root;
-        let candidate = undefined;
-        while (node) {
-            const val = iter.cmp(node.segment);
-            if (val > 0) {
-                // left
-                node = node.left;
-            }
-            else if (val < 0) {
-                // right
-                node = node.right;
-            }
-            else if (iter.hasNext()) {
-                // mid
-                iter.next();
-                candidate = node.value || candidate;
-                node = node.mid;
-            }
-            else {
-                break;
-            }
-        }
-        return node && node.value || candidate;
-    }
-    findSuperstr(key) {
-        const iter = this._iter.reset(key);
-        let node = this._root;
-        while (node) {
-            const val = iter.cmp(node.segment);
-            if (val > 0) {
-                // left
-                node = node.left;
-            }
-            else if (val < 0) {
-                // right
-                node = node.right;
-            }
-            else if (iter.hasNext()) {
-                // mid
-                iter.next();
-                node = node.mid;
-            }
-            else {
-                // collect
-                if (!node.mid) {
-                    return undefined;
-                }
-                else {
-                    return this._entries(node.mid);
-                }
-            }
-        }
-        return undefined;
-    }
-    forEach(callback) {
-        for (const [key, value] of this) {
-            callback(value, key);
-        }
-    }
-    *[Symbol.iterator]() {
-        yield* this._entries(this._root);
-    }
-    *_entries(node) {
-        // DFS
-        if (!node) {
-            return;
-        }
-        if (node.left) {
-            yield* this._entries(node.left);
-        }
-        if (node.value) {
-            yield [node.key, node.value];
-        }
-        if (node.mid) {
-            yield* this._entries(node.mid);
-        }
-        if (node.right) {
-            yield* this._entries(node.right);
-        }
-    }
-}
 class ResourceMapEntry {
     constructor(uri, value) {
         this.uri = uri;
@@ -643,27 +45,27 @@ export class ResourceMap {
         if (typeof thisArg !== 'undefined') {
             clb = clb.bind(thisArg);
         }
-        for (let [_, entry] of this.map) {
+        for (const [_, entry] of this.map) {
             clb(entry.value, entry.uri, this);
         }
     }
     *values() {
-        for (let entry of this.map.values()) {
+        for (const entry of this.map.values()) {
             yield entry.value;
         }
     }
     *keys() {
-        for (let entry of this.map.values()) {
+        for (const entry of this.map.values()) {
             yield entry.uri;
         }
     }
     *entries() {
-        for (let entry of this.map.values()) {
+        for (const entry of this.map.values()) {
             yield [entry.uri, entry.value];
         }
     }
     *[(_a = Symbol.toStringTag, Symbol.iterator)]() {
-        for (let [, entry] of this.map) {
+        for (const [, entry] of this.map) {
             yield [entry.uri, entry.value];
         }
     }
@@ -702,34 +104,34 @@ export class LinkedMap {
     has(key) {
         return this._map.has(key);
     }
-    get(key, touch = 0 /* None */) {
+    get(key, touch = 0 /* Touch.None */) {
         const item = this._map.get(key);
         if (!item) {
             return undefined;
         }
-        if (touch !== 0 /* None */) {
+        if (touch !== 0 /* Touch.None */) {
             this.touch(item, touch);
         }
         return item.value;
     }
-    set(key, value, touch = 0 /* None */) {
+    set(key, value, touch = 0 /* Touch.None */) {
         let item = this._map.get(key);
         if (item) {
             item.value = value;
-            if (touch !== 0 /* None */) {
+            if (touch !== 0 /* Touch.None */) {
                 this.touch(item, touch);
             }
         }
         else {
             item = { key, value, next: undefined, previous: undefined };
             switch (touch) {
-                case 0 /* None */:
+                case 0 /* Touch.None */:
                     this.addItemLast(item);
                     break;
-                case 1 /* AsOld */:
+                case 1 /* Touch.AsOld */:
                     this.addItemFirst(item);
                     break;
-                case 2 /* AsNew */:
+                case 2 /* Touch.AsNew */:
                     this.addItemLast(item);
                     break;
                 default:
@@ -950,10 +352,10 @@ export class LinkedMap {
         if (!this._head || !this._tail) {
             throw new Error('Invalid list');
         }
-        if ((touch !== 1 /* AsOld */ && touch !== 2 /* AsNew */)) {
+        if ((touch !== 1 /* Touch.AsOld */ && touch !== 2 /* Touch.AsNew */)) {
             return;
         }
-        if (touch === 1 /* AsOld */) {
+        if (touch === 1 /* Touch.AsOld */) {
             if (item === this._head) {
                 return;
             }
@@ -978,7 +380,7 @@ export class LinkedMap {
             this._head = item;
             this._state++;
         }
-        else if (touch === 2 /* AsNew */) {
+        else if (touch === 2 /* Touch.AsNew */) {
             if (item === this._tail) {
                 return;
             }
@@ -1030,14 +432,14 @@ export class LRUCache extends LinkedMap {
         this._limit = limit;
         this.checkTrim();
     }
-    get(key, touch = 2 /* AsNew */) {
+    get(key, touch = 2 /* Touch.AsNew */) {
         return super.get(key, touch);
     }
     peek(key) {
-        return super.get(key, 0 /* None */);
+        return super.get(key, 0 /* Touch.None */);
     }
     set(key, value) {
-        super.set(key, value, 2 /* AsNew */);
+        super.set(key, value, 2 /* Touch.AsNew */);
         this.checkTrim();
         return this;
     }

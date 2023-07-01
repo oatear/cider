@@ -30,8 +30,8 @@ import { normalizePath } from '../../../base/common/resources.js';
 import { URI } from '../../../base/common/uri.js';
 import { ICodeEditorService } from './codeEditorService.js';
 import { ICommandService } from '../../../platform/commands/common/commands.js';
-import { EditorOpenContext } from '../../../platform/editor/common/editor.js';
-import { matchesScheme, matchesSomeScheme, selectionFragment } from '../../../platform/opener/common/opener.js';
+import { EditorOpenSource } from '../../../platform/editor/common/editor.js';
+import { extractSelection, matchesScheme, matchesSomeScheme } from '../../../platform/opener/common/opener.js';
 let CommandOpener = class CommandOpener {
     constructor(_commandService) {
         this._commandService = _commandService;
@@ -43,12 +43,18 @@ let CommandOpener = class CommandOpener {
             }
             if (!(options === null || options === void 0 ? void 0 : options.allowCommands)) {
                 // silently ignore commands when command-links are disabled, also
-                // surpress other openers by returning TRUE
+                // suppress other openers by returning TRUE
                 return true;
             }
-            // run command or bail out if command isn't known
             if (typeof target === 'string') {
                 target = URI.parse(target);
+            }
+            if (Array.isArray(options.allowCommands)) {
+                // Only allow specific commands
+                if (!options.allowCommands.includes(target.path)) {
+                    // Suppress other openers by returning TRUE
+                    return true;
+                }
             }
             // execute as command
             let args = [];
@@ -84,16 +90,14 @@ let EditorOpener = class EditorOpener {
             if (typeof target === 'string') {
                 target = URI.parse(target);
             }
-            const selection = selectionFragment(target);
-            if (selection) {
-                target = target.with({ fragment: '' });
-            }
+            const { selection, uri } = extractSelection(target);
+            target = uri;
             if (target.scheme === Schemas.file) {
                 target = normalizePath(target); // workaround for non-normalized paths (https://github.com/microsoft/vscode/issues/12954)
             }
             yield this._editorService.openCodeEditor({
                 resource: target,
-                options: Object.assign({ selection, context: (options === null || options === void 0 ? void 0 : options.fromUserGesture) ? EditorOpenContext.USER : EditorOpenContext.API }, options === null || options === void 0 ? void 0 : options.editorOptions)
+                options: Object.assign({ selection, source: (options === null || options === void 0 ? void 0 : options.fromUserGesture) ? EditorOpenSource.USER : EditorOpenSource.API }, options === null || options === void 0 ? void 0 : options.editorOptions)
             }, this._editorService.getFocusedCodeEditor(), options === null || options === void 0 ? void 0 : options.openToSide);
             return true;
         });
@@ -102,7 +106,7 @@ let EditorOpener = class EditorOpener {
 EditorOpener = __decorate([
     __param(0, ICodeEditorService)
 ], EditorOpener);
-let OpenerService = class OpenerService {
+export let OpenerService = class OpenerService {
     constructor(editorService, commandService) {
         this._openers = new LinkedList();
         this._validators = new LinkedList();
@@ -143,21 +147,6 @@ let OpenerService = class OpenerService {
         const remove = this._openers.unshift(opener);
         return { dispose: remove };
     }
-    registerValidator(validator) {
-        const remove = this._validators.push(validator);
-        return { dispose: remove };
-    }
-    registerExternalUriResolver(resolver) {
-        const remove = this._resolvers.push(resolver);
-        return { dispose: remove };
-    }
-    setDefaultExternalOpener(externalOpener) {
-        this._defaultExternalOpener = externalOpener;
-    }
-    registerExternalOpener(opener) {
-        const remove = this._externalOpeners.push(opener);
-        return { dispose: remove };
-    }
     open(target, options) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
@@ -166,7 +155,7 @@ let OpenerService = class OpenerService {
             // validate against the original URI that this URI resolves to, if one exists
             const validationTarget = (_a = this._resolvedUriTargets.get(targetURI)) !== null && _a !== void 0 ? _a : target;
             for (const validator of this._validators) {
-                if (!(yield validator.shouldOpen(validationTarget))) {
+                if (!(yield validator.shouldOpen(validationTarget, options))) {
                     return false;
                 }
             }
@@ -242,4 +231,3 @@ OpenerService = __decorate([
     __param(0, ICodeEditorService),
     __param(1, ICommandService)
 ], OpenerService);
-export { OpenerService };

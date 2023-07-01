@@ -18,7 +18,7 @@ export class FindDecorations {
         this._startPosition = this._editor.getPosition();
     }
     dispose() {
-        this._editor.deltaDecorations(this._allDecorations(), []);
+        this._editor.removeDecorations(this._allDecorations());
         this._decorations = [];
         this._overviewRulerApproximateDecorations = [];
         this._findScopeDecorationIds = [];
@@ -65,8 +65,15 @@ export class FindDecorations {
         }
         return 1;
     }
+    getDecorationRangeAt(index) {
+        const decorationId = index < this._decorations.length ? this._decorations[index] : null;
+        if (decorationId) {
+            return this._editor.getModel().getDecorationRange(decorationId);
+        }
+        return null;
+    }
     getCurrentMatchesPosition(desiredRange) {
-        let candidates = this._editor.getModel().getDecorationsInRange(desiredRange);
+        const candidates = this._editor.getModel().getDecorationsInRange(desiredRange);
         for (const candidate of candidates) {
             const candidateOpts = candidate.options;
             if (candidateOpts === FindDecorations._FIND_MATCH_DECORATION || candidateOpts === FindDecorations._CURRENT_FIND_MATCH_DECORATION) {
@@ -81,7 +88,7 @@ export class FindDecorations {
         let matchPosition = 0;
         if (nextMatch) {
             for (let i = 0, len = this._decorations.length; i < len; i++) {
-                let range = this._editor.getModel().getDecorationRange(this._decorations[i]);
+                const range = this._editor.getModel().getDecorationRange(this._decorations[i]);
                 if (nextMatch.equalsRange(range)) {
                     newCurrentDecorationId = this._decorations[i];
                     matchPosition = (i + 1);
@@ -106,8 +113,8 @@ export class FindDecorations {
                 if (newCurrentDecorationId !== null) {
                     let rng = this._editor.getModel().getDecorationRange(newCurrentDecorationId);
                     if (rng.startLineNumber !== rng.endLineNumber && rng.endColumn === 1) {
-                        let lineBeforeEnd = rng.endLineNumber - 1;
-                        let lineBeforeEndMaxColumn = this._editor.getModel().getLineMaxColumn(lineBeforeEnd);
+                        const lineBeforeEnd = rng.endLineNumber - 1;
+                        const lineBeforeEndMaxColumn = this._editor.getModel().getLineMaxColumn(lineBeforeEnd);
                         rng = new Range(rng.startLineNumber, rng.startColumn, lineBeforeEnd, lineBeforeEndMaxColumn);
                     }
                     this._rangeHighlightDecorationId = changeAccessor.addDecoration(rng, FindDecorations._RANGE_HIGHLIGHT_DECORATION);
@@ -119,7 +126,7 @@ export class FindDecorations {
     set(findMatches, findScopes) {
         this._editor.changeDecorations((accessor) => {
             let findMatchesOptions = FindDecorations._FIND_MATCH_DECORATION;
-            let newOverviewRulerApproximateDecorations = [];
+            const newOverviewRulerApproximateDecorations = [];
             if (findMatches.length > 1000) {
                 // we go into a mode where the overview ruler gets "approximate" decorations
                 // the reason is that the overview ruler paints all the decorations in the file and we don't want to cause freezes
@@ -154,7 +161,7 @@ export class FindDecorations {
                 });
             }
             // Find matches
-            let newFindMatchesDecorations = new Array(findMatches.length);
+            const newFindMatchesDecorations = new Array(findMatches.length);
             for (let i = 0, len = findMatches.length; i < len; i++) {
                 newFindMatchesDecorations[i] = {
                     range: findMatches[i].range,
@@ -184,8 +191,8 @@ export class FindDecorations {
             return null;
         }
         for (let i = this._decorations.length - 1; i >= 0; i--) {
-            let decorationId = this._decorations[i];
-            let r = this._editor.getModel().getDecorationRange(decorationId);
+            const decorationId = this._decorations[i];
+            const r = this._editor.getModel().getDecorationRange(decorationId);
             if (!r || r.endLineNumber > position.lineNumber) {
                 continue;
             }
@@ -204,8 +211,8 @@ export class FindDecorations {
             return null;
         }
         for (let i = 0, len = this._decorations.length; i < len; i++) {
-            let decorationId = this._decorations[i];
-            let r = this._editor.getModel().getDecorationRange(decorationId);
+            const decorationId = this._decorations[i];
+            const r = this._editor.getModel().getDecorationRange(decorationId);
             if (!r || r.startLineNumber < position.lineNumber) {
                 continue;
             }
@@ -234,7 +241,7 @@ export class FindDecorations {
 }
 FindDecorations._CURRENT_FIND_MATCH_DECORATION = ModelDecorationOptions.register({
     description: 'current-find-match',
-    stickiness: 1 /* NeverGrowsWhenTypingAtEdges */,
+    stickiness: 1 /* TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges */,
     zIndex: 13,
     className: 'currentFindMatch',
     showIfCollapsed: true,
@@ -249,7 +256,7 @@ FindDecorations._CURRENT_FIND_MATCH_DECORATION = ModelDecorationOptions.register
 });
 FindDecorations._FIND_MATCH_DECORATION = ModelDecorationOptions.register({
     description: 'find-match',
-    stickiness: 1 /* NeverGrowsWhenTypingAtEdges */,
+    stickiness: 1 /* TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges */,
     zIndex: 10,
     className: 'findMatch',
     showIfCollapsed: true,
@@ -264,13 +271,13 @@ FindDecorations._FIND_MATCH_DECORATION = ModelDecorationOptions.register({
 });
 FindDecorations._FIND_MATCH_NO_OVERVIEW_DECORATION = ModelDecorationOptions.register({
     description: 'find-match-no-overview',
-    stickiness: 1 /* NeverGrowsWhenTypingAtEdges */,
+    stickiness: 1 /* TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges */,
     className: 'findMatch',
     showIfCollapsed: true
 });
 FindDecorations._FIND_MATCH_ONLY_OVERVIEW_DECORATION = ModelDecorationOptions.register({
     description: 'find-match-only-overview',
-    stickiness: 1 /* NeverGrowsWhenTypingAtEdges */,
+    stickiness: 1 /* TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges */,
     overviewRuler: {
         color: themeColorFromId(overviewRulerFindMatchForeground),
         position: OverviewRulerLane.Center
@@ -278,7 +285,7 @@ FindDecorations._FIND_MATCH_ONLY_OVERVIEW_DECORATION = ModelDecorationOptions.re
 });
 FindDecorations._RANGE_HIGHLIGHT_DECORATION = ModelDecorationOptions.register({
     description: 'find-range-highlight',
-    stickiness: 1 /* NeverGrowsWhenTypingAtEdges */,
+    stickiness: 1 /* TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges */,
     className: 'rangeHighlight',
     isWholeLine: true
 });

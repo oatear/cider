@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 import { Position } from '../core/position.js';
 import { Range } from '../core/range.js';
-import { InlineDecoration, ViewModelDecoration } from './viewModel.js';
+import { InlineDecoration, ViewModelDecoration } from '../viewModel.js';
 import { filterValidationDecorations } from '../config/editorOptions.js';
 export class ViewModelDecorations {
     constructor(editorId, model, configuration, linesCollection, coordinatesConverter) {
@@ -45,33 +45,40 @@ export class ViewModelDecorations {
             const options = modelDecoration.options;
             let viewRange;
             if (options.isWholeLine) {
-                const start = this._coordinatesConverter.convertModelPositionToViewPosition(new Position(modelRange.startLineNumber, 1), 0 /* Left */);
-                const end = this._coordinatesConverter.convertModelPositionToViewPosition(new Position(modelRange.endLineNumber, this.model.getLineMaxColumn(modelRange.endLineNumber)), 1 /* Right */);
+                const start = this._coordinatesConverter.convertModelPositionToViewPosition(new Position(modelRange.startLineNumber, 1), 0 /* PositionAffinity.Left */);
+                const end = this._coordinatesConverter.convertModelPositionToViewPosition(new Position(modelRange.endLineNumber, this.model.getLineMaxColumn(modelRange.endLineNumber)), 1 /* PositionAffinity.Right */);
                 viewRange = new Range(start.lineNumber, start.column, end.lineNumber, end.column);
             }
             else {
                 // For backwards compatibility reasons, we want injected text before any decoration.
                 // Thus, move decorations to the right.
-                viewRange = this._coordinatesConverter.convertModelRangeToViewRange(modelRange, 1 /* Right */);
+                viewRange = this._coordinatesConverter.convertModelRangeToViewRange(modelRange, 1 /* PositionAffinity.Right */);
             }
             r = new ViewModelDecoration(viewRange, options);
             this._decorationsCache[id] = r;
         }
         return r;
     }
+    getMinimapDecorationsInRange(range) {
+        return this._getDecorationsInRange(range, true, false).decorations;
+    }
     getDecorationsViewportData(viewRange) {
         let cacheIsValid = (this._cachedModelDecorationsResolver !== null);
         cacheIsValid = cacheIsValid && (viewRange.equalsRange(this._cachedModelDecorationsResolverViewRange));
         if (!cacheIsValid) {
-            this._cachedModelDecorationsResolver = this._getDecorationsViewportData(viewRange);
+            this._cachedModelDecorationsResolver = this._getDecorationsInRange(viewRange, false, false);
             this._cachedModelDecorationsResolverViewRange = viewRange;
         }
         return this._cachedModelDecorationsResolver;
     }
-    _getDecorationsViewportData(viewportRange) {
-        const modelDecorations = this._linesCollection.getDecorationsInRange(viewportRange, this.editorId, filterValidationDecorations(this.configuration.options));
-        const startLineNumber = viewportRange.startLineNumber;
-        const endLineNumber = viewportRange.endLineNumber;
+    getInlineDecorationsOnLine(lineNumber, onlyMinimapDecorations = false, onlyMarginDecorations = false) {
+        const range = new Range(lineNumber, this._linesCollection.getViewLineMinColumn(lineNumber), lineNumber, this._linesCollection.getViewLineMaxColumn(lineNumber));
+        return this._getDecorationsInRange(range, onlyMinimapDecorations, onlyMarginDecorations).inlineDecorations[0];
+    }
+    _getDecorationsInRange(viewRange, onlyMinimapDecorations, onlyMarginDecorations) {
+        const modelDecorations = this._linesCollection.getDecorationsInRange(viewRange, this.editorId, filterValidationDecorations(this.configuration.options), onlyMinimapDecorations, onlyMarginDecorations);
+        const startLineNumber = viewRange.startLineNumber;
+        const endLineNumber = viewRange.endLineNumber;
         const decorationsInViewport = [];
         let decorationsInViewportLen = 0;
         const inlineDecorations = [];
@@ -88,7 +95,7 @@ export class ViewModelDecorations {
             const viewRange = viewModelDecoration.range;
             decorationsInViewport[decorationsInViewportLen++] = viewModelDecoration;
             if (decorationOptions.inlineClassName) {
-                const inlineDecoration = new InlineDecoration(viewRange, decorationOptions.inlineClassName, decorationOptions.inlineClassNameAffectsLetterSpacing ? 3 /* RegularAffectingLetterSpacing */ : 0 /* Regular */);
+                const inlineDecoration = new InlineDecoration(viewRange, decorationOptions.inlineClassName, decorationOptions.inlineClassNameAffectsLetterSpacing ? 3 /* InlineDecorationType.RegularAffectingLetterSpacing */ : 0 /* InlineDecorationType.Regular */);
                 const intersectedStartLineNumber = Math.max(startLineNumber, viewRange.startLineNumber);
                 const intersectedEndLineNumber = Math.min(endLineNumber, viewRange.endLineNumber);
                 for (let j = intersectedStartLineNumber; j <= intersectedEndLineNumber; j++) {
@@ -97,13 +104,13 @@ export class ViewModelDecorations {
             }
             if (decorationOptions.beforeContentClassName) {
                 if (startLineNumber <= viewRange.startLineNumber && viewRange.startLineNumber <= endLineNumber) {
-                    const inlineDecoration = new InlineDecoration(new Range(viewRange.startLineNumber, viewRange.startColumn, viewRange.startLineNumber, viewRange.startColumn), decorationOptions.beforeContentClassName, 1 /* Before */);
+                    const inlineDecoration = new InlineDecoration(new Range(viewRange.startLineNumber, viewRange.startColumn, viewRange.startLineNumber, viewRange.startColumn), decorationOptions.beforeContentClassName, 1 /* InlineDecorationType.Before */);
                     inlineDecorations[viewRange.startLineNumber - startLineNumber].push(inlineDecoration);
                 }
             }
             if (decorationOptions.afterContentClassName) {
                 if (startLineNumber <= viewRange.endLineNumber && viewRange.endLineNumber <= endLineNumber) {
-                    const inlineDecoration = new InlineDecoration(new Range(viewRange.endLineNumber, viewRange.endColumn, viewRange.endLineNumber, viewRange.endColumn), decorationOptions.afterContentClassName, 2 /* After */);
+                    const inlineDecoration = new InlineDecoration(new Range(viewRange.endLineNumber, viewRange.endColumn, viewRange.endLineNumber, viewRange.endColumn), decorationOptions.afterContentClassName, 2 /* InlineDecorationType.After */);
                     inlineDecorations[viewRange.endLineNumber - startLineNumber].push(inlineDecoration);
                 }
             }
@@ -124,10 +131,10 @@ export function isModelDecorationVisible(model, decoration) {
     return true;
 }
 export function isModelDecorationInComment(model, decoration) {
-    return testTokensInRange(model, decoration.range, (tokenType) => tokenType === 1 /* Comment */);
+    return testTokensInRange(model, decoration.range, (tokenType) => tokenType === 1 /* StandardTokenType.Comment */);
 }
 export function isModelDecorationInString(model, decoration) {
-    return testTokensInRange(model, decoration.range, (tokenType) => tokenType === 2 /* String */);
+    return testTokensInRange(model, decoration.range, (tokenType) => tokenType === 2 /* StandardTokenType.String */);
 }
 /**
  * Calls the callback for every token that intersects the range.
@@ -136,7 +143,7 @@ export function isModelDecorationInString(model, decoration) {
  */
 function testTokensInRange(model, range, callback) {
     for (let lineNumber = range.startLineNumber; lineNumber <= range.endLineNumber; lineNumber++) {
-        const lineTokens = model.getLineTokens(lineNumber);
+        const lineTokens = model.tokenization.getLineTokens(lineNumber);
         const isFirstLine = lineNumber === range.startLineNumber;
         const isEndLine = lineNumber === range.endLineNumber;
         let tokenIdx = isFirstLine ? lineTokens.findTokenIndexAtOffset(range.startColumn - 1) : 0;

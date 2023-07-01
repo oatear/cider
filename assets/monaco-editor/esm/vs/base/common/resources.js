@@ -70,7 +70,7 @@ export class ExtUri {
         }
         else {
             dirname = paths.posix.dirname(resource.path);
-            if (resource.authority && dirname.length && dirname.charCodeAt(0) !== 47 /* Slash */) {
+            if (resource.authority && dirname.length && dirname.charCodeAt(0) !== 47 /* CharCode.Slash */) {
                 console.error(`dirname("${resource.toString})) resulted in a relative path`);
                 dirname = '/'; // If a URI contains an authority component, then the path component must either be empty or begin with a CharCode.Slash ("/") character
             }
@@ -102,7 +102,8 @@ export class ExtUri {
             const relativePath = paths.relative(originalFSPath(from), originalFSPath(to));
             return isWindows ? extpath.toSlashes(relativePath) : relativePath;
         }
-        let fromPath = from.path || '/', toPath = to.path || '/';
+        let fromPath = from.path || '/';
+        const toPath = to.path || '/';
         if (this._ignorePathCasing(from)) {
             // make casing of fromPath match toPath
             let i = 0;
@@ -144,7 +145,7 @@ export class ExtUri {
         }
         else {
             const p = resource.path;
-            return (p.length > 1 && p.charCodeAt(p.length - 1) === 47 /* Slash */) && !(/^[a-zA-Z]:(\/$|\\$)/.test(resource.fsPath)); // ignore the slash at offset 0
+            return (p.length > 1 && p.charCodeAt(p.length - 1) === 47 /* CharCode.Slash */) && !(/^[a-zA-Z]:(\/$|\\$)/.test(resource.fsPath)); // ignore the slash at offset 0
         }
     }
     removeTrailingPathSeparator(resource, sep = paths.sep) {
@@ -163,7 +164,7 @@ export class ExtUri {
         else {
             sep = '/';
             const p = resource.path;
-            isRootSep = p.length === 1 && p.charCodeAt(p.length - 1) === 47 /* Slash */;
+            isRootSep = p.length === 1 && p.charCodeAt(p.length - 1) === 47 /* CharCode.Slash */;
         }
         if (!isRootSep && !hasTrailingPathSeparator(resource, sep)) {
             return resource.with({ path: resource.path + '/' });

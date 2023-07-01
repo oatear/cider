@@ -23,6 +23,7 @@ export class DragAndDropController extends Disposable {
     constructor(editor) {
         super();
         this._editor = editor;
+        this._dndDecorationIds = this._editor.createDecorationsCollection();
         this._register(this._editor.onMouseDown((e) => this._onEditorMouseDown(e)));
         this._register(this._editor.onMouseUp((e) => this._onEditorMouseUp(e)));
         this._register(this._editor.onMouseDrag((e) => this._onEditorMouseDrag(e)));
@@ -32,7 +33,6 @@ export class DragAndDropController extends Disposable {
         this._register(this._editor.onKeyUp((e) => this.onEditorKeyUp(e)));
         this._register(this._editor.onDidBlurEditorWidget(() => this.onEditorBlur()));
         this._register(this._editor.onDidBlurEditorText(() => this.onEditorBlur()));
-        this._dndDecorationIds = [];
         this._mouseDown = false;
         this._modifierPressed = false;
         this._dragSelection = null;
@@ -44,7 +44,7 @@ export class DragAndDropController extends Disposable {
         this._modifierPressed = false;
     }
     onEditorKeyDown(e) {
-        if (!this._editor.getOption(31 /* dragAndDrop */) || this._editor.getOption(18 /* columnSelection */)) {
+        if (!this._editor.getOption(33 /* EditorOption.dragAndDrop */) || this._editor.getOption(20 /* EditorOption.columnSelection */)) {
             return;
         }
         if (hasTriggerModifier(e)) {
@@ -57,7 +57,7 @@ export class DragAndDropController extends Disposable {
         }
     }
     onEditorKeyUp(e) {
-        if (!this._editor.getOption(31 /* dragAndDrop */) || this._editor.getOption(18 /* columnSelection */)) {
+        if (!this._editor.getOption(33 /* EditorOption.dragAndDrop */) || this._editor.getOption(20 /* EditorOption.columnSelection */)) {
             return;
         }
         if (hasTriggerModifier(e)) {
@@ -80,10 +80,10 @@ export class DragAndDropController extends Disposable {
         });
     }
     _onEditorMouseDrag(mouseEvent) {
-        let target = mouseEvent.target;
+        const target = mouseEvent.target;
         if (this._dragSelection === null) {
             const selections = this._editor.getSelections() || [];
-            let possibleSelections = selections.filter(selection => target.position && selection.containsPosition(target.position));
+            const possibleSelections = selections.filter(selection => target.position && selection.containsPosition(target.position));
             if (possibleSelections.length === 1) {
                 this._dragSelection = possibleSelections[0];
             }
@@ -120,11 +120,11 @@ export class DragAndDropController extends Disposable {
     }
     _onEditorMouseDrop(mouseEvent) {
         if (mouseEvent.target && (this._hitContent(mouseEvent.target) || this._hitMargin(mouseEvent.target)) && mouseEvent.target.position) {
-            let newCursorPosition = new Position(mouseEvent.target.position.lineNumber, mouseEvent.target.position.column);
+            const newCursorPosition = new Position(mouseEvent.target.position.lineNumber, mouseEvent.target.position.column);
             if (this._dragSelection === null) {
                 let newSelections = null;
                 if (mouseEvent.event.shiftKey) {
-                    let primarySelection = this._editor.getSelection();
+                    const primarySelection = this._editor.getSelection();
                     if (primarySelection) {
                         const { selectionStartLineNumber, selectionStartColumn } = primarySelection;
                         newSelections = [new Selection(selectionStartLineNumber, selectionStartColumn, newCursorPosition.lineNumber, newCursorPosition.column)];
@@ -141,7 +141,7 @@ export class DragAndDropController extends Disposable {
                     });
                 }
                 // Use `mouse` as the source instead of `api` and setting the reason to explicit (to behave like any other mouse operation).
-                this._editor.setSelections(newSelections || [], 'mouse', 3 /* Explicit */);
+                this._editor.setSelections(newSelections || [], 'mouse', 3 /* CursorChangeReason.Explicit */);
             }
             else if (!this._dragSelection.containsPosition(newCursorPosition) ||
                 ((hasTriggerModifier(mouseEvent.event) ||
@@ -160,24 +160,23 @@ export class DragAndDropController extends Disposable {
         this._mouseDown = false;
     }
     showAt(position) {
-        let newDecorations = [{
+        this._dndDecorationIds.set([{
                 range: new Range(position.lineNumber, position.column, position.lineNumber, position.column),
                 options: DragAndDropController._DECORATION_OPTIONS
-            }];
-        this._dndDecorationIds = this._editor.deltaDecorations(this._dndDecorationIds, newDecorations);
-        this._editor.revealPosition(position, 1 /* Immediate */);
+            }]);
+        this._editor.revealPosition(position, 1 /* ScrollType.Immediate */);
     }
     _removeDecoration() {
-        this._dndDecorationIds = this._editor.deltaDecorations(this._dndDecorationIds, []);
+        this._dndDecorationIds.clear();
     }
     _hitContent(target) {
-        return target.type === 6 /* CONTENT_TEXT */ ||
-            target.type === 7 /* CONTENT_EMPTY */;
+        return target.type === 6 /* MouseTargetType.CONTENT_TEXT */ ||
+            target.type === 7 /* MouseTargetType.CONTENT_EMPTY */;
     }
     _hitMargin(target) {
-        return target.type === 2 /* GUTTER_GLYPH_MARGIN */ ||
-            target.type === 3 /* GUTTER_LINE_NUMBERS */ ||
-            target.type === 4 /* GUTTER_LINE_DECORATIONS */;
+        return target.type === 2 /* MouseTargetType.GUTTER_GLYPH_MARGIN */ ||
+            target.type === 3 /* MouseTargetType.GUTTER_LINE_NUMBERS */ ||
+            target.type === 4 /* MouseTargetType.GUTTER_LINE_DECORATIONS */;
     }
     dispose() {
         this._removeDecoration();
@@ -188,9 +187,9 @@ export class DragAndDropController extends Disposable {
     }
 }
 DragAndDropController.ID = 'editor.contrib.dragAndDrop';
-DragAndDropController.TRIGGER_KEY_VALUE = isMacintosh ? 6 /* Alt */ : 5 /* Ctrl */;
+DragAndDropController.TRIGGER_KEY_VALUE = isMacintosh ? 6 /* KeyCode.Alt */ : 5 /* KeyCode.Ctrl */;
 DragAndDropController._DECORATION_OPTIONS = ModelDecorationOptions.register({
     description: 'dnd-target',
     className: 'dnd-target'
 });
-registerEditorContribution(DragAndDropController.ID, DragAndDropController);
+registerEditorContribution(DragAndDropController.ID, DragAndDropController, 2 /* EditorContributionInstantiation.BeforeFirstInteraction */);

@@ -18,10 +18,12 @@ import { CompressibleObjectTree, ObjectTree } from './objectTree.js';
 import { TreeError, WeakMapper } from './tree.js';
 import { createCancelablePromise, Promises, timeout } from '../../../common/async.js';
 import { Codicon } from '../../../common/codicons.js';
+import { ThemeIcon } from '../../../common/themables.js';
 import { isCancellationError, onUnexpectedError } from '../../../common/errors.js';
 import { Emitter, Event } from '../../../common/event.js';
 import { Iterable } from '../../../common/iterator.js';
 import { DisposableStore, dispose } from '../../../common/lifecycle.js';
+import { isIterable } from '../../../common/types.js';
 function createAsyncDataTreeNode(props) {
     return Object.assign(Object.assign({}, props), { children: [], refreshPromise: undefined, stale: true, slow: false, collapsedByDefault: undefined });
 }
@@ -40,9 +42,6 @@ function intersects(node, other) {
     return node === other || isAncestor(node, other) || isAncestor(other, node);
 }
 class AsyncDataTreeNodeWrapper {
-    constructor(node) {
-        this.node = node;
-    }
     get element() { return this.node.element.element; }
     get children() { return this.node.children.map(node => new AsyncDataTreeNodeWrapper(node)); }
     get depth() { return this.node.depth; }
@@ -52,6 +51,9 @@ class AsyncDataTreeNodeWrapper {
     get collapsed() { return this.node.collapsed; }
     get visible() { return this.node.visible; }
     get filterData() { return this.node.filterData; }
+    constructor(node) {
+        this.node = node;
+    }
 }
 class AsyncDataTreeRenderer {
     constructor(renderer, nodeMapper, onDidChangeTwistieState) {
@@ -70,18 +72,17 @@ class AsyncDataTreeRenderer {
     }
     renderTwistie(element, twistieElement) {
         if (element.slow) {
-            twistieElement.classList.add(...Codicon.treeItemLoading.classNamesArray);
+            twistieElement.classList.add(...ThemeIcon.asClassNameArray(Codicon.treeItemLoading));
             return true;
         }
         else {
-            twistieElement.classList.remove(...Codicon.treeItemLoading.classNamesArray);
+            twistieElement.classList.remove(...ThemeIcon.asClassNameArray(Codicon.treeItemLoading));
             return false;
         }
     }
     disposeElement(node, index, templateData, height) {
-        if (this.renderer.disposeElement) {
-            this.renderer.disposeElement(this.nodeMapper.map(node), index, templateData.templateData, height);
-        }
+        var _a, _b;
+        (_b = (_a = this.renderer).disposeElement) === null || _b === void 0 ? void 0 : _b.call(_a, this.nodeMapper.map(node), index, templateData.templateData, height);
     }
     disposeTemplate(templateData) {
         this.renderer.disposeTemplate(templateData.templateData);
@@ -129,9 +130,8 @@ class AsyncDataTreeNodeListDragAndDrop {
         return undefined;
     }
     onDragStart(data, originalEvent) {
-        if (this.dnd.onDragStart) {
-            this.dnd.onDragStart(asAsyncDataTreeDragAndDropData(data), originalEvent);
-        }
+        var _a, _b;
+        (_b = (_a = this.dnd).onDragStart) === null || _b === void 0 ? void 0 : _b.call(_a, asAsyncDataTreeDragAndDropData(data), originalEvent);
     }
     onDragOver(data, targetNode, targetIndex, originalEvent, raw = true) {
         return this.dnd.onDragOver(asAsyncDataTreeDragAndDropData(data), targetNode && targetNode.element, targetIndex, originalEvent);
@@ -140,9 +140,8 @@ class AsyncDataTreeNodeListDragAndDrop {
         this.dnd.drop(asAsyncDataTreeDragAndDropData(data), targetNode && targetNode.element, targetIndex, originalEvent);
     }
     onDragEnd(originalEvent) {
-        if (this.dnd.onDragEnd) {
-            this.dnd.onDragEnd(originalEvent);
-        }
+        var _a, _b;
+        (_b = (_a = this.dnd).onDragEnd) === null || _b === void 0 ? void 0 : _b.call(_a, originalEvent);
     }
 }
 function asObjectTreeOptions(options) {
@@ -177,13 +176,39 @@ function asObjectTreeOptions(options) {
             }
         }, keyboardNavigationLabelProvider: options.keyboardNavigationLabelProvider && Object.assign(Object.assign({}, options.keyboardNavigationLabelProvider), { getKeyboardNavigationLabel(e) {
                 return options.keyboardNavigationLabelProvider.getKeyboardNavigationLabel(e.element);
-            } }), sorter: undefined, expandOnlyOnTwistieClick: typeof options.expandOnlyOnTwistieClick === 'undefined' ? undefined : (typeof options.expandOnlyOnTwistieClick !== 'function' ? options.expandOnlyOnTwistieClick : (e => options.expandOnlyOnTwistieClick(e.element))), additionalScrollHeight: options.additionalScrollHeight });
+            } }), sorter: undefined, expandOnlyOnTwistieClick: typeof options.expandOnlyOnTwistieClick === 'undefined' ? undefined : (typeof options.expandOnlyOnTwistieClick !== 'function' ? options.expandOnlyOnTwistieClick : (e => options.expandOnlyOnTwistieClick(e.element))), defaultFindVisibility: e => {
+            if (e.hasChildren && e.stale) {
+                return 1 /* TreeVisibility.Visible */;
+            }
+            else if (typeof options.defaultFindVisibility === 'number') {
+                return options.defaultFindVisibility;
+            }
+            else if (typeof options.defaultFindVisibility === 'undefined') {
+                return 2 /* TreeVisibility.Recurse */;
+            }
+            else {
+                return options.defaultFindVisibility(e.element);
+            }
+        } });
 }
 function dfs(node, fn) {
     fn(node);
     node.children.forEach(child => dfs(child, fn));
 }
 export class AsyncDataTree {
+    get onDidChangeFocus() { return Event.map(this.tree.onDidChangeFocus, asTreeEvent); }
+    get onDidChangeSelection() { return Event.map(this.tree.onDidChangeSelection, asTreeEvent); }
+    get onMouseDblClick() { return Event.map(this.tree.onMouseDblClick, asTreeMouseEvent); }
+    get onPointer() { return Event.map(this.tree.onPointer, asTreeMouseEvent); }
+    get onDidFocus() { return this.tree.onDidFocus; }
+    /**
+     * To be used internally only!
+     * @deprecated
+     */
+    get onDidChangeModel() { return this.tree.onDidChangeModel; }
+    get onDidChangeCollapseState() { return this.tree.onDidChangeCollapseState; }
+    get onDidChangeFindOpenState() { return this.tree.onDidChangeFindOpenState; }
+    get onDidDispose() { return this.tree.onDidDispose; }
     constructor(user, container, delegate, renderers, dataSource, options = {}) {
         this.user = user;
         this.dataSource = dataSource;
@@ -199,6 +224,7 @@ export class AsyncDataTree {
         this.sorter = options.sorter;
         this.collapseByDefault = options.collapseByDefault;
         this.tree = this.createTree(user, container, delegate, renderers, options);
+        this.onDidChangeFindMode = this.tree.onDidChangeFindMode;
         this.root = createAsyncDataTreeNode({
             element: undefined,
             parent: null,
@@ -210,14 +236,6 @@ export class AsyncDataTree {
         this.nodes.set(null, this.root);
         this.tree.onDidChangeCollapseState(this._onDidChangeCollapseState, this, this.disposables);
     }
-    get onDidChangeFocus() { return Event.map(this.tree.onDidChangeFocus, asTreeEvent); }
-    get onDidChangeSelection() { return Event.map(this.tree.onDidChangeSelection, asTreeEvent); }
-    get onMouseDblClick() { return Event.map(this.tree.onMouseDblClick, asTreeMouseEvent); }
-    get onPointer() { return Event.map(this.tree.onPointer, asTreeMouseEvent); }
-    get onDidFocus() { return this.tree.onDidFocus; }
-    get onDidChangeModel() { return this.tree.onDidChangeModel; }
-    get onDidChangeCollapseState() { return this.tree.onDidChangeCollapseState; }
-    get onDidDispose() { return this.tree.onDidDispose; }
     createTree(user, container, delegate, renderers, options) {
         const objectTreeDelegate = new ComposedTreeDelegate(delegate);
         const objectTreeRenderers = renderers.map(r => new AsyncDataTreeRenderer(r, this.nodeMapper, this._onDidChangeNodeSlowState.event));
@@ -389,6 +407,14 @@ export class AsyncDataTree {
             if (result) {
                 return result;
             }
+            if (node !== this.root) {
+                const treeNode = this.tree.getNode(node);
+                if (treeNode.collapsed) {
+                    node.hasChildren = !!this.dataSource.hasChildren(node.element);
+                    node.stale = true;
+                    return;
+                }
+            }
             return this.doRefreshSubTree(node, recursive, viewStateContext);
         });
     }
@@ -419,13 +445,18 @@ export class AsyncDataTree {
                 childrenPromise = Promise.resolve(Iterable.empty());
             }
             else {
-                const slowTimeout = timeout(800);
-                slowTimeout.then(() => {
-                    node.slow = true;
-                    this._onDidChangeNodeSlowState.fire(node);
-                }, _ => null);
-                childrenPromise = this.doGetChildren(node)
-                    .finally(() => slowTimeout.cancel());
+                const children = this.doGetChildren(node);
+                if (isIterable(children)) {
+                    childrenPromise = Promise.resolve(children);
+                }
+                else {
+                    const slowTimeout = timeout(800);
+                    slowTimeout.then(() => {
+                        node.slow = true;
+                        this._onDidChangeNodeSlowState.fire(node);
+                    }, _ => null);
+                    childrenPromise = children.finally(() => slowTimeout.cancel());
+                }
             }
             try {
                 const children = yield childrenPromise;
@@ -453,12 +484,15 @@ export class AsyncDataTree {
         if (result) {
             return result;
         }
-        result = createCancelablePromise(() => __awaiter(this, void 0, void 0, function* () {
-            const children = yield this.dataSource.getChildren(node.element);
+        const children = this.dataSource.getChildren(node.element);
+        if (isIterable(children)) {
             return this.processChildren(children);
-        }));
-        this.refreshPromises.set(node, result);
-        return result.finally(() => { this.refreshPromises.delete(node); });
+        }
+        else {
+            result = createCancelablePromise(() => __awaiter(this, void 0, void 0, function* () { return this.processChildren(yield children); }));
+            this.refreshPromises.set(node, result);
+            return result.finally(() => { this.refreshPromises.delete(node); });
+        }
     }
     _onDidChangeCollapseState({ node, deep }) {
         if (node.element === null) {
@@ -602,9 +636,6 @@ export class AsyncDataTree {
     }
 }
 class CompressibleAsyncDataTreeNodeWrapper {
-    constructor(node) {
-        this.node = node;
-    }
     get element() {
         return {
             elements: this.node.element.elements.map(e => e.element),
@@ -619,6 +650,9 @@ class CompressibleAsyncDataTreeNodeWrapper {
     get collapsed() { return this.node.collapsed; }
     get visible() { return this.node.visible; }
     get filterData() { return this.node.filterData; }
+    constructor(node) {
+        this.node = node;
+    }
 }
 class CompressibleAsyncDataTreeRenderer {
     constructor(renderer, nodeMapper, compressibleNodeMapperProvider, onDidChangeTwistieState) {
@@ -642,23 +676,21 @@ class CompressibleAsyncDataTreeRenderer {
     }
     renderTwistie(element, twistieElement) {
         if (element.slow) {
-            twistieElement.classList.add(...Codicon.treeItemLoading.classNamesArray);
+            twistieElement.classList.add(...ThemeIcon.asClassNameArray(Codicon.treeItemLoading));
             return true;
         }
         else {
-            twistieElement.classList.remove(...Codicon.treeItemLoading.classNamesArray);
+            twistieElement.classList.remove(...ThemeIcon.asClassNameArray(Codicon.treeItemLoading));
             return false;
         }
     }
     disposeElement(node, index, templateData, height) {
-        if (this.renderer.disposeElement) {
-            this.renderer.disposeElement(this.nodeMapper.map(node), index, templateData.templateData, height);
-        }
+        var _a, _b;
+        (_b = (_a = this.renderer).disposeElement) === null || _b === void 0 ? void 0 : _b.call(_a, this.nodeMapper.map(node), index, templateData.templateData, height);
     }
     disposeCompressedElements(node, index, templateData, height) {
-        if (this.renderer.disposeCompressedElements) {
-            this.renderer.disposeCompressedElements(this.compressibleNodeMapperProvider().map(node), index, templateData.templateData, height);
-        }
+        var _a, _b;
+        (_b = (_a = this.renderer).disposeCompressedElements) === null || _b === void 0 ? void 0 : _b.call(_a, this.compressibleNodeMapperProvider().map(node), index, templateData.templateData, height);
     }
     disposeTemplate(templateData) {
         this.renderer.disposeTemplate(templateData.templateData);
@@ -754,12 +786,12 @@ export class CompressibleAsyncDataTree extends AsyncDataTree {
     processChildren(children) {
         if (this.filter) {
             children = Iterable.filter(children, e => {
-                const result = this.filter.filter(e, 1 /* Visible */);
+                const result = this.filter.filter(e, 1 /* TreeVisibility.Visible */);
                 const visibility = getVisibility(result);
-                if (visibility === 2 /* Recurse */) {
+                if (visibility === 2 /* TreeVisibility.Recurse */) {
                     throw new Error('Recursive tree visibility not supported in async data compressed trees');
                 }
-                return visibility === 1 /* Visible */;
+                return visibility === 1 /* TreeVisibility.Visible */;
             });
         }
         return super.processChildren(children);
@@ -767,7 +799,7 @@ export class CompressibleAsyncDataTree extends AsyncDataTree {
 }
 function getVisibility(filterResult) {
     if (typeof filterResult === 'boolean') {
-        return filterResult ? 1 /* Visible */ : 0 /* Hidden */;
+        return filterResult ? 1 /* TreeVisibility.Visible */ : 0 /* TreeVisibility.Hidden */;
     }
     else if (isFilterResult(filterResult)) {
         return getVisibleState(filterResult.visibility);

@@ -10,12 +10,6 @@ function escapeNewLine(str) {
         .replace(/\r/g, '\\r'));
 }
 export class TextChange {
-    constructor(oldPosition, oldText, newPosition, newText) {
-        this.oldPosition = oldPosition;
-        this.oldText = oldText;
-        this.newPosition = newPosition;
-        this.newText = newText;
-    }
     get oldLength() {
         return this.oldText.length;
     }
@@ -27,6 +21,12 @@ export class TextChange {
     }
     get newEnd() {
         return this.newPosition + this.newText.length;
+    }
+    constructor(oldPosition, oldText, newPosition, newText) {
+        this.oldPosition = oldPosition;
+        this.oldText = oldText;
+        this.newPosition = newPosition;
+        this.newText = newText;
     }
     toString() {
         if (this.oldText.length === 0) {

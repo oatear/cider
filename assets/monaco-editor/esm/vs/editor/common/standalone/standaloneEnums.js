@@ -12,8 +12,14 @@ export var AccessibilitySupport;
     AccessibilitySupport[AccessibilitySupport["Disabled"] = 1] = "Disabled";
     AccessibilitySupport[AccessibilitySupport["Enabled"] = 2] = "Enabled";
 })(AccessibilitySupport || (AccessibilitySupport = {}));
+export var CodeActionTriggerType;
+(function (CodeActionTriggerType) {
+    CodeActionTriggerType[CodeActionTriggerType["Invoke"] = 1] = "Invoke";
+    CodeActionTriggerType[CodeActionTriggerType["Auto"] = 2] = "Auto";
+})(CodeActionTriggerType || (CodeActionTriggerType = {}));
 export var CompletionItemInsertTextRule;
 (function (CompletionItemInsertTextRule) {
+    CompletionItemInsertTextRule[CompletionItemInsertTextRule["None"] = 0] = "None";
     /**
      * Adjust whitespace/indentation of multiline insert texts to
      * match the current line indentation.
@@ -171,133 +177,143 @@ export var EditorOption;
     EditorOption[EditorOption["accessibilityPageSize"] = 3] = "accessibilityPageSize";
     EditorOption[EditorOption["ariaLabel"] = 4] = "ariaLabel";
     EditorOption[EditorOption["autoClosingBrackets"] = 5] = "autoClosingBrackets";
-    EditorOption[EditorOption["autoClosingDelete"] = 6] = "autoClosingDelete";
-    EditorOption[EditorOption["autoClosingOvertype"] = 7] = "autoClosingOvertype";
-    EditorOption[EditorOption["autoClosingQuotes"] = 8] = "autoClosingQuotes";
-    EditorOption[EditorOption["autoIndent"] = 9] = "autoIndent";
-    EditorOption[EditorOption["automaticLayout"] = 10] = "automaticLayout";
-    EditorOption[EditorOption["autoSurround"] = 11] = "autoSurround";
-    EditorOption[EditorOption["bracketPairColorization"] = 12] = "bracketPairColorization";
-    EditorOption[EditorOption["guides"] = 13] = "guides";
-    EditorOption[EditorOption["codeLens"] = 14] = "codeLens";
-    EditorOption[EditorOption["codeLensFontFamily"] = 15] = "codeLensFontFamily";
-    EditorOption[EditorOption["codeLensFontSize"] = 16] = "codeLensFontSize";
-    EditorOption[EditorOption["colorDecorators"] = 17] = "colorDecorators";
-    EditorOption[EditorOption["columnSelection"] = 18] = "columnSelection";
-    EditorOption[EditorOption["comments"] = 19] = "comments";
-    EditorOption[EditorOption["contextmenu"] = 20] = "contextmenu";
-    EditorOption[EditorOption["copyWithSyntaxHighlighting"] = 21] = "copyWithSyntaxHighlighting";
-    EditorOption[EditorOption["cursorBlinking"] = 22] = "cursorBlinking";
-    EditorOption[EditorOption["cursorSmoothCaretAnimation"] = 23] = "cursorSmoothCaretAnimation";
-    EditorOption[EditorOption["cursorStyle"] = 24] = "cursorStyle";
-    EditorOption[EditorOption["cursorSurroundingLines"] = 25] = "cursorSurroundingLines";
-    EditorOption[EditorOption["cursorSurroundingLinesStyle"] = 26] = "cursorSurroundingLinesStyle";
-    EditorOption[EditorOption["cursorWidth"] = 27] = "cursorWidth";
-    EditorOption[EditorOption["disableLayerHinting"] = 28] = "disableLayerHinting";
-    EditorOption[EditorOption["disableMonospaceOptimizations"] = 29] = "disableMonospaceOptimizations";
-    EditorOption[EditorOption["domReadOnly"] = 30] = "domReadOnly";
-    EditorOption[EditorOption["dragAndDrop"] = 31] = "dragAndDrop";
-    EditorOption[EditorOption["emptySelectionClipboard"] = 32] = "emptySelectionClipboard";
-    EditorOption[EditorOption["extraEditorClassName"] = 33] = "extraEditorClassName";
-    EditorOption[EditorOption["fastScrollSensitivity"] = 34] = "fastScrollSensitivity";
-    EditorOption[EditorOption["find"] = 35] = "find";
-    EditorOption[EditorOption["fixedOverflowWidgets"] = 36] = "fixedOverflowWidgets";
-    EditorOption[EditorOption["folding"] = 37] = "folding";
-    EditorOption[EditorOption["foldingStrategy"] = 38] = "foldingStrategy";
-    EditorOption[EditorOption["foldingHighlight"] = 39] = "foldingHighlight";
-    EditorOption[EditorOption["foldingImportsByDefault"] = 40] = "foldingImportsByDefault";
-    EditorOption[EditorOption["foldingMaximumRegions"] = 41] = "foldingMaximumRegions";
-    EditorOption[EditorOption["unfoldOnClickAfterEndOfLine"] = 42] = "unfoldOnClickAfterEndOfLine";
-    EditorOption[EditorOption["fontFamily"] = 43] = "fontFamily";
-    EditorOption[EditorOption["fontInfo"] = 44] = "fontInfo";
-    EditorOption[EditorOption["fontLigatures"] = 45] = "fontLigatures";
-    EditorOption[EditorOption["fontSize"] = 46] = "fontSize";
-    EditorOption[EditorOption["fontWeight"] = 47] = "fontWeight";
-    EditorOption[EditorOption["formatOnPaste"] = 48] = "formatOnPaste";
-    EditorOption[EditorOption["formatOnType"] = 49] = "formatOnType";
-    EditorOption[EditorOption["glyphMargin"] = 50] = "glyphMargin";
-    EditorOption[EditorOption["gotoLocation"] = 51] = "gotoLocation";
-    EditorOption[EditorOption["hideCursorInOverviewRuler"] = 52] = "hideCursorInOverviewRuler";
-    EditorOption[EditorOption["hover"] = 53] = "hover";
-    EditorOption[EditorOption["inDiffEditor"] = 54] = "inDiffEditor";
-    EditorOption[EditorOption["inlineSuggest"] = 55] = "inlineSuggest";
-    EditorOption[EditorOption["letterSpacing"] = 56] = "letterSpacing";
-    EditorOption[EditorOption["lightbulb"] = 57] = "lightbulb";
-    EditorOption[EditorOption["lineDecorationsWidth"] = 58] = "lineDecorationsWidth";
-    EditorOption[EditorOption["lineHeight"] = 59] = "lineHeight";
-    EditorOption[EditorOption["lineNumbers"] = 60] = "lineNumbers";
-    EditorOption[EditorOption["lineNumbersMinChars"] = 61] = "lineNumbersMinChars";
-    EditorOption[EditorOption["linkedEditing"] = 62] = "linkedEditing";
-    EditorOption[EditorOption["links"] = 63] = "links";
-    EditorOption[EditorOption["matchBrackets"] = 64] = "matchBrackets";
-    EditorOption[EditorOption["minimap"] = 65] = "minimap";
-    EditorOption[EditorOption["mouseStyle"] = 66] = "mouseStyle";
-    EditorOption[EditorOption["mouseWheelScrollSensitivity"] = 67] = "mouseWheelScrollSensitivity";
-    EditorOption[EditorOption["mouseWheelZoom"] = 68] = "mouseWheelZoom";
-    EditorOption[EditorOption["multiCursorMergeOverlapping"] = 69] = "multiCursorMergeOverlapping";
-    EditorOption[EditorOption["multiCursorModifier"] = 70] = "multiCursorModifier";
-    EditorOption[EditorOption["multiCursorPaste"] = 71] = "multiCursorPaste";
-    EditorOption[EditorOption["occurrencesHighlight"] = 72] = "occurrencesHighlight";
-    EditorOption[EditorOption["overviewRulerBorder"] = 73] = "overviewRulerBorder";
-    EditorOption[EditorOption["overviewRulerLanes"] = 74] = "overviewRulerLanes";
-    EditorOption[EditorOption["padding"] = 75] = "padding";
-    EditorOption[EditorOption["parameterHints"] = 76] = "parameterHints";
-    EditorOption[EditorOption["peekWidgetDefaultFocus"] = 77] = "peekWidgetDefaultFocus";
-    EditorOption[EditorOption["definitionLinkOpensInPeek"] = 78] = "definitionLinkOpensInPeek";
-    EditorOption[EditorOption["quickSuggestions"] = 79] = "quickSuggestions";
-    EditorOption[EditorOption["quickSuggestionsDelay"] = 80] = "quickSuggestionsDelay";
-    EditorOption[EditorOption["readOnly"] = 81] = "readOnly";
-    EditorOption[EditorOption["renameOnType"] = 82] = "renameOnType";
-    EditorOption[EditorOption["renderControlCharacters"] = 83] = "renderControlCharacters";
-    EditorOption[EditorOption["renderFinalNewline"] = 84] = "renderFinalNewline";
-    EditorOption[EditorOption["renderLineHighlight"] = 85] = "renderLineHighlight";
-    EditorOption[EditorOption["renderLineHighlightOnlyWhenFocus"] = 86] = "renderLineHighlightOnlyWhenFocus";
-    EditorOption[EditorOption["renderValidationDecorations"] = 87] = "renderValidationDecorations";
-    EditorOption[EditorOption["renderWhitespace"] = 88] = "renderWhitespace";
-    EditorOption[EditorOption["revealHorizontalRightPadding"] = 89] = "revealHorizontalRightPadding";
-    EditorOption[EditorOption["roundedSelection"] = 90] = "roundedSelection";
-    EditorOption[EditorOption["rulers"] = 91] = "rulers";
-    EditorOption[EditorOption["scrollbar"] = 92] = "scrollbar";
-    EditorOption[EditorOption["scrollBeyondLastColumn"] = 93] = "scrollBeyondLastColumn";
-    EditorOption[EditorOption["scrollBeyondLastLine"] = 94] = "scrollBeyondLastLine";
-    EditorOption[EditorOption["scrollPredominantAxis"] = 95] = "scrollPredominantAxis";
-    EditorOption[EditorOption["selectionClipboard"] = 96] = "selectionClipboard";
-    EditorOption[EditorOption["selectionHighlight"] = 97] = "selectionHighlight";
-    EditorOption[EditorOption["selectOnLineNumbers"] = 98] = "selectOnLineNumbers";
-    EditorOption[EditorOption["showFoldingControls"] = 99] = "showFoldingControls";
-    EditorOption[EditorOption["showUnused"] = 100] = "showUnused";
-    EditorOption[EditorOption["snippetSuggestions"] = 101] = "snippetSuggestions";
-    EditorOption[EditorOption["smartSelect"] = 102] = "smartSelect";
-    EditorOption[EditorOption["smoothScrolling"] = 103] = "smoothScrolling";
-    EditorOption[EditorOption["stickyTabStops"] = 104] = "stickyTabStops";
-    EditorOption[EditorOption["stopRenderingLineAfter"] = 105] = "stopRenderingLineAfter";
-    EditorOption[EditorOption["suggest"] = 106] = "suggest";
-    EditorOption[EditorOption["suggestFontSize"] = 107] = "suggestFontSize";
-    EditorOption[EditorOption["suggestLineHeight"] = 108] = "suggestLineHeight";
-    EditorOption[EditorOption["suggestOnTriggerCharacters"] = 109] = "suggestOnTriggerCharacters";
-    EditorOption[EditorOption["suggestSelection"] = 110] = "suggestSelection";
-    EditorOption[EditorOption["tabCompletion"] = 111] = "tabCompletion";
-    EditorOption[EditorOption["tabIndex"] = 112] = "tabIndex";
-    EditorOption[EditorOption["unicodeHighlighting"] = 113] = "unicodeHighlighting";
-    EditorOption[EditorOption["unusualLineTerminators"] = 114] = "unusualLineTerminators";
-    EditorOption[EditorOption["useShadowDOM"] = 115] = "useShadowDOM";
-    EditorOption[EditorOption["useTabStops"] = 116] = "useTabStops";
-    EditorOption[EditorOption["wordSeparators"] = 117] = "wordSeparators";
-    EditorOption[EditorOption["wordWrap"] = 118] = "wordWrap";
-    EditorOption[EditorOption["wordWrapBreakAfterCharacters"] = 119] = "wordWrapBreakAfterCharacters";
-    EditorOption[EditorOption["wordWrapBreakBeforeCharacters"] = 120] = "wordWrapBreakBeforeCharacters";
-    EditorOption[EditorOption["wordWrapColumn"] = 121] = "wordWrapColumn";
-    EditorOption[EditorOption["wordWrapOverride1"] = 122] = "wordWrapOverride1";
-    EditorOption[EditorOption["wordWrapOverride2"] = 123] = "wordWrapOverride2";
-    EditorOption[EditorOption["wrappingIndent"] = 124] = "wrappingIndent";
-    EditorOption[EditorOption["wrappingStrategy"] = 125] = "wrappingStrategy";
-    EditorOption[EditorOption["showDeprecated"] = 126] = "showDeprecated";
-    EditorOption[EditorOption["inlayHints"] = 127] = "inlayHints";
-    EditorOption[EditorOption["editorClassName"] = 128] = "editorClassName";
-    EditorOption[EditorOption["pixelRatio"] = 129] = "pixelRatio";
-    EditorOption[EditorOption["tabFocusMode"] = 130] = "tabFocusMode";
-    EditorOption[EditorOption["layoutInfo"] = 131] = "layoutInfo";
-    EditorOption[EditorOption["wrappingInfo"] = 132] = "wrappingInfo";
+    EditorOption[EditorOption["screenReaderAnnounceInlineSuggestion"] = 6] = "screenReaderAnnounceInlineSuggestion";
+    EditorOption[EditorOption["autoClosingDelete"] = 7] = "autoClosingDelete";
+    EditorOption[EditorOption["autoClosingOvertype"] = 8] = "autoClosingOvertype";
+    EditorOption[EditorOption["autoClosingQuotes"] = 9] = "autoClosingQuotes";
+    EditorOption[EditorOption["autoIndent"] = 10] = "autoIndent";
+    EditorOption[EditorOption["automaticLayout"] = 11] = "automaticLayout";
+    EditorOption[EditorOption["autoSurround"] = 12] = "autoSurround";
+    EditorOption[EditorOption["bracketPairColorization"] = 13] = "bracketPairColorization";
+    EditorOption[EditorOption["guides"] = 14] = "guides";
+    EditorOption[EditorOption["codeLens"] = 15] = "codeLens";
+    EditorOption[EditorOption["codeLensFontFamily"] = 16] = "codeLensFontFamily";
+    EditorOption[EditorOption["codeLensFontSize"] = 17] = "codeLensFontSize";
+    EditorOption[EditorOption["colorDecorators"] = 18] = "colorDecorators";
+    EditorOption[EditorOption["colorDecoratorsLimit"] = 19] = "colorDecoratorsLimit";
+    EditorOption[EditorOption["columnSelection"] = 20] = "columnSelection";
+    EditorOption[EditorOption["comments"] = 21] = "comments";
+    EditorOption[EditorOption["contextmenu"] = 22] = "contextmenu";
+    EditorOption[EditorOption["copyWithSyntaxHighlighting"] = 23] = "copyWithSyntaxHighlighting";
+    EditorOption[EditorOption["cursorBlinking"] = 24] = "cursorBlinking";
+    EditorOption[EditorOption["cursorSmoothCaretAnimation"] = 25] = "cursorSmoothCaretAnimation";
+    EditorOption[EditorOption["cursorStyle"] = 26] = "cursorStyle";
+    EditorOption[EditorOption["cursorSurroundingLines"] = 27] = "cursorSurroundingLines";
+    EditorOption[EditorOption["cursorSurroundingLinesStyle"] = 28] = "cursorSurroundingLinesStyle";
+    EditorOption[EditorOption["cursorWidth"] = 29] = "cursorWidth";
+    EditorOption[EditorOption["disableLayerHinting"] = 30] = "disableLayerHinting";
+    EditorOption[EditorOption["disableMonospaceOptimizations"] = 31] = "disableMonospaceOptimizations";
+    EditorOption[EditorOption["domReadOnly"] = 32] = "domReadOnly";
+    EditorOption[EditorOption["dragAndDrop"] = 33] = "dragAndDrop";
+    EditorOption[EditorOption["dropIntoEditor"] = 34] = "dropIntoEditor";
+    EditorOption[EditorOption["emptySelectionClipboard"] = 35] = "emptySelectionClipboard";
+    EditorOption[EditorOption["experimentalWhitespaceRendering"] = 36] = "experimentalWhitespaceRendering";
+    EditorOption[EditorOption["extraEditorClassName"] = 37] = "extraEditorClassName";
+    EditorOption[EditorOption["fastScrollSensitivity"] = 38] = "fastScrollSensitivity";
+    EditorOption[EditorOption["find"] = 39] = "find";
+    EditorOption[EditorOption["fixedOverflowWidgets"] = 40] = "fixedOverflowWidgets";
+    EditorOption[EditorOption["folding"] = 41] = "folding";
+    EditorOption[EditorOption["foldingStrategy"] = 42] = "foldingStrategy";
+    EditorOption[EditorOption["foldingHighlight"] = 43] = "foldingHighlight";
+    EditorOption[EditorOption["foldingImportsByDefault"] = 44] = "foldingImportsByDefault";
+    EditorOption[EditorOption["foldingMaximumRegions"] = 45] = "foldingMaximumRegions";
+    EditorOption[EditorOption["unfoldOnClickAfterEndOfLine"] = 46] = "unfoldOnClickAfterEndOfLine";
+    EditorOption[EditorOption["fontFamily"] = 47] = "fontFamily";
+    EditorOption[EditorOption["fontInfo"] = 48] = "fontInfo";
+    EditorOption[EditorOption["fontLigatures"] = 49] = "fontLigatures";
+    EditorOption[EditorOption["fontSize"] = 50] = "fontSize";
+    EditorOption[EditorOption["fontWeight"] = 51] = "fontWeight";
+    EditorOption[EditorOption["fontVariations"] = 52] = "fontVariations";
+    EditorOption[EditorOption["formatOnPaste"] = 53] = "formatOnPaste";
+    EditorOption[EditorOption["formatOnType"] = 54] = "formatOnType";
+    EditorOption[EditorOption["glyphMargin"] = 55] = "glyphMargin";
+    EditorOption[EditorOption["gotoLocation"] = 56] = "gotoLocation";
+    EditorOption[EditorOption["hideCursorInOverviewRuler"] = 57] = "hideCursorInOverviewRuler";
+    EditorOption[EditorOption["hover"] = 58] = "hover";
+    EditorOption[EditorOption["inDiffEditor"] = 59] = "inDiffEditor";
+    EditorOption[EditorOption["inlineSuggest"] = 60] = "inlineSuggest";
+    EditorOption[EditorOption["letterSpacing"] = 61] = "letterSpacing";
+    EditorOption[EditorOption["lightbulb"] = 62] = "lightbulb";
+    EditorOption[EditorOption["lineDecorationsWidth"] = 63] = "lineDecorationsWidth";
+    EditorOption[EditorOption["lineHeight"] = 64] = "lineHeight";
+    EditorOption[EditorOption["lineNumbers"] = 65] = "lineNumbers";
+    EditorOption[EditorOption["lineNumbersMinChars"] = 66] = "lineNumbersMinChars";
+    EditorOption[EditorOption["linkedEditing"] = 67] = "linkedEditing";
+    EditorOption[EditorOption["links"] = 68] = "links";
+    EditorOption[EditorOption["matchBrackets"] = 69] = "matchBrackets";
+    EditorOption[EditorOption["minimap"] = 70] = "minimap";
+    EditorOption[EditorOption["mouseStyle"] = 71] = "mouseStyle";
+    EditorOption[EditorOption["mouseWheelScrollSensitivity"] = 72] = "mouseWheelScrollSensitivity";
+    EditorOption[EditorOption["mouseWheelZoom"] = 73] = "mouseWheelZoom";
+    EditorOption[EditorOption["multiCursorMergeOverlapping"] = 74] = "multiCursorMergeOverlapping";
+    EditorOption[EditorOption["multiCursorModifier"] = 75] = "multiCursorModifier";
+    EditorOption[EditorOption["multiCursorPaste"] = 76] = "multiCursorPaste";
+    EditorOption[EditorOption["multiCursorLimit"] = 77] = "multiCursorLimit";
+    EditorOption[EditorOption["occurrencesHighlight"] = 78] = "occurrencesHighlight";
+    EditorOption[EditorOption["overviewRulerBorder"] = 79] = "overviewRulerBorder";
+    EditorOption[EditorOption["overviewRulerLanes"] = 80] = "overviewRulerLanes";
+    EditorOption[EditorOption["padding"] = 81] = "padding";
+    EditorOption[EditorOption["pasteAs"] = 82] = "pasteAs";
+    EditorOption[EditorOption["parameterHints"] = 83] = "parameterHints";
+    EditorOption[EditorOption["peekWidgetDefaultFocus"] = 84] = "peekWidgetDefaultFocus";
+    EditorOption[EditorOption["definitionLinkOpensInPeek"] = 85] = "definitionLinkOpensInPeek";
+    EditorOption[EditorOption["quickSuggestions"] = 86] = "quickSuggestions";
+    EditorOption[EditorOption["quickSuggestionsDelay"] = 87] = "quickSuggestionsDelay";
+    EditorOption[EditorOption["readOnly"] = 88] = "readOnly";
+    EditorOption[EditorOption["renameOnType"] = 89] = "renameOnType";
+    EditorOption[EditorOption["renderControlCharacters"] = 90] = "renderControlCharacters";
+    EditorOption[EditorOption["renderFinalNewline"] = 91] = "renderFinalNewline";
+    EditorOption[EditorOption["renderLineHighlight"] = 92] = "renderLineHighlight";
+    EditorOption[EditorOption["renderLineHighlightOnlyWhenFocus"] = 93] = "renderLineHighlightOnlyWhenFocus";
+    EditorOption[EditorOption["renderValidationDecorations"] = 94] = "renderValidationDecorations";
+    EditorOption[EditorOption["renderWhitespace"] = 95] = "renderWhitespace";
+    EditorOption[EditorOption["revealHorizontalRightPadding"] = 96] = "revealHorizontalRightPadding";
+    EditorOption[EditorOption["roundedSelection"] = 97] = "roundedSelection";
+    EditorOption[EditorOption["rulers"] = 98] = "rulers";
+    EditorOption[EditorOption["scrollbar"] = 99] = "scrollbar";
+    EditorOption[EditorOption["scrollBeyondLastColumn"] = 100] = "scrollBeyondLastColumn";
+    EditorOption[EditorOption["scrollBeyondLastLine"] = 101] = "scrollBeyondLastLine";
+    EditorOption[EditorOption["scrollPredominantAxis"] = 102] = "scrollPredominantAxis";
+    EditorOption[EditorOption["selectionClipboard"] = 103] = "selectionClipboard";
+    EditorOption[EditorOption["selectionHighlight"] = 104] = "selectionHighlight";
+    EditorOption[EditorOption["selectOnLineNumbers"] = 105] = "selectOnLineNumbers";
+    EditorOption[EditorOption["showFoldingControls"] = 106] = "showFoldingControls";
+    EditorOption[EditorOption["showUnused"] = 107] = "showUnused";
+    EditorOption[EditorOption["snippetSuggestions"] = 108] = "snippetSuggestions";
+    EditorOption[EditorOption["smartSelect"] = 109] = "smartSelect";
+    EditorOption[EditorOption["smoothScrolling"] = 110] = "smoothScrolling";
+    EditorOption[EditorOption["stickyScroll"] = 111] = "stickyScroll";
+    EditorOption[EditorOption["stickyTabStops"] = 112] = "stickyTabStops";
+    EditorOption[EditorOption["stopRenderingLineAfter"] = 113] = "stopRenderingLineAfter";
+    EditorOption[EditorOption["suggest"] = 114] = "suggest";
+    EditorOption[EditorOption["suggestFontSize"] = 115] = "suggestFontSize";
+    EditorOption[EditorOption["suggestLineHeight"] = 116] = "suggestLineHeight";
+    EditorOption[EditorOption["suggestOnTriggerCharacters"] = 117] = "suggestOnTriggerCharacters";
+    EditorOption[EditorOption["suggestSelection"] = 118] = "suggestSelection";
+    EditorOption[EditorOption["tabCompletion"] = 119] = "tabCompletion";
+    EditorOption[EditorOption["tabIndex"] = 120] = "tabIndex";
+    EditorOption[EditorOption["unicodeHighlighting"] = 121] = "unicodeHighlighting";
+    EditorOption[EditorOption["unusualLineTerminators"] = 122] = "unusualLineTerminators";
+    EditorOption[EditorOption["useShadowDOM"] = 123] = "useShadowDOM";
+    EditorOption[EditorOption["useTabStops"] = 124] = "useTabStops";
+    EditorOption[EditorOption["wordBreak"] = 125] = "wordBreak";
+    EditorOption[EditorOption["wordSeparators"] = 126] = "wordSeparators";
+    EditorOption[EditorOption["wordWrap"] = 127] = "wordWrap";
+    EditorOption[EditorOption["wordWrapBreakAfterCharacters"] = 128] = "wordWrapBreakAfterCharacters";
+    EditorOption[EditorOption["wordWrapBreakBeforeCharacters"] = 129] = "wordWrapBreakBeforeCharacters";
+    EditorOption[EditorOption["wordWrapColumn"] = 130] = "wordWrapColumn";
+    EditorOption[EditorOption["wordWrapOverride1"] = 131] = "wordWrapOverride1";
+    EditorOption[EditorOption["wordWrapOverride2"] = 132] = "wordWrapOverride2";
+    EditorOption[EditorOption["wrappingIndent"] = 133] = "wrappingIndent";
+    EditorOption[EditorOption["wrappingStrategy"] = 134] = "wrappingStrategy";
+    EditorOption[EditorOption["showDeprecated"] = 135] = "showDeprecated";
+    EditorOption[EditorOption["inlayHints"] = 136] = "inlayHints";
+    EditorOption[EditorOption["editorClassName"] = 137] = "editorClassName";
+    EditorOption[EditorOption["pixelRatio"] = 138] = "pixelRatio";
+    EditorOption[EditorOption["tabFocusMode"] = 139] = "tabFocusMode";
+    EditorOption[EditorOption["layoutInfo"] = 140] = "layoutInfo";
+    EditorOption[EditorOption["wrappingInfo"] = 141] = "wrappingInfo";
+    EditorOption[EditorOption["defaultColorDecorators"] = 142] = "defaultColorDecorators";
 })(EditorOption || (EditorOption = {}));
 /**
  * End of line character preference.
@@ -332,6 +348,14 @@ export var EndOfLineSequence;
     EndOfLineSequence[EndOfLineSequence["CRLF"] = 1] = "CRLF";
 })(EndOfLineSequence || (EndOfLineSequence = {}));
 /**
+ * Vertical Lane in the glyph margin of the editor.
+ */
+export var GlyphMarginLane;
+(function (GlyphMarginLane) {
+    GlyphMarginLane[GlyphMarginLane["Left"] = 1] = "Left";
+    GlyphMarginLane[GlyphMarginLane["Right"] = 2] = "Right";
+})(GlyphMarginLane || (GlyphMarginLane = {}));
+/**
  * Describes what to do with the indentation when pressing Enter.
  */
 export var IndentAction;
@@ -364,7 +388,6 @@ export var InjectedTextCursorStops;
 })(InjectedTextCursorStops || (InjectedTextCursorStops = {}));
 export var InlayHintKind;
 (function (InlayHintKind) {
-    InlayHintKind[InlayHintKind["Other"] = 0] = "Other";
     InlayHintKind[InlayHintKind["Type"] = 1] = "Type";
     InlayHintKind[InlayHintKind["Parameter"] = 2] = "Parameter";
 })(InlayHintKind || (InlayHintKind = {}));
@@ -473,112 +496,121 @@ export var KeyCode;
     KeyCode[KeyCode["F17"] = 75] = "F17";
     KeyCode[KeyCode["F18"] = 76] = "F18";
     KeyCode[KeyCode["F19"] = 77] = "F19";
-    KeyCode[KeyCode["NumLock"] = 78] = "NumLock";
-    KeyCode[KeyCode["ScrollLock"] = 79] = "ScrollLock";
+    KeyCode[KeyCode["F20"] = 78] = "F20";
+    KeyCode[KeyCode["F21"] = 79] = "F21";
+    KeyCode[KeyCode["F22"] = 80] = "F22";
+    KeyCode[KeyCode["F23"] = 81] = "F23";
+    KeyCode[KeyCode["F24"] = 82] = "F24";
+    KeyCode[KeyCode["NumLock"] = 83] = "NumLock";
+    KeyCode[KeyCode["ScrollLock"] = 84] = "ScrollLock";
     /**
      * Used for miscellaneous characters; it can vary by keyboard.
      * For the US standard keyboard, the ';:' key
      */
-    KeyCode[KeyCode["Semicolon"] = 80] = "Semicolon";
+    KeyCode[KeyCode["Semicolon"] = 85] = "Semicolon";
     /**
      * For any country/region, the '+' key
      * For the US standard keyboard, the '=+' key
      */
-    KeyCode[KeyCode["Equal"] = 81] = "Equal";
+    KeyCode[KeyCode["Equal"] = 86] = "Equal";
     /**
      * For any country/region, the ',' key
      * For the US standard keyboard, the ',<' key
      */
-    KeyCode[KeyCode["Comma"] = 82] = "Comma";
+    KeyCode[KeyCode["Comma"] = 87] = "Comma";
     /**
      * For any country/region, the '-' key
      * For the US standard keyboard, the '-_' key
      */
-    KeyCode[KeyCode["Minus"] = 83] = "Minus";
+    KeyCode[KeyCode["Minus"] = 88] = "Minus";
     /**
      * For any country/region, the '.' key
      * For the US standard keyboard, the '.>' key
      */
-    KeyCode[KeyCode["Period"] = 84] = "Period";
+    KeyCode[KeyCode["Period"] = 89] = "Period";
     /**
      * Used for miscellaneous characters; it can vary by keyboard.
      * For the US standard keyboard, the '/?' key
      */
-    KeyCode[KeyCode["Slash"] = 85] = "Slash";
+    KeyCode[KeyCode["Slash"] = 90] = "Slash";
     /**
      * Used for miscellaneous characters; it can vary by keyboard.
      * For the US standard keyboard, the '`~' key
      */
-    KeyCode[KeyCode["Backquote"] = 86] = "Backquote";
+    KeyCode[KeyCode["Backquote"] = 91] = "Backquote";
     /**
      * Used for miscellaneous characters; it can vary by keyboard.
      * For the US standard keyboard, the '[{' key
      */
-    KeyCode[KeyCode["BracketLeft"] = 87] = "BracketLeft";
+    KeyCode[KeyCode["BracketLeft"] = 92] = "BracketLeft";
     /**
      * Used for miscellaneous characters; it can vary by keyboard.
      * For the US standard keyboard, the '\|' key
      */
-    KeyCode[KeyCode["Backslash"] = 88] = "Backslash";
+    KeyCode[KeyCode["Backslash"] = 93] = "Backslash";
     /**
      * Used for miscellaneous characters; it can vary by keyboard.
      * For the US standard keyboard, the ']}' key
      */
-    KeyCode[KeyCode["BracketRight"] = 89] = "BracketRight";
+    KeyCode[KeyCode["BracketRight"] = 94] = "BracketRight";
     /**
      * Used for miscellaneous characters; it can vary by keyboard.
      * For the US standard keyboard, the ''"' key
      */
-    KeyCode[KeyCode["Quote"] = 90] = "Quote";
+    KeyCode[KeyCode["Quote"] = 95] = "Quote";
     /**
      * Used for miscellaneous characters; it can vary by keyboard.
      */
-    KeyCode[KeyCode["OEM_8"] = 91] = "OEM_8";
+    KeyCode[KeyCode["OEM_8"] = 96] = "OEM_8";
     /**
      * Either the angle bracket key or the backslash key on the RT 102-key keyboard.
      */
-    KeyCode[KeyCode["IntlBackslash"] = 92] = "IntlBackslash";
-    KeyCode[KeyCode["Numpad0"] = 93] = "Numpad0";
-    KeyCode[KeyCode["Numpad1"] = 94] = "Numpad1";
-    KeyCode[KeyCode["Numpad2"] = 95] = "Numpad2";
-    KeyCode[KeyCode["Numpad3"] = 96] = "Numpad3";
-    KeyCode[KeyCode["Numpad4"] = 97] = "Numpad4";
-    KeyCode[KeyCode["Numpad5"] = 98] = "Numpad5";
-    KeyCode[KeyCode["Numpad6"] = 99] = "Numpad6";
-    KeyCode[KeyCode["Numpad7"] = 100] = "Numpad7";
-    KeyCode[KeyCode["Numpad8"] = 101] = "Numpad8";
-    KeyCode[KeyCode["Numpad9"] = 102] = "Numpad9";
-    KeyCode[KeyCode["NumpadMultiply"] = 103] = "NumpadMultiply";
-    KeyCode[KeyCode["NumpadAdd"] = 104] = "NumpadAdd";
-    KeyCode[KeyCode["NUMPAD_SEPARATOR"] = 105] = "NUMPAD_SEPARATOR";
-    KeyCode[KeyCode["NumpadSubtract"] = 106] = "NumpadSubtract";
-    KeyCode[KeyCode["NumpadDecimal"] = 107] = "NumpadDecimal";
-    KeyCode[KeyCode["NumpadDivide"] = 108] = "NumpadDivide";
+    KeyCode[KeyCode["IntlBackslash"] = 97] = "IntlBackslash";
+    KeyCode[KeyCode["Numpad0"] = 98] = "Numpad0";
+    KeyCode[KeyCode["Numpad1"] = 99] = "Numpad1";
+    KeyCode[KeyCode["Numpad2"] = 100] = "Numpad2";
+    KeyCode[KeyCode["Numpad3"] = 101] = "Numpad3";
+    KeyCode[KeyCode["Numpad4"] = 102] = "Numpad4";
+    KeyCode[KeyCode["Numpad5"] = 103] = "Numpad5";
+    KeyCode[KeyCode["Numpad6"] = 104] = "Numpad6";
+    KeyCode[KeyCode["Numpad7"] = 105] = "Numpad7";
+    KeyCode[KeyCode["Numpad8"] = 106] = "Numpad8";
+    KeyCode[KeyCode["Numpad9"] = 107] = "Numpad9";
+    KeyCode[KeyCode["NumpadMultiply"] = 108] = "NumpadMultiply";
+    KeyCode[KeyCode["NumpadAdd"] = 109] = "NumpadAdd";
+    KeyCode[KeyCode["NUMPAD_SEPARATOR"] = 110] = "NUMPAD_SEPARATOR";
+    KeyCode[KeyCode["NumpadSubtract"] = 111] = "NumpadSubtract";
+    KeyCode[KeyCode["NumpadDecimal"] = 112] = "NumpadDecimal";
+    KeyCode[KeyCode["NumpadDivide"] = 113] = "NumpadDivide";
     /**
      * Cover all key codes when IME is processing input.
      */
-    KeyCode[KeyCode["KEY_IN_COMPOSITION"] = 109] = "KEY_IN_COMPOSITION";
-    KeyCode[KeyCode["ABNT_C1"] = 110] = "ABNT_C1";
-    KeyCode[KeyCode["ABNT_C2"] = 111] = "ABNT_C2";
-    KeyCode[KeyCode["AudioVolumeMute"] = 112] = "AudioVolumeMute";
-    KeyCode[KeyCode["AudioVolumeUp"] = 113] = "AudioVolumeUp";
-    KeyCode[KeyCode["AudioVolumeDown"] = 114] = "AudioVolumeDown";
-    KeyCode[KeyCode["BrowserSearch"] = 115] = "BrowserSearch";
-    KeyCode[KeyCode["BrowserHome"] = 116] = "BrowserHome";
-    KeyCode[KeyCode["BrowserBack"] = 117] = "BrowserBack";
-    KeyCode[KeyCode["BrowserForward"] = 118] = "BrowserForward";
-    KeyCode[KeyCode["MediaTrackNext"] = 119] = "MediaTrackNext";
-    KeyCode[KeyCode["MediaTrackPrevious"] = 120] = "MediaTrackPrevious";
-    KeyCode[KeyCode["MediaStop"] = 121] = "MediaStop";
-    KeyCode[KeyCode["MediaPlayPause"] = 122] = "MediaPlayPause";
-    KeyCode[KeyCode["LaunchMediaPlayer"] = 123] = "LaunchMediaPlayer";
-    KeyCode[KeyCode["LaunchMail"] = 124] = "LaunchMail";
-    KeyCode[KeyCode["LaunchApp2"] = 125] = "LaunchApp2";
+    KeyCode[KeyCode["KEY_IN_COMPOSITION"] = 114] = "KEY_IN_COMPOSITION";
+    KeyCode[KeyCode["ABNT_C1"] = 115] = "ABNT_C1";
+    KeyCode[KeyCode["ABNT_C2"] = 116] = "ABNT_C2";
+    KeyCode[KeyCode["AudioVolumeMute"] = 117] = "AudioVolumeMute";
+    KeyCode[KeyCode["AudioVolumeUp"] = 118] = "AudioVolumeUp";
+    KeyCode[KeyCode["AudioVolumeDown"] = 119] = "AudioVolumeDown";
+    KeyCode[KeyCode["BrowserSearch"] = 120] = "BrowserSearch";
+    KeyCode[KeyCode["BrowserHome"] = 121] = "BrowserHome";
+    KeyCode[KeyCode["BrowserBack"] = 122] = "BrowserBack";
+    KeyCode[KeyCode["BrowserForward"] = 123] = "BrowserForward";
+    KeyCode[KeyCode["MediaTrackNext"] = 124] = "MediaTrackNext";
+    KeyCode[KeyCode["MediaTrackPrevious"] = 125] = "MediaTrackPrevious";
+    KeyCode[KeyCode["MediaStop"] = 126] = "MediaStop";
+    KeyCode[KeyCode["MediaPlayPause"] = 127] = "MediaPlayPause";
+    KeyCode[KeyCode["LaunchMediaPlayer"] = 128] = "LaunchMediaPlayer";
+    KeyCode[KeyCode["LaunchMail"] = 129] = "LaunchMail";
+    KeyCode[KeyCode["LaunchApp2"] = 130] = "LaunchApp2";
+    /**
+     * VK_CLEAR, 0x0C, CLEAR key
+     */
+    KeyCode[KeyCode["Clear"] = 131] = "Clear";
     /**
      * Placed last to cover the length of the enum.
      * Please do not depend on this value!
      */
-    KeyCode[KeyCode["MAX_VALUE"] = 126] = "MAX_VALUE";
+    KeyCode[KeyCode["MAX_VALUE"] = 132] = "MAX_VALUE";
 })(KeyCode || (KeyCode = {}));
 export var MarkerSeverity;
 (function (MarkerSeverity) {
@@ -704,6 +736,14 @@ export var PositionAffinity;
      * No preference.
     */
     PositionAffinity[PositionAffinity["None"] = 2] = "None";
+    /**
+     * If the given position is on injected text, prefers the position left of it.
+    */
+    PositionAffinity[PositionAffinity["LeftOfInjectedText"] = 3] = "LeftOfInjectedText";
+    /**
+     * If the given position is on injected text, prefers the position right of it.
+    */
+    PositionAffinity[PositionAffinity["RightOfInjectedText"] = 4] = "RightOfInjectedText";
 })(PositionAffinity || (PositionAffinity = {}));
 export var RenderLineNumbersType;
 (function (RenderLineNumbersType) {

@@ -18,7 +18,7 @@ export class ViewportData {
         this.visibleRange = new Range(partialData.startLineNumber, this._model.getLineMinColumn(partialData.startLineNumber), partialData.endLineNumber, this._model.getLineMaxColumn(partialData.endLineNumber));
     }
     getViewLineRenderingData(lineNumber) {
-        return this._model.getViewLineRenderingData(this.visibleRange, lineNumber);
+        return this._model.getViewportViewLineRenderingData(this.visibleRange, lineNumber);
     }
     getDecorationsInViewport() {
         return this._model.getDecorationsInViewport(this.visibleRange);

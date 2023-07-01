@@ -1,4 +1,5 @@
 import { createDecorator } from '../../instantiation/common/instantiation.js';
+export const IProgressService = createDecorator('progressService');
 export const emptyProgressRunner = Object.freeze({
     total() { },
     worked() { },

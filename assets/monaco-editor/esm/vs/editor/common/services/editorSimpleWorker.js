@@ -12,23 +12,23 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import { stringDiff } from '../../../base/common/diff/diff.js';
-import { globals } from '../../../base/common/platform.js';
 import { URI } from '../../../base/common/uri.js';
 import { Position } from '../core/position.js';
 import { Range } from '../core/range.js';
-import { DiffComputer } from '../diff/diffComputer.js';
 import { MirrorTextModel as BaseMirrorModel } from '../model/mirrorTextModel.js';
 import { ensureValidWordDefinition, getWordAtText } from '../core/wordHelper.js';
 import { computeLinks } from '../languages/linkComputer.js';
 import { BasicInplaceReplace } from '../languages/supports/inplaceReplaceSupport.js';
 import { createMonacoBaseAPI } from './editorBaseApi.js';
-import * as types from '../../../base/common/types.js';
 import { StopWatch } from '../../../base/common/stopwatch.js';
-import { UnicodeTextModelHighlighter } from '../languages/unicodeTextModelHighlighter.js';
+import { UnicodeTextModelHighlighter } from './unicodeTextModelHighlighter.js';
+import { linesDiffComputers } from '../diff/linesDiffComputers.js';
+import { createProxyObject, getAllMethodNames } from '../../../base/common/objects.js';
+import { computeDefaultDocumentColors } from '../languages/defaultDocumentColorsComputer.js';
 /**
  * @internal
  */
-export class MirrorModel extends BaseMirrorModel {
+class MirrorModel extends BaseMirrorModel {
     get uri() {
         return this._uri;
     }
@@ -37,6 +37,21 @@ export class MirrorModel extends BaseMirrorModel {
     }
     getValue() {
         return this.getText();
+    }
+    findMatches(regex) {
+        const matches = [];
+        for (let i = 0; i < this._lines.length; i++) {
+            const line = this._lines[i];
+            const offsetToAdd = this.offsetAt(new Position(i + 1, 1));
+            const iteratorOverMatches = line.matchAll(regex);
+            for (const match of iteratorOverMatches) {
+                if (match.index || match.index === 0) {
+                    match.index = match.index + offsetToAdd;
+                }
+                matches.push(match);
+            }
+        }
+        return matches;
     }
     getLinesContent() {
         return this._lines.slice(0);
@@ -241,32 +256,41 @@ export class EditorSimpleWorker {
         });
     }
     // ---- BEGIN diff --------------------------------------------------------------------------
-    computeDiff(originalUrl, modifiedUrl, ignoreTrimWhitespace, maxComputationTime) {
+    computeDiff(originalUrl, modifiedUrl, options, algorithm) {
         return __awaiter(this, void 0, void 0, function* () {
             const original = this._getModel(originalUrl);
             const modified = this._getModel(modifiedUrl);
             if (!original || !modified) {
                 return null;
             }
-            const originalLines = original.getLinesContent();
-            const modifiedLines = modified.getLinesContent();
-            const diffComputer = new DiffComputer(originalLines, modifiedLines, {
-                shouldComputeCharChanges: true,
-                shouldPostProcessCharChanges: true,
-                shouldIgnoreTrimWhitespace: ignoreTrimWhitespace,
-                shouldMakePrettyDiff: true,
-                maxComputationTime: maxComputationTime
-            });
-            const diffResult = diffComputer.computeDiff();
-            const identical = (diffResult.changes.length > 0 ? false : this._modelsAreIdentical(original, modified));
-            return {
-                quitEarly: diffResult.quitEarly,
-                identical: identical,
-                changes: diffResult.changes
-            };
+            return EditorSimpleWorker.computeDiff(original, modified, options, algorithm);
         });
     }
-    _modelsAreIdentical(original, modified) {
+    static computeDiff(originalTextModel, modifiedTextModel, options, algorithm) {
+        const diffAlgorithm = algorithm === 'advanced' ? linesDiffComputers.advanced : linesDiffComputers.legacy;
+        const originalLines = originalTextModel.getLinesContent();
+        const modifiedLines = modifiedTextModel.getLinesContent();
+        const result = diffAlgorithm.computeDiff(originalLines, modifiedLines, options);
+        const identical = (result.changes.length > 0 ? false : this._modelsAreIdentical(originalTextModel, modifiedTextModel));
+        return {
+            identical,
+            quitEarly: result.hitTimeout,
+            changes: result.changes.map(m => {
+                var _a;
+                return ([m.originalRange.startLineNumber, m.originalRange.endLineNumberExclusive, m.modifiedRange.startLineNumber, m.modifiedRange.endLineNumberExclusive, (_a = m.innerChanges) === null || _a === void 0 ? void 0 : _a.map(m => [
+                        m.originalRange.startLineNumber,
+                        m.originalRange.startColumn,
+                        m.originalRange.endLineNumber,
+                        m.originalRange.endColumn,
+                        m.modifiedRange.startLineNumber,
+                        m.modifiedRange.startColumn,
+                        m.modifiedRange.endLineNumber,
+                        m.modifiedRange.endColumn,
+                    ])]);
+            })
+        };
+    }
+    static _modelsAreIdentical(original, modified) {
         const originalLineCount = original.getLineCount();
         const modifiedLineCount = modified.getLineCount();
         if (originalLineCount !== modifiedLineCount) {
@@ -281,7 +305,7 @@ export class EditorSimpleWorker {
         }
         return true;
     }
-    computeMoreMinimalEdits(modelUrl, edits) {
+    computeMoreMinimalEdits(modelUrl, edits, pretty) {
         return __awaiter(this, void 0, void 0, function* () {
             const model = this._getModel(modelUrl);
             if (!model) {
@@ -318,7 +342,7 @@ export class EditorSimpleWorker {
                     continue;
                 }
                 // compute diff between original and edit.text
-                const changes = stringDiff(original, text, false);
+                const changes = stringDiff(original, text, pretty);
                 const editOffset = model.offsetAt(Range.lift(range).getStartPosition());
                 for (const change of changes) {
                     const start = model.positionAt(editOffset + change.originalStart);
@@ -348,17 +372,27 @@ export class EditorSimpleWorker {
             return computeLinks(model);
         });
     }
+    // --- BEGIN default document colors -----------------------------------------------------------
+    computeDefaultDocumentColors(modelUrl) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const model = this._getModel(modelUrl);
+            if (!model) {
+                return null;
+            }
+            return computeDefaultDocumentColors(model);
+        });
+    }
     textualSuggest(modelUrls, leadingWord, wordDef, wordDefFlags) {
         return __awaiter(this, void 0, void 0, function* () {
             const sw = new StopWatch(true);
             const wordDefRegExp = new RegExp(wordDef, wordDefFlags);
             const seen = new Set();
-            outer: for (let url of modelUrls) {
+            outer: for (const url of modelUrls) {
                 const model = this._getModel(url);
                 if (!model) {
                     continue;
                 }
-                for (let word of model.words(wordDefRegExp)) {
+                for (const word of model.words(wordDefRegExp)) {
                     if (word === leadingWord || !isNaN(Number(word))) {
                         continue;
                     }
@@ -434,7 +468,7 @@ export class EditorSimpleWorker {
         const proxyMethodRequest = (method, args) => {
             return this._host.fhr(method, args);
         };
-        const foreignHost = types.createProxyObject(foreignHostMethods, proxyMethodRequest);
+        const foreignHost = createProxyObject(foreignHostMethods, proxyMethodRequest);
         const ctx = {
             host: foreignHost,
             getMirrorModels: () => {
@@ -444,14 +478,14 @@ export class EditorSimpleWorker {
         if (this._foreignModuleFactory) {
             this._foreignModule = this._foreignModuleFactory(ctx, createData);
             // static foreing module
-            return Promise.resolve(types.getAllMethodNames(this._foreignModule));
+            return Promise.resolve(getAllMethodNames(this._foreignModule));
         }
         // ESM-comment-begin
         // 		return new Promise<any>((resolve, reject) => {
         // 			require([moduleId], (foreignModule: { create: IForeignModuleFactory }) => {
         // 				this._foreignModule = foreignModule.create(ctx, createData);
         // 
-        // 				resolve(types.getAllMethodNames(this._foreignModule));
+        // 				resolve(getAllMethodNames(this._foreignModule));
         // 
         // 			}, reject);
         // 		});
@@ -487,5 +521,5 @@ export function create(host) {
 }
 if (typeof importScripts === 'function') {
     // Running in a web worker
-    globals.monaco = createMonacoBaseAPI();
+    globalThis.monaco = createMonacoBaseAPI();
 }

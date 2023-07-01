@@ -1,16 +1,16 @@
 import { Emitter } from '../../../base/common/event.js';
 import { Disposable } from '../../../base/common/lifecycle.js';
+import { RawContextKey } from '../../contextkey/common/contextkey.js';
 import { createDecorator } from '../../instantiation/common/instantiation.js';
 export const ILogService = createDecorator('logService');
 export var LogLevel;
 (function (LogLevel) {
-    LogLevel[LogLevel["Trace"] = 0] = "Trace";
-    LogLevel[LogLevel["Debug"] = 1] = "Debug";
-    LogLevel[LogLevel["Info"] = 2] = "Info";
-    LogLevel[LogLevel["Warning"] = 3] = "Warning";
-    LogLevel[LogLevel["Error"] = 4] = "Error";
-    LogLevel[LogLevel["Critical"] = 5] = "Critical";
-    LogLevel[LogLevel["Off"] = 6] = "Off";
+    LogLevel[LogLevel["Off"] = 0] = "Off";
+    LogLevel[LogLevel["Trace"] = 1] = "Trace";
+    LogLevel[LogLevel["Debug"] = 2] = "Debug";
+    LogLevel[LogLevel["Info"] = 3] = "Info";
+    LogLevel[LogLevel["Warning"] = 4] = "Warning";
+    LogLevel[LogLevel["Error"] = 5] = "Error";
 })(LogLevel || (LogLevel = {}));
 export const DEFAULT_LOG_LEVEL = LogLevel.Info;
 export class AbstractLogger extends Disposable {
@@ -18,6 +18,7 @@ export class AbstractLogger extends Disposable {
         super(...arguments);
         this.level = DEFAULT_LOG_LEVEL;
         this._onDidChangeLogLevel = this._register(new Emitter());
+        this.onDidChangeLogLevel = this._onDidChangeLogLevel.event;
     }
     setLevel(level) {
         if (this.level !== level) {
@@ -28,55 +29,109 @@ export class AbstractLogger extends Disposable {
     getLevel() {
         return this.level;
     }
+    checkLogLevel(level) {
+        return this.level !== LogLevel.Off && this.level <= level;
+    }
 }
 export class ConsoleLogger extends AbstractLogger {
-    constructor(logLevel = DEFAULT_LOG_LEVEL) {
+    constructor(logLevel = DEFAULT_LOG_LEVEL, useColors = true) {
         super();
+        this.useColors = useColors;
         this.setLevel(logLevel);
     }
     trace(message, ...args) {
-        if (this.getLevel() <= LogLevel.Trace) {
-            console.log('%cTRACE', 'color: #888', message, ...args);
+        if (this.checkLogLevel(LogLevel.Trace)) {
+            if (this.useColors) {
+                console.log('%cTRACE', 'color: #888', message, ...args);
+            }
+            else {
+                console.log(message, ...args);
+            }
         }
     }
     debug(message, ...args) {
-        if (this.getLevel() <= LogLevel.Debug) {
-            console.log('%cDEBUG', 'background: #eee; color: #888', message, ...args);
+        if (this.checkLogLevel(LogLevel.Debug)) {
+            if (this.useColors) {
+                console.log('%cDEBUG', 'background: #eee; color: #888', message, ...args);
+            }
+            else {
+                console.log(message, ...args);
+            }
         }
     }
     info(message, ...args) {
-        if (this.getLevel() <= LogLevel.Info) {
-            console.log('%c INFO', 'color: #33f', message, ...args);
+        if (this.checkLogLevel(LogLevel.Info)) {
+            if (this.useColors) {
+                console.log('%c INFO', 'color: #33f', message, ...args);
+            }
+            else {
+                console.log(message, ...args);
+            }
         }
     }
     error(message, ...args) {
-        if (this.getLevel() <= LogLevel.Error) {
-            console.log('%c  ERR', 'color: #f33', message, ...args);
+        if (this.checkLogLevel(LogLevel.Error)) {
+            if (this.useColors) {
+                console.log('%c  ERR', 'color: #f33', message, ...args);
+            }
+            else {
+                console.error(message, ...args);
+            }
         }
     }
     dispose() {
         // noop
     }
 }
-export class LogService extends Disposable {
-    constructor(logger) {
+export class MultiplexLogger extends AbstractLogger {
+    constructor(loggers) {
         super();
-        this.logger = logger;
-        this._register(logger);
+        this.loggers = loggers;
+        if (loggers.length) {
+            this.setLevel(loggers[0].getLevel());
+        }
     }
-    getLevel() {
-        return this.logger.getLevel();
+    setLevel(level) {
+        for (const logger of this.loggers) {
+            logger.setLevel(level);
+        }
+        super.setLevel(level);
     }
     trace(message, ...args) {
-        this.logger.trace(message, ...args);
+        for (const logger of this.loggers) {
+            logger.trace(message, ...args);
+        }
     }
     debug(message, ...args) {
-        this.logger.debug(message, ...args);
+        for (const logger of this.loggers) {
+            logger.debug(message, ...args);
+        }
     }
     info(message, ...args) {
-        this.logger.info(message, ...args);
+        for (const logger of this.loggers) {
+            logger.info(message, ...args);
+        }
     }
     error(message, ...args) {
-        this.logger.error(message, ...args);
+        for (const logger of this.loggers) {
+            logger.error(message, ...args);
+        }
+    }
+    dispose() {
+        for (const logger of this.loggers) {
+            logger.dispose();
+        }
     }
 }
+export function LogLevelToString(logLevel) {
+    switch (logLevel) {
+        case LogLevel.Trace: return 'trace';
+        case LogLevel.Debug: return 'debug';
+        case LogLevel.Info: return 'info';
+        case LogLevel.Warning: return 'warn';
+        case LogLevel.Error: return 'error';
+        case LogLevel.Off: return 'off';
+    }
+}
+// Contexts
+export const CONTEXT_LOG_LEVEL = new RawContextKey('logLevel', LogLevelToString(LogLevel.Info));

@@ -7,6 +7,12 @@ import { Disposable, markAsSingleton } from '../../../base/common/lifecycle.js';
 import { RGBA8 } from '../core/rgba.js';
 import { TokenizationRegistry } from '../languages.js';
 export class MinimapTokensColorTracker extends Disposable {
+    static getInstance() {
+        if (!this._INSTANCE) {
+            this._INSTANCE = markAsSingleton(new MinimapTokensColorTracker());
+        }
+        return this._INSTANCE;
+    }
     constructor() {
         super();
         this._onDidChange = new Emitter();
@@ -17,12 +23,6 @@ export class MinimapTokensColorTracker extends Disposable {
                 this._updateColorMap();
             }
         }));
-    }
-    static getInstance() {
-        if (!this._INSTANCE) {
-            this._INSTANCE = markAsSingleton(new MinimapTokensColorTracker());
-        }
-        return this._INSTANCE;
     }
     _updateColorMap() {
         const colorMap = TokenizationRegistry.getColorMap();
@@ -37,14 +37,14 @@ export class MinimapTokensColorTracker extends Disposable {
             // Use a VM friendly data-type
             this._colors[colorId] = new RGBA8(source.r, source.g, source.b, Math.round(source.a * 255));
         }
-        const backgroundLuminosity = colorMap[2 /* DefaultBackground */].getRelativeLuminance();
+        const backgroundLuminosity = colorMap[2 /* ColorId.DefaultBackground */].getRelativeLuminance();
         this._backgroundIsLight = backgroundLuminosity >= 0.5;
         this._onDidChange.fire(undefined);
     }
     getColor(colorId) {
         if (colorId < 1 || colorId >= this._colors.length) {
             // background color (basically invisible)
-            colorId = 2 /* DefaultBackground */;
+            colorId = 2 /* ColorId.DefaultBackground */;
         }
         return this._colors[colorId];
     }

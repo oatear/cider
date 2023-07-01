@@ -14,10 +14,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import * as strings from '../../../base/common/strings.js';
 import { LineTokens } from '../tokens/lineTokens.js';
 import { TokenizationRegistry } from '../languages.js';
-import { NullState, nullTokenizeEncoded } from './nullMode.js';
+import { NullState, nullTokenizeEncoded } from './nullTokenize.js';
 const fallback = {
     getInitialState: () => NullState,
-    tokenizeEncoded: (buffer, hasEOL, state) => nullTokenizeEncoded(0 /* Null */, state)
+    tokenizeEncoded: (buffer, hasEOL, state) => nullTokenizeEncoded(0 /* LanguageId.Null */, state)
 };
 export function tokenizeToString(languageService, text, languageId) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -42,7 +42,7 @@ export function tokenizeLineToHTML(text, viewLineTokens, colorMap, startOffset, 
         for (; charIndex < tokenEndIndex && charIndex < endOffset; charIndex++) {
             const charCode = text.charCodeAt(charIndex);
             switch (charCode) {
-                case 9 /* Tab */: {
+                case 9 /* CharCode.Tab */: {
                     let insertSpacesCount = tabSize - (charIndex + tabsCharDelta) % tabSize;
                     tabsCharDelta += insertSpacesCount - 1;
                     while (insertSpacesCount > 0) {
@@ -58,35 +58,35 @@ export function tokenizeLineToHTML(text, viewLineTokens, colorMap, startOffset, 
                     }
                     break;
                 }
-                case 60 /* LessThan */:
+                case 60 /* CharCode.LessThan */:
                     partContent += '&lt;';
                     prevIsSpace = false;
                     break;
-                case 62 /* GreaterThan */:
+                case 62 /* CharCode.GreaterThan */:
                     partContent += '&gt;';
                     prevIsSpace = false;
                     break;
-                case 38 /* Ampersand */:
+                case 38 /* CharCode.Ampersand */:
                     partContent += '&amp;';
                     prevIsSpace = false;
                     break;
-                case 0 /* Null */:
+                case 0 /* CharCode.Null */:
                     partContent += '&#00;';
                     prevIsSpace = false;
                     break;
-                case 65279 /* UTF8_BOM */:
-                case 8232 /* LINE_SEPARATOR */:
-                case 8233 /* PARAGRAPH_SEPARATOR */:
-                case 133 /* NEXT_LINE */:
+                case 65279 /* CharCode.UTF8_BOM */:
+                case 8232 /* CharCode.LINE_SEPARATOR */:
+                case 8233 /* CharCode.PARAGRAPH_SEPARATOR */:
+                case 133 /* CharCode.NEXT_LINE */:
                     partContent += '\ufffd';
                     prevIsSpace = false;
                     break;
-                case 13 /* CarriageReturn */:
+                case 13 /* CharCode.CarriageReturn */:
                     // zero width space, because carriage return would introduce a line break
                     partContent += '&#8203';
                     prevIsSpace = false;
                     break;
-                case 32 /* Space */:
+                case 32 /* CharCode.Space */:
                     if (useNbsp && prevIsSpace) {
                         partContent += '&#160;';
                         prevIsSpace = false;

@@ -81,6 +81,9 @@ const wrapIdentityProvider = (base) => ({
 });
 // Exported only for test reasons, do not use directly
 export class CompressedObjectTreeModel {
+    get onDidSplice() { return this.model.onDidSplice; }
+    get onDidChangeCollapseState() { return this.model.onDidChangeCollapseState; }
+    get onDidChangeRenderNodeCount() { return this.model.onDidChangeRenderNodeCount; }
     constructor(user, list, options = {}) {
         this.user = user;
         this.rootRef = null;
@@ -89,9 +92,6 @@ export class CompressedObjectTreeModel {
         this.enabled = typeof options.compressionEnabled === 'undefined' ? true : options.compressionEnabled;
         this.identityProvider = options.identityProvider;
     }
-    get onDidSplice() { return this.model.onDidSplice; }
-    get onDidChangeCollapseState() { return this.model.onDidChangeCollapseState; }
-    get onDidChangeRenderNodeCount() { return this.model.onDidChangeRenderNodeCount; }
     setChildren(element, children = Iterable.empty(), options) {
         // Diffs must be deem, since the compression can affect nested elements.
         // @see https://github.com/microsoft/vscode/pull/114237#issuecomment-759425034
@@ -103,7 +103,7 @@ export class CompressedObjectTreeModel {
         }
         const compressedNode = this.nodes.get(element);
         if (!compressedNode) {
-            throw new Error('Unknown compressed tree node');
+            throw new TreeError(this.user, 'Unknown compressed tree node');
         }
         const node = this.model.getNode(compressedNode);
         const compressedParentNode = this.model.getParentNodeLocation(compressedNode);
@@ -230,10 +230,6 @@ export class CompressedObjectTreeModel {
 }
 export const DefaultElementMapper = elements => elements[elements.length - 1];
 class CompressedTreeNodeWrapper {
-    constructor(unwrapper, node) {
-        this.unwrapper = unwrapper;
-        this.node = node;
-    }
     get element() { return this.node.element === null ? null : this.unwrapper(this.node.element); }
     get children() { return this.node.children.map(node => new CompressedTreeNodeWrapper(this.unwrapper, node)); }
     get depth() { return this.node.depth; }
@@ -243,6 +239,10 @@ class CompressedTreeNodeWrapper {
     get collapsed() { return this.node.collapsed; }
     get visible() { return this.node.visible; }
     get filterData() { return this.node.filterData; }
+    constructor(unwrapper, node) {
+        this.unwrapper = unwrapper;
+        this.node = node;
+    }
 }
 function mapList(nodeMapper, list) {
     return {
@@ -270,13 +270,6 @@ function mapOptions(compressedNodeUnwrapper, options) {
         } });
 }
 export class CompressibleObjectTreeModel {
-    constructor(user, list, options = {}) {
-        this.rootRef = null;
-        this.elementMapper = options.elementMapper || DefaultElementMapper;
-        const compressedNodeUnwrapper = node => this.elementMapper(node.elements);
-        this.nodeMapper = new WeakMapper(node => new CompressedTreeNodeWrapper(compressedNodeUnwrapper, node));
-        this.model = new CompressedObjectTreeModel(user, mapList(this.nodeMapper, list), mapOptions(compressedNodeUnwrapper, options));
-    }
     get onDidSplice() {
         return Event.map(this.model.onDidSplice, ({ insertedNodes, deletedNodes }) => ({
             insertedNodes: insertedNodes.map(node => this.nodeMapper.map(node)),
@@ -291,6 +284,13 @@ export class CompressibleObjectTreeModel {
     }
     get onDidChangeRenderNodeCount() {
         return Event.map(this.model.onDidChangeRenderNodeCount, node => this.nodeMapper.map(node));
+    }
+    constructor(user, list, options = {}) {
+        this.rootRef = null;
+        this.elementMapper = options.elementMapper || DefaultElementMapper;
+        const compressedNodeUnwrapper = node => this.elementMapper(node.elements);
+        this.nodeMapper = new WeakMapper(node => new CompressedTreeNodeWrapper(compressedNodeUnwrapper, node));
+        this.model = new CompressedObjectTreeModel(user, mapList(this.nodeMapper, list), mapOptions(compressedNodeUnwrapper, options));
     }
     setChildren(element, children = Iterable.empty(), options = {}) {
         this.model.setChildren(element, children, options);

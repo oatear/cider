@@ -29,7 +29,7 @@ export class ReplaceCommandThatSelectsText {
     computeCursorState(model, helper) {
         const inverseEditOperations = helper.getInverseEditOperations();
         const srcRange = inverseEditOperations[0].range;
-        return Selection.fromRange(srcRange, 0 /* LTR */);
+        return Selection.fromRange(srcRange, 0 /* SelectionDirection.LTR */);
     }
 }
 export class ReplaceCommandWithoutChangingPosition {

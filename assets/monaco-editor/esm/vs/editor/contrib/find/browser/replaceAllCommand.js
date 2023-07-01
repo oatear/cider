@@ -13,7 +13,7 @@ export class ReplaceAllCommand {
     getEditOperations(model, builder) {
         if (this._ranges.length > 0) {
             // Collect all edit operations
-            let ops = [];
+            const ops = [];
             for (let i = 0; i < this._ranges.length; i++) {
                 ops.push({
                     range: this._ranges[i],
@@ -25,7 +25,7 @@ export class ReplaceAllCommand {
                 return Range.compareRangesUsingStarts(o1.range, o2.range);
             });
             // Merge operations that touch each other
-            let resultOps = [];
+            const resultOps = [];
             let previousOp = ops[0];
             for (let i = 1; i < ops.length; i++) {
                 if (previousOp.range.endLineNumber === ops[i].range.startLineNumber && previousOp.range.endColumn === ops[i].range.startColumn) {

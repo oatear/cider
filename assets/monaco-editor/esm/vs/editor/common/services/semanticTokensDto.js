@@ -30,13 +30,13 @@ export function encodeSemanticTokensDto(semanticTokens) {
     let offset = 0;
     dest[offset++] = semanticTokens.id;
     if (semanticTokens.type === 'full') {
-        dest[offset++] = 1 /* Full */;
+        dest[offset++] = 1 /* EncodedSemanticTokensType.Full */;
         dest[offset++] = semanticTokens.data.length;
         dest.set(semanticTokens.data, offset);
         offset += semanticTokens.data.length;
     }
     else {
-        dest[offset++] = 2 /* Delta */;
+        dest[offset++] = 2 /* EncodedSemanticTokensType.Delta */;
         dest[offset++] = semanticTokens.deltas.length;
         for (const delta of semanticTokens.deltas) {
             dest[offset++] = delta.start;

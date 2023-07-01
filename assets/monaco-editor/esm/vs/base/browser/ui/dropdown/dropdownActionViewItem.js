@@ -1,7 +1,3 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
 import { $, append } from '../../dom.js';
 import { BaseActionViewItem } from '../actionbar/actionViewItems.js';
 import { DropdownMenu } from './dropdown.js';
@@ -12,6 +8,7 @@ export class DropdownMenuActionViewItem extends BaseActionViewItem {
         super(null, action, options);
         this.actionItem = null;
         this._onDidChangeVisibility = this._register(new Emitter());
+        this.onDidChangeVisibility = this._onDidChangeVisibility.event;
         this.menuActionsOrProvider = menuActionsOrProvider;
         this.contextMenuProvider = contextMenuProvider;
         this.options = options;
@@ -39,6 +36,7 @@ export class DropdownMenuActionViewItem extends BaseActionViewItem {
             this.element.setAttribute('aria-haspopup', 'true');
             this.element.setAttribute('aria-expanded', 'false');
             this.element.title = this._action.label || '';
+            this.element.ariaLabel = this._action.label || '';
             return null;
         };
         const isActionsArray = Array.isArray(this.menuActionsOrProvider);
@@ -67,7 +65,18 @@ export class DropdownMenuActionViewItem extends BaseActionViewItem {
                     return that.options.anchorAlignmentProvider();
                 } });
         }
+        this.updateTooltip();
         this.updateEnabled();
+    }
+    getTooltip() {
+        let title = null;
+        if (this.action.tooltip) {
+            title = this.action.tooltip;
+        }
+        else if (this.action.label) {
+            title = this.action.label;
+        }
+        return title !== null && title !== void 0 ? title : undefined;
     }
     setActionContext(newContext) {
         super.setActionContext(newContext);
@@ -80,9 +89,13 @@ export class DropdownMenuActionViewItem extends BaseActionViewItem {
             }
         }
     }
+    show() {
+        var _a;
+        (_a = this.dropdownMenu) === null || _a === void 0 ? void 0 : _a.show();
+    }
     updateEnabled() {
         var _a, _b;
-        const disabled = !this.getAction().enabled;
+        const disabled = !this.action.enabled;
         (_a = this.actionItem) === null || _a === void 0 ? void 0 : _a.classList.toggle('disabled', disabled);
         (_b = this.element) === null || _b === void 0 ? void 0 : _b.classList.toggle('disabled', disabled);
     }

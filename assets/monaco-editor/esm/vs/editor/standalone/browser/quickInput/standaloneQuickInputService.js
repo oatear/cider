@@ -17,14 +17,13 @@ import { IThemeService } from '../../../../platform/theme/common/themeService.js
 import { CancellationToken } from '../../../../base/common/cancellation.js';
 import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
 import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
-import { IAccessibilityService } from '../../../../platform/accessibility/common/accessibility.js';
 import { EditorScopedLayoutService } from '../standaloneLayoutService.js';
 import { ICodeEditorService } from '../../../browser/services/codeEditorService.js';
-import { QuickInputService } from '../../../../platform/quickinput/browser/quickInput.js';
+import { QuickInputService } from '../../../../platform/quickinput/browser/quickInputService.js';
 import { once } from '../../../../base/common/functional.js';
 let EditorScopedQuickInputService = class EditorScopedQuickInputService extends QuickInputService {
-    constructor(editor, instantiationService, contextKeyService, themeService, accessibilityService, codeEditorService) {
-        super(instantiationService, contextKeyService, themeService, accessibilityService, new EditorScopedLayoutService(editor.getContainerDomNode(), codeEditorService));
+    constructor(editor, instantiationService, contextKeyService, themeService, codeEditorService) {
+        super(instantiationService, contextKeyService, themeService, new EditorScopedLayoutService(editor.getContainerDomNode(), codeEditorService));
         this.host = undefined;
         // Use the passed in code editor as host for the quick input widget
         const contribution = QuickInputEditorContribution.get(editor);
@@ -36,7 +35,8 @@ let EditorScopedQuickInputService = class EditorScopedQuickInputService extends 
                 get container() { return widget.getDomNode(); },
                 get dimension() { return editor.getLayoutInfo(); },
                 get onDidLayout() { return editor.onDidLayoutChange; },
-                focus: () => editor.focus()
+                focus: () => editor.focus(),
+                offset: { top: 0, quickPickTop: 0 }
             };
         }
         else {
@@ -51,16 +51,9 @@ EditorScopedQuickInputService = __decorate([
     __param(1, IInstantiationService),
     __param(2, IContextKeyService),
     __param(3, IThemeService),
-    __param(4, IAccessibilityService),
-    __param(5, ICodeEditorService)
+    __param(4, ICodeEditorService)
 ], EditorScopedQuickInputService);
-export { EditorScopedQuickInputService };
-let StandaloneQuickInputService = class StandaloneQuickInputService {
-    constructor(instantiationService, codeEditorService) {
-        this.instantiationService = instantiationService;
-        this.codeEditorService = codeEditorService;
-        this.mapEditorToService = new Map();
-    }
+export let StandaloneQuickInputService = class StandaloneQuickInputService {
     get activeService() {
         const editor = this.codeEditorService.getFocusedCodeEditor();
         if (!editor) {
@@ -80,25 +73,32 @@ let StandaloneQuickInputService = class StandaloneQuickInputService {
         return quickInputService;
     }
     get quickAccess() { return this.activeService.quickAccess; }
+    constructor(instantiationService, codeEditorService) {
+        this.instantiationService = instantiationService;
+        this.codeEditorService = codeEditorService;
+        this.mapEditorToService = new Map();
+    }
     pick(picks, options = {}, token = CancellationToken.None) {
         return this.activeService /* TS fail */.pick(picks, options, token);
     }
     createQuickPick() {
         return this.activeService.createQuickPick();
     }
+    createInputBox() {
+        return this.activeService.createInputBox();
+    }
 };
 StandaloneQuickInputService = __decorate([
     __param(0, IInstantiationService),
     __param(1, ICodeEditorService)
 ], StandaloneQuickInputService);
-export { StandaloneQuickInputService };
 export class QuickInputEditorContribution {
+    static get(editor) {
+        return editor.getContribution(QuickInputEditorContribution.ID);
+    }
     constructor(editor) {
         this.editor = editor;
         this.widget = new QuickInputEditorWidget(this.editor);
-    }
-    static get(editor) {
-        return editor.getContribution(QuickInputEditorContribution.ID);
     }
     dispose() {
         this.widget.dispose();
@@ -118,11 +118,11 @@ export class QuickInputEditorWidget {
         return this.domNode;
     }
     getPosition() {
-        return { preference: 2 /* TOP_CENTER */ };
+        return { preference: 2 /* OverlayWidgetPositionPreference.TOP_CENTER */ };
     }
     dispose() {
         this.codeEditor.removeOverlayWidget(this);
     }
 }
 QuickInputEditorWidget.ID = 'editor.contrib.quickInputWidget';
-registerEditorContribution(QuickInputEditorContribution.ID, QuickInputEditorContribution);
+registerEditorContribution(QuickInputEditorContribution.ID, QuickInputEditorContribution, 4 /* EditorContributionInstantiation.Lazy */);

@@ -32,7 +32,7 @@ export class StandardMouseEvent {
             this.posy = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
         }
         // Find the position of the iframe this code is executing in relative to the iframe where the event was captured.
-        let iframeOffsets = IframeUtils.getPositionOfChildWindowRelativeToAncestorWindow(self, e.view);
+        const iframeOffsets = IframeUtils.getPositionOfChildWindowRelativeToAncestorWindow(window, e.view);
         this.posx -= iframeOffsets.left;
         this.posy -= iframeOffsets.top;
     }
@@ -51,8 +51,8 @@ export class StandardWheelEvent {
         this.deltaX = deltaX;
         if (e) {
             // Old (deprecated) wheel events
-            let e1 = e;
-            let e2 = e;
+            const e1 = e;
+            const e2 = e;
             // vertical delta scroll
             if (typeof e1.wheelDeltaY !== 'undefined') {
                 this.deltaY = e1.wheelDeltaY / 120;
@@ -113,13 +113,11 @@ export class StandardWheelEvent {
         }
     }
     preventDefault() {
-        if (this.browserEvent) {
-            this.browserEvent.preventDefault();
-        }
+        var _a;
+        (_a = this.browserEvent) === null || _a === void 0 ? void 0 : _a.preventDefault();
     }
     stopPropagation() {
-        if (this.browserEvent) {
-            this.browserEvent.stopPropagation();
-        }
+        var _a;
+        (_a = this.browserEvent) === null || _a === void 0 ? void 0 : _a.stopPropagation();
     }
 }

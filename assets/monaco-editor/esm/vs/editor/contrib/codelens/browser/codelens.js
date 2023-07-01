@@ -16,9 +16,9 @@ import { illegalArgument, onUnexpectedExternalError } from '../../../../base/com
 import { DisposableStore } from '../../../../base/common/lifecycle.js';
 import { assertType } from '../../../../base/common/types.js';
 import { URI } from '../../../../base/common/uri.js';
-import { CodeLensProviderRegistry } from '../../../common/languages.js';
 import { IModelService } from '../../../common/services/model.js';
 import { CommandsRegistry } from '../../../../platform/commands/common/commands.js';
+import { ILanguageFeaturesService } from '../../../common/services/languageFeatures.js';
 export class CodeLensModel {
     constructor() {
         this.lenses = [];
@@ -37,9 +37,9 @@ export class CodeLensModel {
         }
     }
 }
-export function getCodeLensModel(model, token) {
+export function getCodeLensModel(registry, model, token) {
     return __awaiter(this, void 0, void 0, function* () {
-        const provider = CodeLensProviderRegistry.ordered(model);
+        const provider = registry.ordered(model);
         const providerRanks = new Map();
         const result = new CodeLensModel();
         const promises = provider.map((provider, i) => __awaiter(this, void 0, void 0, function* () {
@@ -86,15 +86,16 @@ CommandsRegistry.registerCommand('_executeCodeLensProvider', function (accessor,
     let [uri, itemResolveCount] = args;
     assertType(URI.isUri(uri));
     assertType(typeof itemResolveCount === 'number' || !itemResolveCount);
+    const { codeLensProvider } = accessor.get(ILanguageFeaturesService);
     const model = accessor.get(IModelService).getModel(uri);
     if (!model) {
         throw illegalArgument();
     }
     const result = [];
     const disposables = new DisposableStore();
-    return getCodeLensModel(model, CancellationToken.None).then(value => {
+    return getCodeLensModel(codeLensProvider, model, CancellationToken.None).then(value => {
         disposables.add(value);
-        let resolve = [];
+        const resolve = [];
         for (const item of value.lenses) {
             if (itemResolveCount === undefined || itemResolveCount === null || Boolean(item.symbol.command)) {
                 result.push(item.symbol);

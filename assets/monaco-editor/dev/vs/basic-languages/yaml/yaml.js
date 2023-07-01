@@ -1,33 +1,51 @@
+"use strict";
 /*!-----------------------------------------------------------------------------
  * Copyright (c) Microsoft Corporation. All rights reserved.
- * Version: 0.32.1(29a273516805a852aa8edc5e05059f119b13eff0)
+ * Version: 0.39.0(ff3621a3fa6389873be5412d17554294ea1b0941)
  * Released under the MIT license
  * https://github.com/microsoft/monaco-editor/blob/main/LICENSE.txt
  *-----------------------------------------------------------------------------*/
 define("vs/basic-languages/yaml/yaml", ["require"],(require)=>{
 var moduleExports = (() => {
+  var __create = Object.create;
   var __defProp = Object.defineProperty;
   var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
   var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __getProtoOf = Object.getPrototypeOf;
   var __hasOwnProp = Object.prototype.hasOwnProperty;
-  var __markAsModule = (target) => __defProp(target, "__esModule", { value: true });
+  var __require = /* @__PURE__ */ ((x) => typeof require !== "undefined" ? require : typeof Proxy !== "undefined" ? new Proxy(x, {
+    get: (a, b) => (typeof require !== "undefined" ? require : a)[b]
+  }) : x)(function(x) {
+    if (typeof require !== "undefined")
+      return require.apply(this, arguments);
+    throw new Error('Dynamic require of "' + x + '" is not supported');
+  });
+  var __commonJS = (cb, mod) => function __require2() {
+    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+  };
   var __export = (target, all) => {
     for (var name in all)
       __defProp(target, name, { get: all[name], enumerable: true });
   };
-  var __reExport = (target, module, copyDefault, desc) => {
-    if (module && typeof module === "object" || typeof module === "function") {
-      for (let key of __getOwnPropNames(module))
-        if (!__hasOwnProp.call(target, key) && (copyDefault || key !== "default"))
-          __defProp(target, key, { get: () => module[key], enumerable: !(desc = __getOwnPropDesc(module, key)) || desc.enumerable });
+  var __copyProps = (to, from, except, desc) => {
+    if (from && typeof from === "object" || typeof from === "function") {
+      for (let key of __getOwnPropNames(from))
+        if (!__hasOwnProp.call(to, key) && key !== except)
+          __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
     }
-    return target;
+    return to;
   };
-  var __toCommonJS = /* @__PURE__ */ ((cache) => {
-    return (module, temp) => {
-      return cache && cache.get(module) || (temp = __reExport(__markAsModule({}), module, 1), cache && cache.set(module, temp), temp);
-    };
-  })(typeof WeakMap !== "undefined" ? /* @__PURE__ */ new WeakMap() : 0);
+  var __reExport = (target, mod, secondTarget) => (__copyProps(target, mod, "default"), secondTarget && __copyProps(secondTarget, mod, "default"));
+  var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target, mod));
+  var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+  // src/fillers/monaco-editor-core-amd.ts
+  var require_monaco_editor_core_amd = __commonJS({
+    "src/fillers/monaco-editor-core-amd.ts"(exports, module) {
+      var api = __toESM(__require("vs/editor/editor.api"));
+      module.exports = api;
+    }
+  });
 
   // src/basic-languages/yaml/yaml.ts
   var yaml_exports = {};
@@ -35,6 +53,12 @@ var moduleExports = (() => {
     conf: () => conf,
     language: () => language
   });
+
+  // src/fillers/monaco-editor-core.ts
+  var monaco_editor_core_exports = {};
+  __reExport(monaco_editor_core_exports, __toESM(require_monaco_editor_core_amd()));
+
+  // src/basic-languages/yaml/yaml.ts
   var conf = {
     comments: {
       lineComment: "#"
@@ -60,7 +84,15 @@ var moduleExports = (() => {
     ],
     folding: {
       offSide: true
-    }
+    },
+    onEnterRules: [
+      {
+        beforeText: /:\s*$/,
+        action: {
+          indentAction: monaco_editor_core_exports.languages.IndentAction.Indent
+        }
+      }
+    ]
   };
   var language = {
     tokenPostfix: ".yaml",
@@ -96,10 +128,10 @@ var moduleExports = (() => {
         [/@numberInfinity(?![ \t]*\S+)/, "number.infinity"],
         [/@numberNaN(?![ \t]*\S+)/, "number.nan"],
         [/@numberDate(?![ \t]*\S+)/, "number.date"],
-        [/(".*?"|'.*?'|.*?)([ \t]*)(:)( |$)/, ["type", "white", "operators", "white"]],
+        [/(".*?"|'.*?'|[^#'"]*?)([ \t]*)(:)( |$)/, ["type", "white", "operators", "white"]],
         { include: "@flowScalars" },
         [
-          /[^#]+/,
+          /.+?(?=(\s+#|$))/,
           {
             cases: {
               "@keywords": "keyword",

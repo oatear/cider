@@ -2,11 +2,11 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-import { normalize, posix, sep } from './path.js';
+import { posix, sep } from './path.js';
 import { isWindows } from './platform.js';
 import { startsWithIgnoreCase } from './strings.js';
 export function isPathSeparator(code) {
-    return code === 47 /* Slash */ || code === 92 /* Backslash */;
+    return code === 47 /* CharCode.Slash */ || code === 92 /* CharCode.Backslash */;
 }
 /**
  * Takes a Windows OS path and changes backward slashes to forward slashes.
@@ -72,7 +72,7 @@ export function getRoot(path, sep = posix.sep) {
     }
     else if (isWindowsDriveLetter(firstLetter)) {
         // check for windows drive letter c:\ or c:
-        if (path.charCodeAt(1) === 58 /* Colon */) {
+        if (path.charCodeAt(1) === 58 /* CharCode.Colon */) {
             if (isPathSeparator(path.charCodeAt(2))) {
                 // C:\fff
                 // ^^^
@@ -134,23 +134,11 @@ export function isEqualOrParent(base, parentCandidate, ignoreCase, separator = s
     return base.indexOf(parentCandidate) === 0;
 }
 export function isWindowsDriveLetter(char0) {
-    return char0 >= 65 /* A */ && char0 <= 90 /* Z */ || char0 >= 97 /* a */ && char0 <= 122 /* z */;
+    return char0 >= 65 /* CharCode.A */ && char0 <= 90 /* CharCode.Z */ || char0 >= 97 /* CharCode.a */ && char0 <= 122 /* CharCode.z */;
 }
-export function isRootOrDriveLetter(path) {
-    const pathNormalized = normalize(path);
-    if (isWindows) {
-        if (path.length > 3) {
-            return false;
-        }
-        return hasDriveLetter(pathNormalized) &&
-            (path.length === 2 || pathNormalized.charCodeAt(2) === 92 /* Backslash */);
-    }
-    return pathNormalized === posix.sep;
-}
-export function hasDriveLetter(path, continueAsWindows) {
-    const isWindowsPath = ((continueAsWindows !== undefined) ? continueAsWindows : isWindows);
-    if (isWindowsPath) {
-        return isWindowsDriveLetter(path.charCodeAt(0)) && path.charCodeAt(1) === 58 /* Colon */;
+export function hasDriveLetter(path, isWindowsOS = isWindows) {
+    if (isWindowsOS) {
+        return isWindowsDriveLetter(path.charCodeAt(0)) && path.charCodeAt(1) === 58 /* CharCode.Colon */;
     }
     return false;
 }

@@ -17,7 +17,7 @@ import { BracketSelectionRangeProvider } from '../../smartSelect/browser/bracket
 export class WordDistance {
     static create(service, editor) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!editor.getOption(106 /* suggest */).localityBonus) {
+            if (!editor.getOption(114 /* EditorOption.suggest */).localityBonus) {
                 return WordDistance.None;
             }
             if (!editor.hasModel()) {
@@ -44,16 +44,16 @@ export class WordDistance {
                     if (!position.equals(editor.getPosition())) {
                         return 0;
                     }
-                    if (item.kind === 17 /* Keyword */) {
+                    if (item.kind === 17 /* CompletionItemKind.Keyword */) {
                         return 2 << 20;
                     }
-                    let word = typeof item.label === 'string' ? item.label : item.label.label;
-                    let wordLines = wordRanges[word];
+                    const word = typeof item.label === 'string' ? item.label : item.label.label;
+                    const wordLines = wordRanges[word];
                     if (isFalsyOrEmpty(wordLines)) {
                         return 2 << 20;
                     }
-                    let idx = binarySearch(wordLines, Range.fromPositions(anchor), Range.compareRangesUsingStarts);
-                    let bestWordRange = idx >= 0 ? wordLines[idx] : wordLines[Math.max(0, ~idx - 1)];
+                    const idx = binarySearch(wordLines, Range.fromPositions(anchor), Range.compareRangesUsingStarts);
+                    const bestWordRange = idx >= 0 ? wordLines[idx] : wordLines[Math.max(0, ~idx - 1)];
                     let blockDistance = ranges.length;
                     for (const range of ranges) {
                         if (!Range.containsRange(range.range, bestWordRange)) {

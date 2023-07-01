@@ -1,9 +1,9 @@
 import { Emitter, PauseableEmitter } from '../../../base/common/event.js';
 import { Disposable } from '../../../base/common/lifecycle.js';
 import { isUndefinedOrNull } from '../../../base/common/types.js';
-import { InMemoryStorageDatabase, Storage } from '../../../base/parts/storage/common/storage.js';
+import { InMemoryStorageDatabase, Storage, StorageHint } from '../../../base/parts/storage/common/storage.js';
 import { createDecorator } from '../../instantiation/common/instantiation.js';
-const TARGET_KEY = '__$__targetStorageMarker';
+export const TARGET_KEY = '__$__targetStorageMarker';
 export const IStorageService = createDecorator('storageService');
 export var WillSaveStateReason;
 (function (WillSaveStateReason) {
@@ -16,26 +16,45 @@ export var WillSaveStateReason;
      */
     WillSaveStateReason[WillSaveStateReason["SHUTDOWN"] = 1] = "SHUTDOWN";
 })(WillSaveStateReason || (WillSaveStateReason = {}));
+export function loadKeyTargets(storage) {
+    const keysRaw = storage.get(TARGET_KEY);
+    if (keysRaw) {
+        try {
+            return JSON.parse(keysRaw);
+        }
+        catch (error) {
+            // Fail gracefully
+        }
+    }
+    return Object.create(null);
+}
 export class AbstractStorageService extends Disposable {
     constructor(options = { flushInterval: AbstractStorageService.DEFAULT_FLUSH_INTERVAL }) {
         super();
         this.options = options;
         this._onDidChangeValue = this._register(new PauseableEmitter());
+        this.onDidChangeValue = this._onDidChangeValue.event;
         this._onDidChangeTarget = this._register(new PauseableEmitter());
         this._onWillSaveState = this._register(new Emitter());
         this.onWillSaveState = this._onWillSaveState.event;
         this._workspaceKeyTargets = undefined;
-        this._globalKeyTargets = undefined;
+        this._profileKeyTargets = undefined;
+        this._applicationKeyTargets = undefined;
     }
     emitDidChangeValue(scope, key) {
         // Specially handle `TARGET_KEY`
         if (key === TARGET_KEY) {
             // Clear our cached version which is now out of date
-            if (scope === 0 /* GLOBAL */) {
-                this._globalKeyTargets = undefined;
-            }
-            else if (scope === 1 /* WORKSPACE */) {
-                this._workspaceKeyTargets = undefined;
+            switch (scope) {
+                case -1 /* StorageScope.APPLICATION */:
+                    this._applicationKeyTargets = undefined;
+                    break;
+                case 0 /* StorageScope.PROFILE */:
+                    this._profileKeyTargets = undefined;
+                    break;
+                case 1 /* StorageScope.WORKSPACE */:
+                    this._workspaceKeyTargets = undefined;
+                    break;
             }
             // Emit as `didChangeTarget` event
             this._onDidChangeTarget.fire({ scope });
@@ -115,42 +134,56 @@ export class AbstractStorageService extends Disposable {
     }
     get workspaceKeyTargets() {
         if (!this._workspaceKeyTargets) {
-            this._workspaceKeyTargets = this.loadKeyTargets(1 /* WORKSPACE */);
+            this._workspaceKeyTargets = this.loadKeyTargets(1 /* StorageScope.WORKSPACE */);
         }
         return this._workspaceKeyTargets;
     }
-    get globalKeyTargets() {
-        if (!this._globalKeyTargets) {
-            this._globalKeyTargets = this.loadKeyTargets(0 /* GLOBAL */);
+    get profileKeyTargets() {
+        if (!this._profileKeyTargets) {
+            this._profileKeyTargets = this.loadKeyTargets(0 /* StorageScope.PROFILE */);
         }
-        return this._globalKeyTargets;
+        return this._profileKeyTargets;
+    }
+    get applicationKeyTargets() {
+        if (!this._applicationKeyTargets) {
+            this._applicationKeyTargets = this.loadKeyTargets(-1 /* StorageScope.APPLICATION */);
+        }
+        return this._applicationKeyTargets;
     }
     getKeyTargets(scope) {
-        return scope === 0 /* GLOBAL */ ? this.globalKeyTargets : this.workspaceKeyTargets;
+        switch (scope) {
+            case -1 /* StorageScope.APPLICATION */:
+                return this.applicationKeyTargets;
+            case 0 /* StorageScope.PROFILE */:
+                return this.profileKeyTargets;
+            default:
+                return this.workspaceKeyTargets;
+        }
     }
     loadKeyTargets(scope) {
-        const keysRaw = this.get(TARGET_KEY, scope);
-        if (keysRaw) {
-            try {
-                return JSON.parse(keysRaw);
-            }
-            catch (error) {
-                // Fail gracefully
-            }
-        }
-        return Object.create(null);
+        const storage = this.getStorage(scope);
+        return storage ? loadKeyTargets(storage) : Object.create(null);
     }
 }
 AbstractStorageService.DEFAULT_FLUSH_INTERVAL = 60 * 1000; // every minute
 export class InMemoryStorageService extends AbstractStorageService {
     constructor() {
         super();
-        this.globalStorage = this._register(new Storage(new InMemoryStorageDatabase()));
-        this.workspaceStorage = this._register(new Storage(new InMemoryStorageDatabase()));
-        this._register(this.workspaceStorage.onDidChangeStorage(key => this.emitDidChangeValue(1 /* WORKSPACE */, key)));
-        this._register(this.globalStorage.onDidChangeStorage(key => this.emitDidChangeValue(0 /* GLOBAL */, key)));
+        this.applicationStorage = this._register(new Storage(new InMemoryStorageDatabase(), { hint: StorageHint.STORAGE_IN_MEMORY }));
+        this.profileStorage = this._register(new Storage(new InMemoryStorageDatabase(), { hint: StorageHint.STORAGE_IN_MEMORY }));
+        this.workspaceStorage = this._register(new Storage(new InMemoryStorageDatabase(), { hint: StorageHint.STORAGE_IN_MEMORY }));
+        this._register(this.workspaceStorage.onDidChangeStorage(key => this.emitDidChangeValue(1 /* StorageScope.WORKSPACE */, key)));
+        this._register(this.profileStorage.onDidChangeStorage(key => this.emitDidChangeValue(0 /* StorageScope.PROFILE */, key)));
+        this._register(this.applicationStorage.onDidChangeStorage(key => this.emitDidChangeValue(-1 /* StorageScope.APPLICATION */, key)));
     }
     getStorage(scope) {
-        return scope === 0 /* GLOBAL */ ? this.globalStorage : this.workspaceStorage;
+        switch (scope) {
+            case -1 /* StorageScope.APPLICATION */:
+                return this.applicationStorage;
+            case 0 /* StorageScope.PROFILE */:
+                return this.profileStorage;
+            default:
+                return this.workspaceStorage;
+        }
     }
 }

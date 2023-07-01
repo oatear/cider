@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 import * as strings from '../../../base/common/strings.js';
 import { ReplaceCommand } from '../commands/replaceCommand.js';
-import { EditOperationResult, isQuote } from './cursorCommon.js';
+import { EditOperationResult, isQuote } from '../cursorCommon.js';
 import { CursorColumns } from '../core/cursorColumns.js';
 import { MoveOperations } from './cursorMoveOperations.js';
 import { Range } from '../core/range.js';
@@ -12,7 +12,7 @@ import { Position } from '../core/position.js';
 export class DeleteOperations {
     static deleteRight(prevEditOperationType, config, model, selections) {
         const commands = [];
-        let shouldPushStackElementBefore = (prevEditOperationType !== 3 /* DeletingRight */);
+        let shouldPushStackElementBefore = (prevEditOperationType !== 3 /* EditOperationType.DeletingRight */);
         for (let i = 0, len = selections.length; i < len; i++) {
             const selection = selections[i];
             let deleteSelection = selection;
@@ -106,7 +106,7 @@ export class DeleteOperations {
             return this._runAutoClosingPairDelete(config, model, selections);
         }
         const commands = [];
-        let shouldPushStackElementBefore = (prevEditOperationType !== 2 /* DeletingLeft */);
+        let shouldPushStackElementBefore = (prevEditOperationType !== 2 /* EditOperationType.DeletingLeft */);
         for (let i = 0, len = selections.length; i < len; i++) {
             const deleteRange = DeleteOperations.getDeleteRange(selections[i], model, config);
             // Ignore empty delete ranges, as they have no effect
@@ -207,7 +207,7 @@ export class DeleteOperations {
                 commands[i] = new ReplaceCommand(selection, '');
             }
         }
-        return new EditOperationResult(0 /* Other */, commands, {
+        return new EditOperationResult(0 /* EditOperationType.Other */, commands, {
             shouldPushStackElementBefore: true,
             shouldPushStackElementAfter: true
         });

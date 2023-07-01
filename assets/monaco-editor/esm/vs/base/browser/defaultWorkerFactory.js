@@ -2,18 +2,17 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-var _a;
-import { globals } from '../common/platform.js';
+import { createTrustedTypesPolicy } from './trustedTypes.js';
 import { logOnceWebWorkerWarning } from '../common/worker/simpleWorker.js';
-const ttPolicy = (_a = window.trustedTypes) === null || _a === void 0 ? void 0 : _a.createPolicy('defaultWorkerFactory', { createScriptURL: value => value });
+const ttPolicy = createTrustedTypesPolicy('defaultWorkerFactory', { createScriptURL: value => value });
 function getWorker(label) {
-    // Option for hosts to overwrite the worker script (used in the standalone editor)
-    if (globals.MonacoEnvironment) {
-        if (typeof globals.MonacoEnvironment.getWorker === 'function') {
-            return globals.MonacoEnvironment.getWorker('workerMain.js', label);
+    const monacoEnvironment = globalThis.MonacoEnvironment;
+    if (monacoEnvironment) {
+        if (typeof monacoEnvironment.getWorker === 'function') {
+            return monacoEnvironment.getWorker('workerMain.js', label);
         }
-        if (typeof globals.MonacoEnvironment.getWorkerUrl === 'function') {
-            const workerUrl = globals.MonacoEnvironment.getWorkerUrl('workerMain.js', label);
+        if (typeof monacoEnvironment.getWorkerUrl === 'function') {
+            const workerUrl = monacoEnvironment.getWorkerUrl('workerMain.js', label);
             return new Worker(ttPolicy ? ttPolicy.createScriptURL(workerUrl) : workerUrl, { name: label });
         }
     }
@@ -29,16 +28,30 @@ function getWorker(label) {
 }
 // ESM-comment-begin
 // export function getWorkerBootstrapUrl(scriptPath: string, label: string): string {
-// 	if (/^((http:)|(https:)|(file:))/.test(scriptPath) && scriptPath.substring(0, self.origin.length) !== self.origin) {
+// 	if (/^((http:)|(https:)|(file:))/.test(scriptPath) && scriptPath.substring(0, globalThis.origin.length) !== globalThis.origin) {
 // 		// this is the cross-origin case
 // 		// i.e. the webpage is running at a different origin than where the scripts are loaded from
 // 		const myPath = 'vs/base/worker/defaultWorkerFactory.js';
 // 		const workerBaseUrl = require.toUrl(myPath).slice(0, -myPath.length); // explicitly using require.toUrl(), see https://github.com/microsoft/vscode/issues/107440#issuecomment-698982321
-// 		const js = `/*${label}*/self.MonacoEnvironment={baseUrl: '${workerBaseUrl}'};const ttPolicy = self.trustedTypes?.createPolicy('defaultWorkerFactory', { createScriptURL: value => value });importScripts(ttPolicy?.createScriptURL('${scriptPath}') ?? '${scriptPath}');/*${label}*/`;
+// 		const js = `/*${label}*/globalThis.MonacoEnvironment={baseUrl: '${workerBaseUrl}'};const ttPolicy = globalThis.trustedTypes?.createPolicy('defaultWorkerFactory', { createScriptURL: value => value });importScripts(ttPolicy?.createScriptURL('${scriptPath}') ?? '${scriptPath}');/*${label}*/`;
 // 		const blob = new Blob([js], { type: 'application/javascript' });
 // 		return URL.createObjectURL(blob);
 // 	}
-// 	return scriptPath + '#' + label;
+// 
+// 	const start = scriptPath.lastIndexOf('?');
+// 	const end = scriptPath.lastIndexOf('#', start);
+// 	const params = start > 0
+// 		? new URLSearchParams(scriptPath.substring(start + 1, ~end ? end : undefined))
+// 		: new URLSearchParams();
+// 
+// 	COI.addSearchParam(params, true, true);
+// 	const search = params.toString();
+// 
+// 	if (!search) {
+// 		return `${scriptPath}#${label}`;
+// 	} else {
+// 		return `${scriptPath}?${params.toString()}#${label}`;
+// 	}
 // }
 // ESM-comment-end
 function isPromiseLike(obj) {
@@ -76,14 +89,12 @@ class WebWorker {
         return this.id;
     }
     postMessage(message, transfer) {
-        if (this.worker) {
-            this.worker.then(w => w.postMessage(message, transfer));
-        }
+        var _a;
+        (_a = this.worker) === null || _a === void 0 ? void 0 : _a.then(w => w.postMessage(message, transfer));
     }
     dispose() {
-        if (this.worker) {
-            this.worker.then(w => w.terminate());
-        }
+        var _a;
+        (_a = this.worker) === null || _a === void 0 ? void 0 : _a.then(w => w.terminate());
         this.worker = null;
     }
 }
@@ -93,7 +104,7 @@ export class DefaultWorkerFactory {
         this._webWorkerFailedBeforeError = false;
     }
     create(moduleId, onMessageCallback, onErrorCallback) {
-        let workerId = (++DefaultWorkerFactory.LAST_WORKER_ID);
+        const workerId = (++DefaultWorkerFactory.LAST_WORKER_ID);
         if (this._webWorkerFailedBeforeError) {
             throw this._webWorkerFailedBeforeError;
         }

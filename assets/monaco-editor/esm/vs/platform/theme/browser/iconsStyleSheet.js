@@ -4,8 +4,8 @@
  *--------------------------------------------------------------------------------------------*/
 import { asCSSPropertyValue, asCSSUrl } from '../../../base/browser/dom.js';
 import { Emitter } from '../../../base/common/event.js';
+import { ThemeIcon } from '../../../base/common/themables.js';
 import { getIconRegistry } from '../common/iconRegistry.js';
-import { ThemeIcon } from '../common/themeService.js';
 export function getIconsStyleSheet(themeService) {
     const onDidChangeEmmiter = new Emitter();
     const iconRegistry = getIconRegistry();
@@ -23,27 +23,25 @@ export function getIconsStyleSheet(themeService) {
                 }
                 const fontContribution = definition.font;
                 if (fontContribution) {
-                    usedFontIds[fontContribution.id] = fontContribution.getDefinition();
+                    usedFontIds[fontContribution.id] = fontContribution.definition;
                     return `.codicon-${contribution.id}:before { content: '${definition.fontCharacter}'; font-family: ${asCSSPropertyValue(fontContribution.id)}; }`;
                 }
                 // default font (codicon)
                 return `.codicon-${contribution.id}:before { content: '${definition.fontCharacter}'; }`;
             };
             const rules = [];
-            for (let contribution of iconRegistry.getIcons()) {
+            for (const contribution of iconRegistry.getIcons()) {
                 const rule = formatIconRule(contribution);
                 if (rule) {
                     rules.push(rule);
                 }
             }
-            for (let id in usedFontIds) {
+            for (const id in usedFontIds) {
                 const definition = usedFontIds[id];
-                if (definition) {
-                    const fontWeight = definition.weight ? `font-weight: ${definition.weight};` : '';
-                    const fontStyle = definition.style ? `font-style: ${definition.style};` : '';
-                    const src = definition.src.map(l => `${asCSSUrl(l.location)} format('${l.format}')`).join(', ');
-                    rules.push(`@font-face { src: ${src}; font-family: ${asCSSPropertyValue(id)};${fontWeight}${fontStyle} font-display: block; }`);
-                }
+                const fontWeight = definition.weight ? `font-weight: ${definition.weight};` : '';
+                const fontStyle = definition.style ? `font-style: ${definition.style};` : '';
+                const src = definition.src.map(l => `${asCSSUrl(l.location)} format('${l.format}')`).join(', ');
+                rules.push(`@font-face { src: ${src}; font-family: ${asCSSPropertyValue(id)};${fontWeight}${fontStyle} font-display: block; }`);
             }
             return rules.join('\n');
         }

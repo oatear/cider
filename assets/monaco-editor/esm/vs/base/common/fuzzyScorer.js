@@ -30,7 +30,7 @@ function doScoreFuzzy2Multiple(target, query, patternStart, wordStart) {
     return [totalScore, normalizeMatches(totalMatches)];
 }
 function doScoreFuzzy2Single(target, query, patternStart, wordStart) {
-    const score = fuzzyScore(query.original, query.originalLowercase, patternStart, target, target.toLowerCase(), wordStart, true);
+    const score = fuzzyScore(query.original, query.originalLowercase, patternStart, target, target.toLowerCase(), wordStart, { firstMatchCanBeWeak: true, boostFullMatch: true });
     if (!score) {
         return NO_SCORE2;
     }

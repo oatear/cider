@@ -1,6 +1,6 @@
 /*!-----------------------------------------------------------------------------
  * Copyright (c) Microsoft Corporation. All rights reserved.
- * Version: 0.32.1(29a273516805a852aa8edc5e05059f119b13eff0)
+ * Version: 0.39.0(ff3621a3fa6389873be5412d17554294ea1b0941)
  * Released under the MIT license
  * https://github.com/microsoft/monaco-editor/blob/main/LICENSE.txt
  *-----------------------------------------------------------------------------*/
@@ -122,7 +122,7 @@ var language = {
     whitespace: [[/\s+/, "white"]],
     comments: [[/(#)(.*)/, ["comment.punctuation", "comment"]]],
     keywordsShorthand: [
-      [/(@atomName)(:)/, ["constant", "constant.punctuation"]],
+      [/(@atomName)(:)(\s+)/, ["constant", "constant.punctuation", "white"]],
       [
         /"(?=([^"]|#\{.*?\}|\\")*":)/,
         { token: "constant.delimiter", next: "@doubleQuotedStringKeyword" }
@@ -401,10 +401,24 @@ var language = {
         }
       ],
       [
+        /\@(module|type)?doc (~[sS])?'''/,
+        {
+          token: "comment.block.documentation",
+          next: "@singleQuotedHeredocDocstring"
+        }
+      ],
+      [
         /\@(module|type)?doc (~[sS])?"/,
         {
           token: "comment.block.documentation",
           next: "@doubleQuotedStringDocstring"
+        }
+      ],
+      [
+        /\@(module|type)?doc (~[sS])?'/,
+        {
+          token: "comment.block.documentation",
+          next: "@singleQuotedStringDocstring"
         }
       ],
       [/\@(module|type)?doc false/, "comment.block.documentation"],
@@ -414,8 +428,16 @@ var language = {
       [/"""/, { token: "comment.block.documentation", next: "@pop" }],
       { include: "@docstringContent" }
     ],
+    singleQuotedHeredocDocstring: [
+      [/'''/, { token: "comment.block.documentation", next: "@pop" }],
+      { include: "@docstringContent" }
+    ],
     doubleQuotedStringDocstring: [
       [/"/, { token: "comment.block.documentation", next: "@pop" }],
+      { include: "@docstringContent" }
+    ],
+    singleQuotedStringDocstring: [
+      [/'/, { token: "comment.block.documentation", next: "@pop" }],
       { include: "@docstringContent" }
     ],
     symbols: [

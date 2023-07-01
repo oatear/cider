@@ -9,7 +9,7 @@ export class ViewOverlayWidgets extends ViewPart {
     constructor(context) {
         super(context);
         const options = this._context.configuration.options;
-        const layoutInfo = options.get(131 /* layoutInfo */);
+        const layoutInfo = options.get(140 /* EditorOption.layoutInfo */);
         this._widgets = {};
         this._verticalScrollbarWidth = layoutInfo.verticalScrollbarWidth;
         this._minimapWidth = layoutInfo.minimap.minimapWidth;
@@ -17,7 +17,7 @@ export class ViewOverlayWidgets extends ViewPart {
         this._editorHeight = layoutInfo.height;
         this._editorWidth = layoutInfo.width;
         this._domNode = createFastDomNode(document.createElement('div'));
-        PartFingerprints.write(this._domNode, 4 /* OverlayWidgets */);
+        PartFingerprints.write(this._domNode, 4 /* PartFingerprint.OverlayWidgets */);
         this._domNode.setClassName('overlayWidgets');
     }
     dispose() {
@@ -30,7 +30,7 @@ export class ViewOverlayWidgets extends ViewPart {
     // ---- begin view event handlers
     onConfigurationChanged(e) {
         const options = this._context.configuration.options;
-        const layoutInfo = options.get(131 /* layoutInfo */);
+        const layoutInfo = options.get(140 /* EditorOption.layoutInfo */);
         this._verticalScrollbarWidth = layoutInfo.verticalScrollbarWidth;
         this._minimapWidth = layoutInfo.minimap.minimapWidth;
         this._horizontalScrollbarHeight = layoutInfo.horizontalScrollbarHeight;
@@ -74,19 +74,19 @@ export class ViewOverlayWidgets extends ViewPart {
     _renderWidget(widgetData) {
         const domNode = widgetData.domNode;
         if (widgetData.preference === null) {
-            domNode.unsetTop();
+            domNode.setTop('');
             return;
         }
-        if (widgetData.preference === 0 /* TOP_RIGHT_CORNER */) {
+        if (widgetData.preference === 0 /* OverlayWidgetPositionPreference.TOP_RIGHT_CORNER */) {
             domNode.setTop(0);
             domNode.setRight((2 * this._verticalScrollbarWidth) + this._minimapWidth);
         }
-        else if (widgetData.preference === 1 /* BOTTOM_RIGHT_CORNER */) {
+        else if (widgetData.preference === 1 /* OverlayWidgetPositionPreference.BOTTOM_RIGHT_CORNER */) {
             const widgetHeight = domNode.domNode.clientHeight;
             domNode.setTop((this._editorHeight - widgetHeight - 2 * this._horizontalScrollbarHeight));
             domNode.setRight((2 * this._verticalScrollbarWidth) + this._minimapWidth);
         }
-        else if (widgetData.preference === 2 /* TOP_CENTER */) {
+        else if (widgetData.preference === 2 /* OverlayWidgetPositionPreference.TOP_CENTER */) {
             domNode.setTop(0);
             domNode.domNode.style.right = '50%';
         }

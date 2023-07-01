@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 import './indentGuides.css';
 import { DynamicViewOverlay } from '../../view/dynamicViewOverlay.js';
-import { editorActiveIndentGuides, editorBracketHighlightingForeground1, editorBracketHighlightingForeground2, editorBracketHighlightingForeground3, editorBracketHighlightingForeground4, editorBracketHighlightingForeground5, editorBracketHighlightingForeground6, editorBracketPairGuideActiveBackground1, editorBracketPairGuideActiveBackground2, editorBracketPairGuideActiveBackground3, editorBracketPairGuideActiveBackground4, editorBracketPairGuideActiveBackground5, editorBracketPairGuideActiveBackground6, editorBracketPairGuideBackground1, editorBracketPairGuideBackground2, editorBracketPairGuideBackground3, editorBracketPairGuideBackground4, editorBracketPairGuideBackground5, editorBracketPairGuideBackground6, editorIndentGuides } from '../../../common/core/editorColorRegistry.js';
+import { editorBracketHighlightingForeground1, editorBracketHighlightingForeground2, editorBracketHighlightingForeground3, editorBracketHighlightingForeground4, editorBracketHighlightingForeground5, editorBracketHighlightingForeground6, editorBracketPairGuideActiveBackground1, editorBracketPairGuideActiveBackground2, editorBracketPairGuideActiveBackground3, editorBracketPairGuideActiveBackground4, editorBracketPairGuideActiveBackground5, editorBracketPairGuideActiveBackground6, editorBracketPairGuideBackground1, editorBracketPairGuideBackground2, editorBracketPairGuideBackground3, editorBracketPairGuideBackground4, editorBracketPairGuideBackground5, editorBracketPairGuideBackground6 } from '../../../common/core/editorColorRegistry.js';
 import { registerThemingParticipant } from '../../../../platform/theme/common/themeService.js';
 import { Position } from '../../../common/core/position.js';
 import { ArrayQueue } from '../../../../base/common/arrays.js';
@@ -17,12 +17,12 @@ export class IndentGuidesOverlay extends DynamicViewOverlay {
         this._context = context;
         this._primaryPosition = null;
         const options = this._context.configuration.options;
-        const wrappingInfo = options.get(132 /* wrappingInfo */);
-        const fontInfo = options.get(44 /* fontInfo */);
-        this._lineHeight = options.get(59 /* lineHeight */);
+        const wrappingInfo = options.get(141 /* EditorOption.wrappingInfo */);
+        const fontInfo = options.get(48 /* EditorOption.fontInfo */);
+        this._lineHeight = options.get(64 /* EditorOption.lineHeight */);
         this._spaceWidth = fontInfo.spaceWidth;
         this._maxIndentLeft = wrappingInfo.wrappingColumn === -1 ? -1 : (wrappingInfo.wrappingColumn * fontInfo.typicalHalfwidthCharacterWidth);
-        this._bracketPairGuideOptions = options.get(13 /* guides */);
+        this._bracketPairGuideOptions = options.get(14 /* EditorOption.guides */);
         this._renderResult = null;
         this._context.addEventHandler(this);
     }
@@ -34,12 +34,12 @@ export class IndentGuidesOverlay extends DynamicViewOverlay {
     // --- begin event handlers
     onConfigurationChanged(e) {
         const options = this._context.configuration.options;
-        const wrappingInfo = options.get(132 /* wrappingInfo */);
-        const fontInfo = options.get(44 /* fontInfo */);
-        this._lineHeight = options.get(59 /* lineHeight */);
+        const wrappingInfo = options.get(141 /* EditorOption.wrappingInfo */);
+        const fontInfo = options.get(48 /* EditorOption.fontInfo */);
+        this._lineHeight = options.get(64 /* EditorOption.lineHeight */);
         this._spaceWidth = fontInfo.spaceWidth;
         this._maxIndentLeft = wrappingInfo.wrappingColumn === -1 ? -1 : (wrappingInfo.wrappingColumn * fontInfo.typicalHalfwidthCharacterWidth);
-        this._bracketPairGuideOptions = options.get(13 /* guides */);
+        this._bracketPairGuideOptions = options.get(14 /* EditorOption.guides */);
         return true;
     }
     onCursorStateChanged(e) {
@@ -89,7 +89,7 @@ export class IndentGuidesOverlay extends DynamicViewOverlay {
         const scrollWidth = ctx.scrollWidth;
         const lineHeight = this._lineHeight;
         const activeCursorPosition = this._primaryPosition;
-        const indents = this.getGuidesByLine(visibleStartLineNumber, visibleEndLineNumber, activeCursorPosition);
+        const indents = this.getGuidesByLine(visibleStartLineNumber, Math.min(visibleEndLineNumber + 1, this._context.viewModel.getLineCount()), activeCursorPosition);
         const output = [];
         for (let lineNumber = visibleStartLineNumber; lineNumber <= visibleEndLineNumber; lineNumber++) {
             const lineIndex = lineNumber - visibleStartLineNumber;
@@ -97,7 +97,9 @@ export class IndentGuidesOverlay extends DynamicViewOverlay {
             let result = '';
             const leftOffset = (_b = (_a = ctx.visibleRangeForPosition(new Position(lineNumber, 1))) === null || _a === void 0 ? void 0 : _a.left) !== null && _b !== void 0 ? _b : 0;
             for (const guide of indent) {
-                const left = leftOffset + (guide.visibleColumn - 1) * this._spaceWidth;
+                const left = guide.column === -1
+                    ? leftOffset + (guide.visibleColumn - 1) * this._spaceWidth
+                    : ctx.visibleRangeForPosition(new Position(lineNumber, guide.column)).left;
                 if (left > scrollWidth || (this._maxIndentLeft > 0 && left > this._maxIndentLeft)) {
                     break;
                 }
@@ -113,7 +115,7 @@ export class IndentGuidesOverlay extends DynamicViewOverlay {
     }
     getGuidesByLine(visibleStartLineNumber, visibleEndLineNumber, activeCursorPosition) {
         const bracketGuides = this._bracketPairGuideOptions.bracketPairs !== false
-            ? this._context.model.getBracketGuidesInRangeByLine(visibleStartLineNumber, visibleEndLineNumber, activeCursorPosition, {
+            ? this._context.viewModel.getBracketGuidesInRangeByLine(visibleStartLineNumber, visibleEndLineNumber, activeCursorPosition, {
                 highlightActive: this._bracketPairGuideOptions.highlightActiveBracketPair,
                 horizontalGuides: this._bracketPairGuideOptions.bracketPairsHorizontal === true
                     ? HorizontalGuidesState.Enabled
@@ -124,37 +126,37 @@ export class IndentGuidesOverlay extends DynamicViewOverlay {
             })
             : null;
         const indentGuides = this._bracketPairGuideOptions.indentation
-            ? this._context.model.getLinesIndentGuides(visibleStartLineNumber, visibleEndLineNumber)
+            ? this._context.viewModel.getLinesIndentGuides(visibleStartLineNumber, visibleEndLineNumber)
             : null;
         let activeIndentStartLineNumber = 0;
         let activeIndentEndLineNumber = 0;
         let activeIndentLevel = 0;
-        if (this._bracketPairGuideOptions.highlightActiveIndentation && activeCursorPosition) {
-            const activeIndentInfo = this._context.model.getActiveIndentGuide(activeCursorPosition.lineNumber, visibleStartLineNumber, visibleEndLineNumber);
+        if (this._bracketPairGuideOptions.highlightActiveIndentation !== false && activeCursorPosition) {
+            const activeIndentInfo = this._context.viewModel.getActiveIndentGuide(activeCursorPosition.lineNumber, visibleStartLineNumber, visibleEndLineNumber);
             activeIndentStartLineNumber = activeIndentInfo.startLineNumber;
             activeIndentEndLineNumber = activeIndentInfo.endLineNumber;
             activeIndentLevel = activeIndentInfo.indent;
         }
-        const { indentSize } = this._context.model.getTextModelOptions();
+        const { indentSize } = this._context.viewModel.model.getOptions();
         const result = [];
         for (let lineNumber = visibleStartLineNumber; lineNumber <= visibleEndLineNumber; lineNumber++) {
             const lineGuides = new Array();
             result.push(lineGuides);
             const bracketGuidesInLine = bracketGuides ? bracketGuides[lineNumber - visibleStartLineNumber] : [];
             const bracketGuidesInLineQueue = new ArrayQueue(bracketGuidesInLine);
-            const indentGuidesInLine = indentGuides ? indentGuides[lineNumber - visibleStartLineNumber] : [];
+            const indentGuidesInLine = indentGuides ? indentGuides[lineNumber - visibleStartLineNumber] : 0;
             for (let indentLvl = 1; indentLvl <= indentGuidesInLine; indentLvl++) {
                 const indentGuide = (indentLvl - 1) * indentSize + 1;
                 const isActive = 
                 // Disable active indent guide if there are bracket guides.
-                bracketGuidesInLine.length === 0 &&
+                (this._bracketPairGuideOptions.highlightActiveIndentation === 'always' || bracketGuidesInLine.length === 0) &&
                     activeIndentStartLineNumber <= lineNumber &&
                     lineNumber <= activeIndentEndLineNumber &&
                     indentLvl === activeIndentLevel;
                 lineGuides.push(...bracketGuidesInLineQueue.takeWhile(g => g.visibleColumn < indentGuide) || []);
                 const peeked = bracketGuidesInLineQueue.peek();
                 if (!peeked || peeked.visibleColumn !== indentGuide || peeked.horizontalLine) {
-                    lineGuides.push(new IndentGuide(indentGuide, isActive ? 'core-guide-indent-active' : 'core-guide-indent', null));
+                    lineGuides.push(new IndentGuide(indentGuide, -1, isActive ? 'core-guide-indent-active' : 'core-guide-indent', null, -1, -1));
                 }
             }
             lineGuides.push(...bracketGuidesInLineQueue.takeWhile(g => true) || []);
@@ -179,14 +181,6 @@ function transparentToUndefined(color) {
     return color;
 }
 registerThemingParticipant((theme, collector) => {
-    const editorIndentGuidesColor = theme.getColor(editorIndentGuides);
-    if (editorIndentGuidesColor) {
-        collector.addRule(`.monaco-editor .lines-content .core-guide-indent { box-shadow: 1px 0 0 0 ${editorIndentGuidesColor} inset; }`);
-    }
-    const editorActiveIndentGuidesColor = theme.getColor(editorActiveIndentGuides) || editorIndentGuidesColor;
-    if (editorActiveIndentGuidesColor) {
-        collector.addRule(`.monaco-editor .lines-content .core-guide-indent-active { box-shadow: 1px 0 0 0 ${editorActiveIndentGuidesColor} inset; }`);
-    }
     const colors = [
         { bracketColor: editorBracketHighlightingForeground1, guideColor: editorBracketPairGuideBackground1, guideColorActive: editorBracketPairGuideActiveBackground1 },
         { bracketColor: editorBracketHighlightingForeground2, guideColor: editorBracketPairGuideBackground2, guideColorActive: editorBracketPairGuideActiveBackground2 },

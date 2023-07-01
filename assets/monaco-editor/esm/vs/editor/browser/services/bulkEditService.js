@@ -6,30 +6,40 @@ import { createDecorator } from '../../../platform/instantiation/common/instanti
 import { URI } from '../../../base/common/uri.js';
 import { isObject } from '../../../base/common/types.js';
 export const IBulkEditService = createDecorator('IWorkspaceEditService');
-function isWorkspaceFileEdit(thing) {
-    return isObject(thing) && (Boolean(thing.newUri) || Boolean(thing.oldUri));
-}
-function isWorkspaceTextEdit(thing) {
-    return isObject(thing) && URI.isUri(thing.resource) && isObject(thing.edit);
-}
 export class ResourceEdit {
     constructor(metadata) {
         this.metadata = metadata;
     }
     static convert(edit) {
         return edit.edits.map(edit => {
-            if (isWorkspaceTextEdit(edit)) {
-                return new ResourceTextEdit(edit.resource, edit.edit, edit.modelVersionId, edit.metadata);
+            if (ResourceTextEdit.is(edit)) {
+                return ResourceTextEdit.lift(edit);
             }
-            if (isWorkspaceFileEdit(edit)) {
-                return new ResourceFileEdit(edit.oldUri, edit.newUri, edit.options, edit.metadata);
+            if (ResourceFileEdit.is(edit)) {
+                return ResourceFileEdit.lift(edit);
             }
             throw new Error('Unsupported edit');
         });
     }
 }
 export class ResourceTextEdit extends ResourceEdit {
-    constructor(resource, textEdit, versionId, metadata) {
+    static is(candidate) {
+        if (candidate instanceof ResourceTextEdit) {
+            return true;
+        }
+        return isObject(candidate)
+            && URI.isUri(candidate.resource)
+            && isObject(candidate.textEdit);
+    }
+    static lift(edit) {
+        if (edit instanceof ResourceTextEdit) {
+            return edit;
+        }
+        else {
+            return new ResourceTextEdit(edit.resource, edit.textEdit, edit.versionId, edit.metadata);
+        }
+    }
+    constructor(resource, textEdit, versionId = undefined, metadata) {
         super(metadata);
         this.resource = resource;
         this.textEdit = textEdit;
@@ -37,7 +47,24 @@ export class ResourceTextEdit extends ResourceEdit {
     }
 }
 export class ResourceFileEdit extends ResourceEdit {
-    constructor(oldResource, newResource, options, metadata) {
+    static is(candidate) {
+        if (candidate instanceof ResourceFileEdit) {
+            return true;
+        }
+        else {
+            return isObject(candidate)
+                && (Boolean(candidate.newResource) || Boolean(candidate.oldResource));
+        }
+    }
+    static lift(edit) {
+        if (edit instanceof ResourceFileEdit) {
+            return edit;
+        }
+        else {
+            return new ResourceFileEdit(edit.oldResource, edit.newResource, edit.options, edit.metadata);
+        }
+    }
+    constructor(oldResource, newResource, options = {}, metadata) {
         super(metadata);
         this.oldResource = oldResource;
         this.newResource = newResource;

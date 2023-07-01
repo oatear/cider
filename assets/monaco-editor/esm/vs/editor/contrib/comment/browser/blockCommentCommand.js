@@ -28,11 +28,11 @@ export class BlockCommentCommand {
             if (codeA === codeB) {
                 continue;
             }
-            if (codeA >= 65 /* A */ && codeA <= 90 /* Z */ && codeA + 32 === codeB) {
+            if (codeA >= 65 /* CharCode.A */ && codeA <= 90 /* CharCode.Z */ && codeA + 32 === codeB) {
                 // codeA is upper-case variant of codeB
                 continue;
             }
-            if (codeB >= 65 /* A */ && codeB <= 90 /* Z */ && codeB + 32 === codeA) {
+            if (codeB >= 65 /* CharCode.A */ && codeB <= 90 /* CharCode.Z */ && codeB + 32 === codeA) {
                 // codeB is upper-case variant of codeA
                 continue;
             }
@@ -71,11 +71,11 @@ export class BlockCommentCommand {
         let ops;
         if (startTokenIndex !== -1 && endTokenIndex !== -1) {
             // Consider spaces as part of the comment tokens
-            if (insertSpace && startTokenIndex + startToken.length < startLineText.length && startLineText.charCodeAt(startTokenIndex + startToken.length) === 32 /* Space */) {
+            if (insertSpace && startTokenIndex + startToken.length < startLineText.length && startLineText.charCodeAt(startTokenIndex + startToken.length) === 32 /* CharCode.Space */) {
                 // Pretend the start token contains a trailing space
                 startToken = startToken + ' ';
             }
-            if (insertSpace && endTokenIndex > 0 && endLineText.charCodeAt(endTokenIndex - 1) === 32 /* Space */) {
+            if (insertSpace && endTokenIndex > 0 && endLineText.charCodeAt(endTokenIndex - 1) === 32 /* CharCode.Space */) {
                 // Pretend the end token contains a leading space
                 endToken = ' ' + endToken;
                 endTokenIndex -= 1;
@@ -91,7 +91,7 @@ export class BlockCommentCommand {
         }
     }
     static _createRemoveBlockCommentOperations(r, startToken, endToken) {
-        let res = [];
+        const res = [];
         if (!Range.isEmpty(r)) {
             // Remove block comment start
             res.push(EditOperation.delete(new Range(r.startLineNumber, r.startColumn - startToken.length, r.startLineNumber, r.startColumn)));
@@ -105,7 +105,7 @@ export class BlockCommentCommand {
         return res;
     }
     static _createAddBlockCommentOperations(r, startToken, endToken, insertSpace) {
-        let res = [];
+        const res = [];
         if (!Range.isEmpty(r)) {
             // Insert block comment start
             res.push(EditOperation.insert(new Position(r.startLineNumber, r.startColumn), startToken + (insertSpace ? ' ' : '')));
@@ -121,7 +121,7 @@ export class BlockCommentCommand {
     getEditOperations(model, builder) {
         const startLineNumber = this._selection.startLineNumber;
         const startColumn = this._selection.startColumn;
-        model.tokenizeIfCheap(startLineNumber);
+        model.tokenization.tokenizeIfCheap(startLineNumber);
         const languageId = model.getLanguageIdAtPosition(startLineNumber, startColumn);
         const config = this.languageConfigurationService.getLanguageConfiguration(languageId).comments;
         if (!config || !config.blockCommentStartToken || !config.blockCommentEndToken) {

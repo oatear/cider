@@ -9,5 +9,5 @@ import { HelpQuickAccessProvider } from '../../../../platform/quickinput/browser
 Registry.as(Extensions.Quickaccess).registerQuickAccessProvider({
     ctor: HelpQuickAccessProvider,
     prefix: '',
-    helpEntries: [{ description: QuickHelpNLS.helpQuickAccessActionLabel, needsEditor: true }]
+    helpEntries: [{ description: QuickHelpNLS.helpQuickAccessActionLabel }]
 });

@@ -6,23 +6,23 @@ import * as nls from '../../nls.js';
 export class ModifierLabelProvider {
     constructor(mac, windows, linux = windows) {
         this.modifierLabels = [null]; // index 0 will never me accessed.
-        this.modifierLabels[2 /* Macintosh */] = mac;
-        this.modifierLabels[1 /* Windows */] = windows;
-        this.modifierLabels[3 /* Linux */] = linux;
+        this.modifierLabels[2 /* OperatingSystem.Macintosh */] = mac;
+        this.modifierLabels[1 /* OperatingSystem.Windows */] = windows;
+        this.modifierLabels[3 /* OperatingSystem.Linux */] = linux;
     }
-    toLabel(OS, parts, keyLabelProvider) {
-        if (parts.length === 0) {
+    toLabel(OS, chords, keyLabelProvider) {
+        if (chords.length === 0) {
             return null;
         }
         const result = [];
-        for (let i = 0, len = parts.length; i < len; i++) {
-            const part = parts[i];
-            const keyLabel = keyLabelProvider(part);
+        for (let i = 0, len = chords.length; i < len; i++) {
+            const chord = chords[i];
+            const keyLabel = keyLabelProvider(chord);
             if (keyLabel === null) {
                 // this keybinding cannot be expressed...
                 return null;
             }
-            result[i] = _simpleAsString(part, keyLabel, this.modifierLabels[OS]);
+            result[i] = _simpleAsString(chord, keyLabel, this.modifierLabels[OS]);
         }
         return result.join(' ');
     }

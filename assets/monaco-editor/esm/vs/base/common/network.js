@@ -2,6 +2,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
+import * as errors from './errors.js';
 import * as platform from './platform.js';
 import { URI } from './uri.js';
 export var Schemas;
@@ -36,9 +37,8 @@ export var Schemas;
     Schemas.command = 'command';
     Schemas.vscodeRemote = 'vscode-remote';
     Schemas.vscodeRemoteResource = 'vscode-remote-resource';
-    Schemas.userData = 'vscode-userdata';
+    Schemas.vscodeUserData = 'vscode-userdata';
     Schemas.vscodeCustomEditor = 'vscode-custom-editor';
-    Schemas.vscodeNotebook = 'vscode-notebook';
     Schemas.vscodeNotebookCell = 'vscode-notebook-cell';
     Schemas.vscodeNotebookCellMetadata = 'vscode-notebook-cell-metadata';
     Schemas.vscodeNotebookCellOutput = 'vscode-notebook-cell-output';
@@ -47,6 +47,7 @@ export var Schemas;
     Schemas.vscodeSettings = 'vscode-settings';
     Schemas.vscodeWorkspaceTrust = 'vscode-workspace-trust';
     Schemas.vscodeTerminal = 'vscode-terminal';
+    Schemas.vscodeChatSesssion = 'vscode-chat-editor';
     /**
      * Scheme used internally for webviews that aren't linked to a resource (i.e. not custom editors)
      */
@@ -72,6 +73,10 @@ export var Schemas;
      * Scheme used vs live share
      */
     Schemas.vsls = 'vsls';
+    /**
+     * Scheme used for the Source Control commit input's text document
+     */
+    Schemas.vscodeSourceControl = 'vscode-scm';
 })(Schemas || (Schemas = {}));
 export const connectionTokenQueryName = 'tkn';
 class RemoteAuthoritiesImpl {
@@ -81,17 +86,24 @@ class RemoteAuthoritiesImpl {
         this._connectionTokens = Object.create(null);
         this._preferredWebSchema = 'http';
         this._delegate = null;
+        this._remoteResourcesPath = `/${Schemas.vscodeRemoteResource}`;
     }
     setPreferredWebSchema(schema) {
         this._preferredWebSchema = schema;
     }
     rewrite(uri) {
         if (this._delegate) {
-            return this._delegate(uri);
+            try {
+                return this._delegate(uri);
+            }
+            catch (err) {
+                errors.onUnexpectedError(err);
+                return uri;
+            }
         }
         const authority = uri.authority;
         let host = this._hosts[authority];
-        if (host && host.indexOf(':') !== -1) {
+        if (host && host.indexOf(':') !== -1 && host.indexOf('[') === -1) {
             host = `[${host}]`;
         }
         const port = this._ports[authority];
@@ -103,15 +115,20 @@ class RemoteAuthoritiesImpl {
         return URI.from({
             scheme: platform.isWeb ? this._preferredWebSchema : Schemas.vscodeRemoteResource,
             authority: `${host}:${port}`,
-            path: `/vscode-remote-resource`,
+            path: this._remoteResourcesPath,
             query
         });
     }
 }
 export const RemoteAuthorities = new RemoteAuthoritiesImpl();
 class FileAccessImpl {
-    asBrowserUri(uriOrModule, moduleIdToUrl) {
-        const uri = this.toUri(uriOrModule, moduleIdToUrl);
+    /**
+     * Returns a URI to use in contexts where the browser is responsible
+     * for loading (e.g. fetch()) or when used within the DOM.
+     *
+     * **Note:** use `dom.ts#asCSSUrl` whenever the URL is to be used in CSS context.
+     */
+    uriToBrowserUri(uri) {
         // Handle remote URIs via `RemoteAuthorities`
         if (uri.scheme === Schemas.vscodeRemote) {
             return RemoteAuthorities.rewrite(uri);
@@ -124,7 +141,7 @@ class FileAccessImpl {
             // ...and we run in native environments
             platform.isNative ||
                 // ...or web worker extensions on desktop
-                (typeof platform.globals.importScripts === 'function' && platform.globals.origin === `${Schemas.vscodeFileResource}://${FileAccessImpl.FALLBACK_AUTHORITY}`))) {
+                (platform.isWebWorker && platform.globals.origin === `${Schemas.vscodeFileResource}://${FileAccessImpl.FALLBACK_AUTHORITY}`))) {
             return uri.with({
                 scheme: Schemas.vscodeFileResource,
                 // We need to provide an authority here so that it can serve
@@ -138,12 +155,55 @@ class FileAccessImpl {
         }
         return uri;
     }
-    toUri(uriOrModule, moduleIdToUrl) {
-        if (URI.isUri(uriOrModule)) {
-            return uriOrModule;
-        }
-        return URI.parse(moduleIdToUrl.toUrl(uriOrModule));
-    }
 }
 FileAccessImpl.FALLBACK_AUTHORITY = 'vscode-app';
 export const FileAccess = new FileAccessImpl();
+export var COI;
+(function (COI) {
+    const coiHeaders = new Map([
+        ['1', { 'Cross-Origin-Opener-Policy': 'same-origin' }],
+        ['2', { 'Cross-Origin-Embedder-Policy': 'require-corp' }],
+        ['3', { 'Cross-Origin-Opener-Policy': 'same-origin', 'Cross-Origin-Embedder-Policy': 'require-corp' }],
+    ]);
+    COI.CoopAndCoep = Object.freeze(coiHeaders.get('3'));
+    const coiSearchParamName = 'vscode-coi';
+    /**
+     * Extract desired headers from `vscode-coi` invocation
+     */
+    function getHeadersFromQuery(url) {
+        let params;
+        if (typeof url === 'string') {
+            params = new URL(url).searchParams;
+        }
+        else if (url instanceof URL) {
+            params = url.searchParams;
+        }
+        else if (URI.isUri(url)) {
+            params = new URL(url.toString(true)).searchParams;
+        }
+        const value = params === null || params === void 0 ? void 0 : params.get(coiSearchParamName);
+        if (!value) {
+            return undefined;
+        }
+        return coiHeaders.get(value);
+    }
+    COI.getHeadersFromQuery = getHeadersFromQuery;
+    /**
+     * Add the `vscode-coi` query attribute based on wanting `COOP` and `COEP`. Will be a noop when `crossOriginIsolated`
+     * isn't enabled the current context
+     */
+    function addSearchParam(urlOrSearch, coop, coep) {
+        if (!globalThis.crossOriginIsolated) {
+            // depends on the current context being COI
+            return;
+        }
+        const value = coop && coep ? '3' : coep ? '2' : '1';
+        if (urlOrSearch instanceof URLSearchParams) {
+            urlOrSearch.set(coiSearchParamName, value);
+        }
+        else {
+            urlOrSearch[coiSearchParamName] = value;
+        }
+    }
+    COI.addSearchParam = addSearchParam;
+})(COI || (COI = {}));

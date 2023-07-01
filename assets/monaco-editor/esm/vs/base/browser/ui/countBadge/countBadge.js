@@ -3,22 +3,13 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 import { $, append } from '../../dom.js';
-import { Color } from '../../../common/color.js';
-import { mixin } from '../../../common/objects.js';
 import { format } from '../../../common/strings.js';
 import './countBadge.css';
-const defaultOpts = {
-    badgeBackground: Color.fromHex('#4D4D4D'),
-    badgeForeground: Color.fromHex('#FFFFFF')
-};
 export class CountBadge {
-    constructor(container, options) {
+    constructor(container, options, styles) {
+        this.options = options;
+        this.styles = styles;
         this.count = 0;
-        this.options = options || Object.create(null);
-        mixin(this.options, defaultOpts, false);
-        this.badgeBackground = this.options.badgeBackground;
-        this.badgeForeground = this.options.badgeForeground;
-        this.badgeBorder = this.options.badgeBorder;
         this.element = append(container, $('.monaco-count-badge'));
         this.countFormat = this.options.countFormat || '{0}';
         this.titleFormat = this.options.titleFormat || '';
@@ -33,26 +24,13 @@ export class CountBadge {
         this.render();
     }
     render() {
+        var _a, _b;
         this.element.textContent = format(this.countFormat, this.count);
         this.element.title = format(this.titleFormat, this.count);
-        this.applyStyles();
-    }
-    style(styles) {
-        this.badgeBackground = styles.badgeBackground;
-        this.badgeForeground = styles.badgeForeground;
-        this.badgeBorder = styles.badgeBorder;
-        this.applyStyles();
-    }
-    applyStyles() {
-        if (this.element) {
-            const background = this.badgeBackground ? this.badgeBackground.toString() : '';
-            const foreground = this.badgeForeground ? this.badgeForeground.toString() : '';
-            const border = this.badgeBorder ? this.badgeBorder.toString() : '';
-            this.element.style.backgroundColor = background;
-            this.element.style.color = foreground;
-            this.element.style.borderWidth = border ? '1px' : '';
-            this.element.style.borderStyle = border ? 'solid' : '';
-            this.element.style.borderColor = border;
+        this.element.style.backgroundColor = (_a = this.styles.badgeBackground) !== null && _a !== void 0 ? _a : '';
+        this.element.style.color = (_b = this.styles.badgeForeground) !== null && _b !== void 0 ? _b : '';
+        if (this.styles.badgeBorder) {
+            this.element.style.border = `1px solid ${this.styles.badgeBorder}`;
         }
     }
 }

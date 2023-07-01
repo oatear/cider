@@ -45,5 +45,5 @@ export class ScopedLineTokens {
     }
 }
 export function ignoreBracketsInToken(standardTokenType) {
-    return (standardTokenType & 3 /* value */) !== 0;
+    return (standardTokenType & 3 /* IgnoreBracketsInTokens.value */) !== 0;
 }

@@ -14,43 +14,24 @@ export class CharacterPairSupport {
         else {
             this._autoClosingPairs = [];
         }
-        if (config.colorizedBracketPairs) {
-            this._colorizedBracketPairs = filterValidBrackets(config.colorizedBracketPairs.map(b => [b[0], b[1]]));
-        }
-        else if (config.brackets) {
-            this._colorizedBracketPairs = filterValidBrackets(config.brackets
-                .map((b) => [b[0], b[1]])
-                // Many languages set < ... > as bracket pair, even though they also use it as comparison operator.
-                // This leads to problems when colorizing this bracket, so we exclude it by default.
-                // Languages can still override this by configuring `colorizedBracketPairs`
-                // https://github.com/microsoft/vscode/issues/132476
-                .filter((p) => !(p[0] === '<' && p[1] === '>')));
-        }
-        else {
-            this._colorizedBracketPairs = [];
-        }
         if (config.__electricCharacterSupport && config.__electricCharacterSupport.docComment) {
             const docComment = config.__electricCharacterSupport.docComment;
             // IDocComment is legacy, only partially supported
             this._autoClosingPairs.push(new StandardAutoClosingPairConditional({ open: docComment.open, close: docComment.close || '' }));
         }
-        this._autoCloseBefore = typeof config.autoCloseBefore === 'string' ? config.autoCloseBefore : CharacterPairSupport.DEFAULT_AUTOCLOSE_BEFORE_LANGUAGE_DEFINED;
+        this._autoCloseBeforeForQuotes = typeof config.autoCloseBefore === 'string' ? config.autoCloseBefore : CharacterPairSupport.DEFAULT_AUTOCLOSE_BEFORE_LANGUAGE_DEFINED_QUOTES;
+        this._autoCloseBeforeForBrackets = typeof config.autoCloseBefore === 'string' ? config.autoCloseBefore : CharacterPairSupport.DEFAULT_AUTOCLOSE_BEFORE_LANGUAGE_DEFINED_BRACKETS;
         this._surroundingPairs = config.surroundingPairs || this._autoClosingPairs;
     }
     getAutoClosingPairs() {
         return this._autoClosingPairs;
     }
-    getAutoCloseBeforeSet() {
-        return this._autoCloseBefore;
+    getAutoCloseBeforeSet(forQuotes) {
+        return (forQuotes ? this._autoCloseBeforeForQuotes : this._autoCloseBeforeForBrackets);
     }
     getSurroundingPairs() {
         return this._surroundingPairs;
     }
-    getColorizedBrackets() {
-        return this._colorizedBracketPairs;
-    }
 }
-CharacterPairSupport.DEFAULT_AUTOCLOSE_BEFORE_LANGUAGE_DEFINED = ';:.,=}])> \n\t';
-function filterValidBrackets(bracketPairs) {
-    return bracketPairs.filter(([open, close]) => open !== '' && close !== '');
-}
+CharacterPairSupport.DEFAULT_AUTOCLOSE_BEFORE_LANGUAGE_DEFINED_QUOTES = ';:.,=}])> \n\t';
+CharacterPairSupport.DEFAULT_AUTOCLOSE_BEFORE_LANGUAGE_DEFINED_BRACKETS = '\'"`;:.,=}])> \n\t';

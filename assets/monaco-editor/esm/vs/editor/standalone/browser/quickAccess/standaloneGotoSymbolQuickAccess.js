@@ -22,11 +22,12 @@ import { QuickOutlineNLS } from '../../../common/standaloneStrings.js';
 import { Event } from '../../../../base/common/event.js';
 import { EditorAction, registerEditorAction } from '../../../browser/editorExtensions.js';
 import { EditorContextKeys } from '../../../common/editorContextKeys.js';
-import { IQuickInputService } from '../../../../platform/quickinput/common/quickInput.js';
+import { IQuickInputService, ItemActivation } from '../../../../platform/quickinput/common/quickInput.js';
 import { IOutlineModelService } from '../../../contrib/documentSymbols/browser/outlineModel.js';
-let StandaloneGotoSymbolQuickAccessProvider = class StandaloneGotoSymbolQuickAccessProvider extends AbstractGotoSymbolQuickAccessProvider {
-    constructor(editorService, outlineModelService) {
-        super(outlineModelService);
+import { ILanguageFeaturesService } from '../../../common/services/languageFeatures.js';
+export let StandaloneGotoSymbolQuickAccessProvider = class StandaloneGotoSymbolQuickAccessProvider extends AbstractGotoSymbolQuickAccessProvider {
+    constructor(editorService, languageFeaturesService, outlineModelService) {
+        super(languageFeaturesService, outlineModelService);
         this.editorService = editorService;
         this.onDidActiveTextEditorControlChange = Event.None;
     }
@@ -36,28 +37,20 @@ let StandaloneGotoSymbolQuickAccessProvider = class StandaloneGotoSymbolQuickAcc
 };
 StandaloneGotoSymbolQuickAccessProvider = __decorate([
     __param(0, ICodeEditorService),
-    __param(1, IOutlineModelService)
+    __param(1, ILanguageFeaturesService),
+    __param(2, IOutlineModelService)
 ], StandaloneGotoSymbolQuickAccessProvider);
-export { StandaloneGotoSymbolQuickAccessProvider };
-Registry.as(Extensions.Quickaccess).registerQuickAccessProvider({
-    ctor: StandaloneGotoSymbolQuickAccessProvider,
-    prefix: AbstractGotoSymbolQuickAccessProvider.PREFIX,
-    helpEntries: [
-        { description: QuickOutlineNLS.quickOutlineActionLabel, prefix: AbstractGotoSymbolQuickAccessProvider.PREFIX, needsEditor: true },
-        { description: QuickOutlineNLS.quickOutlineByCategoryActionLabel, prefix: AbstractGotoSymbolQuickAccessProvider.PREFIX_BY_CATEGORY, needsEditor: true }
-    ]
-});
-export class GotoLineAction extends EditorAction {
+export class GotoSymbolAction extends EditorAction {
     constructor() {
         super({
-            id: 'editor.action.quickOutline',
+            id: GotoSymbolAction.ID,
             label: QuickOutlineNLS.quickOutlineActionLabel,
             alias: 'Go to Symbol...',
             precondition: EditorContextKeys.hasDocumentSymbolProvider,
             kbOpts: {
                 kbExpr: EditorContextKeys.focus,
-                primary: 2048 /* CtrlCmd */ | 1024 /* Shift */ | 45 /* KeyO */,
-                weight: 100 /* EditorContrib */
+                primary: 2048 /* KeyMod.CtrlCmd */ | 1024 /* KeyMod.Shift */ | 45 /* KeyCode.KeyO */,
+                weight: 100 /* KeybindingWeight.EditorContrib */
             },
             contextMenuOpts: {
                 group: 'navigation',
@@ -66,7 +59,16 @@ export class GotoLineAction extends EditorAction {
         });
     }
     run(accessor) {
-        accessor.get(IQuickInputService).quickAccess.show(AbstractGotoSymbolQuickAccessProvider.PREFIX);
+        accessor.get(IQuickInputService).quickAccess.show(AbstractGotoSymbolQuickAccessProvider.PREFIX, { itemActivation: ItemActivation.NONE });
     }
 }
-registerEditorAction(GotoLineAction);
+GotoSymbolAction.ID = 'editor.action.quickOutline';
+registerEditorAction(GotoSymbolAction);
+Registry.as(Extensions.Quickaccess).registerQuickAccessProvider({
+    ctor: StandaloneGotoSymbolQuickAccessProvider,
+    prefix: AbstractGotoSymbolQuickAccessProvider.PREFIX,
+    helpEntries: [
+        { description: QuickOutlineNLS.quickOutlineActionLabel, prefix: AbstractGotoSymbolQuickAccessProvider.PREFIX, commandId: GotoSymbolAction.ID },
+        { description: QuickOutlineNLS.quickOutlineByCategoryActionLabel, prefix: AbstractGotoSymbolQuickAccessProvider.PREFIX_BY_CATEGORY }
+    ]
+});

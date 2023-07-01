@@ -26,18 +26,7 @@ export function getPlatformTextDecoder() {
     }
     return _platformTextDecoder;
 }
-export const hasTextDecoder = (typeof TextDecoder !== 'undefined');
-export let createStringBuilder;
-export let decodeUTF16LE;
-if (hasTextDecoder) {
-    createStringBuilder = (capacity) => new StringBuilder(capacity);
-    decodeUTF16LE = standardDecodeUTF16LE;
-}
-else {
-    createStringBuilder = (capacity) => new CompatStringBuilder();
-    decodeUTF16LE = compatDecodeUTF16LE;
-}
-function standardDecodeUTF16LE(source, offset, len) {
+export function decodeUTF16LE(source, offset, len) {
     const view = new Uint16Array(source.buffer, offset, len);
     if (len > 0 && (view[0] === 0xFEFF || view[0] === 0xFFFE)) {
         // UTF16 sometimes starts with a BOM https://de.wikipedia.org/wiki/Byte_Order_Mark
@@ -58,7 +47,7 @@ function compatDecodeUTF16LE(source, offset, len) {
     }
     return result.join('');
 }
-class StringBuilder {
+export class StringBuilder {
     constructor(capacity) {
         this._capacity = capacity | 0;
         this._buffer = new Uint16Array(this._capacity);
@@ -93,7 +82,10 @@ class StringBuilder {
             this._completedStrings[this._completedStrings.length] = bufferString;
         }
     }
-    write1(charCode) {
+    /**
+     * Append a char code (<2^16)
+     */
+    appendCharCode(charCode) {
         const remainingSpace = this._capacity - this._bufferLength;
         if (remainingSpace <= 1) {
             if (remainingSpace === 0 || strings.isHighSurrogate(charCode)) {
@@ -102,14 +94,17 @@ class StringBuilder {
         }
         this._buffer[this._bufferLength++] = charCode;
     }
-    appendASCII(charCode) {
+    /**
+     * Append an ASCII char code (<2^8)
+     */
+    appendASCIICharCode(charCode) {
         if (this._bufferLength === this._capacity) {
             // buffer is full
             this._flushBuffer();
         }
         this._buffer[this._bufferLength++] = charCode;
     }
-    appendASCIIString(str) {
+    appendString(str) {
         const strLen = str.length;
         if (this._bufferLength + strLen >= this._capacity) {
             // This string does not fit in the remaining buffer space
@@ -120,27 +115,5 @@ class StringBuilder {
         for (let i = 0; i < strLen; i++) {
             this._buffer[this._bufferLength++] = str.charCodeAt(i);
         }
-    }
-}
-class CompatStringBuilder {
-    constructor() {
-        this._pieces = [];
-        this._piecesLen = 0;
-    }
-    reset() {
-        this._pieces = [];
-        this._piecesLen = 0;
-    }
-    build() {
-        return this._pieces.join('');
-    }
-    write1(charCode) {
-        this._pieces[this._piecesLen++] = String.fromCharCode(charCode);
-    }
-    appendASCII(charCode) {
-        this._pieces[this._piecesLen++] = String.fromCharCode(charCode);
-    }
-    appendASCIIString(str) {
-        this._pieces[this._piecesLen++] = str;
     }
 }

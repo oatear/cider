@@ -55,6 +55,17 @@ export class MouseWheelClassifier {
         } while (true);
         return (score <= 0.5);
     }
+    acceptStandardWheelEvent(e) {
+        const osZoomFactor = window.devicePixelRatio / getZoomFactor();
+        if (platform.isWindows || platform.isLinux) {
+            // On Windows and Linux, the incoming delta events are multiplied with the OS zoom factor.
+            // The OS zoom factor can be reverse engineered by using the device pixel ratio and the configured zoom factor into account.
+            this.accept(Date.now(), e.deltaX / osZoomFactor, e.deltaY / osZoomFactor);
+        }
+        else {
+            this.accept(Date.now(), e.deltaX, e.deltaY);
+        }
+    }
     accept(timestamp, deltaX, deltaY) {
         const item = new MouseWheelClassifierItem(timestamp, deltaX, deltaY);
         item.score = this._computeScore(item);
@@ -108,6 +119,9 @@ export class MouseWheelClassifier {
 }
 MouseWheelClassifier.INSTANCE = new MouseWheelClassifier();
 export class AbstractScrollableElement extends Widget {
+    get options() {
+        return this._options;
+    }
     constructor(element, options, scrollable) {
         super();
         this._onScroll = this._register(new Emitter());
@@ -156,15 +170,12 @@ export class AbstractScrollableElement extends Widget {
         this._mouseWheelToDispose = [];
         this._setListeningToMouseWheel(this._options.handleMouseWheel);
         this.onmouseover(this._listenOnDomNode, (e) => this._onMouseOver(e));
-        this.onnonbubblingmouseout(this._listenOnDomNode, (e) => this._onMouseOut(e));
+        this.onmouseleave(this._listenOnDomNode, (e) => this._onMouseLeave(e));
         this._hideTimeout = this._register(new TimeoutTimer());
         this._isDragging = false;
         this._mouseIsOver = false;
         this._shouldRender = true;
         this._revealOnScroll = true;
-    }
-    get options() {
-        return this._options;
     }
     dispose() {
         this._mouseWheelToDispose = dispose(this._mouseWheelToDispose);
@@ -183,11 +194,11 @@ export class AbstractScrollableElement extends Widget {
         };
     }
     /**
-     * Delegate a mouse down event to the vertical scrollbar.
+     * Delegate a pointer down event to the vertical scrollbar.
      * This is to help with clicking somewhere else and having the scrollbar react.
      */
-    delegateVerticalScrollbarMouseDown(browserEvent) {
-        this._verticalScrollbar.delegateMouseDown(browserEvent);
+    delegateVerticalScrollbarPointerDown(browserEvent) {
+        this._verticalScrollbar.delegatePointerDown(browserEvent);
     }
     getScrollDimensions() {
         return this._scrollable.getScrollDimensions();
@@ -244,6 +255,9 @@ export class AbstractScrollableElement extends Widget {
             this._render();
         }
     }
+    delegateScrollFromMouseWheelEvent(browserEvent) {
+        this._onMouseWheel(new StandardWheelEvent(browserEvent));
+    }
     // -------------------- mouse wheel scrolling --------------------
     _setListeningToMouseWheel(shouldListen) {
         const isListening = (this._mouseWheelToDispose.length > 0);
@@ -264,15 +278,7 @@ export class AbstractScrollableElement extends Widget {
     _onMouseWheel(e) {
         const classifier = MouseWheelClassifier.INSTANCE;
         if (SCROLL_WHEEL_SMOOTH_SCROLL_ENABLED) {
-            const osZoomFactor = window.devicePixelRatio / getZoomFactor();
-            if (platform.isWindows || platform.isLinux) {
-                // On Windows and Linux, the incoming delta events are multiplied with the OS zoom factor.
-                // The OS zoom factor can be reverse engineered by using the device pixel ratio and the configured zoom factor into account.
-                classifier.accept(Date.now(), e.deltaX / osZoomFactor, e.deltaY / osZoomFactor);
-            }
-            else {
-                classifier.accept(Date.now(), e.deltaX, e.deltaY);
-            }
+            classifier.acceptStandardWheelEvent(e);
         }
         // console.log(`${Date.now()}, ${e.deltaY}, ${e.deltaX}`);
         let didScroll = false;
@@ -394,7 +400,7 @@ export class AbstractScrollableElement extends Widget {
         this._isDragging = false;
         this._hide();
     }
-    _onMouseOut(e) {
+    _onMouseLeave(e) {
         this._mouseIsOver = false;
         this._hide();
     }
@@ -509,11 +515,11 @@ function resolveOptions(opts) {
         mouseWheelSmoothScroll: (typeof opts.mouseWheelSmoothScroll !== 'undefined' ? opts.mouseWheelSmoothScroll : true),
         arrowSize: (typeof opts.arrowSize !== 'undefined' ? opts.arrowSize : 11),
         listenOnDomNode: (typeof opts.listenOnDomNode !== 'undefined' ? opts.listenOnDomNode : null),
-        horizontal: (typeof opts.horizontal !== 'undefined' ? opts.horizontal : 1 /* Auto */),
+        horizontal: (typeof opts.horizontal !== 'undefined' ? opts.horizontal : 1 /* ScrollbarVisibility.Auto */),
         horizontalScrollbarSize: (typeof opts.horizontalScrollbarSize !== 'undefined' ? opts.horizontalScrollbarSize : 10),
         horizontalSliderSize: (typeof opts.horizontalSliderSize !== 'undefined' ? opts.horizontalSliderSize : 0),
         horizontalHasArrows: (typeof opts.horizontalHasArrows !== 'undefined' ? opts.horizontalHasArrows : false),
-        vertical: (typeof opts.vertical !== 'undefined' ? opts.vertical : 1 /* Auto */),
+        vertical: (typeof opts.vertical !== 'undefined' ? opts.vertical : 1 /* ScrollbarVisibility.Auto */),
         verticalScrollbarSize: (typeof opts.verticalScrollbarSize !== 'undefined' ? opts.verticalScrollbarSize : 10),
         verticalHasArrows: (typeof opts.verticalHasArrows !== 'undefined' ? opts.verticalHasArrows : false),
         verticalSliderSize: (typeof opts.verticalSliderSize !== 'undefined' ? opts.verticalSliderSize : 0),

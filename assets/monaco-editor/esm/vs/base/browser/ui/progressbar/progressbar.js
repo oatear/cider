@@ -4,33 +4,25 @@
  *--------------------------------------------------------------------------------------------*/
 import { show } from '../../dom.js';
 import { RunOnceScheduler } from '../../../common/async.js';
-import { Color } from '../../../common/color.js';
 import { Disposable } from '../../../common/lifecycle.js';
-import { mixin } from '../../../common/objects.js';
 import './progressbar.css';
 const CSS_DONE = 'done';
 const CSS_ACTIVE = 'active';
 const CSS_INFINITE = 'infinite';
 const CSS_INFINITE_LONG_RUNNING = 'infinite-long-running';
 const CSS_DISCRETE = 'discrete';
-const defaultOpts = {
-    progressBarBackground: Color.fromHex('#0E70C0')
-};
 /**
  * A progress bar with support for infinite or discrete progress.
  */
 export class ProgressBar extends Disposable {
     constructor(container, options) {
         super();
-        this.options = options || Object.create(null);
-        mixin(this.options, defaultOpts, false);
         this.workedVal = 0;
-        this.progressBarBackground = this.options.progressBarBackground;
         this.showDelayedScheduler = this._register(new RunOnceScheduler(() => show(this.element), 0));
         this.longRunningScheduler = this._register(new RunOnceScheduler(() => this.infiniteLongRunning(), ProgressBar.LONG_RUNNING_INFINITE_THRESHOLD));
-        this.create(container);
+        this.create(container, options);
     }
-    create(container) {
+    create(container, options) {
         this.element = document.createElement('div');
         this.element.classList.add('monaco-progress-container');
         this.element.setAttribute('role', 'progressbar');
@@ -38,8 +30,8 @@ export class ProgressBar extends Disposable {
         container.appendChild(this.element);
         this.bit = document.createElement('div');
         this.bit.classList.add('progress-bit');
+        this.bit.style.backgroundColor = (options === null || options === void 0 ? void 0 : options.progressBarBackground) || '#0E70C0';
         this.element.appendChild(this.bit);
-        this.applyStyles();
     }
     off() {
         this.bit.style.width = 'inherit';
@@ -95,16 +87,6 @@ export class ProgressBar extends Disposable {
     }
     getContainer() {
         return this.element;
-    }
-    style(styles) {
-        this.progressBarBackground = styles.progressBarBackground;
-        this.applyStyles();
-    }
-    applyStyles() {
-        if (this.bit) {
-            const background = this.progressBarBackground ? this.progressBarBackground.toString() : '';
-            this.bit.style.backgroundColor = background;
-        }
     }
 }
 /**

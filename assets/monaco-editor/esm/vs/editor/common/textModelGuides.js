@@ -9,15 +9,25 @@ export var HorizontalGuidesState;
     HorizontalGuidesState[HorizontalGuidesState["Enabled"] = 2] = "Enabled";
 })(HorizontalGuidesState || (HorizontalGuidesState = {}));
 export class IndentGuide {
-    constructor(visibleColumn, className, 
+    constructor(visibleColumn, column, className, 
     /**
      * If set, this indent guide is a horizontal guide (no vertical part).
      * It starts at visibleColumn and continues until endColumn.
     */
-    horizontalLine) {
+    horizontalLine, 
+    /**
+     * If set (!= -1), only show this guide for wrapped lines that don't contain this model column, but are after it.
+    */
+    forWrappedLinesAfterColumn, forWrappedLinesBeforeOrAtColumn) {
         this.visibleColumn = visibleColumn;
+        this.column = column;
         this.className = className;
         this.horizontalLine = horizontalLine;
+        this.forWrappedLinesAfterColumn = forWrappedLinesAfterColumn;
+        this.forWrappedLinesBeforeOrAtColumn = forWrappedLinesBeforeOrAtColumn;
+        if ((visibleColumn !== -1) === (column !== -1)) {
+            throw new Error();
+        }
     }
 }
 export class IndentGuideHorizontalLine {

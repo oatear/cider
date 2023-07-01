@@ -14,8 +14,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import { ThrottledDelayer } from '../../../common/async.js';
 import { Emitter, Event } from '../../../common/event.js';
 import { Disposable } from '../../../common/lifecycle.js';
-import { isUndefinedOrNull } from '../../../common/types.js';
-var StorageState;
+import { stringify } from '../../../common/marshalling.js';
+import { isObject, isUndefinedOrNull } from '../../../common/types.js';
+export var StorageHint;
+(function (StorageHint) {
+    // A hint to the storage that the storage
+    // does not exist on disk yet. This allows
+    // the storage library to improve startup
+    // time by not checking the storage for data.
+    StorageHint[StorageHint["STORAGE_DOES_NOT_EXIST"] = 0] = "STORAGE_DOES_NOT_EXIST";
+    // A hint to the storage that the storage
+    // is backed by an in-memory storage.
+    StorageHint[StorageHint["STORAGE_IN_MEMORY"] = 1] = "STORAGE_IN_MEMORY";
+})(StorageHint || (StorageHint = {}));
+export var StorageState;
 (function (StorageState) {
     StorageState[StorageState["None"] = 0] = "None";
     StorageState[StorageState["Initialized"] = 1] = "Initialized";
@@ -100,7 +112,7 @@ export class Storage extends Disposable {
                 return this.delete(key);
             }
             // Otherwise, convert to String and store
-            const valueStr = String(value);
+            const valueStr = isObject(value) || Array.isArray(value) ? stringify(value) : String(value);
             // Return early if value already set
             const currentValue = this.cache.get(key);
             if (currentValue === valueStr) {
@@ -178,13 +190,10 @@ export class InMemoryStorageDatabase {
         this.items = new Map();
     }
     updateItems(request) {
+        var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
-            if (request.insert) {
-                request.insert.forEach((value, key) => this.items.set(key, value));
-            }
-            if (request.delete) {
-                request.delete.forEach(key => this.items.delete(key));
-            }
+            (_a = request.insert) === null || _a === void 0 ? void 0 : _a.forEach((value, key) => this.items.set(key, value));
+            (_b = request.delete) === null || _b === void 0 ? void 0 : _b.forEach(key => this.items.delete(key));
         });
     }
 }

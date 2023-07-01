@@ -31,28 +31,28 @@ import { localize } from '../../../../nls.js';
 import { IContextKeyService, RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
 export const SelectionAnchorSet = new RawContextKey('selectionAnchorSet', false);
 let SelectionAnchorController = class SelectionAnchorController {
+    static get(editor) {
+        return editor.getContribution(SelectionAnchorController.ID);
+    }
     constructor(editor, contextKeyService) {
         this.editor = editor;
         this.selectionAnchorSetContextKey = SelectionAnchorSet.bindTo(contextKeyService);
         this.modelChangeListener = editor.onDidChangeModel(() => this.selectionAnchorSetContextKey.reset());
     }
-    static get(editor) {
-        return editor.getContribution(SelectionAnchorController.ID);
-    }
     setSelectionAnchor() {
         if (this.editor.hasModel()) {
             const position = this.editor.getPosition();
-            const previousDecorations = this.decorationId ? [this.decorationId] : [];
-            const newDecorationId = this.editor.deltaDecorations(previousDecorations, [{
-                    range: Selection.fromPositions(position, position),
-                    options: {
-                        description: 'selection-anchor',
-                        stickiness: 1 /* NeverGrowsWhenTypingAtEdges */,
-                        hoverMessage: new MarkdownString().appendText(localize('selectionAnchor', "Selection Anchor")),
-                        className: 'selection-anchor'
-                    }
-                }]);
-            this.decorationId = newDecorationId[0];
+            this.editor.changeDecorations((accessor) => {
+                if (this.decorationId) {
+                    accessor.removeDecoration(this.decorationId);
+                }
+                this.decorationId = accessor.addDecoration(Selection.fromPositions(position, position), {
+                    description: 'selection-anchor',
+                    stickiness: 1 /* TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges */,
+                    hoverMessage: new MarkdownString().appendText(localize('selectionAnchor', "Selection Anchor")),
+                    className: 'selection-anchor'
+                });
+            });
             this.selectionAnchorSetContextKey.set(!!this.decorationId);
             alert(localize('anchorSet', "Anchor set at {0}:{1}", position.lineNumber, position.column));
         }
@@ -77,8 +77,11 @@ let SelectionAnchorController = class SelectionAnchorController {
     }
     cancelSelectionAnchor() {
         if (this.decorationId) {
-            this.editor.deltaDecorations([this.decorationId], []);
-            this.decorationId = undefined;
+            const decorationId = this.decorationId;
+            this.editor.changeDecorations((accessor) => {
+                accessor.removeDecoration(decorationId);
+                this.decorationId = undefined;
+            });
             this.selectionAnchorSetContextKey.set(false);
         }
     }
@@ -100,8 +103,8 @@ class SetSelectionAnchor extends EditorAction {
             precondition: undefined,
             kbOpts: {
                 kbExpr: EditorContextKeys.editorTextFocus,
-                primary: KeyChord(2048 /* CtrlCmd */ | 41 /* KeyK */, 2048 /* CtrlCmd */ | 32 /* KeyB */),
-                weight: 100 /* EditorContrib */
+                primary: KeyChord(2048 /* KeyMod.CtrlCmd */ | 41 /* KeyCode.KeyK */, 2048 /* KeyMod.CtrlCmd */ | 32 /* KeyCode.KeyB */),
+                weight: 100 /* KeybindingWeight.EditorContrib */
             }
         });
     }
@@ -137,8 +140,8 @@ class SelectFromAnchorToCursor extends EditorAction {
             precondition: SelectionAnchorSet,
             kbOpts: {
                 kbExpr: EditorContextKeys.editorTextFocus,
-                primary: KeyChord(2048 /* CtrlCmd */ | 41 /* KeyK */, 2048 /* CtrlCmd */ | 41 /* KeyK */),
-                weight: 100 /* EditorContrib */
+                primary: KeyChord(2048 /* KeyMod.CtrlCmd */ | 41 /* KeyCode.KeyK */, 2048 /* KeyMod.CtrlCmd */ | 41 /* KeyCode.KeyK */),
+                weight: 100 /* KeybindingWeight.EditorContrib */
             }
         });
     }
@@ -158,8 +161,8 @@ class CancelSelectionAnchor extends EditorAction {
             precondition: SelectionAnchorSet,
             kbOpts: {
                 kbExpr: EditorContextKeys.editorTextFocus,
-                primary: 9 /* Escape */,
-                weight: 100 /* EditorContrib */
+                primary: 9 /* KeyCode.Escape */,
+                weight: 100 /* KeybindingWeight.EditorContrib */
             }
         });
     }
@@ -170,7 +173,7 @@ class CancelSelectionAnchor extends EditorAction {
         });
     }
 }
-registerEditorContribution(SelectionAnchorController.ID, SelectionAnchorController);
+registerEditorContribution(SelectionAnchorController.ID, SelectionAnchorController, 4 /* EditorContributionInstantiation.Lazy */);
 registerEditorAction(SetSelectionAnchor);
 registerEditorAction(GoToSelectionAnchor);
 registerEditorAction(SelectFromAnchorToCursor);

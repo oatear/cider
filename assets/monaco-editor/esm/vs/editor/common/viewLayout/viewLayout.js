@@ -6,8 +6,8 @@ import { Emitter } from '../../../base/common/event.js';
 import { Disposable } from '../../../base/common/lifecycle.js';
 import { Scrollable } from '../../../base/common/scrollable.js';
 import { LinesLayout } from './linesLayout.js';
-import { Viewport } from '../viewModel/viewModel.js';
-import { ContentSizeChangedEvent } from '../viewModel/viewModelEventDispatcher.js';
+import { Viewport } from '../viewModel.js';
+import { ContentSizeChangedEvent } from '../viewModelEventDispatcher.js';
 const SMOOTH_SCROLLING_TIME = 125;
 class EditorScrollDimensions {
     constructor(width, contentWidth, height, contentHeight) {
@@ -96,15 +96,18 @@ class EditorScrollable extends Disposable {
     setScrollPositionSmooth(update) {
         this._scrollable.setScrollPositionSmooth(update);
     }
+    hasPendingScrollAnimation() {
+        return this._scrollable.hasPendingScrollAnimation();
+    }
 }
 export class ViewLayout extends Disposable {
     constructor(configuration, lineCount, scheduleAtNextAnimationFrame) {
         super();
         this._configuration = configuration;
         const options = this._configuration.options;
-        const layoutInfo = options.get(131 /* layoutInfo */);
-        const padding = options.get(75 /* padding */);
-        this._linesLayout = new LinesLayout(lineCount, options.get(59 /* lineHeight */), padding.top, padding.bottom);
+        const layoutInfo = options.get(140 /* EditorOption.layoutInfo */);
+        const padding = options.get(81 /* EditorOption.padding */);
+        this._linesLayout = new LinesLayout(lineCount, options.get(64 /* EditorOption.lineHeight */), padding.top, padding.bottom);
         this._scrollable = this._register(new EditorScrollable(0, scheduleAtNextAnimationFrame));
         this._configureSmoothScrollDuration();
         this._scrollable.setScrollDimensions(new EditorScrollDimensions(layoutInfo.contentWidth, 0, layoutInfo.height, 0));
@@ -122,20 +125,20 @@ export class ViewLayout extends Disposable {
         this._updateHeight();
     }
     _configureSmoothScrollDuration() {
-        this._scrollable.setSmoothScrollDuration(this._configuration.options.get(103 /* smoothScrolling */) ? SMOOTH_SCROLLING_TIME : 0);
+        this._scrollable.setSmoothScrollDuration(this._configuration.options.get(110 /* EditorOption.smoothScrolling */) ? SMOOTH_SCROLLING_TIME : 0);
     }
     // ---- begin view event handlers
     onConfigurationChanged(e) {
         const options = this._configuration.options;
-        if (e.hasChanged(59 /* lineHeight */)) {
-            this._linesLayout.setLineHeight(options.get(59 /* lineHeight */));
+        if (e.hasChanged(64 /* EditorOption.lineHeight */)) {
+            this._linesLayout.setLineHeight(options.get(64 /* EditorOption.lineHeight */));
         }
-        if (e.hasChanged(75 /* padding */)) {
-            const padding = options.get(75 /* padding */);
+        if (e.hasChanged(81 /* EditorOption.padding */)) {
+            const padding = options.get(81 /* EditorOption.padding */);
             this._linesLayout.setPadding(padding.top, padding.bottom);
         }
-        if (e.hasChanged(131 /* layoutInfo */)) {
-            const layoutInfo = options.get(131 /* layoutInfo */);
+        if (e.hasChanged(140 /* EditorOption.layoutInfo */)) {
+            const layoutInfo = options.get(140 /* EditorOption.layoutInfo */);
             const width = layoutInfo.contentWidth;
             const height = layoutInfo.height;
             const scrollDimensions = this._scrollable.getScrollDimensions();
@@ -145,7 +148,7 @@ export class ViewLayout extends Disposable {
         else {
             this._updateHeight();
         }
-        if (e.hasChanged(103 /* smoothScrolling */)) {
+        if (e.hasChanged(110 /* EditorOption.smoothScrolling */)) {
             this._configureSmoothScrollDuration();
         }
     }
@@ -161,8 +164,8 @@ export class ViewLayout extends Disposable {
     // ---- end view event handlers
     _getHorizontalScrollbarHeight(width, scrollWidth) {
         const options = this._configuration.options;
-        const scrollbar = options.get(92 /* scrollbar */);
-        if (scrollbar.horizontal === 2 /* Hidden */) {
+        const scrollbar = options.get(99 /* EditorOption.scrollbar */);
+        if (scrollbar.horizontal === 2 /* ScrollbarVisibility.Hidden */) {
             // horizontal scrollbar not visible
             return 0;
         }
@@ -175,8 +178,8 @@ export class ViewLayout extends Disposable {
     _getContentHeight(width, height, contentWidth) {
         const options = this._configuration.options;
         let result = this._linesLayout.getLinesTotalHeight();
-        if (options.get(94 /* scrollBeyondLastLine */)) {
-            result += Math.max(0, height - options.get(59 /* lineHeight */) - options.get(75 /* padding */).bottom);
+        if (options.get(101 /* EditorOption.scrollBeyondLastLine */)) {
+            result += Math.max(0, height - options.get(64 /* EditorOption.lineHeight */) - options.get(81 /* EditorOption.padding */).bottom);
         }
         else {
             result += this._getHorizontalScrollbarHeight(width, contentWidth);
@@ -203,11 +206,11 @@ export class ViewLayout extends Disposable {
     }
     _computeContentWidth(maxLineWidth) {
         const options = this._configuration.options;
-        const wrappingInfo = options.get(132 /* wrappingInfo */);
-        const fontInfo = options.get(44 /* fontInfo */);
+        const wrappingInfo = options.get(141 /* EditorOption.wrappingInfo */);
+        const fontInfo = options.get(48 /* EditorOption.fontInfo */);
+        const layoutInfo = options.get(140 /* EditorOption.layoutInfo */);
         if (wrappingInfo.isViewportWrapping) {
-            const layoutInfo = options.get(131 /* layoutInfo */);
-            const minimap = options.get(65 /* minimap */);
+            const minimap = options.get(70 /* EditorOption.minimap */);
             if (maxLineWidth > layoutInfo.contentWidth + fontInfo.typicalHalfwidthCharacterWidth) {
                 // This is a case where viewport wrapping is on, but the line extends above the viewport
                 if (minimap.enabled && minimap.side === 'right') {
@@ -218,9 +221,9 @@ export class ViewLayout extends Disposable {
             return maxLineWidth;
         }
         else {
-            const extraHorizontalSpace = options.get(93 /* scrollBeyondLastColumn */) * fontInfo.typicalHalfwidthCharacterWidth;
+            const extraHorizontalSpace = options.get(100 /* EditorOption.scrollBeyondLastColumn */) * fontInfo.typicalHalfwidthCharacterWidth;
             const whitespaceMinWidth = this._linesLayout.getWhitespaceMinWidth();
-            return Math.max(maxLineWidth + extraHorizontalSpace, whitespaceMinWidth);
+            return Math.max(maxLineWidth + extraHorizontalSpace + layoutInfo.verticalScrollbarWidth, whitespaceMinWidth);
         }
     }
     setMaxLineWidth(maxLineWidth) {
@@ -242,7 +245,7 @@ export class ViewLayout extends Disposable {
             scrollLeft: currentScrollPosition.scrollLeft
         };
     }
-    // ---- IVerticalLayoutProvider
+    // ----
     changeWhitespace(callback) {
         const hadAChange = this._linesLayout.changeWhitespace(callback);
         if (hadAChange) {
@@ -250,8 +253,11 @@ export class ViewLayout extends Disposable {
         }
         return hadAChange;
     }
-    getVerticalOffsetForLineNumber(lineNumber) {
-        return this._linesLayout.getVerticalOffsetForLineNumber(lineNumber);
+    getVerticalOffsetForLineNumber(lineNumber, includeViewZones = false) {
+        return this._linesLayout.getVerticalOffsetForLineNumber(lineNumber, includeViewZones);
+    }
+    getVerticalOffsetAfterLineNumber(lineNumber, includeViewZones = false) {
+        return this._linesLayout.getVerticalOffsetAfterLineNumber(lineNumber, includeViewZones);
     }
     isAfterLines(verticalOffset) {
         return this._linesLayout.isAfterLines(verticalOffset);
@@ -290,7 +296,7 @@ export class ViewLayout extends Disposable {
     getWhitespaces() {
         return this._linesLayout.getWhitespaces();
     }
-    // ---- IScrollingProvider
+    // ----
     getContentWidth() {
         const scrollDimensions = this._scrollable.getScrollDimensions();
         return scrollDimensions.contentWidth;
@@ -319,12 +325,15 @@ export class ViewLayout extends Disposable {
         return this._scrollable.validateScrollPosition(scrollPosition);
     }
     setScrollPosition(position, type) {
-        if (type === 1 /* Immediate */) {
+        if (type === 1 /* ScrollType.Immediate */) {
             this._scrollable.setScrollPositionNow(position);
         }
         else {
             this._scrollable.setScrollPositionSmooth(position);
         }
+    }
+    hasPendingScrollAnimation() {
+        return this._scrollable.hasPendingScrollAnimation();
     }
     deltaScrollNow(deltaScrollLeft, deltaScrollTop) {
         const currentScrollPosition = this._scrollable.getCurrentScrollPosition();

@@ -5,83 +5,96 @@
 export class FastDomNode {
     constructor(domNode) {
         this.domNode = domNode;
-        this._maxWidth = -1;
-        this._width = -1;
-        this._height = -1;
-        this._top = -1;
-        this._left = -1;
-        this._bottom = -1;
-        this._right = -1;
+        this._maxWidth = '';
+        this._width = '';
+        this._height = '';
+        this._top = '';
+        this._left = '';
+        this._bottom = '';
+        this._right = '';
+        this._paddingLeft = '';
         this._fontFamily = '';
         this._fontWeight = '';
-        this._fontSize = -1;
+        this._fontSize = '';
+        this._fontStyle = '';
         this._fontFeatureSettings = '';
-        this._lineHeight = -1;
-        this._letterSpacing = -100;
+        this._fontVariationSettings = '';
+        this._textDecoration = '';
+        this._lineHeight = '';
+        this._letterSpacing = '';
         this._className = '';
         this._display = '';
         this._position = '';
         this._visibility = '';
+        this._color = '';
         this._backgroundColor = '';
         this._layerHint = false;
         this._contain = 'none';
         this._boxShadow = '';
     }
-    setMaxWidth(maxWidth) {
+    setMaxWidth(_maxWidth) {
+        const maxWidth = numberAsPixels(_maxWidth);
         if (this._maxWidth === maxWidth) {
             return;
         }
         this._maxWidth = maxWidth;
-        this.domNode.style.maxWidth = this._maxWidth + 'px';
+        this.domNode.style.maxWidth = this._maxWidth;
     }
-    setWidth(width) {
+    setWidth(_width) {
+        const width = numberAsPixels(_width);
         if (this._width === width) {
             return;
         }
         this._width = width;
-        this.domNode.style.width = this._width + 'px';
+        this.domNode.style.width = this._width;
     }
-    setHeight(height) {
+    setHeight(_height) {
+        const height = numberAsPixels(_height);
         if (this._height === height) {
             return;
         }
         this._height = height;
-        this.domNode.style.height = this._height + 'px';
+        this.domNode.style.height = this._height;
     }
-    setTop(top) {
+    setTop(_top) {
+        const top = numberAsPixels(_top);
         if (this._top === top) {
             return;
         }
         this._top = top;
-        this.domNode.style.top = this._top + 'px';
+        this.domNode.style.top = this._top;
     }
-    unsetTop() {
-        if (this._top === -1) {
-            return;
-        }
-        this._top = -1;
-        this.domNode.style.top = '';
-    }
-    setLeft(left) {
+    setLeft(_left) {
+        const left = numberAsPixels(_left);
         if (this._left === left) {
             return;
         }
         this._left = left;
-        this.domNode.style.left = this._left + 'px';
+        this.domNode.style.left = this._left;
     }
-    setBottom(bottom) {
+    setBottom(_bottom) {
+        const bottom = numberAsPixels(_bottom);
         if (this._bottom === bottom) {
             return;
         }
         this._bottom = bottom;
-        this.domNode.style.bottom = this._bottom + 'px';
+        this.domNode.style.bottom = this._bottom;
     }
-    setRight(right) {
+    setRight(_right) {
+        const right = numberAsPixels(_right);
         if (this._right === right) {
             return;
         }
         this._right = right;
-        this.domNode.style.right = this._right + 'px';
+        this.domNode.style.right = this._right;
+    }
+    setPaddingLeft(_paddingLeft) {
+        const paddingLeft = numberAsPixels(_paddingLeft);
+        if (this._paddingLeft === paddingLeft) {
+            return;
+        }
+        this._paddingLeft = paddingLeft;
+        this.domNode.style.paddingLeft = this._paddingLeft;
     }
     setFontFamily(fontFamily) {
         if (this._fontFamily === fontFamily) {
@@ -97,12 +110,20 @@ export class FastDomNode {
         this._fontWeight = fontWeight;
         this.domNode.style.fontWeight = this._fontWeight;
     }
-    setFontSize(fontSize) {
+    setFontSize(_fontSize) {
+        const fontSize = numberAsPixels(_fontSize);
         if (this._fontSize === fontSize) {
             return;
         }
         this._fontSize = fontSize;
-        this.domNode.style.fontSize = this._fontSize + 'px';
+        this.domNode.style.fontSize = this._fontSize;
+    }
+    setFontStyle(fontStyle) {
+        if (this._fontStyle === fontStyle) {
+            return;
+        }
+        this._fontStyle = fontStyle;
+        this.domNode.style.fontStyle = this._fontStyle;
     }
     setFontFeatureSettings(fontFeatureSettings) {
         if (this._fontFeatureSettings === fontFeatureSettings) {
@@ -111,19 +132,35 @@ export class FastDomNode {
         this._fontFeatureSettings = fontFeatureSettings;
         this.domNode.style.fontFeatureSettings = this._fontFeatureSettings;
     }
-    setLineHeight(lineHeight) {
+    setFontVariationSettings(fontVariationSettings) {
+        if (this._fontVariationSettings === fontVariationSettings) {
+            return;
+        }
+        this._fontVariationSettings = fontVariationSettings;
+        this.domNode.style.fontVariationSettings = this._fontVariationSettings;
+    }
+    setTextDecoration(textDecoration) {
+        if (this._textDecoration === textDecoration) {
+            return;
+        }
+        this._textDecoration = textDecoration;
+        this.domNode.style.textDecoration = this._textDecoration;
+    }
+    setLineHeight(_lineHeight) {
+        const lineHeight = numberAsPixels(_lineHeight);
         if (this._lineHeight === lineHeight) {
             return;
         }
         this._lineHeight = lineHeight;
-        this.domNode.style.lineHeight = this._lineHeight + 'px';
+        this.domNode.style.lineHeight = this._lineHeight;
     }
-    setLetterSpacing(letterSpacing) {
+    setLetterSpacing(_letterSpacing) {
+        const letterSpacing = numberAsPixels(_letterSpacing);
         if (this._letterSpacing === letterSpacing) {
             return;
         }
         this._letterSpacing = letterSpacing;
-        this.domNode.style.letterSpacing = this._letterSpacing + 'px';
+        this.domNode.style.letterSpacing = this._letterSpacing;
     }
     setClassName(className) {
         if (this._className === className) {
@@ -156,6 +193,13 @@ export class FastDomNode {
         }
         this._visibility = visibility;
         this.domNode.style.visibility = this._visibility;
+    }
+    setColor(color) {
+        if (this._color === color) {
+            return;
+        }
+        this._color = color;
+        this.domNode.style.color = this._color;
     }
     setBackgroundColor(backgroundColor) {
         if (this._backgroundColor === backgroundColor) {
@@ -197,6 +241,9 @@ export class FastDomNode {
     removeChild(child) {
         this.domNode.removeChild(child.domNode);
     }
+}
+function numberAsPixels(value) {
+    return (typeof value === 'number' ? `${value}px` : value);
 }
 export function createFastDomNode(domNode) {
     return new FastDomNode(domNode);

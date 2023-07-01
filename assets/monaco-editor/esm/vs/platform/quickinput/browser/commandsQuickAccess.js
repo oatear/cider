@@ -25,7 +25,6 @@ import { isCancellationError } from '../../../base/common/errors.js';
 import { matchesContiguousSubString, matchesPrefix, matchesWords, or } from '../../../base/common/filters.js';
 import { Disposable } from '../../../base/common/lifecycle.js';
 import { LRUCache } from '../../../base/common/map.js';
-import Severity from '../../../base/common/severity.js';
 import { withNullAsUndefined } from '../../../base/common/types.js';
 import { localize } from '../../../nls.js';
 import { ICommandService } from '../../commands/common/commands.js';
@@ -36,7 +35,7 @@ import { IKeybindingService } from '../../keybinding/common/keybinding.js';
 import { PickerQuickAccessProvider } from './pickerQuickAccess.js';
 import { IStorageService } from '../../storage/common/storage.js';
 import { ITelemetryService } from '../../telemetry/common/telemetry.js';
-let AbstractCommandsQuickAccessProvider = class AbstractCommandsQuickAccessProvider extends PickerQuickAccessProvider {
+export let AbstractCommandsQuickAccessProvider = class AbstractCommandsQuickAccessProvider extends PickerQuickAccessProvider {
     constructor(options, instantiationService, keybindingService, commandService, telemetryService, dialogService) {
         super(AbstractCommandsQuickAccessProvider.PREFIX, options);
         this.instantiationService = instantiationService;
@@ -47,10 +46,11 @@ let AbstractCommandsQuickAccessProvider = class AbstractCommandsQuickAccessProvi
         this.commandsHistory = this._register(this.instantiationService.createInstance(CommandsHistory));
         this.options = options;
     }
-    _getPicks(filter, disposables, token) {
+    _getPicks(filter, _disposables, token, runOptions) {
+        var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
             // Ask subclass for all command picks
-            const allCommandPicks = yield this.getCommandPicks(disposables, token);
+            const allCommandPicks = yield this.getCommandPicks(token);
             if (token.isCancellationRequested) {
                 return [];
             }
@@ -97,49 +97,88 @@ let AbstractCommandsQuickAccessProvider = class AbstractCommandsQuickAccessProvi
                 if (commandBCounter) {
                     return 1; // other command was used so it wins over the command
                 }
+                if (this.options.suggestedCommandIds) {
+                    const commandASuggestion = this.options.suggestedCommandIds.has(commandPickA.commandId);
+                    const commandBSuggestion = this.options.suggestedCommandIds.has(commandPickB.commandId);
+                    if (commandASuggestion && commandBSuggestion) {
+                        return 0; // honor the order of the array
+                    }
+                    if (commandASuggestion) {
+                        return -1; // first command was suggested, so it wins over the non suggested one
+                    }
+                    if (commandBSuggestion) {
+                        return 1; // other command was suggested so it wins over the command
+                    }
+                }
                 // both commands were never used, so we sort by name
                 return commandPickA.label.localeCompare(commandPickB.label);
             });
             const commandPicks = [];
-            let addSeparator = false;
+            let addOtherSeparator = false;
+            let addCommonlyUsedSeparator = !!this.options.suggestedCommandIds;
             for (let i = 0; i < filteredCommandPicks.length; i++) {
                 const commandPick = filteredCommandPicks[i];
-                const keybinding = this.keybindingService.lookupKeybinding(commandPick.commandId);
-                const ariaLabel = keybinding ?
-                    localize('commandPickAriaLabelWithKeybinding', "{0}, {1}", commandPick.label, keybinding.getAriaLabel()) :
-                    commandPick.label;
                 // Separator: recently used
                 if (i === 0 && this.commandsHistory.peek(commandPick.commandId)) {
                     commandPicks.push({ type: 'separator', label: localize('recentlyUsed', "recently used") });
-                    addSeparator = true;
+                    addOtherSeparator = true;
+                }
+                // Separator: commonly used
+                if (addCommonlyUsedSeparator && !this.commandsHistory.peek(commandPick.commandId) && ((_a = this.options.suggestedCommandIds) === null || _a === void 0 ? void 0 : _a.has(commandPick.commandId))) {
+                    commandPicks.push({ type: 'separator', label: localize('commonlyUsed', "commonly used") });
+                    addOtherSeparator = true;
+                    addCommonlyUsedSeparator = false;
                 }
                 // Separator: other commands
-                if (i !== 0 && addSeparator && !this.commandsHistory.peek(commandPick.commandId)) {
+                if (addOtherSeparator && !this.commandsHistory.peek(commandPick.commandId) && !((_b = this.options.suggestedCommandIds) === null || _b === void 0 ? void 0 : _b.has(commandPick.commandId))) {
                     commandPicks.push({ type: 'separator', label: localize('morecCommands', "other commands") });
-                    addSeparator = false; // only once
+                    addOtherSeparator = false;
                 }
                 // Command
-                commandPicks.push(Object.assign(Object.assign({}, commandPick), { ariaLabel, detail: this.options.showAlias && commandPick.commandAlias !== commandPick.label ? commandPick.commandAlias : undefined, keybinding, accept: () => __awaiter(this, void 0, void 0, function* () {
-                        // Add to history
-                        this.commandsHistory.push(commandPick.commandId);
-                        // Telementry
-                        this.telemetryService.publicLog2('workbenchActionExecuted', {
-                            id: commandPick.commandId,
-                            from: 'quick open'
-                        });
-                        // Run
-                        try {
-                            yield this.commandService.executeCommand(commandPick.commandId);
-                        }
-                        catch (error) {
-                            if (!isCancellationError(error)) {
-                                this.dialogService.show(Severity.Error, localize('canNotRun', "Command '{0}' resulted in an error ({1})", commandPick.label, toErrorMessage(error)));
-                            }
-                        }
-                    }) }));
+                commandPicks.push(this.toCommandPick(commandPick, runOptions));
             }
-            return commandPicks;
+            if (!this.hasAdditionalCommandPicks(filter, token)) {
+                return commandPicks;
+            }
+            return {
+                picks: commandPicks,
+                additionalPicks: (() => __awaiter(this, void 0, void 0, function* () {
+                    const additionalCommandPicks = yield this.getAdditionalCommandPicks(allCommandPicks, filteredCommandPicks, filter, token);
+                    if (token.isCancellationRequested) {
+                        return [];
+                    }
+                    return additionalCommandPicks.map(commandPick => this.toCommandPick(commandPick, runOptions));
+                }))()
+            };
         });
+    }
+    toCommandPick(commandPick, runOptions) {
+        if (commandPick.type === 'separator') {
+            return commandPick;
+        }
+        const keybinding = this.keybindingService.lookupKeybinding(commandPick.commandId);
+        const ariaLabel = keybinding ?
+            localize('commandPickAriaLabelWithKeybinding', "{0}, {1}", commandPick.label, keybinding.getAriaLabel()) :
+            commandPick.label;
+        return Object.assign(Object.assign({}, commandPick), { ariaLabel, detail: this.options.showAlias && commandPick.commandAlias !== commandPick.label ? commandPick.commandAlias : undefined, keybinding, accept: () => __awaiter(this, void 0, void 0, function* () {
+                var _a;
+                // Add to history
+                this.commandsHistory.push(commandPick.commandId);
+                // Telementry
+                this.telemetryService.publicLog2('workbenchActionExecuted', {
+                    id: commandPick.commandId,
+                    from: (_a = runOptions === null || runOptions === void 0 ? void 0 : runOptions.from) !== null && _a !== void 0 ? _a : 'quick open'
+                });
+                // Run
+                try {
+                    yield this.commandService.executeCommand(commandPick.commandId);
+                }
+                catch (error) {
+                    if (!isCancellationError(error)) {
+                        this.dialogService.error(localize('canNotRun', "Command '{0}' resulted in an error", commandPick.label), toErrorMessage(error));
+                    }
+                }
+            }) });
     }
 };
 AbstractCommandsQuickAccessProvider.PREFIX = '>';
@@ -151,8 +190,7 @@ AbstractCommandsQuickAccessProvider = __decorate([
     __param(4, ITelemetryService),
     __param(5, IDialogService)
 ], AbstractCommandsQuickAccessProvider);
-export { AbstractCommandsQuickAccessProvider };
-let CommandsHistory = class CommandsHistory extends Disposable {
+export let CommandsHistory = class CommandsHistory extends Disposable {
     constructor(storageService, configurationService) {
         super();
         this.storageService = storageService;
@@ -163,9 +201,12 @@ let CommandsHistory = class CommandsHistory extends Disposable {
         this.registerListeners();
     }
     registerListeners() {
-        this._register(this.configurationService.onDidChangeConfiguration(() => this.updateConfiguration()));
+        this._register(this.configurationService.onDidChangeConfiguration(e => this.updateConfiguration(e)));
     }
-    updateConfiguration() {
+    updateConfiguration(e) {
+        if (e && !e.affectsConfiguration('workbench.commandPalette.history')) {
+            return;
+        }
         this.configuredCommandsHistoryLength = CommandsHistory.getConfiguredCommandHistoryLength(this.configurationService);
         if (CommandsHistory.cache && CommandsHistory.cache.limit !== this.configuredCommandsHistoryLength) {
             CommandsHistory.cache.limit = this.configuredCommandsHistoryLength;
@@ -173,7 +214,7 @@ let CommandsHistory = class CommandsHistory extends Disposable {
         }
     }
     load() {
-        const raw = this.storageService.get(CommandsHistory.PREF_KEY_CACHE, 0 /* GLOBAL */);
+        const raw = this.storageService.get(CommandsHistory.PREF_KEY_CACHE, 0 /* StorageScope.PROFILE */);
         let serializedCache;
         if (raw) {
             try {
@@ -194,7 +235,7 @@ let CommandsHistory = class CommandsHistory extends Disposable {
             }
             entries.forEach(entry => cache.set(entry.key, entry.value));
         }
-        CommandsHistory.counter = this.storageService.getNumber(CommandsHistory.PREF_KEY_COUNTER, 0 /* GLOBAL */, CommandsHistory.counter);
+        CommandsHistory.counter = this.storageService.getNumber(CommandsHistory.PREF_KEY_COUNTER, 0 /* StorageScope.PROFILE */, CommandsHistory.counter);
     }
     push(commandId) {
         if (!CommandsHistory.cache) {
@@ -213,8 +254,8 @@ let CommandsHistory = class CommandsHistory extends Disposable {
         }
         const serializedCache = { usesLRU: true, entries: [] };
         CommandsHistory.cache.forEach((value, key) => serializedCache.entries.push({ key, value }));
-        storageService.store(CommandsHistory.PREF_KEY_CACHE, JSON.stringify(serializedCache), 0 /* GLOBAL */, 0 /* USER */);
-        storageService.store(CommandsHistory.PREF_KEY_COUNTER, CommandsHistory.counter, 0 /* GLOBAL */, 0 /* USER */);
+        storageService.store(CommandsHistory.PREF_KEY_CACHE, JSON.stringify(serializedCache), 0 /* StorageScope.PROFILE */, 0 /* StorageTarget.USER */);
+        storageService.store(CommandsHistory.PREF_KEY_COUNTER, CommandsHistory.counter, 0 /* StorageScope.PROFILE */, 0 /* StorageTarget.USER */);
     }
     static getConfiguredCommandHistoryLength(configurationService) {
         var _a, _b;
@@ -234,4 +275,3 @@ CommandsHistory = __decorate([
     __param(0, IStorageService),
     __param(1, IConfigurationService)
 ], CommandsHistory);
-export { CommandsHistory };

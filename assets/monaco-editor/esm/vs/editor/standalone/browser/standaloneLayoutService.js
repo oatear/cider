@@ -17,10 +17,6 @@ import { ILayoutService } from '../../../platform/layout/browser/layoutService.j
 import { ICodeEditorService } from '../../browser/services/codeEditorService.js';
 import { registerSingleton } from '../../../platform/instantiation/common/extensions.js';
 let StandaloneLayoutService = class StandaloneLayoutService {
-    constructor(_codeEditorService) {
-        this._codeEditorService = _codeEditorService;
-        this.onDidLayout = Event.None;
-    }
     get dimension() {
         if (!this._dimension) {
             this._dimension = dom.getClientArea(window.document.body);
@@ -42,24 +38,28 @@ let StandaloneLayoutService = class StandaloneLayoutService {
         var _a;
         (_a = this._codeEditorService.getFocusedCodeEditor()) === null || _a === void 0 ? void 0 : _a.focus();
     }
+    constructor(_codeEditorService) {
+        this._codeEditorService = _codeEditorService;
+        this.onDidLayout = Event.None;
+        this.offset = { top: 0, quickPickTop: 0 };
+    }
 };
 StandaloneLayoutService = __decorate([
     __param(0, ICodeEditorService)
 ], StandaloneLayoutService);
-let EditorScopedLayoutService = class EditorScopedLayoutService extends StandaloneLayoutService {
-    constructor(_container, codeEditorService) {
-        super(codeEditorService);
-        this._container = _container;
-    }
+export let EditorScopedLayoutService = class EditorScopedLayoutService extends StandaloneLayoutService {
     get hasContainer() {
         return false;
     }
     get container() {
         return this._container;
     }
+    constructor(_container, codeEditorService) {
+        super(codeEditorService);
+        this._container = _container;
+    }
 };
 EditorScopedLayoutService = __decorate([
     __param(1, ICodeEditorService)
 ], EditorScopedLayoutService);
-export { EditorScopedLayoutService };
-registerSingleton(ILayoutService, StandaloneLayoutService);
+registerSingleton(ILayoutService, StandaloneLayoutService, 1 /* InstantiationType.Delayed */);

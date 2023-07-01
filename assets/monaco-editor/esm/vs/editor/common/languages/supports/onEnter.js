@@ -30,7 +30,7 @@ export class OnEnterSupport {
     }
     onEnter(autoIndent, previousLineText, beforeEnterText, afterEnterText) {
         // (1): `regExpRules`
-        if (autoIndent >= 3 /* Advanced */) {
+        if (autoIndent >= 3 /* EditorAutoIndentStrategy.Advanced */) {
             for (let i = 0, len = this._regExpRules.length; i < len; i++) {
                 const rule = this._regExpRules[i];
                 const regResult = [{
@@ -55,7 +55,7 @@ export class OnEnterSupport {
             }
         }
         // (2): Special indent-outdent
-        if (autoIndent >= 2 /* Brackets */) {
+        if (autoIndent >= 2 /* EditorAutoIndentStrategy.Brackets */) {
             if (beforeEnterText.length > 0 && afterEnterText.length > 0) {
                 for (let i = 0, len = this._brackets.length; i < len; i++) {
                     const bracket = this._brackets[i];
@@ -66,7 +66,7 @@ export class OnEnterSupport {
             }
         }
         // (4): Open bracket based logic
-        if (autoIndent >= 2 /* Brackets */) {
+        if (autoIndent >= 2 /* EditorAutoIndentStrategy.Brackets */) {
             if (beforeEnterText.length > 0) {
                 for (let i = 0, len = this._brackets.length; i < len; i++) {
                     const bracket = this._brackets[i];

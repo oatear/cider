@@ -3,14 +3,14 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 import * as dom from '../../../../base/browser/dom.js';
-import { CaseSensitiveCheckbox, RegexCheckbox, WholeWordsCheckbox } from '../../../../base/browser/ui/findinput/findInputCheckboxes.js';
+import './findOptionsWidget.css';
+import { CaseSensitiveToggle, RegexToggle, WholeWordsToggle } from '../../../../base/browser/ui/findinput/findInputToggles.js';
 import { Widget } from '../../../../base/browser/ui/widget.js';
 import { RunOnceScheduler } from '../../../../base/common/async.js';
 import { FIND_IDS } from './findModel.js';
-import { contrastBorder, editorWidgetBackground, editorWidgetForeground, inputActiveOptionBackground, inputActiveOptionBorder, inputActiveOptionForeground, widgetShadow } from '../../../../platform/theme/common/colorRegistry.js';
-import { registerThemingParticipant } from '../../../../platform/theme/common/themeService.js';
+import { asCssVariable, inputActiveOptionBackground, inputActiveOptionBorder, inputActiveOptionForeground } from '../../../../platform/theme/common/colorRegistry.js';
 export class FindOptionsWidget extends Widget {
-    constructor(editor, state, keybindingService, themeService) {
+    constructor(editor, state, keybindingService) {
         super();
         this._hideSoon = this._register(new RunOnceScheduler(() => this._hide(), 2000));
         this._isVisible = false;
@@ -21,44 +21,29 @@ export class FindOptionsWidget extends Widget {
         this._domNode.className = 'findOptionsWidget';
         this._domNode.style.display = 'none';
         this._domNode.style.top = '10px';
+        this._domNode.style.zIndex = '12';
         this._domNode.setAttribute('role', 'presentation');
         this._domNode.setAttribute('aria-hidden', 'true');
-        const inputActiveOptionBorderColor = themeService.getColorTheme().getColor(inputActiveOptionBorder);
-        const inputActiveOptionForegroundColor = themeService.getColorTheme().getColor(inputActiveOptionForeground);
-        const inputActiveOptionBackgroundColor = themeService.getColorTheme().getColor(inputActiveOptionBackground);
-        this.caseSensitive = this._register(new CaseSensitiveCheckbox({
-            appendTitle: this._keybindingLabelFor(FIND_IDS.ToggleCaseSensitiveCommand),
-            isChecked: this._state.matchCase,
-            inputActiveOptionBorder: inputActiveOptionBorderColor,
-            inputActiveOptionForeground: inputActiveOptionForegroundColor,
-            inputActiveOptionBackground: inputActiveOptionBackgroundColor
-        }));
+        const toggleStyles = {
+            inputActiveOptionBorder: asCssVariable(inputActiveOptionBorder),
+            inputActiveOptionForeground: asCssVariable(inputActiveOptionForeground),
+            inputActiveOptionBackground: asCssVariable(inputActiveOptionBackground),
+        };
+        this.caseSensitive = this._register(new CaseSensitiveToggle(Object.assign({ appendTitle: this._keybindingLabelFor(FIND_IDS.ToggleCaseSensitiveCommand), isChecked: this._state.matchCase }, toggleStyles)));
         this._domNode.appendChild(this.caseSensitive.domNode);
         this._register(this.caseSensitive.onChange(() => {
             this._state.change({
                 matchCase: this.caseSensitive.checked
             }, false);
         }));
-        this.wholeWords = this._register(new WholeWordsCheckbox({
-            appendTitle: this._keybindingLabelFor(FIND_IDS.ToggleWholeWordCommand),
-            isChecked: this._state.wholeWord,
-            inputActiveOptionBorder: inputActiveOptionBorderColor,
-            inputActiveOptionForeground: inputActiveOptionForegroundColor,
-            inputActiveOptionBackground: inputActiveOptionBackgroundColor
-        }));
+        this.wholeWords = this._register(new WholeWordsToggle(Object.assign({ appendTitle: this._keybindingLabelFor(FIND_IDS.ToggleWholeWordCommand), isChecked: this._state.wholeWord }, toggleStyles)));
         this._domNode.appendChild(this.wholeWords.domNode);
         this._register(this.wholeWords.onChange(() => {
             this._state.change({
                 wholeWord: this.wholeWords.checked
             }, false);
         }));
-        this.regex = this._register(new RegexCheckbox({
-            appendTitle: this._keybindingLabelFor(FIND_IDS.ToggleRegexCommand),
-            isChecked: this._state.isRegex,
-            inputActiveOptionBorder: inputActiveOptionBorderColor,
-            inputActiveOptionForeground: inputActiveOptionForegroundColor,
-            inputActiveOptionBackground: inputActiveOptionBackgroundColor
-        }));
+        this.regex = this._register(new RegexToggle(Object.assign({ appendTitle: this._keybindingLabelFor(FIND_IDS.ToggleRegexCommand), isChecked: this._state.isRegex }, toggleStyles)));
         this._domNode.appendChild(this.regex.domNode);
         this._register(this.regex.onChange(() => {
             this._state.change({
@@ -84,13 +69,11 @@ export class FindOptionsWidget extends Widget {
                 this._revealTemporarily();
             }
         }));
-        this._register(dom.addDisposableNonBubblingMouseOutListener(this._domNode, (e) => this._onMouseOut()));
+        this._register(dom.addDisposableListener(this._domNode, dom.EventType.MOUSE_LEAVE, (e) => this._onMouseLeave()));
         this._register(dom.addDisposableListener(this._domNode, 'mouseover', (e) => this._onMouseOver()));
-        this._applyTheme(themeService.getColorTheme());
-        this._register(themeService.onDidColorThemeChange(this._applyTheme.bind(this)));
     }
     _keybindingLabelFor(actionId) {
-        let kb = this._keybindingService.lookupKeybinding(actionId);
+        const kb = this._keybindingService.lookupKeybinding(actionId);
         if (!kb) {
             return '';
         }
@@ -109,7 +92,7 @@ export class FindOptionsWidget extends Widget {
     }
     getPosition() {
         return {
-            preference: 0 /* TOP_RIGHT_CORNER */
+            preference: 0 /* OverlayWidgetPositionPreference.TOP_RIGHT_CORNER */
         };
     }
     highlightFindOptions() {
@@ -119,7 +102,7 @@ export class FindOptionsWidget extends Widget {
         this._show();
         this._hideSoon.schedule();
     }
-    _onMouseOut() {
+    _onMouseLeave() {
         this._hideSoon.schedule();
     }
     _onMouseOver() {
@@ -139,33 +122,5 @@ export class FindOptionsWidget extends Widget {
         this._isVisible = false;
         this._domNode.style.display = 'none';
     }
-    _applyTheme(theme) {
-        let inputStyles = {
-            inputActiveOptionBorder: theme.getColor(inputActiveOptionBorder),
-            inputActiveOptionForeground: theme.getColor(inputActiveOptionForeground),
-            inputActiveOptionBackground: theme.getColor(inputActiveOptionBackground)
-        };
-        this.caseSensitive.style(inputStyles);
-        this.wholeWords.style(inputStyles);
-        this.regex.style(inputStyles);
-    }
 }
 FindOptionsWidget.ID = 'editor.contrib.findOptionsWidget';
-registerThemingParticipant((theme, collector) => {
-    const widgetBackground = theme.getColor(editorWidgetBackground);
-    if (widgetBackground) {
-        collector.addRule(`.monaco-editor .findOptionsWidget { background-color: ${widgetBackground}; }`);
-    }
-    const widgetForeground = theme.getColor(editorWidgetForeground);
-    if (widgetForeground) {
-        collector.addRule(`.monaco-editor .findOptionsWidget { color: ${widgetForeground}; }`);
-    }
-    const widgetShadowColor = theme.getColor(widgetShadow);
-    if (widgetShadowColor) {
-        collector.addRule(`.monaco-editor .findOptionsWidget { box-shadow: 0 0 8px 2px ${widgetShadowColor}; }`);
-    }
-    const hcBorder = theme.getColor(contrastBorder);
-    if (hcBorder) {
-        collector.addRule(`.monaco-editor .findOptionsWidget { border: 2px solid ${hcBorder}; }`);
-    }
-});

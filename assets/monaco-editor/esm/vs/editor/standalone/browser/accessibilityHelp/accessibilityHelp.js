@@ -12,9 +12,8 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 import './accessibilityHelp.css';
-import * as dom from '../../../../base/browser/dom.js';
+import { $, addStandardDisposableListener, append, clearNode } from '../../../../base/browser/dom.js';
 import { createFastDomNode } from '../../../../base/browser/fastDomNode.js';
-import { renderFormattedText } from '../../../../base/browser/formattedTextRenderer.js';
 import { alert } from '../../../../base/browser/ui/aria/aria.js';
 import { Widget } from '../../../../base/browser/ui/widget.js';
 import { Disposable } from '../../../../base/common/lifecycle.js';
@@ -28,18 +27,16 @@ import { IContextKeyService, RawContextKey } from '../../../../platform/contextk
 import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
 import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
 import { IOpenerService } from '../../../../platform/opener/common/opener.js';
-import { contrastBorder, editorWidgetBackground, widgetShadow, editorWidgetForeground } from '../../../../platform/theme/common/colorRegistry.js';
-import { registerThemingParticipant } from '../../../../platform/theme/common/themeService.js';
 import { AccessibilityHelpNLS } from '../../../common/standaloneStrings.js';
 const CONTEXT_ACCESSIBILITY_WIDGET_VISIBLE = new RawContextKey('accessibilityHelpWidgetVisible', false);
 let AccessibilityHelpController = class AccessibilityHelpController extends Disposable {
+    static get(editor) {
+        return editor.getContribution(AccessibilityHelpController.ID);
+    }
     constructor(editor, instantiationService) {
         super();
         this._editor = editor;
         this._widget = this._register(instantiationService.createInstance(AccessibilityHelpWidget, this._editor));
-    }
-    static get(editor) {
-        return editor.getContribution(AccessibilityHelpController.ID);
     }
     show() {
         this._widget.show();
@@ -82,10 +79,16 @@ let AccessibilityHelpWidget = class AccessibilityHelpWidget extends Widget {
         this._domNode.setClassName('accessibilityHelpWidget');
         this._domNode.setDisplay('none');
         this._domNode.setAttribute('role', 'dialog');
+        this._domNode.setAttribute('aria-modal', 'true');
         this._domNode.setAttribute('aria-hidden', 'true');
+        const heading = append(this._domNode.domNode, $('h1', undefined, AccessibilityHelpNLS.accessibilityHelpTitle));
+        heading.id = 'help-dialog-heading';
+        this._domNode.setAttribute('aria-labelledby', heading.id);
         this._contentDomNode = createFastDomNode(document.createElement('div'));
         this._contentDomNode.setAttribute('role', 'document');
+        this._contentDomNode.domNode.id = 'help-dialog-content';
         this._domNode.appendChild(this._contentDomNode);
+        this._contentDomNode.setAttribute('aria-describedby', this._contentDomNode.domNode.id);
         this._isVisible = false;
         this._register(this._editor.onDidLayoutChange(() => {
             if (this._isVisible) {
@@ -93,22 +96,22 @@ let AccessibilityHelpWidget = class AccessibilityHelpWidget extends Widget {
             }
         }));
         // Intentionally not configurable!
-        this._register(dom.addStandardDisposableListener(this._contentDomNode.domNode, 'keydown', (e) => {
+        this._register(addStandardDisposableListener(this._contentDomNode.domNode, 'keydown', (e) => {
             if (!this._isVisible) {
                 return;
             }
-            if (e.equals(2048 /* CtrlCmd */ | 35 /* KeyE */)) {
+            if (e.equals(2048 /* KeyMod.CtrlCmd */ | 35 /* KeyCode.KeyE */)) {
                 alert(AccessibilityHelpNLS.emergencyConfOn);
                 this._editor.updateOptions({
                     accessibilitySupport: 'on'
                 });
-                dom.clearNode(this._contentDomNode.domNode);
+                clearNode(this._contentDomNode.domNode);
                 this._buildContent();
                 this._contentDomNode.domNode.focus();
                 e.preventDefault();
                 e.stopPropagation();
             }
-            if (e.equals(2048 /* CtrlCmd */ | 38 /* KeyH */)) {
+            if (e.equals(2048 /* KeyMod.CtrlCmd */ | 38 /* KeyCode.KeyH */)) {
                 alert(AccessibilityHelpNLS.openingDocs);
                 let url = this._editor.getRawOptions().accessibilityHelpUrl;
                 if (typeof url === 'undefined') {
@@ -160,6 +163,7 @@ let AccessibilityHelpWidget = class AccessibilityHelpWidget extends Widget {
         return strings.format(noKbMsg, commandId);
     }
     _buildContent() {
+        const contentDomNode = this._contentDomNode.domNode;
         const options = this._editor.getOptions();
         const selections = this._editor.getSelections();
         let charactersSelected = 0;
@@ -171,52 +175,50 @@ let AccessibilityHelpWidget = class AccessibilityHelpWidget extends Widget {
                 });
             }
         }
-        let text = getSelectionLabel(selections, charactersSelected);
-        if (options.get(54 /* inDiffEditor */)) {
-            if (options.get(81 /* readOnly */)) {
-                text += AccessibilityHelpNLS.readonlyDiffEditor;
+        append(contentDomNode, $('p', undefined, getSelectionLabel(selections, charactersSelected)));
+        const top = append(contentDomNode, $('p'));
+        if (options.get(59 /* EditorOption.inDiffEditor */)) {
+            if (options.get(88 /* EditorOption.readOnly */)) {
+                top.textContent = AccessibilityHelpNLS.readonlyDiffEditor;
             }
             else {
-                text += AccessibilityHelpNLS.editableDiffEditor;
+                top.textContent = AccessibilityHelpNLS.editableDiffEditor;
             }
         }
         else {
-            if (options.get(81 /* readOnly */)) {
-                text += AccessibilityHelpNLS.readonlyEditor;
+            if (options.get(88 /* EditorOption.readOnly */)) {
+                top.textContent = AccessibilityHelpNLS.readonlyEditor;
             }
             else {
-                text += AccessibilityHelpNLS.editableEditor;
+                top.textContent = AccessibilityHelpNLS.editableEditor;
             }
         }
+        const instructions = append(contentDomNode, $('ul'));
         const turnOnMessage = (platform.isMacintosh
             ? AccessibilityHelpNLS.changeConfigToOnMac
             : AccessibilityHelpNLS.changeConfigToOnWinLinux);
-        switch (options.get(2 /* accessibilitySupport */)) {
-            case 0 /* Unknown */:
-                text += '\n\n - ' + turnOnMessage;
+        switch (options.get(2 /* EditorOption.accessibilitySupport */)) {
+            case 0 /* AccessibilitySupport.Unknown */:
+                append(instructions, $('li', undefined, turnOnMessage));
                 break;
-            case 2 /* Enabled */:
-                text += '\n\n - ' + AccessibilityHelpNLS.auto_on;
+            case 2 /* AccessibilitySupport.Enabled */:
+                append(instructions, $('li', undefined, AccessibilityHelpNLS.auto_on));
                 break;
-            case 1 /* Disabled */:
-                text += '\n\n - ' + AccessibilityHelpNLS.auto_off;
-                text += ' ' + turnOnMessage;
+            case 1 /* AccessibilitySupport.Disabled */:
+                append(instructions, $('li', undefined, AccessibilityHelpNLS.auto_off, turnOnMessage));
                 break;
         }
-        if (options.get(130 /* tabFocusMode */)) {
-            text += '\n\n - ' + this._descriptionForCommand(ToggleTabFocusModeAction.ID, AccessibilityHelpNLS.tabFocusModeOnMsg, AccessibilityHelpNLS.tabFocusModeOnMsgNoKb);
+        if (options.get(139 /* EditorOption.tabFocusMode */)) {
+            append(instructions, $('li', undefined, this._descriptionForCommand(ToggleTabFocusModeAction.ID, AccessibilityHelpNLS.tabFocusModeOnMsg, AccessibilityHelpNLS.tabFocusModeOnMsgNoKb)));
         }
         else {
-            text += '\n\n - ' + this._descriptionForCommand(ToggleTabFocusModeAction.ID, AccessibilityHelpNLS.tabFocusModeOffMsg, AccessibilityHelpNLS.tabFocusModeOffMsgNoKb);
+            append(instructions, $('li', undefined, this._descriptionForCommand(ToggleTabFocusModeAction.ID, AccessibilityHelpNLS.tabFocusModeOffMsg, AccessibilityHelpNLS.tabFocusModeOffMsgNoKb)));
         }
         const openDocMessage = (platform.isMacintosh
             ? AccessibilityHelpNLS.openDocMac
             : AccessibilityHelpNLS.openDocWinLinux);
-        text += '\n\n - ' + openDocMessage;
-        text += '\n\n' + AccessibilityHelpNLS.outroMsg;
-        this._contentDomNode.domNode.appendChild(renderFormattedText(text));
-        // Per https://www.w3.org/TR/wai-aria/roles#document, Authors SHOULD provide a title or label for documents
-        this._contentDomNode.domNode.setAttribute('aria-label', text);
+        append(instructions, $('li', undefined, openDocMessage));
+        append(contentDomNode, $('p', undefined, AccessibilityHelpNLS.outroMsg));
     }
     hide() {
         if (!this._isVisible) {
@@ -227,7 +229,7 @@ let AccessibilityHelpWidget = class AccessibilityHelpWidget extends Widget {
         this._domNode.setDisplay('none');
         this._domNode.setAttribute('aria-hidden', 'true');
         this._contentDomNode.domNode.tabIndex = -1;
-        dom.clearNode(this._contentDomNode.domNode);
+        clearNode(this._contentDomNode.domNode);
         this._editor.focus();
     }
     _layout() {
@@ -258,23 +260,21 @@ class ShowAccessibilityHelpAction extends EditorAction {
             alias: 'Show Accessibility Help',
             precondition: undefined,
             kbOpts: {
-                primary: 512 /* Alt */ | 59 /* F1 */,
-                weight: 100 /* EditorContrib */,
+                primary: 512 /* KeyMod.Alt */ | 59 /* KeyCode.F1 */,
+                weight: 100 /* KeybindingWeight.EditorContrib */,
                 linux: {
-                    primary: 512 /* Alt */ | 1024 /* Shift */ | 59 /* F1 */,
-                    secondary: [512 /* Alt */ | 59 /* F1 */]
+                    primary: 512 /* KeyMod.Alt */ | 1024 /* KeyMod.Shift */ | 59 /* KeyCode.F1 */,
+                    secondary: [512 /* KeyMod.Alt */ | 59 /* KeyCode.F1 */]
                 }
             }
         });
     }
     run(accessor, editor) {
         const controller = AccessibilityHelpController.get(editor);
-        if (controller) {
-            controller.show();
-        }
+        controller === null || controller === void 0 ? void 0 : controller.show();
     }
 }
-registerEditorContribution(AccessibilityHelpController.ID, AccessibilityHelpController);
+registerEditorContribution(AccessibilityHelpController.ID, AccessibilityHelpController, 4 /* EditorContributionInstantiation.Lazy */);
 registerEditorAction(ShowAccessibilityHelpAction);
 const AccessibilityHelpCommand = EditorCommand.bindToContribution(AccessibilityHelpController.get);
 registerEditorCommand(new AccessibilityHelpCommand({
@@ -282,27 +282,9 @@ registerEditorCommand(new AccessibilityHelpCommand({
     precondition: CONTEXT_ACCESSIBILITY_WIDGET_VISIBLE,
     handler: x => x.hide(),
     kbOpts: {
-        weight: 100 /* EditorContrib */ + 100,
+        weight: 100 /* KeybindingWeight.EditorContrib */ + 100,
         kbExpr: EditorContextKeys.focus,
-        primary: 9 /* Escape */,
-        secondary: [1024 /* Shift */ | 9 /* Escape */]
+        primary: 9 /* KeyCode.Escape */,
+        secondary: [1024 /* KeyMod.Shift */ | 9 /* KeyCode.Escape */]
     }
 }));
-registerThemingParticipant((theme, collector) => {
-    const widgetBackground = theme.getColor(editorWidgetBackground);
-    if (widgetBackground) {
-        collector.addRule(`.monaco-editor .accessibilityHelpWidget { background-color: ${widgetBackground}; }`);
-    }
-    const widgetForeground = theme.getColor(editorWidgetForeground);
-    if (widgetForeground) {
-        collector.addRule(`.monaco-editor .accessibilityHelpWidget { color: ${widgetForeground}; }`);
-    }
-    const widgetShadowColor = theme.getColor(widgetShadow);
-    if (widgetShadowColor) {
-        collector.addRule(`.monaco-editor .accessibilityHelpWidget { box-shadow: 0 2px 8px ${widgetShadowColor}; }`);
-    }
-    const hcBorder = theme.getColor(contrastBorder);
-    if (hcBorder) {
-        collector.addRule(`.monaco-editor .accessibilityHelpWidget { border: 2px solid ${hcBorder}; }`);
-    }
-});

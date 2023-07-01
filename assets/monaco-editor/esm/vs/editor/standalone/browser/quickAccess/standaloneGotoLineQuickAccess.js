@@ -21,7 +21,7 @@ import { Event } from '../../../../base/common/event.js';
 import { EditorAction, registerEditorAction } from '../../../browser/editorExtensions.js';
 import { EditorContextKeys } from '../../../common/editorContextKeys.js';
 import { IQuickInputService } from '../../../../platform/quickinput/common/quickInput.js';
-let StandaloneGotoLineQuickAccessProvider = class StandaloneGotoLineQuickAccessProvider extends AbstractGotoLineQuickAccessProvider {
+export let StandaloneGotoLineQuickAccessProvider = class StandaloneGotoLineQuickAccessProvider extends AbstractGotoLineQuickAccessProvider {
     constructor(editorService) {
         super();
         this.editorService = editorService;
@@ -34,24 +34,18 @@ let StandaloneGotoLineQuickAccessProvider = class StandaloneGotoLineQuickAccessP
 StandaloneGotoLineQuickAccessProvider = __decorate([
     __param(0, ICodeEditorService)
 ], StandaloneGotoLineQuickAccessProvider);
-export { StandaloneGotoLineQuickAccessProvider };
-Registry.as(Extensions.Quickaccess).registerQuickAccessProvider({
-    ctor: StandaloneGotoLineQuickAccessProvider,
-    prefix: StandaloneGotoLineQuickAccessProvider.PREFIX,
-    helpEntries: [{ description: GoToLineNLS.gotoLineActionLabel, needsEditor: true }]
-});
 export class GotoLineAction extends EditorAction {
     constructor() {
         super({
-            id: 'editor.action.gotoLine',
+            id: GotoLineAction.ID,
             label: GoToLineNLS.gotoLineActionLabel,
             alias: 'Go to Line/Column...',
             precondition: undefined,
             kbOpts: {
                 kbExpr: EditorContextKeys.focus,
-                primary: 2048 /* CtrlCmd */ | 37 /* KeyG */,
-                mac: { primary: 256 /* WinCtrl */ | 37 /* KeyG */ },
-                weight: 100 /* EditorContrib */
+                primary: 2048 /* KeyMod.CtrlCmd */ | 37 /* KeyCode.KeyG */,
+                mac: { primary: 256 /* KeyMod.WinCtrl */ | 37 /* KeyCode.KeyG */ },
+                weight: 100 /* KeybindingWeight.EditorContrib */
             }
         });
     }
@@ -59,4 +53,10 @@ export class GotoLineAction extends EditorAction {
         accessor.get(IQuickInputService).quickAccess.show(StandaloneGotoLineQuickAccessProvider.PREFIX);
     }
 }
+GotoLineAction.ID = 'editor.action.gotoLine';
 registerEditorAction(GotoLineAction);
+Registry.as(Extensions.Quickaccess).registerQuickAccessProvider({
+    ctor: StandaloneGotoLineQuickAccessProvider,
+    prefix: StandaloneGotoLineQuickAccessProvider.PREFIX,
+    helpEntries: [{ description: GoToLineNLS.gotoLineActionLabel, commandId: GotoLineAction.ID }]
+});

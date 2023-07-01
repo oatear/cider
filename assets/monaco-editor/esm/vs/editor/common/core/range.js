@@ -174,10 +174,10 @@ export class Range {
         let resultStartColumn = a.startColumn;
         let resultEndLineNumber = a.endLineNumber;
         let resultEndColumn = a.endColumn;
-        let otherStartLineNumber = b.startLineNumber;
-        let otherStartColumn = b.startColumn;
-        let otherEndLineNumber = b.endLineNumber;
-        let otherEndColumn = b.endColumn;
+        const otherStartLineNumber = b.startLineNumber;
+        const otherStartColumn = b.startColumn;
+        const otherEndLineNumber = b.endLineNumber;
+        const otherEndColumn = b.endColumn;
         if (resultStartLineNumber < otherStartLineNumber) {
             resultStartLineNumber = otherStartLineNumber;
             resultStartColumn = otherStartColumn;
@@ -211,6 +211,9 @@ export class Range {
      * Test if range `a` equals `b`.
      */
     static equalsRange(a, b) {
+        if (!a && !b) {
+            return true;
+        }
         return (!!a &&
             !!b &&
             a.startLineNumber === b.startLineNumber &&
@@ -271,6 +274,24 @@ export class Range {
      */
     static collapseToStart(range) {
         return new Range(range.startLineNumber, range.startColumn, range.startLineNumber, range.startColumn);
+    }
+    /**
+     * Create a new empty range using this range's end position.
+     */
+    collapseToEnd() {
+        return Range.collapseToEnd(this);
+    }
+    /**
+     * Create a new empty range using this range's end position.
+     */
+    static collapseToEnd(range) {
+        return new Range(range.endLineNumber, range.endColumn, range.endLineNumber, range.endColumn);
+    }
+    /**
+     * Moves the range by the given amount of lines.
+     */
+    delta(lineCount) {
+        return new Range(this.startLineNumber + lineCount, this.startColumn, this.endLineNumber + lineCount, this.endColumn);
     }
     // ---
     static fromPositions(start, end = start) {
@@ -372,5 +393,8 @@ export class Range {
      */
     static spansMultipleLines(range) {
         return range.endLineNumber > range.startLineNumber;
+    }
+    toJSON() {
+        return this;
     }
 }

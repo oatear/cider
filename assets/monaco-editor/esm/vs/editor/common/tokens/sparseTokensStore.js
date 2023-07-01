@@ -94,6 +94,10 @@ export class SparseTokensStore {
         return this._isComplete;
     }
     addSparseTokens(lineNumber, aTokens) {
+        if (aTokens.getLineContent().length === 0) {
+            // Don't do anything for empty lines
+            return aTokens;
+        }
         const pieces = this._pieces;
         if (pieces.length === 0) {
             return aTokens;
@@ -121,12 +125,12 @@ export class SparseTokensStore {
             const bStartCharacter = bTokens.getStartCharacter(bIndex);
             const bEndCharacter = bTokens.getEndCharacter(bIndex);
             const bMetadata = bTokens.getMetadata(bIndex);
-            const bMask = (((bMetadata & 1 /* SEMANTIC_USE_ITALIC */) ? 1024 /* ITALIC_MASK */ : 0)
-                | ((bMetadata & 2 /* SEMANTIC_USE_BOLD */) ? 2048 /* BOLD_MASK */ : 0)
-                | ((bMetadata & 4 /* SEMANTIC_USE_UNDERLINE */) ? 4096 /* UNDERLINE_MASK */ : 0)
-                | ((bMetadata & 8 /* SEMANTIC_USE_STRIKETHROUGH */) ? 8192 /* STRIKETHROUGH_MASK */ : 0)
-                | ((bMetadata & 16 /* SEMANTIC_USE_FOREGROUND */) ? 8372224 /* FOREGROUND_MASK */ : 0)
-                | ((bMetadata & 32 /* SEMANTIC_USE_BACKGROUND */) ? 4286578688 /* BACKGROUND_MASK */ : 0)) >>> 0;
+            const bMask = (((bMetadata & 1 /* MetadataConsts.SEMANTIC_USE_ITALIC */) ? 2048 /* MetadataConsts.ITALIC_MASK */ : 0)
+                | ((bMetadata & 2 /* MetadataConsts.SEMANTIC_USE_BOLD */) ? 4096 /* MetadataConsts.BOLD_MASK */ : 0)
+                | ((bMetadata & 4 /* MetadataConsts.SEMANTIC_USE_UNDERLINE */) ? 8192 /* MetadataConsts.UNDERLINE_MASK */ : 0)
+                | ((bMetadata & 8 /* MetadataConsts.SEMANTIC_USE_STRIKETHROUGH */) ? 16384 /* MetadataConsts.STRIKETHROUGH_MASK */ : 0)
+                | ((bMetadata & 16 /* MetadataConsts.SEMANTIC_USE_FOREGROUND */) ? 16744448 /* MetadataConsts.FOREGROUND_MASK */ : 0)
+                | ((bMetadata & 32 /* MetadataConsts.SEMANTIC_USE_BACKGROUND */) ? 4278190080 /* MetadataConsts.BACKGROUND_MASK */ : 0)) >>> 0;
             const aMask = (~bMask) >>> 0;
             // push any token from `a` that is before `b`
             while (aIndex < aLen && aTokens.getEndOffset(aIndex) <= bStartCharacter) {

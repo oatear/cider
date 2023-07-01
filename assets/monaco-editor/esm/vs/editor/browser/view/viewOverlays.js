@@ -11,6 +11,9 @@ export class ViewOverlays extends ViewPart {
         super(context);
         this._visibleLines = new VisibleLinesCollection(this);
         this.domNode = this._visibleLines.domNode;
+        const options = this._context.configuration.options;
+        const fontInfo = options.get(48 /* EditorOption.fontInfo */);
+        applyFontInfo(this.domNode, fontInfo);
         this._dynamicOverlays = [];
         this._isFocused = false;
         this.domNode.setClassName('view-overlays');
@@ -55,6 +58,9 @@ export class ViewOverlays extends ViewPart {
             const line = this._visibleLines.getVisibleLine(lineNumber);
             line.onConfigurationChanged(e);
         }
+        const options = this._context.configuration.options;
+        const fontInfo = options.get(48 /* EditorOption.fontInfo */);
+        applyFontInfo(this.domNode, fontInfo);
         return true;
     }
     onFlushed(e) {
@@ -103,7 +109,7 @@ export class ViewOverlays extends ViewPart {
 export class ViewOverlayLine {
     constructor(configuration, dynamicOverlays) {
         this._configuration = configuration;
-        this._lineHeight = this._configuration.options.get(59 /* lineHeight */);
+        this._lineHeight = this._configuration.options.get(64 /* EditorOption.lineHeight */);
         this._dynamicOverlays = dynamicOverlays;
         this._domNode = null;
         this._renderedContent = null;
@@ -124,7 +130,7 @@ export class ViewOverlayLine {
         // Nothing
     }
     onConfigurationChanged(e) {
-        this._lineHeight = this._configuration.options.get(59 /* lineHeight */);
+        this._lineHeight = this._configuration.options.get(64 /* EditorOption.lineHeight */);
     }
     renderLine(lineNumber, deltaTop, viewportData, sb) {
         let result = '';
@@ -137,13 +143,13 @@ export class ViewOverlayLine {
             return false;
         }
         this._renderedContent = result;
-        sb.appendASCIIString('<div style="position:absolute;top:');
-        sb.appendASCIIString(String(deltaTop));
-        sb.appendASCIIString('px;width:100%;height:');
-        sb.appendASCIIString(String(this._lineHeight));
-        sb.appendASCIIString('px;">');
-        sb.appendASCIIString(result);
-        sb.appendASCIIString('</div>');
+        sb.appendString('<div style="position:absolute;top:');
+        sb.appendString(String(deltaTop));
+        sb.appendString('px;width:100%;height:');
+        sb.appendString(String(this._lineHeight));
+        sb.appendString('px;">');
+        sb.appendString(result);
+        sb.appendString('</div>');
         return true;
     }
     layoutLine(lineNumber, deltaTop) {
@@ -157,14 +163,14 @@ export class ContentViewOverlays extends ViewOverlays {
     constructor(context) {
         super(context);
         const options = this._context.configuration.options;
-        const layoutInfo = options.get(131 /* layoutInfo */);
+        const layoutInfo = options.get(140 /* EditorOption.layoutInfo */);
         this._contentWidth = layoutInfo.contentWidth;
         this.domNode.setHeight(0);
     }
     // --- begin event handlers
     onConfigurationChanged(e) {
         const options = this._context.configuration.options;
-        const layoutInfo = options.get(131 /* layoutInfo */);
+        const layoutInfo = options.get(140 /* EditorOption.layoutInfo */);
         this._contentWidth = layoutInfo.contentWidth;
         return super.onConfigurationChanged(e) || true;
     }
@@ -181,16 +187,16 @@ export class MarginViewOverlays extends ViewOverlays {
     constructor(context) {
         super(context);
         const options = this._context.configuration.options;
-        const layoutInfo = options.get(131 /* layoutInfo */);
+        const layoutInfo = options.get(140 /* EditorOption.layoutInfo */);
         this._contentLeft = layoutInfo.contentLeft;
         this.domNode.setClassName('margin-view-overlays');
         this.domNode.setWidth(1);
-        applyFontInfo(this.domNode, options.get(44 /* fontInfo */));
+        applyFontInfo(this.domNode, options.get(48 /* EditorOption.fontInfo */));
     }
     onConfigurationChanged(e) {
         const options = this._context.configuration.options;
-        applyFontInfo(this.domNode, options.get(44 /* fontInfo */));
-        const layoutInfo = options.get(131 /* layoutInfo */);
+        applyFontInfo(this.domNode, options.get(48 /* EditorOption.fontInfo */));
+        const layoutInfo = options.get(140 /* EditorOption.layoutInfo */);
         this._contentLeft = layoutInfo.contentLeft;
         return super.onConfigurationChanged(e) || true;
     }

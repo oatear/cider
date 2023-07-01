@@ -1,9 +1,7 @@
-/**
- * @returns whether the provided parameter is a JavaScript Array or not.
- */
-export function isArray(array) {
-    return Array.isArray(array);
-}
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 /**
  * @returns whether the provided parameter is a JavaScript String or not.
  */
@@ -11,7 +9,6 @@ export function isString(str) {
     return (typeof str === 'string');
 }
 /**
- *
  * @returns whether the provided parameter is of type `object` but **not**
  *	`null`, an `array`, a `regexp`, nor a `date`.
  */
@@ -26,11 +23,25 @@ export function isObject(obj) {
         && !(obj instanceof Date);
 }
 /**
+ * @returns whether the provided parameter is of type `Buffer` or Uint8Array dervived type
+ */
+export function isTypedArray(obj) {
+    const TypedArray = Object.getPrototypeOf(Uint8Array);
+    return typeof obj === 'object'
+        && obj instanceof TypedArray;
+}
+/**
  * In **contrast** to just checking `typeof` this will return `false` for `NaN`.
  * @returns whether the provided parameter is a JavaScript Number or not.
  */
 export function isNumber(obj) {
     return (typeof obj === 'number' && !isNaN(obj));
+}
+/**
+ * @returns whether the provided parameter is an Iterable, casting to the given generic
+ */
+export function isIterable(obj) {
+    return !!obj && typeof obj[Symbol.iterator] === 'function';
 }
 /**
  * @returns whether the provided parameter is a JavaScript Boolean or not.
@@ -106,43 +117,15 @@ export function validateConstraint(arg, constraint) {
         throw new Error(`argument does not match one of these constraints: arg instanceof constraint, arg.constructor === constraint, nor constraint(arg) === true`);
     }
 }
-export function getAllPropertyNames(obj) {
-    let res = [];
-    let proto = Object.getPrototypeOf(obj);
-    while (Object.prototype !== proto) {
-        res = res.concat(Object.getOwnPropertyNames(proto));
-        proto = Object.getPrototypeOf(proto);
-    }
-    return res;
-}
-export function getAllMethodNames(obj) {
-    const methods = [];
-    for (const prop of getAllPropertyNames(obj)) {
-        if (typeof obj[prop] === 'function') {
-            methods.push(prop);
-        }
-    }
-    return methods;
-}
-export function createProxyObject(methodNames, invoke) {
-    const createProxyMethod = (method) => {
-        return function () {
-            const args = Array.prototype.slice.call(arguments, 0);
-            return invoke(method, args);
-        };
-    };
-    let result = {};
-    for (const methodName of methodNames) {
-        result[methodName] = createProxyMethod(methodName);
-    }
-    return result;
-}
 /**
  * Converts null to undefined, passes all other values through.
  */
 export function withNullAsUndefined(x) {
     return x === null ? undefined : x;
 }
-export function assertNever(value, message = 'Unreachable') {
-    throw new Error(message);
+/**
+ * Converts undefined to null, passes all other values through.
+ */
+export function withUndefinedAsNull(x) {
+    return typeof x === 'undefined' ? null : x;
 }

@@ -4,10 +4,9 @@
  *--------------------------------------------------------------------------------------------*/
 import { $ } from '../../dom.js';
 function removeFromParent(element) {
+    var _a;
     try {
-        if (element.parentElement) {
-            element.parentElement.removeChild(element);
-        }
+        (_a = element.parentElement) === null || _a === void 0 ? void 0 : _a.removeChild(element);
     }
     catch (e) {
         // this will throw if this happens due to a blur event, nasty business
@@ -17,20 +16,31 @@ export class RowCache {
     constructor(renderers) {
         this.renderers = renderers;
         this.cache = new Map();
+        this.transactionNodesPendingRemoval = new Set();
+        this.inTransaction = false;
     }
     /**
      * Returns a row either by creating a new one or reusing
      * a previously released row which shares the same templateId.
+     *
+     * @returns A row and `isReusingConnectedDomNode` if the row's node is already in the dom in a stale position.
      */
     alloc(templateId) {
         let result = this.getTemplateCache(templateId).pop();
-        if (!result) {
+        let isStale = false;
+        if (result) {
+            isStale = this.transactionNodesPendingRemoval.has(result.domNode);
+            if (isStale) {
+                this.transactionNodesPendingRemoval.delete(result.domNode);
+            }
+        }
+        else {
             const domNode = $('.monaco-list-row');
             const renderer = this.getRenderer(templateId);
             const templateData = renderer.renderTemplate(domNode);
             result = { domNode, templateId, templateData };
         }
-        return result;
+        return { row: result, isReusingConnectedDomNode: isStale };
     }
     /**
      * Releases the row for eventual reuse.
@@ -41,14 +51,41 @@ export class RowCache {
         }
         this.releaseRow(row);
     }
+    /**
+     * Begin a set of changes that use the cache. This lets us skip work when a row is removed and then inserted again.
+     */
+    transact(makeChanges) {
+        if (this.inTransaction) {
+            throw new Error('Already in transaction');
+        }
+        this.inTransaction = true;
+        try {
+            makeChanges();
+        }
+        finally {
+            for (const domNode of this.transactionNodesPendingRemoval) {
+                this.doRemoveNode(domNode);
+            }
+            this.transactionNodesPendingRemoval.clear();
+            this.inTransaction = false;
+        }
+    }
     releaseRow(row) {
         const { domNode, templateId } = row;
         if (domNode) {
-            domNode.classList.remove('scrolling');
-            removeFromParent(domNode);
+            if (this.inTransaction) {
+                this.transactionNodesPendingRemoval.add(domNode);
+            }
+            else {
+                this.doRemoveNode(domNode);
+            }
         }
         const cache = this.getTemplateCache(templateId);
         cache.push(row);
+    }
+    doRemoveNode(domNode) {
+        domNode.classList.remove('scrolling');
+        removeFromParent(domNode);
     }
     getTemplateCache(templateId) {
         let result = this.cache.get(templateId);
@@ -67,6 +104,7 @@ export class RowCache {
             }
         });
         this.cache.clear();
+        this.transactionNodesPendingRemoval.clear();
     }
     getRenderer(templateId) {
         const renderer = this.renderers.get(templateId);

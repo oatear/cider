@@ -90,7 +90,7 @@ export class StringSHA1 {
         this._h2 = 0x98BADCFE;
         this._h3 = 0x10325476;
         this._h4 = 0xC3D2E1F0;
-        this._buff = new Uint8Array(64 /* BLOCK_SIZE */ + 3 /* to fit any utf-8 */);
+        this._buff = new Uint8Array(64 /* SHA1Constant.BLOCK_SIZE */ + 3 /* to fit any utf-8 */);
         this._buffDV = new DataView(this._buff.buffer);
         this._buffLen = 0;
         this._totalLen = 0;
@@ -127,7 +127,7 @@ export class StringSHA1 {
                     }
                     else {
                         // illegal => unicode replacement character
-                        codePoint = 65533 /* UNICODE_REPLACEMENT */;
+                        codePoint = 65533 /* SHA1Constant.UNICODE_REPLACEMENT */;
                     }
                 }
                 else {
@@ -138,7 +138,7 @@ export class StringSHA1 {
             }
             else if (strings.isLowSurrogate(charCode)) {
                 // illegal => unicode replacement character
-                codePoint = 65533 /* UNICODE_REPLACEMENT */;
+                codePoint = 65533 /* SHA1Constant.UNICODE_REPLACEMENT */;
             }
             buffLen = this._push(buff, buffLen, codePoint);
             offset++;
@@ -171,14 +171,14 @@ export class StringSHA1 {
             buff[buffLen++] = 0b10000000 | ((codePoint & 0b00000000000000000000111111000000) >>> 6);
             buff[buffLen++] = 0b10000000 | ((codePoint & 0b00000000000000000000000000111111) >>> 0);
         }
-        if (buffLen >= 64 /* BLOCK_SIZE */) {
+        if (buffLen >= 64 /* SHA1Constant.BLOCK_SIZE */) {
             this._step();
-            buffLen -= 64 /* BLOCK_SIZE */;
-            this._totalLen += 64 /* BLOCK_SIZE */;
+            buffLen -= 64 /* SHA1Constant.BLOCK_SIZE */;
+            this._totalLen += 64 /* SHA1Constant.BLOCK_SIZE */;
             // take last 3 in case of UTF8 overflow
-            buff[0] = buff[64 /* BLOCK_SIZE */ + 0];
-            buff[1] = buff[64 /* BLOCK_SIZE */ + 1];
-            buff[2] = buff[64 /* BLOCK_SIZE */ + 2];
+            buff[0] = buff[64 /* SHA1Constant.BLOCK_SIZE */ + 0];
+            buff[1] = buff[64 /* SHA1Constant.BLOCK_SIZE */ + 1];
+            buff[2] = buff[64 /* SHA1Constant.BLOCK_SIZE */ + 2];
         }
         return buffLen;
     }
@@ -188,7 +188,7 @@ export class StringSHA1 {
             if (this._leftoverHighSurrogate) {
                 // illegal => unicode replacement character
                 this._leftoverHighSurrogate = 0;
-                this._buffLen = this._push(this._buff, this._buffLen, 65533 /* UNICODE_REPLACEMENT */);
+                this._buffLen = this._push(this._buff, this._buffLen, 65533 /* SHA1Constant.UNICODE_REPLACEMENT */);
             }
             this._totalLen += this._buffLen;
             this._wrapUp();

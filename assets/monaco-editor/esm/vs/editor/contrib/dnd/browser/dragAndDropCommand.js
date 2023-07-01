@@ -12,7 +12,7 @@ export class DragAndDropCommand {
         this.targetSelection = null;
     }
     getEditOperations(model, builder) {
-        let text = model.getValueInRange(this.selection);
+        const text = model.getValueInRange(this.selection);
         if (!this.copy) {
             builder.addEditOperation(this.selection, null);
         }

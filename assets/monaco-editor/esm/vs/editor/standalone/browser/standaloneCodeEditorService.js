@@ -11,6 +11,15 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 import { windowOpenNoOpener } from '../../../base/browser/dom.js';
 import { Schemas } from '../../../base/common/network.js';
 import { AbstractCodeEditorService } from '../../browser/services/abstractCodeEditorService.js';
@@ -18,13 +27,19 @@ import { ICodeEditorService } from '../../browser/services/codeEditorService.js'
 import { IContextKeyService } from '../../../platform/contextkey/common/contextkey.js';
 import { registerSingleton } from '../../../platform/instantiation/common/extensions.js';
 import { IThemeService } from '../../../platform/theme/common/themeService.js';
-let StandaloneCodeEditorService = class StandaloneCodeEditorService extends AbstractCodeEditorService {
+export let StandaloneCodeEditorService = class StandaloneCodeEditorService extends AbstractCodeEditorService {
     constructor(contextKeyService, themeService) {
         super(themeService);
         this.onCodeEditorAdd(() => this._checkContextKey());
         this.onCodeEditorRemove(() => this._checkContextKey());
         this._editorIsOpen = contextKeyService.createKey('editorIsOpen', false);
         this._activeCodeEditor = null;
+        this.registerCodeEditorOpenHandler((input, source, sideBySide) => __awaiter(this, void 0, void 0, function* () {
+            if (!source) {
+                return null;
+            }
+            return this.doOpenEditor(source, input);
+        }));
     }
     _checkContextKey() {
         let hasCodeEditor = false;
@@ -41,12 +56,6 @@ let StandaloneCodeEditorService = class StandaloneCodeEditorService extends Abst
     }
     getActiveCodeEditor() {
         return this._activeCodeEditor;
-    }
-    openCodeEditor(input, source, sideBySide) {
-        if (!source) {
-            return Promise.resolve(null);
-        }
-        return Promise.resolve(this.doOpenEditor(source, input));
     }
     doOpenEditor(editor, input) {
         const model = this.findModel(editor, input.resource);
@@ -65,7 +74,7 @@ let StandaloneCodeEditorService = class StandaloneCodeEditorService extends Abst
         if (selection) {
             if (typeof selection.endLineNumber === 'number' && typeof selection.endColumn === 'number') {
                 editor.setSelection(selection);
-                editor.revealRangeInCenter(selection, 1 /* Immediate */);
+                editor.revealRangeInCenter(selection, 1 /* ScrollType.Immediate */);
             }
             else {
                 const pos = {
@@ -73,7 +82,7 @@ let StandaloneCodeEditorService = class StandaloneCodeEditorService extends Abst
                     column: selection.startColumn
                 };
                 editor.setPosition(pos);
-                editor.revealPositionInCenter(pos, 1 /* Immediate */);
+                editor.revealPositionInCenter(pos, 1 /* ScrollType.Immediate */);
             }
         }
         return editor;
@@ -90,5 +99,4 @@ StandaloneCodeEditorService = __decorate([
     __param(0, IContextKeyService),
     __param(1, IThemeService)
 ], StandaloneCodeEditorService);
-export { StandaloneCodeEditorService };
-registerSingleton(ICodeEditorService, StandaloneCodeEditorService);
+registerSingleton(ICodeEditorService, StandaloneCodeEditorService, 0 /* InstantiationType.Eager */);

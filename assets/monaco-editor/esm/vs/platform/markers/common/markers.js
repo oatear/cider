@@ -52,7 +52,7 @@ export var IMarkerData;
     }
     IMarkerData.makeKey = makeKey;
     function makeKeyOptionalMessage(markerData, useMessage) {
-        let result = [emptyString];
+        const result = [emptyString];
         if (markerData.source) {
             result.push(markerData.source.replace('¦', '\\¦'));
         }

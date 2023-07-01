@@ -17,7 +17,23 @@ import { Action } from '../../../base/common/actions.js';
 import { Disposable } from '../../../base/common/lifecycle.js';
 import { Range } from '../../common/core/range.js';
 import { Codicon } from '../../../base/common/codicons.js';
+import { ThemeIcon } from '../../../base/common/themables.js';
+import { isIOS } from '../../../base/common/platform.js';
 export class InlineDiffMargin extends Disposable {
+    get visibility() {
+        return this._visibility;
+    }
+    set visibility(_visibility) {
+        if (this._visibility !== _visibility) {
+            this._visibility = _visibility;
+            if (_visibility) {
+                this._diffActions.style.visibility = 'visible';
+            }
+            else {
+                this._diffActions.style.visibility = 'hidden';
+            }
+        }
+    }
     constructor(_viewZoneId, _marginDomNode, editor, diff, _contextMenuService, _clipboardService) {
         super();
         this._viewZoneId = _viewZoneId;
@@ -30,9 +46,9 @@ export class InlineDiffMargin extends Disposable {
         // make sure the diff margin shows above overlay.
         this._marginDomNode.style.zIndex = '10';
         this._diffActions = document.createElement('div');
-        this._diffActions.className = Codicon.lightBulb.classNames + ' lightbulb-glyph';
+        this._diffActions.className = ThemeIcon.asClassName(Codicon.lightBulb) + ' lightbulb-glyph';
         this._diffActions.style.position = 'absolute';
-        const lineHeight = editor.getOption(59 /* lineHeight */);
+        const lineHeight = editor.getOption(64 /* EditorOption.lineHeight */);
         const lineFeed = editor.getModel().getEOL();
         this._diffActions.style.right = '0px';
         this._diffActions.style.visibility = 'hidden';
@@ -63,7 +79,7 @@ export class InlineDiffMargin extends Disposable {
                 if (lineContent === '') {
                     // empty line
                     const eof = diff.originalModel.getEndOfLineSequence();
-                    yield this._clipboardService.writeText(eof === 0 /* LF */ ? '\n' : '\r\n');
+                    yield this._clipboardService.writeText(eof === 0 /* EndOfLineSequence.LF */ ? '\n' : '\r\n');
                 }
                 else {
                     yield this._clipboardService.writeText(lineContent);
@@ -71,7 +87,7 @@ export class InlineDiffMargin extends Disposable {
             }));
             actions.push(copyLineAction);
         }
-        const readOnly = editor.getOption(81 /* readOnly */);
+        const readOnly = editor.getOption(88 /* EditorOption.readOnly */);
         if (!readOnly) {
             actions.push(new Action('diff.inline.revertChange', nls.localize('diff.inline.revertChange.label', "Revert this change"), undefined, true, () => __awaiter(this, void 0, void 0, function* () {
                 const range = new Range(diff.originalStartLineNumber, 1, diff.originalEndLineNumber, diff.originalModel.getLineMaxColumn(diff.originalEndLineNumber));
@@ -97,8 +113,11 @@ export class InlineDiffMargin extends Disposable {
                 }
             })));
         }
+        const useShadowDOM = editor.getOption(123 /* EditorOption.useShadowDOM */) && !isIOS; // Do not use shadow dom on IOS #122035
         const showContextMenu = (x, y) => {
+            var _a;
             this._contextMenuService.showContextMenu({
+                domForShadowRoot: useShadowDOM ? (_a = editor.getDomNode()) !== null && _a !== void 0 ? _a : undefined : undefined,
                 getAnchor: () => {
                     return {
                         x,
@@ -124,7 +143,7 @@ export class InlineDiffMargin extends Disposable {
             showContextMenu(e.posx, top + height + pad);
         }));
         this._register(editor.onMouseMove((e) => {
-            if (e.target.type === 8 /* CONTENT_VIEW_ZONE */ || e.target.type === 5 /* GUTTER_VIEW_ZONE */) {
+            if (e.target.type === 8 /* MouseTargetType.CONTENT_VIEW_ZONE */ || e.target.type === 5 /* MouseTargetType.GUTTER_VIEW_ZONE */) {
                 const viewZoneId = e.target.detail.viewZoneId;
                 if (viewZoneId === this._viewZoneId) {
                     this.visibility = true;
@@ -142,7 +161,7 @@ export class InlineDiffMargin extends Disposable {
             if (!e.event.rightButton) {
                 return;
             }
-            if (e.target.type === 8 /* CONTENT_VIEW_ZONE */ || e.target.type === 5 /* GUTTER_VIEW_ZONE */) {
+            if (e.target.type === 8 /* MouseTargetType.CONTENT_VIEW_ZONE */ || e.target.type === 5 /* MouseTargetType.GUTTER_VIEW_ZONE */) {
                 const viewZoneId = e.target.detail.viewZoneId;
                 if (viewZoneId === this._viewZoneId) {
                     e.event.preventDefault();
@@ -151,20 +170,6 @@ export class InlineDiffMargin extends Disposable {
                 }
             }
         }));
-    }
-    get visibility() {
-        return this._visibility;
-    }
-    set visibility(_visibility) {
-        if (this._visibility !== _visibility) {
-            this._visibility = _visibility;
-            if (_visibility) {
-                this._diffActions.style.visibility = 'visible';
-            }
-            else {
-                this._diffActions.style.visibility = 'hidden';
-            }
-        }
     }
     _updateLightBulbPosition(marginDomNode, y, lineHeight) {
         const { top } = dom.getDomNodePagePosition(marginDomNode);

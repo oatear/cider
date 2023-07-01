@@ -2,9 +2,11 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-import { GlobalMouseMoveMonitor, standardMouseMoveMerger } from '../../globalMouseMoveMonitor.js';
+import { GlobalPointerMoveMonitor } from '../../globalPointerMoveMonitor.js';
 import { Widget } from '../widget.js';
 import { IntervalTimer, TimeoutTimer } from '../../../common/async.js';
+import { ThemeIcon } from '../../../common/themables.js';
+import * as dom from '../../dom.js';
 /**
  * The arrow image size.
  */
@@ -32,7 +34,7 @@ export class ScrollbarArrow extends Widget {
         }
         this.domNode = document.createElement('div');
         this.domNode.className = opts.className;
-        this.domNode.classList.add(...opts.icon.classNamesArray);
+        this.domNode.classList.add(...ThemeIcon.asClassNameArray(opts.icon));
         this.domNode.style.position = 'absolute';
         this.domNode.style.width = ARROW_IMG_SIZE + 'px';
         this.domNode.style.height = ARROW_IMG_SIZE + 'px';
@@ -48,24 +50,25 @@ export class ScrollbarArrow extends Widget {
         if (typeof opts.right !== 'undefined') {
             this.domNode.style.right = opts.right + 'px';
         }
-        this._mouseMoveMonitor = this._register(new GlobalMouseMoveMonitor());
-        this.onmousedown(this.bgDomNode, (e) => this._arrowMouseDown(e));
-        this.onmousedown(this.domNode, (e) => this._arrowMouseDown(e));
-        this._mousedownRepeatTimer = this._register(new IntervalTimer());
-        this._mousedownScheduleRepeatTimer = this._register(new TimeoutTimer());
+        this._pointerMoveMonitor = this._register(new GlobalPointerMoveMonitor());
+        this._register(dom.addStandardDisposableListener(this.bgDomNode, dom.EventType.POINTER_DOWN, (e) => this._arrowPointerDown(e)));
+        this._register(dom.addStandardDisposableListener(this.domNode, dom.EventType.POINTER_DOWN, (e) => this._arrowPointerDown(e)));
+        this._pointerdownRepeatTimer = this._register(new IntervalTimer());
+        this._pointerdownScheduleRepeatTimer = this._register(new TimeoutTimer());
     }
-    _arrowMouseDown(e) {
+    _arrowPointerDown(e) {
+        if (!e.target || !(e.target instanceof Element)) {
+            return;
+        }
         const scheduleRepeater = () => {
-            this._mousedownRepeatTimer.cancelAndSet(() => this._onActivate(), 1000 / 24);
+            this._pointerdownRepeatTimer.cancelAndSet(() => this._onActivate(), 1000 / 24);
         };
         this._onActivate();
-        this._mousedownRepeatTimer.cancel();
-        this._mousedownScheduleRepeatTimer.cancelAndSet(scheduleRepeater, 200);
-        this._mouseMoveMonitor.startMonitoring(e.target, e.buttons, standardMouseMoveMerger, (mouseMoveData) => {
-            /* Intentional empty */
-        }, () => {
-            this._mousedownRepeatTimer.cancel();
-            this._mousedownScheduleRepeatTimer.cancel();
+        this._pointerdownRepeatTimer.cancel();
+        this._pointerdownScheduleRepeatTimer.cancelAndSet(scheduleRepeater, 200);
+        this._pointerMoveMonitor.startMonitoring(e.target, e.pointerId, e.buttons, (pointerMoveData) => { }, () => {
+            this._pointerdownRepeatTimer.cancel();
+            this._pointerdownScheduleRepeatTimer.cancel();
         });
         e.preventDefault();
     }

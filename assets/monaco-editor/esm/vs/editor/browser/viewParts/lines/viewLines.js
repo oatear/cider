@@ -8,11 +8,12 @@ import { RunOnceScheduler } from '../../../../base/common/async.js';
 import { applyFontInfo } from '../../config/domFontInfo.js';
 import { VisibleLinesCollection } from '../../view/viewLayer.js';
 import { PartFingerprints, ViewPart } from '../../view/viewPart.js';
-import { DomReadingContext, ViewLine, ViewLineOptions } from './viewLine.js';
+import { ViewLine, ViewLineOptions } from './viewLine.js';
 import { Position } from '../../../common/core/position.js';
 import { Range } from '../../../common/core/range.js';
 import { LineVisibleRanges, HorizontalPosition, HorizontalRange } from '../../view/renderingContext.js';
 import { MOUSE_CURSOR_TEXT_CSS_CLASS_NAME } from '../../../../base/browser/ui/mouseCursor/mouseCursor.js';
+import { DomReadingContext } from './domReadingContext.js';
 class LastRenderedData {
     constructor() {
         this._currentVisibleRange = new Range(1, 1, 1, 1);
@@ -66,19 +67,17 @@ export class ViewLines extends ViewPart {
         this.domNode = this._visibleLines.domNode;
         const conf = this._context.configuration;
         const options = this._context.configuration.options;
-        const fontInfo = options.get(44 /* fontInfo */);
-        const wrappingInfo = options.get(132 /* wrappingInfo */);
-        const layoutInfo = options.get(131 /* layoutInfo */);
-        this._lineHeight = options.get(59 /* lineHeight */);
+        const fontInfo = options.get(48 /* EditorOption.fontInfo */);
+        const wrappingInfo = options.get(141 /* EditorOption.wrappingInfo */);
+        this._lineHeight = options.get(64 /* EditorOption.lineHeight */);
         this._typicalHalfwidthCharacterWidth = fontInfo.typicalHalfwidthCharacterWidth;
         this._isViewportWrapping = wrappingInfo.isViewportWrapping;
-        this._revealHorizontalRightPadding = options.get(89 /* revealHorizontalRightPadding */);
-        this._horizontalScrollbarHeight = layoutInfo.horizontalScrollbarHeight;
-        this._cursorSurroundingLines = options.get(25 /* cursorSurroundingLines */);
-        this._cursorSurroundingLinesStyle = options.get(26 /* cursorSurroundingLinesStyle */);
-        this._canUseLayerHinting = !options.get(28 /* disableLayerHinting */);
+        this._revealHorizontalRightPadding = options.get(96 /* EditorOption.revealHorizontalRightPadding */);
+        this._cursorSurroundingLines = options.get(27 /* EditorOption.cursorSurroundingLines */);
+        this._cursorSurroundingLinesStyle = options.get(28 /* EditorOption.cursorSurroundingLinesStyle */);
+        this._canUseLayerHinting = !options.get(30 /* EditorOption.disableLayerHinting */);
         this._viewLineOptions = new ViewLineOptions(conf, this._context.theme.type);
-        PartFingerprints.write(this.domNode, 7 /* ViewLines */);
+        PartFingerprints.write(this.domNode, 7 /* PartFingerprint.ViewLines */);
         this.domNode.setClassName(`view-lines ${MOUSE_CURSOR_TEXT_CSS_CLASS_NAME}`);
         applyFontInfo(this.domNode, fontInfo);
         // --- width & height
@@ -91,6 +90,9 @@ export class ViewLines extends ViewPart {
         }, 2000);
         this._lastRenderedData = new LastRenderedData();
         this._horizontalRevealRequest = null;
+        // sticky scroll widget
+        this._stickyScrollEnabled = options.get(111 /* EditorOption.stickyScroll */).enabled;
+        this._maxNumberStickyLines = options.get(111 /* EditorOption.stickyScroll */).maxLineCount;
     }
     dispose() {
         this._asyncUpdateLineWidths.dispose();
@@ -108,24 +110,25 @@ export class ViewLines extends ViewPart {
     // ---- begin view event handlers
     onConfigurationChanged(e) {
         this._visibleLines.onConfigurationChanged(e);
-        if (e.hasChanged(132 /* wrappingInfo */)) {
+        if (e.hasChanged(141 /* EditorOption.wrappingInfo */)) {
             this._maxLineWidth = 0;
         }
         const options = this._context.configuration.options;
-        const fontInfo = options.get(44 /* fontInfo */);
-        const wrappingInfo = options.get(132 /* wrappingInfo */);
-        const layoutInfo = options.get(131 /* layoutInfo */);
-        this._lineHeight = options.get(59 /* lineHeight */);
+        const fontInfo = options.get(48 /* EditorOption.fontInfo */);
+        const wrappingInfo = options.get(141 /* EditorOption.wrappingInfo */);
+        this._lineHeight = options.get(64 /* EditorOption.lineHeight */);
         this._typicalHalfwidthCharacterWidth = fontInfo.typicalHalfwidthCharacterWidth;
         this._isViewportWrapping = wrappingInfo.isViewportWrapping;
-        this._revealHorizontalRightPadding = options.get(89 /* revealHorizontalRightPadding */);
-        this._horizontalScrollbarHeight = layoutInfo.horizontalScrollbarHeight;
-        this._cursorSurroundingLines = options.get(25 /* cursorSurroundingLines */);
-        this._cursorSurroundingLinesStyle = options.get(26 /* cursorSurroundingLinesStyle */);
-        this._canUseLayerHinting = !options.get(28 /* disableLayerHinting */);
+        this._revealHorizontalRightPadding = options.get(96 /* EditorOption.revealHorizontalRightPadding */);
+        this._cursorSurroundingLines = options.get(27 /* EditorOption.cursorSurroundingLines */);
+        this._cursorSurroundingLinesStyle = options.get(28 /* EditorOption.cursorSurroundingLinesStyle */);
+        this._canUseLayerHinting = !options.get(30 /* EditorOption.disableLayerHinting */);
+        // sticky scroll
+        this._stickyScrollEnabled = options.get(111 /* EditorOption.stickyScroll */).enabled;
+        this._maxNumberStickyLines = options.get(111 /* EditorOption.stickyScroll */).maxLineCount;
         applyFontInfo(this.domNode, fontInfo);
         this._onOptionsMaybeChanged();
-        if (e.hasChanged(131 /* layoutInfo */)) {
+        if (e.hasChanged(140 /* EditorOption.layoutInfo */)) {
             this._maxLineWidth = 0;
         }
         return true;
@@ -208,8 +211,8 @@ export class ViewLines extends ViewPart {
             this._horizontalRevealRequest = null;
         }
         const scrollTopDelta = Math.abs(this._context.viewLayout.getCurrentScrollTop() - newScrollPosition.scrollTop);
-        const scrollType = (scrollTopDelta <= this._lineHeight ? 1 /* Immediate */ : e.scrollType);
-        this._context.model.setScrollPosition(newScrollPosition, scrollType);
+        const scrollType = (scrollTopDelta <= this._lineHeight ? 1 /* ScrollType.Immediate */ : e.scrollType);
+        this._context.viewModel.viewLayout.setScrollPosition(newScrollPosition, scrollType);
         return true;
     }
     onScrollChanged(e) {
@@ -232,7 +235,7 @@ export class ViewLines extends ViewPart {
         return this._visibleLines.onTokensChanged(e);
     }
     onZonesChanged(e) {
-        this._context.model.setMaxLineWidth(this._maxLineWidth);
+        this._context.viewModel.viewLayout.setMaxLineWidth(this._maxLineWidth);
         return this._visibleLines.onZonesChanged(e);
     }
     onThemeChanged(e) {
@@ -251,11 +254,11 @@ export class ViewLines extends ViewPart {
             // Couldn't find view line node
             return null;
         }
-        if (lineNumber < 1 || lineNumber > this._context.model.getLineCount()) {
+        if (lineNumber < 1 || lineNumber > this._context.viewModel.getLineCount()) {
             // lineNumber is outside range
             return null;
         }
-        if (this._context.model.getLineMaxColumn(lineNumber) === 1) {
+        if (this._context.viewModel.getLineMaxColumn(lineNumber) === 1) {
             // Line is empty
             return new Position(lineNumber, 1);
         }
@@ -266,7 +269,7 @@ export class ViewLines extends ViewPart {
             return null;
         }
         let column = this._visibleLines.getVisibleLine(lineNumber).getColumnOfNodeOffset(lineNumber, spanNode, offset);
-        const minColumn = this._context.model.getLineMinColumn(lineNumber);
+        const minColumn = this._context.viewModel.getLineMinColumn(lineNumber);
         if (column < minColumn) {
             column = minColumn;
         }
@@ -302,7 +305,10 @@ export class ViewLines extends ViewPart {
             // Couldn't find line
             return -1;
         }
-        return this._visibleLines.getVisibleLine(lineNumber).getWidth();
+        const context = new DomReadingContext(this.domNode.domNode, this._textRangeRestingSpot);
+        const result = this._visibleLines.getVisibleLine(lineNumber).getWidth(context);
+        this._updateLineWidthsSlowIfDomDidLayout(context);
+        return result;
     }
     linesVisibleRangesForRange(_range, includeNewLines) {
         if (this.shouldRender()) {
@@ -315,11 +321,12 @@ export class ViewLines extends ViewPart {
         if (!range) {
             return null;
         }
-        let visibleRanges = [], visibleRangesLen = 0;
+        const visibleRanges = [];
+        let visibleRangesLen = 0;
         const domReadingContext = new DomReadingContext(this.domNode.domNode, this._textRangeRestingSpot);
         let nextLineModelLineNumber = 0;
         if (includeNewLines) {
-            nextLineModelLineNumber = this._context.model.coordinatesConverter.convertViewPositionToModelPosition(new Position(range.startLineNumber, 1)).lineNumber;
+            nextLineModelLineNumber = this._context.viewModel.coordinatesConverter.convertViewPositionToModelPosition(new Position(range.startLineNumber, 1)).lineNumber;
         }
         const rendStartLineNumber = this._visibleLines.getStartLineNumber();
         const rendEndLineNumber = this._visibleLines.getEndLineNumber();
@@ -328,20 +335,21 @@ export class ViewLines extends ViewPart {
                 continue;
             }
             const startColumn = lineNumber === range.startLineNumber ? range.startColumn : 1;
-            const endColumn = lineNumber === range.endLineNumber ? range.endColumn : this._context.model.getLineMaxColumn(lineNumber);
+            const endColumn = lineNumber === range.endLineNumber ? range.endColumn : this._context.viewModel.getLineMaxColumn(lineNumber);
             const visibleRangesForLine = this._visibleLines.getVisibleLine(lineNumber).getVisibleRangesForRange(lineNumber, startColumn, endColumn, domReadingContext);
             if (!visibleRangesForLine) {
                 continue;
             }
             if (includeNewLines && lineNumber < originalEndLineNumber) {
                 const currentLineModelLineNumber = nextLineModelLineNumber;
-                nextLineModelLineNumber = this._context.model.coordinatesConverter.convertViewPositionToModelPosition(new Position(lineNumber + 1, 1)).lineNumber;
+                nextLineModelLineNumber = this._context.viewModel.coordinatesConverter.convertViewPositionToModelPosition(new Position(lineNumber + 1, 1)).lineNumber;
                 if (currentLineModelLineNumber !== nextLineModelLineNumber) {
                     visibleRangesForLine.ranges[visibleRangesForLine.ranges.length - 1].width += this._typicalHalfwidthCharacterWidth;
                 }
             }
             visibleRanges[visibleRangesLen++] = new LineVisibleRanges(visibleRangesForLine.outsideRenderedLine, lineNumber, HorizontalRange.from(visibleRangesForLine.ranges));
         }
+        this._updateLineWidthsSlowIfDomDidLayout(domReadingContext);
         if (visibleRangesLen === 0) {
             return null;
         }
@@ -356,7 +364,10 @@ export class ViewLines extends ViewPart {
         if (lineNumber < this._visibleLines.getStartLineNumber() || lineNumber > this._visibleLines.getEndLineNumber()) {
             return null;
         }
-        return this._visibleLines.getVisibleLine(lineNumber).getVisibleRangesForRange(lineNumber, startColumn, endColumn, new DomReadingContext(this.domNode.domNode, this._textRangeRestingSpot));
+        const domReadingContext = new DomReadingContext(this.domNode.domNode, this._textRangeRestingSpot);
+        const result = this._visibleLines.getVisibleLine(lineNumber).getVisibleRangesForRange(lineNumber, startColumn, endColumn, domReadingContext);
+        this._updateLineWidthsSlowIfDomDidLayout(domReadingContext);
+        return result;
     }
     visibleRangeForPosition(position) {
         const visibleRanges = this._visibleRangesForLineRange(position.lineNumber, position.column, position.column);
@@ -364,10 +375,6 @@ export class ViewLines extends ViewPart {
             return null;
         }
         return new HorizontalPosition(visibleRanges.outsideRenderedLine, visibleRanges.ranges[0].left);
-    }
-    // --- implementation
-    updateLineWidths() {
-        this._updateLineWidths(false);
     }
     /**
      * Updates the max line width if it is fast to compute.
@@ -379,6 +386,22 @@ export class ViewLines extends ViewPart {
     }
     _updateLineWidthsSlow() {
         this._updateLineWidths(false);
+    }
+    /**
+     * Update the line widths using DOM layout information after someone else
+     * has caused a synchronous layout.
+     */
+    _updateLineWidthsSlowIfDomDidLayout(domReadingContext) {
+        if (!domReadingContext.didDomLayout) {
+            // only proceed if we just did a layout
+            return;
+        }
+        if (this._asyncUpdateLineWidths.isScheduled()) {
+            // reading widths is not scheduled => widths are up-to-date
+            return;
+        }
+        this._asyncUpdateLineWidths.cancel();
+        this._updateLineWidthsSlow();
     }
     _updateLineWidths(fast) {
         const rendStartLineNumber = this._visibleLines.getStartLineNumber();
@@ -392,9 +415,9 @@ export class ViewLines extends ViewPart {
                 allWidthsComputed = false;
                 continue;
             }
-            localMaxLineWidth = Math.max(localMaxLineWidth, visibleLine.getWidth());
+            localMaxLineWidth = Math.max(localMaxLineWidth, visibleLine.getWidth(null));
         }
-        if (allWidthsComputed && rendStartLineNumber === 1 && rendEndLineNumber === this._context.model.getLineCount()) {
+        if (allWidthsComputed && rendStartLineNumber === 1 && rendEndLineNumber === this._context.viewModel.getLineCount()) {
             // we know the max line width for all the lines
             this._maxLineWidth = 0;
         }
@@ -412,7 +435,7 @@ export class ViewLines extends ViewPart {
         for (let lineNumber = rendStartLineNumber; lineNumber <= rendEndLineNumber; lineNumber++) {
             const visibleLine = this._visibleLines.getVisibleLine(lineNumber);
             if (visibleLine.needsMonospaceFontCheck()) {
-                const lineWidth = visibleLine.getWidth();
+                const lineWidth = visibleLine.getWidth(null);
                 if (lineWidth > longestWidth) {
                     longestWidth = lineWidth;
                     longestLineNumber = lineNumber;
@@ -459,7 +482,7 @@ export class ViewLines extends ViewPart {
                         this._ensureMaxLineWidth(newScrollLeft.maxHorizontalOffset);
                     }
                     // set `scrollLeft`
-                    this._context.model.setScrollPosition({
+                    this._context.viewModel.viewLayout.setScrollPosition({
                         scrollLeft: newScrollLeft.scrollLeft
                     }, horizontalRevealRequest.scrollType);
                 }
@@ -469,6 +492,9 @@ export class ViewLines extends ViewPart {
         if (!this._updateLineWidthsFast()) {
             // Computing the width of some lines would be slow => delay it
             this._asyncUpdateLineWidths.schedule();
+        }
+        else {
+            this._asyncUpdateLineWidths.cancel();
         }
         if (platform.isLinux && !this._asyncCheckMonospaceFontAssumptions.isScheduled()) {
             const rendStartLineNumber = this._visibleLines.getStartLineNumber();
@@ -493,7 +519,7 @@ export class ViewLines extends ViewPart {
         const iLineWidth = Math.ceil(lineWidth);
         if (this._maxLineWidth < iLineWidth) {
             this._maxLineWidth = iLineWidth;
-            this._context.model.setMaxLineWidth(this._maxLineWidth);
+            this._context.viewModel.viewLayout.setMaxLineWidth(this._maxLineWidth);
         }
     }
     _computeScrollTopToRevealRange(viewport, source, minimalReveal, range, selections, verticalType) {
@@ -524,21 +550,32 @@ export class ViewLines extends ViewPart {
             return -1;
         }
         const shouldIgnoreScrollOff = (source === 'mouse' || minimalReveal) && this._cursorSurroundingLinesStyle === 'default';
+        let paddingTop = 0;
+        let paddingBottom = 0;
         if (!shouldIgnoreScrollOff) {
             const context = Math.min((viewportHeight / this._lineHeight) / 2, this._cursorSurroundingLines);
-            boxStartY -= context * this._lineHeight;
-            boxEndY += Math.max(0, (context - 1)) * this._lineHeight;
+            if (this._stickyScrollEnabled) {
+                paddingTop = Math.max(context, this._maxNumberStickyLines) * this._lineHeight;
+            }
+            else {
+                paddingTop = context * this._lineHeight;
+            }
+            paddingBottom = Math.max(0, (context - 1)) * this._lineHeight;
         }
         else {
             if (!minimalReveal) {
                 // Reveal one more line above (this case is hit when dragging)
-                boxStartY -= this._lineHeight;
+                paddingTop = this._lineHeight;
             }
         }
-        if (verticalType === 0 /* Simple */ || verticalType === 4 /* Bottom */) {
-            // Reveal one line more when the last line would be covered by the scrollbar - arrow down case or revealing a line explicitly at bottom
-            boxEndY += (minimalReveal ? this._horizontalScrollbarHeight : this._lineHeight);
+        if (!minimalReveal) {
+            if (verticalType === 0 /* viewEvents.VerticalRevealType.Simple */ || verticalType === 4 /* viewEvents.VerticalRevealType.Bottom */) {
+                // Reveal one line more when the last line would be covered by the scrollbar - arrow down case or revealing a line explicitly at bottom
+                paddingBottom += this._lineHeight;
+            }
         }
+        boxStartY -= paddingTop;
+        boxEndY += paddingBottom;
         let newScrollTop;
         if (boxEndY - boxStartY > viewportHeight) {
             // the box is larger than the viewport ... scroll to its top
@@ -548,8 +585,8 @@ export class ViewLines extends ViewPart {
             }
             newScrollTop = boxStartY;
         }
-        else if (verticalType === 5 /* NearTop */ || verticalType === 6 /* NearTopIfOutsideViewport */) {
-            if (verticalType === 6 /* NearTopIfOutsideViewport */ && viewportStartY <= boxStartY && boxEndY <= viewportEndY) {
+        else if (verticalType === 5 /* viewEvents.VerticalRevealType.NearTop */ || verticalType === 6 /* viewEvents.VerticalRevealType.NearTopIfOutsideViewport */) {
+            if (verticalType === 6 /* viewEvents.VerticalRevealType.NearTopIfOutsideViewport */ && viewportStartY <= boxStartY && boxEndY <= viewportEndY) {
                 // Box is already in the viewport... do nothing
                 newScrollTop = viewportStartY;
             }
@@ -563,8 +600,8 @@ export class ViewLines extends ViewPart {
                 newScrollTop = Math.max(minScrollTop, desiredScrollTop);
             }
         }
-        else if (verticalType === 1 /* Center */ || verticalType === 2 /* CenterIfOutsideViewport */) {
-            if (verticalType === 2 /* CenterIfOutsideViewport */ && viewportStartY <= boxStartY && boxEndY <= viewportEndY) {
+        else if (verticalType === 1 /* viewEvents.VerticalRevealType.Center */ || verticalType === 2 /* viewEvents.VerticalRevealType.CenterIfOutsideViewport */) {
+            if (verticalType === 2 /* viewEvents.VerticalRevealType.CenterIfOutsideViewport */ && viewportStartY <= boxStartY && boxEndY <= viewportEndY) {
                 // Box is already in the viewport... do nothing
                 newScrollTop = viewportStartY;
             }
@@ -575,15 +612,16 @@ export class ViewLines extends ViewPart {
             }
         }
         else {
-            newScrollTop = this._computeMinimumScrolling(viewportStartY, viewportEndY, boxStartY, boxEndY, verticalType === 3 /* Top */, verticalType === 4 /* Bottom */);
+            newScrollTop = this._computeMinimumScrolling(viewportStartY, viewportEndY, boxStartY, boxEndY, verticalType === 3 /* viewEvents.VerticalRevealType.Top */, verticalType === 4 /* viewEvents.VerticalRevealType.Bottom */);
         }
         return newScrollTop;
     }
     _computeScrollLeftToReveal(horizontalRevealRequest) {
         const viewport = this._context.viewLayout.getCurrentViewport();
+        const layoutInfo = this._context.configuration.options.get(140 /* EditorOption.layoutInfo */);
         const viewportStartX = viewport.left;
-        const viewportEndX = viewportStartX + viewport.width;
-        let boxStartX = 1073741824 /* MAX_SAFE_SMALL_INTEGER */;
+        const viewportEndX = viewportStartX + viewport.width - layoutInfo.verticalScrollbarWidth;
+        let boxStartX = 1073741824 /* Constants.MAX_SAFE_SMALL_INTEGER */;
         let boxEndX = 0;
         if (horizontalRevealRequest.type === 'range') {
             const visibleRanges = this._visibleRangesForLineRange(horizontalRevealRequest.lineNumber, horizontalRevealRequest.startColumn, horizontalRevealRequest.endColumn);

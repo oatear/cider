@@ -24,7 +24,7 @@ class CommentLineAction extends EditorAction {
         const model = editor.getModel();
         const commands = [];
         const modelOptions = model.getOptions();
-        const commentsOptions = editor.getOption(19 /* comments */);
+        const commentsOptions = editor.getOption(21 /* EditorOption.comments */);
         const selections = editor.getSelections().map((selection, index) => ({ selection, index, ignoreFirstLine: false }));
         selections.sort((a, b) => Range.compareRangesUsingStarts(a.selection, b.selection));
         // Remove selections that would result in copying the same line
@@ -54,15 +54,15 @@ class CommentLineAction extends EditorAction {
 }
 class ToggleCommentLineAction extends CommentLineAction {
     constructor() {
-        super(0 /* Toggle */, {
+        super(0 /* Type.Toggle */, {
             id: 'editor.action.commentLine',
             label: nls.localize('comment.line', "Toggle Line Comment"),
             alias: 'Toggle Line Comment',
             precondition: EditorContextKeys.writable,
             kbOpts: {
                 kbExpr: EditorContextKeys.editorTextFocus,
-                primary: 2048 /* CtrlCmd */ | 85 /* Slash */,
-                weight: 100 /* EditorContrib */
+                primary: 2048 /* KeyMod.CtrlCmd */ | 90 /* KeyCode.Slash */,
+                weight: 100 /* KeybindingWeight.EditorContrib */
             },
             menuOpts: {
                 menuId: MenuId.MenubarEditMenu,
@@ -75,30 +75,30 @@ class ToggleCommentLineAction extends CommentLineAction {
 }
 class AddLineCommentAction extends CommentLineAction {
     constructor() {
-        super(1 /* ForceAdd */, {
+        super(1 /* Type.ForceAdd */, {
             id: 'editor.action.addCommentLine',
             label: nls.localize('comment.line.add', "Add Line Comment"),
             alias: 'Add Line Comment',
             precondition: EditorContextKeys.writable,
             kbOpts: {
                 kbExpr: EditorContextKeys.editorTextFocus,
-                primary: KeyChord(2048 /* CtrlCmd */ | 41 /* KeyK */, 2048 /* CtrlCmd */ | 33 /* KeyC */),
-                weight: 100 /* EditorContrib */
+                primary: KeyChord(2048 /* KeyMod.CtrlCmd */ | 41 /* KeyCode.KeyK */, 2048 /* KeyMod.CtrlCmd */ | 33 /* KeyCode.KeyC */),
+                weight: 100 /* KeybindingWeight.EditorContrib */
             }
         });
     }
 }
 class RemoveLineCommentAction extends CommentLineAction {
     constructor() {
-        super(2 /* ForceRemove */, {
+        super(2 /* Type.ForceRemove */, {
             id: 'editor.action.removeCommentLine',
             label: nls.localize('comment.line.remove', "Remove Line Comment"),
             alias: 'Remove Line Comment',
             precondition: EditorContextKeys.writable,
             kbOpts: {
                 kbExpr: EditorContextKeys.editorTextFocus,
-                primary: KeyChord(2048 /* CtrlCmd */ | 41 /* KeyK */, 2048 /* CtrlCmd */ | 51 /* KeyU */),
-                weight: 100 /* EditorContrib */
+                primary: KeyChord(2048 /* KeyMod.CtrlCmd */ | 41 /* KeyCode.KeyK */, 2048 /* KeyMod.CtrlCmd */ | 51 /* KeyCode.KeyU */),
+                weight: 100 /* KeybindingWeight.EditorContrib */
             }
         });
     }
@@ -112,9 +112,9 @@ class BlockCommentAction extends EditorAction {
             precondition: EditorContextKeys.writable,
             kbOpts: {
                 kbExpr: EditorContextKeys.editorTextFocus,
-                primary: 1024 /* Shift */ | 512 /* Alt */ | 31 /* KeyA */,
-                linux: { primary: 2048 /* CtrlCmd */ | 1024 /* Shift */ | 31 /* KeyA */ },
-                weight: 100 /* EditorContrib */
+                primary: 1024 /* KeyMod.Shift */ | 512 /* KeyMod.Alt */ | 31 /* KeyCode.KeyA */,
+                linux: { primary: 2048 /* KeyMod.CtrlCmd */ | 1024 /* KeyMod.Shift */ | 31 /* KeyCode.KeyA */ },
+                weight: 100 /* KeybindingWeight.EditorContrib */
             },
             menuOpts: {
                 menuId: MenuId.MenubarEditMenu,
@@ -129,7 +129,7 @@ class BlockCommentAction extends EditorAction {
         if (!editor.hasModel()) {
             return;
         }
-        const commentsOptions = editor.getOption(19 /* comments */);
+        const commentsOptions = editor.getOption(21 /* EditorOption.comments */);
         const commands = [];
         const selections = editor.getSelections();
         for (const selection of selections) {

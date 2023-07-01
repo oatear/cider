@@ -2,13 +2,18 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-import { createKeybinding } from '../../../base/common/keybindings.js';
+import { decodeKeybinding } from '../../../base/common/keybindings.js';
 import { OS } from '../../../base/common/platform.js';
 import { CommandsRegistry } from '../../commands/common/commands.js';
 import { Registry } from '../../registry/common/platform.js';
+import { combinedDisposable, DisposableStore, toDisposable } from '../../../base/common/lifecycle.js';
+import { LinkedList } from '../../../base/common/linkedList.js';
+/**
+ * Stores all built-in and extension-provided keybindings (but not ones that user defines themselves)
+ */
 class KeybindingsRegistryImpl {
     constructor() {
-        this._coreKeybindings = [];
+        this._coreKeybindings = new LinkedList();
         this._extensionKeybindings = [];
         this._cachedMergedKeybindings = null;
     }
@@ -16,12 +21,12 @@ class KeybindingsRegistryImpl {
      * Take current platform into account and reduce to primary & secondary.
      */
     static bindToCurrentPlatform(kb) {
-        if (OS === 1 /* Windows */) {
+        if (OS === 1 /* OperatingSystem.Windows */) {
             if (kb && kb.win) {
                 return kb.win;
             }
         }
-        else if (OS === 2 /* Macintosh */) {
+        else if (OS === 2 /* OperatingSystem.Macintosh */) {
             if (kb && kb.mac) {
                 return kb.mac;
             }
@@ -35,62 +40,30 @@ class KeybindingsRegistryImpl {
     }
     registerKeybindingRule(rule) {
         const actualKb = KeybindingsRegistryImpl.bindToCurrentPlatform(rule);
+        const result = new DisposableStore();
         if (actualKb && actualKb.primary) {
-            const kk = createKeybinding(actualKb.primary, OS);
+            const kk = decodeKeybinding(actualKb.primary, OS);
             if (kk) {
-                this._registerDefaultKeybinding(kk, rule.id, rule.args, rule.weight, 0, rule.when);
+                result.add(this._registerDefaultKeybinding(kk, rule.id, rule.args, rule.weight, 0, rule.when));
             }
         }
         if (actualKb && Array.isArray(actualKb.secondary)) {
             for (let i = 0, len = actualKb.secondary.length; i < len; i++) {
                 const k = actualKb.secondary[i];
-                const kk = createKeybinding(k, OS);
+                const kk = decodeKeybinding(k, OS);
                 if (kk) {
-                    this._registerDefaultKeybinding(kk, rule.id, rule.args, rule.weight, -i - 1, rule.when);
+                    result.add(this._registerDefaultKeybinding(kk, rule.id, rule.args, rule.weight, -i - 1, rule.when));
                 }
             }
         }
+        return result;
     }
     registerCommandAndKeybindingRule(desc) {
-        this.registerKeybindingRule(desc);
-        CommandsRegistry.registerCommand(desc);
-    }
-    static _mightProduceChar(keyCode) {
-        if (keyCode >= 21 /* Digit0 */ && keyCode <= 30 /* Digit9 */) {
-            return true;
-        }
-        if (keyCode >= 31 /* KeyA */ && keyCode <= 56 /* KeyZ */) {
-            return true;
-        }
-        return (keyCode === 80 /* Semicolon */
-            || keyCode === 81 /* Equal */
-            || keyCode === 82 /* Comma */
-            || keyCode === 83 /* Minus */
-            || keyCode === 84 /* Period */
-            || keyCode === 85 /* Slash */
-            || keyCode === 86 /* Backquote */
-            || keyCode === 110 /* ABNT_C1 */
-            || keyCode === 111 /* ABNT_C2 */
-            || keyCode === 87 /* BracketLeft */
-            || keyCode === 88 /* Backslash */
-            || keyCode === 89 /* BracketRight */
-            || keyCode === 90 /* Quote */
-            || keyCode === 91 /* OEM_8 */
-            || keyCode === 92 /* IntlBackslash */);
-    }
-    _assertNoCtrlAlt(keybinding, commandId) {
-        if (keybinding.ctrlKey && keybinding.altKey && !keybinding.metaKey) {
-            if (KeybindingsRegistryImpl._mightProduceChar(keybinding.keyCode)) {
-                console.warn('Ctrl+Alt+ keybindings should not be used by default under Windows. Offender: ', keybinding, ' for ', commandId);
-            }
-        }
+        return combinedDisposable(this.registerKeybindingRule(desc), CommandsRegistry.registerCommand(desc));
     }
     _registerDefaultKeybinding(keybinding, commandId, commandArgs, weight1, weight2, when) {
-        if (OS === 1 /* Windows */) {
-            this._assertNoCtrlAlt(keybinding.parts[0], commandId);
-        }
-        this._coreKeybindings.push({
-            keybinding: keybinding.parts,
+        const remove = this._coreKeybindings.push({
+            keybinding: keybinding,
             command: commandId,
             commandArgs: commandArgs,
             when: when,
@@ -100,10 +73,14 @@ class KeybindingsRegistryImpl {
             isBuiltinExtension: false
         });
         this._cachedMergedKeybindings = null;
+        return toDisposable(() => {
+            remove();
+            this._cachedMergedKeybindings = null;
+        });
     }
     getDefaultKeybindings() {
         if (!this._cachedMergedKeybindings) {
-            this._cachedMergedKeybindings = [].concat(this._coreKeybindings).concat(this._extensionKeybindings);
+            this._cachedMergedKeybindings = Array.from(this._coreKeybindings).concat(this._extensionKeybindings);
             this._cachedMergedKeybindings.sort(sorter);
         }
         return this._cachedMergedKeybindings.slice(0);
@@ -119,11 +96,13 @@ function sorter(a, b) {
     if (a.weight1 !== b.weight1) {
         return a.weight1 - b.weight1;
     }
-    if (a.command < b.command) {
-        return -1;
-    }
-    if (a.command > b.command) {
-        return 1;
+    if (a.command && b.command) {
+        if (a.command < b.command) {
+            return -1;
+        }
+        if (a.command > b.command) {
+            return 1;
+        }
     }
     return a.weight2 - b.weight2;
 }
