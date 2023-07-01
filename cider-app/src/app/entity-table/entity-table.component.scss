@@ -39,6 +39,7 @@
         width: 50px;
         min-width: 50px;
         max-width: 50px;
+        text-align: center;
         // display: flex;
         // justify-content: center;
         // box-shadow: 0px 0px 20px 0px #00000038;
@@ -98,6 +99,7 @@
         width: 100%;
         border: 1px solid var(--surface-a);
         background-color: var(--surface-a);
+        display: block;
         &:focus {
             box-shadow: none;
             background-color: #20262e;

@@ -27,6 +27,8 @@
             <th *ngIf="selectionMode === 'multiple'" class="selection-col" pFrozenColumn>
                 <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
             </th>
+            <th *ngIf="selectionMode === 'single'" class="selection-col" pFrozenColumn>
+            </th>
             <ng-container *ngFor="let col of columns">
                 <th *ngIf="!col.hidden" [pSortableColumn]="col.field" [pTooltip]="col.description"
                     [class]="col.type"
