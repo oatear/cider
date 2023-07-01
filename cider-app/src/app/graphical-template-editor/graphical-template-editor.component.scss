@@ -1,3 +1,19 @@
+:host {
+    height: 100%;
+
+    .graphical-template-editor {
+        height: 100%;
+        padding: 15px;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-content: stretch;
+        align-items: flex-start;
+        .editor-controls {
+            margin-bottom: 15px;
+        }
+    }
+}
 
 .editor-content .scale-wrapper {
     .card-preview {
@@ -8,12 +24,5 @@
             width: fit-content;
             height: fit-content;
         }
-    }
-}
-
-.graphical-template-editor {
-    margin: 15px;
-    .editor-controls {
-        margin-bottom: 15px;
     }
 }

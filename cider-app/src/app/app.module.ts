@@ -38,6 +38,8 @@ import { ChipsModule } from 'primeng/chips';
 import { DividerModule } from 'primeng/divider';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { DataViewModule } from 'primeng/dataview';
+import { TreeModule } from 'primeng/tree';
+import { DragDropModule } from 'primeng/dragdrop';
 
 import { MonacoEditorModule } from '@materia-ui/ngx-monaco-editor';
 
@@ -120,7 +122,9 @@ import { GraphicalTemplateEditorComponent } from './graphical-template-editor/gr
     DividerModule,
     MultiSelectModule,
     DataViewModule,
-    NgxMoveableModule
+    NgxMoveableModule,
+    TreeModule,
+    DragDropModule
   ],
   providers: [CardToHtmlPipe],
   bootstrap: [AppComponent]

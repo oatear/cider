@@ -5,11 +5,14 @@ import { Card } from '../data-services/types/card.type';
 import { AssetsService } from '../data-services/services/assets.service';
 import { CardToHtmlPipe } from '../shared/pipes/template-to-html.pipe';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { TreeDragDropService, TreeNode } from 'primeng/api';
+import GeneralUtils from '../shared/utils/general-utils';
 
 @Component({
   selector: 'app-graphical-template-editor',
   templateUrl: './graphical-template-editor.component.html',
-  styleUrls: ['./graphical-template-editor.component.scss']
+  styleUrls: ['./graphical-template-editor.component.scss'],
+  providers: [TreeDragDropService]
 })
 export class GraphicalTemplateEditorComponent implements OnInit, OnChanges {
   
@@ -26,39 +29,7 @@ export class GraphicalTemplateEditorComponent implements OnInit, OnChanges {
   keepRatio: boolean = false;
   uuid: string = '0';
   cardHtml?: SafeHtml;
-
-  readonly DimensionViewable = {
-    name: "dimensionViewable",
-    props: [],
-    events: [],
-    render(moveable: MoveableManagerInterface<any, any>, React: Renderer) {
-        const rect = moveable.getRect();
-        return React.createElement("div", {
-            key: "dimension-viewer",
-            className: "moveable-dimension",
-            style: {
-                position: "absolute",
-                left: `${rect.width / 2}px`,
-                top: `${rect.height + 20}px`,
-                background: "#4af",
-                borderRadius: "2px",
-                padding: "2px 4px",
-                color: "white",
-                fontSize: "13px",
-                whiteSpace: "nowrap",
-                fontWeight: "bold",
-                willChange: "transform",
-                transform: `translate(-50%, 0px)`
-            }
-        }, [
-            "\n            ",
-            Math.round(rect.offsetWidth),
-            " x ",
-            Math.round(rect.offsetHeight),
-            "\n        "
-        ]);
-    }
-  } as const;
+  elementTree: TreeNode[] = [];
 
   constructor(
     private assetsService: AssetsService,
@@ -82,7 +53,26 @@ export class GraphicalTemplateEditorComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     const html = this.cardToHtmlPipe.transform(this.template, this.card, this.assetUrls, this.uuid);
     this.cardHtml = html;
-    console.log('onChange', this.template, this.card);
+    GeneralUtils.delay(100).then(() => {
+      const cardElement = this.cardRefs.first.nativeElement;
+      // console.log('cardElement', cardElement, cardElement.children);
+      const elementTree = this.buildTree(cardElement);
+      this.elementTree = elementTree.children || [];
+      console.log('onChange', this.template, this.card, this.elementTree);
+    })
+  }
+
+  buildTree(element: any): TreeNode {
+    const label: string = element.localName + ' ' + element.className;
+    const elementChildren: HTMLCollection = element.children;
+    var nodeChildren: TreeNode[] = [];
+    if (elementChildren) {
+      for(var i = 0; i < elementChildren.length; i++) {
+        nodeChildren.push(this.buildTree(elementChildren.item(i)));
+      }
+    }
+    return {label: label, data: element, children: nodeChildren, expanded: nodeChildren !== undefined,
+      draggable: true, droppable: true};
   }
 
   toHtml() {

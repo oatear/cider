@@ -1,59 +1,65 @@
 <div class="graphical-template-editor">
-    <div class="editor-controls">
-        <button pButton pRipple label="New Element" icon="pi pi-plus" class="p-button p-mr-2" (click)="createNewElement()"></button>
-        <span class="p-buttonset p-mr-2">
-            <button pButton type="button" icon="pi pi-search-minus" (click)="changeScale(0.6)"></button>
-            <button pButton type="button" icon="pi pi-search-plus" (click)="changeScale(1.4)"></button>
-        </span>
-        <button pButton pRipple label="To HTML" icon="pi pi-plus" class="p-button p-mr-2" (click)="toHtml()"></button>
-    </div>
-    <div class="editor-content">
-        <div class="scale-wrapper"
-            [style.width.px]="cardElement.width * scale" [style.height.px]="cardElement.height * scale">
-            <!-- <div class="card-preview" [style.transform]="'scale(' + scale + ')'">
-                <div #cardRef class="card editor-card" [style.width.px]="cardElement.width" [style.height.px]="cardElement.height"
-                    [style.left.px]="cardElement.left" [style.top.px]="cardElement.top" [style.background]="'#343e4d'"
-                    [ngStyle]="{ 'margin': '10px', 'position': 'relative'}"
-                    [innerHtml]="template | cardToHtml: card: assetUrls: ''">
-                    <ng-container *ngFor="let element of elements">
-                        <div #elementRef [class]="'element ' + element.className" [style.background]="'#434f61'"
-                            [style.width.px]="element.width" [style.height.px]="element.height"
-                            [style.left.px]="element.left" [style.top.px]="element.top"
-                            [ngStyle]="{ 'position': 'absolute'}"></div>
-                    </ng-container>
+    <div class="editor-left">
+        <div class="editor-controls">
+            <button pButton pRipple label="New Element" icon="pi pi-plus" class="p-button p-mr-2" (click)="createNewElement()"></button>
+            <span class="p-buttonset p-mr-2">
+                <button pButton type="button" icon="pi pi-search-minus" (click)="changeScale(0.6)"></button>
+                <button pButton type="button" icon="pi pi-search-plus" (click)="changeScale(1.4)"></button>
+            </span>
+            <button pButton pRipple label="To HTML" icon="pi pi-plus" class="p-button p-mr-2" (click)="toHtml()"></button>
+        </div>
+        <div class="editor-content">
+            <div class="scale-wrapper"
+                [style.width.px]="cardElement.width * scale" [style.height.px]="cardElement.height * scale">
+                <!-- <div class="card-preview" [style.transform]="'scale(' + scale + ')'">
+                    <div #cardRef class="card editor-card" [style.width.px]="cardElement.width" [style.height.px]="cardElement.height"
+                        [style.left.px]="cardElement.left" [style.top.px]="cardElement.top" [style.background]="'#343e4d'"
+                        [ngStyle]="{ 'margin': '10px', 'position': 'relative'}"
+                        [innerHtml]="template | cardToHtml: card: assetUrls: ''">
+                        <ng-container *ngFor="let element of elements">
+                            <div #elementRef [class]="'element ' + element.className" [style.background]="'#434f61'"
+                                [style.width.px]="element.width" [style.height.px]="element.height"
+                                [style.left.px]="element.left" [style.top.px]="element.top"
+                                [ngStyle]="{ 'position': 'absolute'}"></div>
+                        </ng-container>
+                    </div>
+                </div> -->
+                <div [style.transform]="'scale(' + scale + ')'"
+                    class="card-preview card-{{uuid}}" >
+                    <!-- <div #cardRef class="card-element" 
+                        [innerHtml]="editTemplate | cardToHtml: editCard: assetUrls: uuid" ></div> -->
+                    <div #cardRef class="card-element editor-card" 
+                        [innerHtml]="cardHtml" ></div>
                 </div>
-            </div> -->
-            <div [style.transform]="'scale(' + scale + ')'"
-                class="card-preview card-{{uuid}}" >
-                <!-- <div #cardRef class="card-element" 
-                    [innerHtml]="editTemplate | cardToHtml: editCard: assetUrls: uuid" ></div> -->
-                <div #cardRef class="card-element editor-card" 
-                    [innerHtml]="cardHtml" ></div>
             </div>
         </div>
     </div>
-    <ngx-moveable
-        #moveableRef
-        [target]="target"
-        [origin]="true"
-        [draggable]="true"
-        [resizable]="true"
-        [rotatable]="true"
-        [snapRotationDegress]="[0, 90, 180, 270]"
-        [snappable]="true"
-        [snapDirections]="({ top: true, left: true, bottom: true, right: true, center: true, middle: true })"
-        [elementSnapDirections]="({ top: true, left: true, bottom: true, right: true, center: true, middle: true })"
-        [maxSnapElementGuidelineDistance]="70"
-        [elementGuidelines]="elementGuidelines"
-        [snapContainer]="'.editor-card'"
-        [bounds]="{position: 'css', left: 0, right: 0, top: 0, bottom: 0}"
-        [individualGroupable]="true"
-        [keepRatio]="keepRatio"
-        [ables]="[DimensionViewable]"
-        [props]="({ dimensionViewable: false })"
-        (drag)="onDrag($event)"
-        (dragStart)="onDragStart($event)"
-        (resize)="onResize($event)"
-        (rotate)="onRotate($event)"
-    ></ngx-moveable>
+    <div class="editor-right">
+        <div class="editor-panel">
+            <p-tree class="w-full md:w-30rem" [value]="elementTree" [draggableNodes]="true" [droppableNodes]="true" 
+                draggableScope="self" droppableScope="self"></p-tree>
+        </div>
+    </div>
 </div>
+<ngx-moveable
+    #moveableRef
+    [target]="target"
+    [origin]="true"
+    [draggable]="true"
+    [resizable]="true"
+    [rotatable]="true"
+    [snapRotationDegress]="[0, 90, 180, 270]"
+    [snappable]="true"
+    [snapDirections]="({ top: true, left: true, bottom: true, right: true, center: true, middle: true })"
+    [elementSnapDirections]="({ top: true, left: true, bottom: true, right: true, center: true, middle: true })"
+    [maxSnapElementGuidelineDistance]="70"
+    [elementGuidelines]="elementGuidelines"
+    [snapContainer]="'.editor-card'"
+    [bounds]="{position: 'css', left: 0, right: 0, top: 0, bottom: 0}"
+    [individualGroupable]="true"
+    [keepRatio]="keepRatio"
+    (drag)="onDrag($event)"
+    (dragStart)="onDragStart($event)"
+    (resize)="onResize($event)"
+    (rotate)="onRotate($event)"
+></ngx-moveable>
