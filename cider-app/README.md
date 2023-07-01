@@ -1,6 +1,8 @@
-# Cider
+# Cider Application
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 13.2.2.
+
+# Useful Commands
 
 ## Local server
 
@@ -9,6 +11,19 @@ Run `npm run start` for a dev server. Navigate to `http://localhost:4200/`. The 
 ## Electron application
 
 Run `npm run electron` for the electron desktop application.
+## Code scaffolding
+
+Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+
+# Updating Dependencies
+
+## List outdated dependencies
+Run `npm outdated`
+
+## Update dependency
+Run `ng update library@version` or `npm update library@version`. If it doesn't work use `ng update library@version --allow-dirty`.
+
+# Other
 
 ## Electron application
 
@@ -23,10 +38,6 @@ Make sure to copy index.html to 404.html to handle all urls.
 
 Run `ng build --outputPath=../docs --baseHref=/cider/` to build the site for github pages.
 Make sure to copy index.html to 404.html to handle all urls. Replaced by `Build GitHub Pages` above.
-
-## Code scaffolding
-
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
 
 ## Build
 
@@ -45,7 +56,7 @@ Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To u
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
 
 ## How to create the ICNS Icon
-
+Make sure you create a flie called `Icon1024.png` in the directory you run these commands.
 ```
 mkdir MyIcon.iconset
 sips -z 16 16     Icon1024.png --out MyIcon.iconset/icon_16x16.png
