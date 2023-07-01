@@ -45,7 +45,7 @@
     "jszip": "^3.10.0",
     "mime": "^3.0.0",
     "mime-wrapper": "^2.0.0",
-    "monaco-editor": "^0.32.1",
+    "monaco-editor": "^0.39.0",
     "p-limit": "^4.0.0",
     "pdfmake": "^0.2.7",
     "primeflex": "^2.0.0",
