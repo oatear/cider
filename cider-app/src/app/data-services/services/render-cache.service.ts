@@ -15,29 +15,23 @@ export class RenderCacheService {
     this.renderCache = new BehaviorSubject<Map<number, any>>(new Map());
   }
 
-  public getRenderCache(): Observable<any> {
+  private getRenderCache(): Observable<any> {
     return this.renderCache.asObservable();
   }
 
   public getOrSet(key: number, setter: () => Promise<string>): Observable<string> {
     const cachedValue: any = this.renderCache.getValue().get(key);
-    if (typeof cachedValue === 'string') {
-      console.log('read string', key);
-      return new Observable((subscriber) => {
-        subscriber.next(cachedValue);
-        subscriber.complete();
-      });
-    }
-    else if (cachedValue instanceof AsyncSubject) {
-      console.log('read AsyncSubject', key)
+    if (cachedValue instanceof AsyncSubject) {
+      // console.log('read AsyncSubject', key)
       return cachedValue.asObservable();
     }
     else {
-      console.log('write AsyncSubject', key);
+      // console.log('write AsyncSubject', key);
       const imageSubject = new AsyncSubject<string>();
       this.renderCache.getValue().set(key, imageSubject);
       setter().then(base64 => {
-        const url = this.setBase64(key, base64);
+        const file = this.base64ToFile(base64, '' + key);
+        const url = URL.createObjectURL(file);
         imageSubject.next(url);
         imageSubject.complete();
       });
@@ -45,11 +39,11 @@ export class RenderCacheService {
     }
   }
 
-  public get(key: number) {
+  private get(key: number) {
     return this.renderCache.getValue().get(key);
   }
 
-  public has(key: number) {
+  private has(key: number) {
     return this.renderCache.getValue().has(key);
   }
 
@@ -59,14 +53,14 @@ export class RenderCacheService {
     this.renderCache.next(renderCache);
   }
 
-  public setBase64(key: number, base64: string) {
+  private setBase64(key: number, base64: string) {
     const file = this.base64ToFile(base64, '' + key);
     const url = URL.createObjectURL(file);
     this.set(key, url);
     return url;
   }
 
-  public delete(key: number) {
+  private delete(key: number) {
     const renderCache = this.renderCache.getValue();
     const url = renderCache.get(key);
     if (url && typeof url === 'string') {
