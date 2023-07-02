@@ -1,4 +1,4 @@
-import { AfterViewChecked, ChangeDetectorRef, Component, DoCheck, ElementRef, Input, OnInit, QueryList, SecurityContext, ViewChildren } from '@angular/core';
+import { AfterViewChecked, ChangeDetectorRef, Component, DoCheck, ElementRef, Input, OnChanges, OnInit, QueryList, SecurityContext, SimpleChanges, ViewChildren } from '@angular/core';
 import { AssetsService } from '../data-services/services/assets.service';
 import { CardTemplate } from '../data-services/types/card-template.type';
 import { Card } from '../data-services/types/card.type';
@@ -15,7 +15,7 @@ import GeneralUtils from '../shared/utils/general-utils';
   templateUrl: './card-preview.component.html',
   styleUrls: ['./card-preview.component.scss']
 })
-export class CardPreviewComponent implements OnInit, AfterViewChecked {
+export class CardPreviewComponent implements OnInit, AfterViewChecked, OnChanges {
   @ViewChildren('cardElement') cardElement: QueryList<any> = {} as QueryList<any>;
   @Input() card: Card = {} as Card;
   @Input() template: CardTemplate = {} as CardTemplate;
@@ -28,6 +28,7 @@ export class CardPreviewComponent implements OnInit, AfterViewChecked {
   uuid: string  = uuid();
   cachedImageUrl?: string;
   private isLoadedSubject: AsyncSubject<boolean>;
+  private isCacheLoadedSubject: AsyncSubject<boolean>;
 
   constructor(
     private assetsService: AssetsService,
@@ -37,7 +38,8 @@ export class CardPreviewComponent implements OnInit, AfterViewChecked {
     private cardToHtmlPipe: CardToHtmlPipe,
     private sanitizer: DomSanitizer) { 
       this.isLoadedSubject = new AsyncSubject();
-    }
+      this.isCacheLoadedSubject = new AsyncSubject();
+  }
 
   /**
    * Setup the initial width and height when the view fully renders once
@@ -57,16 +59,23 @@ export class CardPreviewComponent implements OnInit, AfterViewChecked {
   ngOnInit(): void {
     this.assetsService.getAssetUrls().subscribe(assetUrls => {
       this.assetUrls = assetUrls;
-      if (this.cache) {
-        lastValueFrom(this.isLoadedSubject).then(() => {
-          this.renderCacheService.getOrSet(this.getHash(), 
-            () => GeneralUtils.delay(5000).then(() => this.toImageUrl()))
-          .subscribe((cachedImageUrl) => {
-              this.cachedImageUrl = cachedImageUrl
-          });
-        });
-      }
     });
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (this.cache && this.assetUrls) {
+      lastValueFrom(this.isLoadedSubject).then(() => {
+        this.renderCacheService.getOrSet(this.getHash(), 
+          () => GeneralUtils.delay(2000).then(() => this.toImageUrl()))
+        .subscribe((cachedImageUrl) => {
+            this.cachedImageUrl = cachedImageUrl;
+            GeneralUtils.delay(1000).then(() => {
+              this.isCacheLoadedSubject.next(true);
+              this.isCacheLoadedSubject.complete();
+            });
+        });
+      });
+    }
   }
 
   public getHash(): number {
@@ -75,10 +84,17 @@ export class CardPreviewComponent implements OnInit, AfterViewChecked {
   }
 
   public toImageUrl(): Promise<string> {
-    return htmlToImage.toPng((<any>this.cardElement.get(0)).nativeElement, {pixelRatio: 1.0});
+    const filter = (node: HTMLElement) => {
+      return 'style' !== node.localName;
+    };
+    return htmlToImage.toPng((<any>this.cardElement.get(0)).nativeElement, {pixelRatio: 1.0, filter: filter});
   }
 
   public isLoaded() {
     return this.isLoadedSubject.asObservable();
+  }
+
+  public isCacheLoaded() {
+    return this.isCacheLoadedSubject.asObservable();
   }
 }
