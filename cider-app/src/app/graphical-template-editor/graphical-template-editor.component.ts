@@ -126,6 +126,7 @@ export class GraphicalTemplateEditorComponent implements OnInit, OnChanges {
       this.keepRatio = true;
     } else if (event.key === 'Delete' && this.target) {
       this.target.remove();
+      this.resetTarget();
       this.rebuildTree();
     }
     // console.log(`Keydown ${event.key}`);
@@ -174,8 +175,12 @@ export class GraphicalTemplateEditorComponent implements OnInit, OnChanges {
     this.target = selectedElement;
     var elementGuidelines: any[] = [this.cardRefs?.first?.nativeElement];
     const siblings: HTMLCollection = this.target.parentNode.children;
+    const cardRef = this.cardRefs.first.nativeElement;
     for (var i = 0; i < siblings.length; i++) {
-      elementGuidelines.push(siblings.item(i));
+      if (selectedElement !== siblings.item(i) 
+        && !siblings.item(i)?.localName.includes('style')) {
+        elementGuidelines.push(siblings.item(i));
+      }
     }
     // console.log('siblings', siblings);
     // siblings.forEach((element: any) => {
