@@ -100,13 +100,18 @@ export class GraphicalTemplateEditorComponent implements OnInit, OnChanges {
   }
 
   createNewElement() {
-    this.elements.push( {
-      className: 'element-' + this.elements.length,
-      top: 0,
-      left: 0,
-      width: 300,
-      height: 300
-    });
+    const cardElement = this.cardRefs.first.nativeElement;
+    const element = document.createElement('div');
+    element.className = 'element-' + cardElement.children.length;
+    element.style.top = `0`;
+    element.style.left = `0`;
+    element.style.width = `300px`;
+    element.style.height = `300px`;
+    element.style.position = 'absolute';
+    element.style.display = 'block';
+    element.style.backgroundColor = '#434f61';
+    cardElement.appendChild(element);
+    this.rebuildTree();
   }
 
   private rebuildTree() {
@@ -119,11 +124,9 @@ export class GraphicalTemplateEditorComponent implements OnInit, OnChanges {
   onKeyDown(event: KeyboardEvent) {
     if (event.key === 'Shift') {
       this.keepRatio = true;
-    } else if (event.key === 'Delete') {
-      if (this.target) {
-        this.target.remove();
-        this.rebuildTree();
-      }
+    } else if (event.key === 'Delete' && this.target) {
+      this.target.remove();
+      this.rebuildTree();
     }
     // console.log(`Keydown ${event.key}`);
   }
