@@ -7,6 +7,7 @@ import { CardToHtmlPipe } from '../shared/pipes/template-to-html.pipe';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { TreeDragDropService, TreeNode } from 'primeng/api';
 import GeneralUtils from '../shared/utils/general-utils';
+import { Tree, TreeNodeDropEvent, TreeNodeSelectEvent } from 'primeng/tree';
 
 @Component({
   selector: 'app-graphical-template-editor',
@@ -18,6 +19,7 @@ export class GraphicalTemplateEditorComponent implements OnInit, OnChanges {
   
   @ViewChildren('elementRef') elementRefs: QueryList<ElementRef> = {} as QueryList<ElementRef>;
   @ViewChildren('cardRef') cardRefs: QueryList<ElementRef> = {} as QueryList<ElementRef>;
+  @ViewChildren('treeRef') treeRefs: QueryList<Tree> = {} as QueryList<Tree>;
   @Input() template: CardTemplate = {} as CardTemplate;
   @Input() card: Card = {} as Card;
   assetUrls: any;
@@ -51,15 +53,24 @@ export class GraphicalTemplateEditorComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    const html = this.cardToHtmlPipe.transform(this.template, this.card, this.assetUrls, this.uuid);
-    this.cardHtml = html;
+    this.cardHtml = this.cardToHtmlPipe.transform(this.template, this.card, this.assetUrls, this.uuid);
     GeneralUtils.delay(100).then(() => {
       const cardElement = this.cardRefs.first.nativeElement;
-      // console.log('cardElement', cardElement, cardElement.children);
+      const styleElement = this.getStyleElement(cardElement);
       const elementTree = this.buildTree(cardElement);
       this.elementTree = elementTree.children || [];
       console.log('onChange', this.template, this.card, this.elementTree);
     })
+  }
+
+  private getStyleElement(cardElement: any) {
+    const children = cardElement.children;
+    for(var i = 0; i < children.length; i++) {
+      if (children.item(i)?.localName.includes('style')) {
+        return children.item(i);
+      }
+    }
+    return undefined;
   }
 
   buildTree(element: any): TreeNode {
@@ -68,7 +79,9 @@ export class GraphicalTemplateEditorComponent implements OnInit, OnChanges {
     var nodeChildren: TreeNode[] = [];
     if (elementChildren) {
       for(var i = 0; i < elementChildren.length; i++) {
-        nodeChildren.push(this.buildTree(elementChildren.item(i)));
+        if (!elementChildren.item(i)?.localName.includes('style')) {
+          nodeChildren.push(this.buildTree(elementChildren.item(i)));
+        }
       }
     }
     return {label: label, data: element, children: nodeChildren, expanded: nodeChildren !== undefined,
@@ -96,10 +109,21 @@ export class GraphicalTemplateEditorComponent implements OnInit, OnChanges {
     });
   }
 
+  private rebuildTree() {
+    const cardElement = this.cardRefs.first.nativeElement;
+    const elementTree = this.buildTree(cardElement);
+    this.elementTree = elementTree.children || [];
+  }
+
   @HostListener("window:keydown", ['$event'])
   onKeyDown(event: KeyboardEvent) {
     if (event.key === 'Shift') {
       this.keepRatio = true;
+    } else if (event.key === 'Delete') {
+      if (this.target) {
+        this.target.remove();
+        this.rebuildTree();
+      }
     }
     // console.log(`Keydown ${event.key}`);
   }
@@ -116,23 +140,34 @@ export class GraphicalTemplateEditorComponent implements OnInit, OnChanges {
   onClick(event: PointerEvent) {
     // console.log('click', event, (event.target as any).className);
     const cardRef = this.cardRefs.first.nativeElement;
+    const treeRef = this.treeRefs.first.el.nativeElement;
     const className: string = (event.target as any).className;
     if (className.includes('editor-card')) {
+      return;
+    } else if (treeRef.contains(event.target)) {
       return;
     } else if (!cardRef.contains(event.target)) {
       this.resetTarget();
       return;
     }
-    this.setTarget(event);
+    this.setTarget(event?.target);
   }
 
-  setTarget(e: any) {
+  onClickLayer(event: TreeNodeSelectEvent) {
+    this.setTarget(event.node.data);
+  }
+
+  onLayerDrop(event: TreeNodeDropEvent) {
+    console.log('layerDrop', event);
+    event.dropNode?.data?.appendChild(event.dragNode?.data);
+  }
+
+  setTarget(selectedElement: any) {
     // console.log('setTarget', e.target);
-    if (this.target === e.target) {
+    if (this.target === selectedElement) {
       this.resetTarget();
       return;
     }
-    var selectedElement = e.target;
     this.target = selectedElement;
     var elementGuidelines: any[] = [this.cardRefs?.first?.nativeElement];
     const siblings: HTMLCollection = this.target.parentNode.children;
@@ -161,6 +196,7 @@ export class GraphicalTemplateEditorComponent implements OnInit, OnChanges {
   onDragStart(e: any) {
     console.log('drag start', e);
     e.target.style.position = 'absolute';
+    e.target.style.display = 'block';
   }
   onDrag(e: any) {
     // e.target.style.transform = e.transform;

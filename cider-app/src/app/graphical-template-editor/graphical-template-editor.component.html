@@ -36,8 +36,9 @@
     </div>
     <div class="editor-right">
         <div class="editor-panel">
-            <p-tree class="w-full md:w-30rem" [value]="elementTree" [draggableNodes]="true" [droppableNodes]="true" 
-                draggableScope="self" droppableScope="self"></p-tree>
+            <p-tree #treeRef class="w-full md:w-30rem" [value]="elementTree" [draggableNodes]="true" [droppableNodes]="true" 
+                selectionMode="single" draggableScope="self" droppableScope="self" 
+                (onNodeSelect)="onClickLayer($event)" (onNodeDrop)="onLayerDrop($event)"></p-tree>
         </div>
     </div>
 </div>
