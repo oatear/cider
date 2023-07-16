@@ -1,5 +1,11 @@
 .card-preview {
     transform-origin: 0 0;
+    width: fit-content;
+    height: fit-content;
+}
+.card-element {
+    width: fit-content;
+    height: fit-content;
 }
 
 :host ::ng-deep .card-preview {

@@ -1,11 +1,12 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ConfirmationService, LazyLoadEvent, MessageService } from 'primeng/api';
-import { Table } from 'primeng/table';
+import { Table, TableLazyLoadEvent } from 'primeng/table';
 import { EntityField } from '../data-services/types/entity-field.type';
 import { EntityService } from '../data-services/types/entity-service.type';
 import { FieldType } from '../data-services/types/field-type.type';
 import { SortDirection } from '../data-services/types/search-sort.type';
 import XlsxUtils from '../shared/utils/xlsx-utils';
+import { Subject, debounceTime } from 'rxjs';
 
 @Component({
   selector: 'app-entity-table',
@@ -18,10 +19,16 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
   @Input() records: Entity[] = [];
   @Input() columns: EntityField<Entity>[] = [];
   @Input() service: EntityService<Entity, Identifier> | undefined;
-  @Input() selection: Entity | undefined;
-  @Input() selectionMode: string | undefined;
+  @Input() selection: Entity | Entity[] | undefined;
+  @Input() selectionMode: 'single' | 'multiple' | undefined;
   @Input() allowImportExport: boolean = false;
-  @Output() selectionChange: EventEmitter<Entity | undefined> = new EventEmitter<Entity | undefined>();
+  @Input() allowEditing: boolean = true;
+  @Input() showColumnFilters: boolean = true;
+  @Input() lazy: boolean = true;
+  @Input() showActions: boolean = true;
+  @Input() showInlineEditor: boolean = true;
+  @Input() saveToService: boolean = true;
+  @Output() selectionChange: EventEmitter<Entity | Entity[] | undefined> = new EventEmitter<Entity | Entity[] | undefined>();
   FieldType = FieldType;
   total: number = 0;
   loading: boolean = false;
@@ -31,17 +38,27 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
   lookups: Map<EntityService<any, string | number>, Map<string | number, string>> = new Map();
   importVisible: boolean = false;
   importFile: File | undefined = undefined;
+  saveSubject: Subject<Entity> = new Subject();
+  optionsCache: Map<EntityService<any, string | number>, any[]>;
 
   constructor(private messageService: MessageService, 
-    private confirmationService: ConfirmationService) { }
+    private confirmationService: ConfirmationService) {
+      this.saveSubject.asObservable().pipe(debounceTime(1000))
+        .subscribe((entity) => this.save(entity));
+      this.optionsCache = new Map<EntityService<any, string | number>, any[]>();
+  }
 
   ngOnInit(): void {
     this.service?.getFields().then(fields => this.columns = fields);
     this.service?.getLookups().then(lookups => this.lookups = lookups);
-    this.service?.search({offset: 0, limit: 10}).then(result => {
-      this.total = result.total;
-      this.records = result.records;
-    });
+    if (this.lazy) {
+      this.service?.search({offset: 0, limit: 10}).then(result => {
+        this.total = result.total;
+        this.records = result.records;
+      });
+    } else if (this.records) {
+      this.total = this.records.length;
+    }
     this.idField = this.service?.getIdField();
   }
 
@@ -51,21 +68,23 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
    * 
    * @param event 
    */
-  public loadData(event: LazyLoadEvent) {
+  public loadData(event: TableLazyLoadEvent) {
     this.service?.search({
       offset: 0, 
       limit: 100,
-      sorting: !event.sortField ? undefined : [{
-        field: event.sortField,
-        direction: event.sortOrder !== undefined && event.sortOrder > 0 
+      sorting: !event.sortField  || (Array.isArray(event.sortField) && event.sortField.length <= 0) ? undefined : [{
+        field: Array.isArray(event.sortField) ? event.sortField[0] : event.sortField,
+        direction: event.sortOrder !== undefined && event.sortOrder !== null && event.sortOrder > 0 
           ? SortDirection.asc : SortDirection.desc
       }],
       filters: Object.entries(event.filters || {})
-        .filter(([key, value]) => value.value !== null && key !== 'global')
+        .filter(([key, value]) => key !== 'global' && value !== undefined 
+          && (Array.isArray(value) && value.length > 0 && value[0].value != null || !Array.isArray(value) &&value.value !== null))
         .map(([key, value]) => {
-          return {field: key, filter: value.value}
+          return {field: key, filter: Array.isArray(value) ? value[0].value : value?.value}
         }),
-      query: event.globalFilter
+      query: !event.globalFilter ? undefined : Array.isArray(event.globalFilter) 
+        ? (event.globalFilter.length > 0 ? event.globalFilter[0] : undefined) : event.globalFilter
     }).then(result => {
       this.total = result.total;
       this.records = result.records;
@@ -110,6 +129,25 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
 
   public exportData() {
     XlsxUtils.entityExportToFile(this.columns, this.lookups, this.records);
+  }
+
+  public debounceSave(entity: Entity) {
+    this.saveSubject.next(entity);
+  }
+
+  public save(entity: Entity) {
+    if (!this.service || !this.saveToService) {
+      return;
+    }
+    const id = (<any>entity)[this.service?.getIdField()];
+    this.updateExisting(id, entity);
+  }
+  
+  public updateExisting(id: Identifier, entity: Entity) {
+    this.service?.update(id, entity).then(result => {
+    }).catch(error => {
+      console.log('error saving entity', error);
+    });
   }
 
   public openCreateNew() {

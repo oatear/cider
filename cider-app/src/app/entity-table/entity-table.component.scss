@@ -1,9 +1,4 @@
 
-
-:host ::ng-deep th.action-col, td.action-col {
-    width: 120px;
-}
-
 :host ::ng-deep .p-datatable .p-datatable-tbody > tr > td.preview-image {
     padding-top: 0;
     padding-bottom: 0;
@@ -17,6 +12,124 @@
 :host ::ng-deep .p-datatable .p-datatable-tbody > tr > td 
 {
     border: none;
+}
+
+:host ::ng-deep .p-datatable .p-datatable-thead > tr > th,
+:host ::ng-deep .p-datatable .p-datatable-tbody > tr > td 
+{
+    // width: 150px;
+    // min-width: 150px;
+    // max-width: 350px;
+    &.text-area {
+        // width: 90px;
+        min-width: 300px;
+        // max-width: 90px;
+    }
+    &.option {
+        min-width: 100px;
+    }
+    &.action-col {
+        width: 90px;
+        min-width: 90px;
+        max-width: 90px;
+        // box-shadow: 0px 0px 20px 0px #00000038;
+        // clip-path: inset(0px 0px 0px -30px);
+    }
+    &.selection-col {
+        width: 50px;
+        min-width: 50px;
+        max-width: 50px;
+        text-align: center;
+        // display: flex;
+        // justify-content: center;
+        // box-shadow: 0px 0px 20px 0px #00000038;
+        // clip-path: inset(0px -30px 0px -0px);
+    }
+    p-columnfilter {
+        width: 100%;
+    }
+}
+:host ::ng-deep .p-datatable .p-datatable-tbody tr td p-celleditor {
+    width: 100%;
+}
+:host ::ng-deep .p-datatable .p-datatable-tbody tr td p-celleditor,
+:host ::ng-deep .p-datatable .p-datatable-tbody tr td {
+    // width: 100%;
+    // height: 100%;
+    // display: flex;
+    align-items: center;
+    .base {
+        width: 100%;
+        height: 100%;
+        border: 1px solid var(--surface-a);
+        background-color: var(--surface-a);
+        display: flex;
+        align-items: center;
+        padding: 0.5rem 0.75rem;
+        &.textarea {
+            padding-top: 7px;
+            padding-bottom: calc(0.5rem - 2px);
+        }
+    }
+}
+
+/* Fix issue with frozen columns becoming transparent on hover and remove hover color */
+:host ::ng-deep .p-datatable.p-datatable-hoverable-rows .p-datatable-tbody {
+    > tr:not(.p-highlight):hover,
+    > tr.p-highlight {
+        background: var(--surface-a);
+    }
+}
+
+/* Cell Editor Styling */
+:host ::ng-deep .p-datatable .p-datatable-tbody tr td {
+    padding: 0;
+    input {
+        width: 100%;
+        height: 100%;
+        border: 1px solid var(--surface-a);
+        background-color: var(--surface-a);
+        &:focus {
+            box-shadow: none;
+            background-color: #20262e;
+            border: 1px solid #3f4b5b;
+        }
+    }
+    textarea {
+        width: 100%;
+        border: 1px solid var(--surface-a);
+        background-color: var(--surface-a);
+        display: block;
+        &:focus {
+            box-shadow: none;
+            background-color: #20262e;
+            border: 1px solid #3f4b5b;
+        }
+        &:disabled {
+            opacity: 100%;
+        }
+    }
+    p-dropdown {
+        width: 100%;
+        height: 100%;
+        .p-dropdown {
+            width: 100%;
+            height: 100%;
+            border: 1px solid var(--surface-a);
+            background-color: var(--surface-a);
+            &.p-focus {
+                box-shadow: none;
+                background-color: #20262e;
+                border: 1px solid #3f4b5b;
+            }
+            span.p-dropdown-label {
+                display: flex;
+                align-items: center;
+                text-overflow: ellipsis;
+                width: 80px;
+            }
+        }
+    }
 }
 
 :host ::ng-deep .p-datatable .p-datatable-tbody > tr:focus {

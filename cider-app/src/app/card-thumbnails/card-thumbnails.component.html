@@ -4,14 +4,19 @@
     <div class="card-controls">
         <p-selectButton [options]="zoomOptions" [(ngModel)]="zoomLevel" class="p-mr-3"
             optionLabel="label" optionValue="value"></p-selectButton>
-        <p-selectButton [options]="sideOptions" [(ngModel)]="sideSelected" optionLabel="label" optionValue="value"></p-selectButton>
+        <p-selectButton [options]="sideOptions" [(ngModel)]="sideSelected" class="p-mr-3"
+            optionLabel="label" optionValue="value"></p-selectButton>
+        <input type="search" pInputText placeholder="Search Cards" (input)="filter($event)">
     </div>
     <div class="card-thumbnails">
-        <ng-container *ngFor="let card of thumbnailCards">
-            <app-card-preview *ngIf="sideSelected == 'fronts' || sideSelected == 'both'" 
-                [card]="card" [scale]="zoomLevel" [template]="card.frontCardTemplateId | entity: templatesService | async"></app-card-preview>
-            <app-card-preview *ngIf="sideSelected == 'backs' || sideSelected == 'both'" 
-                [card]="card" [scale]="zoomLevel" [template]="card.backCardTemplateId | entity: templatesService | async"></app-card-preview>
-        </ng-container>
+        <p-dataView #dv [value]="thumbnailCards" [rows]="25" [paginator]="true" paginatorPosition="both" 
+            [filterBy]="filterFields" [alwaysShowPaginator]="false" [showCurrentPageReport]="true">
+            <ng-template let-card pTemplate="listItem">
+                <app-card-preview *ngIf="sideSelected == 'fronts' || sideSelected == 'both'" [cache]="false"
+                    [card]="card" [scale]="zoomLevel" [template]="card.frontCardTemplateId | entity: templatesService | async"></app-card-preview>
+                <app-card-preview *ngIf="sideSelected == 'backs' || sideSelected == 'both'" [cache]="false"
+                    [card]="card" [scale]="zoomLevel" [template]="card.backCardTemplateId | entity: templatesService | async"></app-card-preview>
+            </ng-template>
+        </p-dataView>
     </div>
 </p-card>

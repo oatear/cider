@@ -1,6 +1,14 @@
+:host ::ng-deep .page-card {
+    margin: 0;
+}
+
 textarea {
     width: 100%;
     height: 100%;
+}
+
+.template-editor {
+    margin-right: -15px;
 }
 
 :host ::ng-deep .p-panel {

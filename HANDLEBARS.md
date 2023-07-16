@@ -24,16 +24,27 @@ Index an object/array with another variable (Ex. assets[card.image]).
 
     {{index assets card.image}}
 
-### Compile Images {{compileImages}}
-Compile text containing `{{asset-name [multiples]}}` variables.
+### Compile {{compile}} or {{compileImages}} (older)
+Compile text containing `{{asset-name [multiples]}}` variables. It will also render any HTML in your field.
 
-    {{compileImages card.description width=100}}
+    {{compile card.description width=100}}
 
 Ex. Description Field
 
     Draw {{red-card 2}}, discard {{red-card}}.
 
-![image-1]
+![helper-compile-1]
+
+Ex. HTML in Description Field
+
+    Player Actions (three per turn):
+    <ul>
+        <li><b>draw</b> a card from your deck.</li>
+        <li><b>move</b> one space on the board.</li>
+        <li><b>attack</b> enemy for one damage.</li>
+    </ul>
+
+![helper-compile-2]
 
 ## 1.4 Control Helpers
 
@@ -137,4 +148,5 @@ Pad a given number by `n` zeros.
     {{abs card.power}}
 
 
-[image-1]: cider-app/src/assets/image-1.png
+[helper-compile-1]: cider-app/src/assets/helper-compile-1.png
+[helper-compile-2]: cider-app/src/assets/helper-compile-2.png

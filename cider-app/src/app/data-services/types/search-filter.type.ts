@@ -3,5 +3,5 @@
  */
 export interface SearchFilter {
     field: string;
-    filter: string;
+    filter: string | string[];
 }

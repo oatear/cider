@@ -148,7 +148,7 @@ export class ElectronService {
 
     await this.removeDirectory(decksUrl);
     await this.createDirectory(decksUrl);
-    const writeAllDecks = Promise.all(decks.map(async deck => {
+    const writeAllDecks = await Promise.all(decks.map(async deck => {
       const deckUrl = decksUrl + '/' + StringUtils.toKebabCase(deck.name);
       await this.createDirectory(deckUrl);
       this.writeFile(deckUrl + '/cards.csv', deck.cardsCsv);
@@ -182,7 +182,7 @@ export class ElectronService {
     await cardsService.emptyTable();
     await decksService.emptyTable();
     await this.listDirectory(assetsUrl).then(assetUrls => Promise.all(assetUrls
-      .filter(assetUrl => assetUrl.isFile).map(async assetUrl => {
+      .filter(assetUrl => assetUrl.isFile && !assetUrl.name.includes('.DS_Store')).map(async assetUrl => {
       const assetNameSplit = StringUtils.splitNameAndExtension(assetUrl.name);
       const assetName = assetNameSplit.name;
       const assetExt = assetNameSplit.extension;

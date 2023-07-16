@@ -15,9 +15,13 @@
     }
 }
 
-:host ::ng-deep app-page-header .p-card {
+:host ::ng-deep app-page-header p-card .p-card.page-card.header-card {
     margin: 0;
     margin-bottom: 25px;
+}
+
+:host ::ng-deep p-card .p-card.page-card.p-component {
+    margin: 0;
 }
 
 $preview-sheets-scale: 0.08;
@@ -35,31 +39,29 @@ $preview-individual-scale: 0.08;
 //     }
 // }
 
+.settings-panel {
+    div.p-d-flex div.p-field {
+        flex: 1
+    }
+}
+.card-controls {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
 .preview-wrapper {
-    // width: calc(50vw - 70px);
-    // height: calc(100vh - 350px);
-    // overflow: hidden;
-    // overflow: scroll;
     .preview-sheets {
-        transform-origin: center;
-        transform: translate(-50%, -50%) scale($preview-sheets-scale) 
-            translate(calc((50vw - 70px)/2/$preview-sheets-scale), calc((100vh - 350px)/2/$preview-sheets-scale));
-        transform: translate(-50%, -50%) scale($preview-sheets-scale) 
-            translate(calc((50vw - 70px)/2/$preview-sheets-scale), calc((var(--vh, 1vh) * 100 - 350px)/2/$preview-sheets-scale));
-        // overflow: hidden;
-        // display: flex;
-        // flex-wrap: wrap;
-        // flex-direction: row;
-        // align-content: flex-start;
-        overflow: initial;
+        transform-origin: top left;
+        display: flex;
+        flex-wrap: wrap;
         overflow-wrap: normal;
-        width: calc((50vw - 70px) * 1/$preview-sheets-scale);
-        height: calc((100vh - 350px) * 1/$preview-sheets-scale);
-        height: calc((var(--vh, 1vh) * 100 - 350px) * 1/$preview-sheets-scale);
+        flex-direction: row;
+        align-content: flex-start;
         .preview-page {
             background-color: white;
             overflow: hidden;
-            margin: 100px;
+            transform-origin: top left;
             .preview-sheet {
                 width: 100%;
                 height: 100%;
@@ -71,19 +73,13 @@ $preview-individual-scale: 0.08;
         }
     }
     .preview-individuals {
-        transform-origin: center;
-        transform: translate(-50%, -50%) scale($preview-individual-scale) 
-            translate(calc((50vw - 70px)/2/$preview-individual-scale), calc((100vh - 350px)/2/$preview-individual-scale));
-        overflow: hidden;
         display: flex;
         flex-wrap: wrap;
         overflow-wrap: normal;
         flex-direction: row;
         align-content: flex-start;
-        width: calc((50vw - 70px) * 1/$preview-individual-scale);
-        height: calc((100vh - 350px) * 1/$preview-individual-scale);
         .card-wrapper {
-            margin: 50px;
+            transform-origin: top left;
         }
         app-card-preview {
             float: left;

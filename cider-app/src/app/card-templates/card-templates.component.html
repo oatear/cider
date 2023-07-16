@@ -9,8 +9,7 @@
                 <button pButton pRipple label="New" icon="pi pi-plus" class="p-button" (click)="openCreateNew()"></button>
             </ng-template>
             <ng-template pTemplate="right">
-                <button pButton pRipple label="Delete" icon="pi pi-trash" class="p-button-danger p-mr-2" (click)="openDeleteDialog(selectedTemplate)"></button>
-                <button pButton pRipple label="Save" icon="pi pi-save" class="p-button" (click)="save(selectedTemplate)"></button>
+                <button pButton pRipple label="Delete" icon="pi pi-trash" class="p-button-danger" (click)="openDeleteDialog(selectedTemplate)"></button>
             </ng-template>
         </p-toolbar>
     </div>
@@ -21,7 +20,7 @@
             <div class="left-panel p-col p-flex p-align-items-center p-justify-content-center">
                 <p-panel header="Preview" >
                     <div class="preview-controls" *ngIf="!disablePanels">
-                        <p-dropdown [options]="cards" [(ngModel)]="selectedCard" 
+                        <p-dropdown [options]="cards" [(ngModel)]="selectedCard" [filter]="true" filterby="name"
                             optionLabel="name" styleClass="card-dropdown"></p-dropdown>
                         <span class="p-buttonset">
                             <button pButton type="button" icon="pi pi-search-minus" (click)="changeZoom(-0.1)"></button>
@@ -29,7 +28,8 @@
                         </span>
                     </div>
                     <div class="preview-space" [style]="{ width: 'calc(var(--vw, 1vw) * ' + previewPanelWidth + ')' }" *ngIf="!disablePanels">
-                        <app-card-preview [card]="selectedCard" [template]="selectedTemplate" *ngIf="selectedCard" [scale]="zoom"></app-card-preview>
+                        <app-card-preview [card]="selectedCard" [template]="selectedTemplate" *ngIf="selectedCard" [scale]="zoom"
+                            [cache]="false"></app-card-preview>
                     </div>
                 </p-panel>
             </div>
@@ -37,21 +37,21 @@
         <ng-template pTemplate>
             <div class="right-panel p-col p-flex p-align-items-center p-justify-content-center">
                 <div class="top-panel">
-                    <p-panel style="height: 100%; width: 100%;" header="CSS">
+                    <p-panel [style]="{height: '100%', width: '100%'}" header="CSS">
                         <ng-template pTemplate="icons">
                             <button pButton pRipple icon="pi pi-info-circle" class="p-panel-header-icon p-link" (click)="openCssInfo()"></button>
                         </ng-template>
                         <ngx-monaco-editor style="height: 100%;" *ngIf="selectedTemplate && !disablePanels"
-                            [options]="cssEditorOptions" [(ngModel)]="selectedTemplate.css"></ngx-monaco-editor>
+                            [options]="cssEditorOptions" [(ngModel)]="selectedTemplate.css" (ngModelChange)="debounceSave()"></ngx-monaco-editor>
                     </p-panel>
                 </div>
                 <div class="bottom-panel">
-                    <p-panel style="height: 100%; width: 100%;" header="HTML/Handlebars">
+                    <p-panel [style]="{height: '100%', width: '100%'}" header="HTML/Handlebars">
                         <ng-template pTemplate="icons">
                             <button pButton pRipple icon="pi pi-info-circle" class="p-panel-header-icon p-link" (click)="openHtmlInfo()"></button>
                         </ng-template>
                         <ngx-monaco-editor style="height: 100%;" *ngIf="selectedTemplate && !disablePanels"
-                            [options]="htmlEditorOptions" [(ngModel)]="selectedTemplate.html"></ngx-monaco-editor>
+                            [options]="htmlEditorOptions" [(ngModel)]="selectedTemplate.html" (ngModelChange)="debounceSave()"></ngx-monaco-editor>
                     </p-panel>
                 </div>
             </div>

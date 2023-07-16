@@ -1,5 +1,4 @@
 :host ::ng-deep .page-card {
-    margin: 25px;
     &.tabbed-card {
         margin-top: 0px;
     }
@@ -17,24 +16,46 @@
         margin: 10px;
     }
 }
-
-:host ::ng-deep .p-selectbutton .p-button {
-    background: #262d36;;
-    border: 1px solid  #262d36;;
-    color: rgba(255, 255, 255, 0.6);
-    transition: background-color 0.15s, border-color 0.15s, box-shadow 0.15s;
-    &.p-highlight {
-        background: var(--surface-d);
-        border-color: var(--surface-d);
-        color: rgba(255, 255, 255, 0.6);
+:host ::ng-deep p-dataview {
+    width: 100%;
+    .p-dataview-emptymessage {
+        text-align: center;
     }
-    &:not(.p-disabled):not(.p-highlight):hover {
-        background: #343e4d;
-        border-color: #343e4d;
-        color: #ffffff;
+    .p-dataview .p-paginator-bottom {
+        border: none;
     }
-    &:focus {
-        box-shadow: 0 0 0 1px var(--surface-d);
-        box-shadow: none;
+    .p-dataview.p-dataview-list .p-dataview-content > .p-grid > div {
+        border: none;
+    }
+    .p-paginator {
+        .p-paginator-pages button.p-paginator-page,
+        button {
+            color: rgba(255, 255, 255, 0.6);
+            background-color: #262d36;
+            border-color: #262d36;
+            &:not(.p-disabled):not(.p-highlight):hover {
+                background: #343e4d;
+                border-color: #343e4d;
+                color: #ffffff;
+            }
+        }
+        .p-paginator-pages .p-paginator-page.p-highlight {
+            background: #3e4b5b;
+            border-color: #3e4b5b;
+        }
+        .p-paginator-current {
+            border-top-left-radius: 4px;
+            border-bottom-left-radius: 4px;
+            color: rgba(255, 255, 255, 0.6);
+            background-color: #262d36;
+            border-color: #262d36;
+        }
+        .p-paginator-last {
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
+        .p-link:focus {
+            box-shadow: none;
+        }
     }
 }

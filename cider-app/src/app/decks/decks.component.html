@@ -1,7 +1,8 @@
 <app-page-header header="Decks" subheader="Select an existing deck to edit, or create a new one"></app-page-header>
 <p-card styleClass="deck-card">
     <div class="decks-table">
-        <app-entity-table [service]="decksService" [(selection)]="selectedDeck" selectionMode="single"></app-entity-table>
+        <app-entity-table [service]="decksService" [(selection)]="selectedDeck" selectionMode="single"
+            [showColumnFilters]="false" [showInlineEditor]="false"></app-entity-table>
     </div>
     <p-button label="Select Deck" (click)="selectDeck()" [disabled]="selectedDeck === undefined"></p-button>
 </p-card>

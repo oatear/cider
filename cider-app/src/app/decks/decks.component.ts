@@ -14,7 +14,7 @@ export class DecksComponent implements OnInit, OnDestroy {
   private destroyed$: Subject<boolean> = new Subject();
   cols: EntityField<Deck>[];
   decks: Deck[];
-  selectedDeck: Deck | undefined;
+  selectedDeck: Deck | Deck[] | undefined;
 
   constructor(public decksService: DecksService, 
     private router: Router) {
@@ -41,6 +41,9 @@ export class DecksComponent implements OnInit, OnDestroy {
    * Select the deck
    */
   public selectDeck() {
+      if (Array.isArray(this.selectedDeck)) {
+        return;
+      }
       this.decksService.selectDeck(this.selectedDeck);
       this.router.navigateByUrl(`/decks/${this.selectedDeck?.id}/cards/listing`);
   }
