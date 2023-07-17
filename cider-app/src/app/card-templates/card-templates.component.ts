@@ -5,7 +5,9 @@ import { CardTemplatesService } from '../data-services/services/card-templates.s
 import { CardsService } from '../data-services/services/cards.service';
 import { CardTemplate } from '../data-services/types/card-template.type';
 import { Card } from '../data-services/types/card.type';
-import { Subject, debounceTime } from 'rxjs';
+import { Subject, debounceTime, filter, take } from 'rxjs';
+import LanguageCssHandlebars from '../shared/languages/css-handlebars';
+import { MonacoEditorLoaderService } from '@materia-ui/ngx-monaco-editor';
 
 const templateCssFront  = 
 `.card {
@@ -58,7 +60,7 @@ export class CardTemplatesComponent implements OnInit {
   static readonly DEFAULT_CSS: string = templateCssFront;
 
   htmlEditorOptions: any = {theme: 'vs-dark', language: 'handlebars', automaticLayout: true};
-  cssEditorOptions: any = {theme: 'vs-dark', language: 'css', automaticLayout: true};
+  cssEditorOptions: any = {theme: 'vs-dark', language: 'css-handlebars', automaticLayout: true};
   templates: CardTemplate[] = [];
   cards: Card[] = [];
   selectedCard: Card = {} as Card;
@@ -76,8 +78,12 @@ export class CardTemplatesComponent implements OnInit {
     public service: CardTemplatesService,
     private cardsService: CardsService,
     private messageService: MessageService, 
-    private confirmationService: ConfirmationService) {
+    private confirmationService: ConfirmationService, 
+    private monacoLoaderService: MonacoEditorLoaderService) {
       this.templateChanges = new Subject();
+      this.monacoLoaderService.isMonacoLoaded$.pipe(filter(isLoaded => isLoaded), take(1)).subscribe(() => {
+        LanguageCssHandlebars.registerCssHandlebars();
+      });
     }
 
   ngOnInit(): void {
