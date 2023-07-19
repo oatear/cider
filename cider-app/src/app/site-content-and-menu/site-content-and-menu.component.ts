@@ -329,8 +329,8 @@ export class SiteContentAndMenuComponent implements OnInit {
   public async saveProject() {
     const projectHomeUrl = await firstValueFrom(this.electronService.getProjectHomeUrl());
     if (!projectHomeUrl) {
-      this.messageService.add({severity:'Error', summary: 'Error', detail: 'No project directory open.', life: 3000});
       console.log('No project directory open.');
+      this.saveProjectAs();
       return;
     }
 
