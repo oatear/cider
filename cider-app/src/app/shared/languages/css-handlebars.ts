@@ -259,5 +259,19 @@ export default class LanguageCssHandlebars {
         monaco.languages.register(language);
         monaco.languages.setLanguageConfiguration(languageName, languageConfiguration);
         monaco.languages.setMonarchTokensProvider(languageName, tokenProvider);
+        
+        monaco.languages.css.cssDefaults.setOptions({ validate: false });
+        monaco.languages.css.cssDefaults.setOptions({ 
+            data: {
+                dataProviders:  {
+                    css: {
+                        version: 1.1,
+                        properties: [
+                            {name: 'test', description: 'test helper'}
+                        ]
+                    }
+                }
+            }
+        });
     }
 }

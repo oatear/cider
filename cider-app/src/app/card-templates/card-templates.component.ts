@@ -60,7 +60,7 @@ export class CardTemplatesComponent implements OnInit {
   static readonly DEFAULT_CSS: string = templateCssFront;
 
   htmlEditorOptions: any = {theme: 'vs-dark', language: 'handlebars', automaticLayout: true};
-  cssEditorOptions: any = {theme: 'vs-dark', language: 'css-handlebars', automaticLayout: true};
+  cssEditorOptions: any = {theme: 'vs-dark', language: 'css', automaticLayout: true};
   templates: CardTemplate[] = [];
   cards: Card[] = [];
   selectedCard: Card = {} as Card;
