@@ -4,7 +4,7 @@
   "author": {
     "name": "Hristo Iankov"
   },
-  "version": "0.4.4",
+  "version": "0.4.4.1",
   "repository": "https://github.com/oatear/cider",
   "main": "electron-app/dist/main.js",
   "scripts": {

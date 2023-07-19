@@ -112,7 +112,7 @@ try {
    */
   ipcMain.handle('open-select-directory-dialog', async (event, arg) => {
     const result = await dialog.showOpenDialog(win, {
-      properties: ['openDirectory']
+      properties: ['openDirectory', 'createDirectory']
     });
     console.log('directory selected', result.filePaths);
     return result;
