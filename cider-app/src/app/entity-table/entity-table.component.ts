@@ -178,7 +178,7 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
         const value = record[column.field];
         if (value) {
           const strValue = '' + value;
-          strValue.replace(/[<][^>]*[>]/, '').split(/ /).filter(str => str).forEach(token => {
+          strValue.replace(/[<][^>]*[>]/g, '').split(/ |\n|\r/).filter(str => str).forEach(token => {
             const tokenStat = tokenStats.get(token);
             if (tokenStat) {
               tokenStats.set(token, 
