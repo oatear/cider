@@ -140,3 +140,17 @@
     background: var(--surface-d);
     color: var(--text-color);
 }
+
+.token-stats {
+    .token-row {
+        display: table-row;
+        &.token-header {
+            color: #5c7089;
+        }
+        & > div {
+            display: table-cell;
+            padding-left: 5px;
+            padding-right: 5px;
+        }
+    }
+}

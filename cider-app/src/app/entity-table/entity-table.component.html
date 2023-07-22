@@ -10,8 +10,8 @@
             <button *ngIf="allowEditing && showActions" pButton pRipple label="New" icon="pi pi-plus" class="p-button p-mr-2" (click)="openCreateNew()"></button>
             <div class="p-ml-auto">
                 <ng-container *ngIf="showStats">
-                    <button pButton pRipple label="" icon="pi pi-upload" class="p-button-success p-mr-2" 
-                        pTooltip="Show stats" (click)="openStatsDialog()"></button>
+                    <button pButton pRipple label="" icon="pi pi-percentage" class="p-button-info p-mr-2" 
+                        pTooltip="Show token stats" (click)="openStatsDialog()"></button>
                 </ng-container>
                 <ng-container *ngIf="allowImportExport">
                     <button pButton pRipple label="" icon="pi pi-upload" class="p-button-success p-mr-2" 
@@ -192,5 +192,36 @@
     <ng-template pTemplate="footer">
         <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="closeImportDialog()"></button>
         <button pButton pRipple label="Import" icon="pi pi-check" class="p-button-text" (click)="confirmImport(dt)"></button>
+    </ng-template>
+</p-dialog>
+<p-dialog header="Token Stats" [(visible)]="statsVisible" [style]="{width: '450px'}" [modal]="true">
+    <ng-template pTemplate="content">
+        <div class="token-stats">
+            <div class="token-row token-header">
+                <div>Field</div>
+                <div>Token</div>
+                <div>Count</div>
+                <div>Copy Count</div>
+            </div>
+            <ng-container *ngFor="let stat of stats">
+                <div class="token-row">
+                    <div><h3>{{stat.header}}</h3></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <ng-container *ngFor="let token of stat.tokens">
+                    <div class="token-row">
+                        <div></div>
+                        <div>{{token.token}}</div>
+                        <div>{{token.count}}</div>
+                        <div>{{token.copiesCount}}</div>
+                    </div>
+                </ng-container>
+            </ng-container>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="closeStatsDialog()"></button>
     </ng-template>
 </p-dialog>
