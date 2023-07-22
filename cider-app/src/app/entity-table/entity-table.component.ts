@@ -41,6 +41,7 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
   importVisible: boolean = false;
   statsVisible: boolean = false;
   stats: TableStat[] = [];
+  statsTopX: number = 20;
   importFile: File | undefined = undefined;
   saveSubject: Subject<Entity> = new Subject();
   optionsCache: Map<EntityService<any, string | number>, any[]>;
@@ -183,7 +184,7 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
               tokenStats.set(token, 
                 {token: token, count: tokenStat.count + 1, 
                   copiesCount: tokenStat.copiesCount + copies} as TokenStat);
-            } else {
+            } else if (tokenStats.size < this.statsTopX) {
               tokenStats.set(token, 
                 {token: token, count: 1, copiesCount: copies} as TokenStat);
             }

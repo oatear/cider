@@ -194,7 +194,7 @@
         <button pButton pRipple label="Import" icon="pi pi-check" class="p-button-text" (click)="confirmImport(dt)"></button>
     </ng-template>
 </p-dialog>
-<p-dialog header="Token Stats" [(visible)]="statsVisible" [style]="{width: '450px'}" [modal]="true">
+<p-dialog [header]="'Token Stats (Top ' + statsTopX + ')'" [(visible)]="statsVisible" [style]="{width: '450px'}" [modal]="true">
     <ng-template pTemplate="content">
         <div class="token-stats">
             <div class="token-row token-header">
