@@ -141,16 +141,43 @@
     color: var(--text-color);
 }
 
-.token-stats {
+:host ::ng-deep .stats-dialog .p-dialog-content {
+    padding-top: 0;
+
+}
+
+.token-stats.token-table {
+    display: table;
+    width: 100%;
     .token-row {
         display: table-row;
         &.token-header {
             color: #5c7089;
+            top: 0;
+            position: sticky;
+            background-color: #2b313d;
+            & > div {
+                padding-top: 1rem;
+                padding-bottom: 1rem;
+            }
         }
         & > div {
             display: table-cell;
             padding-left: 5px;
             padding-right: 5px;
+            max-width: 200px;
+            h3 {
+                color: #5c7089;
+            }
+            span {
+                background-color: #333e4d;
+                border-radius: 10px;
+                padding: 2px;
+                padding-left: 7px;
+                padding-right: 7px;
+                margin: 1px;
+                display: inline-block;
+            }
         }
     }
 }

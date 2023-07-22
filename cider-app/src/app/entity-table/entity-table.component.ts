@@ -178,7 +178,7 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
         const value = record[column.field];
         if (value) {
           const strValue = '' + value;
-          strValue.replace(/[<][^>]*[>]/g, '').split(/ |\n|\r/).filter(str => str).forEach(token => {
+          strValue.replace(/[<][^>]*[>]|["'.,]/g, '').split(/ |\n|\r/).filter(str => str).forEach(token => {
             const tokenStat = tokenStats.get(token);
             if (tokenStat) {
               tokenStats.set(token, 
@@ -192,7 +192,6 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
         }
       });
       const tokens = Array.from(tokenStats.values()).sort((a, b) => b.count - a.count);
-      console.log('tokens:', tokens);
       return {
         header: column.header,
         tokens: tokens
