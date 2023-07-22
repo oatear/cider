@@ -27,6 +27,7 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
   @Input() lazy: boolean = true;
   @Input() showActions: boolean = true;
   @Input() showInlineEditor: boolean = true;
+  @Input() showStats: boolean = false;
   @Input() saveToService: boolean = true;
   @Output() selectionChange: EventEmitter<Entity | Entity[] | undefined> = new EventEmitter<Entity | Entity[] | undefined>();
   FieldType = FieldType;

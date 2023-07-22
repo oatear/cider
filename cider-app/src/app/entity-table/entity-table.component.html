@@ -9,6 +9,10 @@
             <button pButton pRipple label="Clear" icon="pi pi-filter-slash" class="p-button p-mr-2" (click)="clear(dt)"></button>
             <button *ngIf="allowEditing && showActions" pButton pRipple label="New" icon="pi pi-plus" class="p-button p-mr-2" (click)="openCreateNew()"></button>
             <div class="p-ml-auto">
+                <ng-container *ngIf="showStats">
+                    <button pButton pRipple label="" icon="pi pi-upload" class="p-button-success p-mr-2" 
+                        pTooltip="Show stats" (click)="openStatsDialog()"></button>
+                </ng-container>
                 <ng-container *ngIf="allowImportExport">
                     <button pButton pRipple label="" icon="pi pi-upload" class="p-button-success p-mr-2" 
                         pTooltip="Import data" (click)="openImportDialog()"></button>
