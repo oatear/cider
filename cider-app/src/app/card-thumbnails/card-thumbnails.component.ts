@@ -26,23 +26,37 @@ export class CardThumbnailsComponent implements OnInit {
     { label: 'Both', value: 'both' }
   ];
   filterFields: string = "";
+  copyOptions: any[] = [
+    { label: 'Singles', value: 'singles' },
+    { label: 'Copies', value: 'copies' }
+  ];
+  copySelected: string = 'copies';
+
 
 
   constructor(public cardsService: CardsService,
     public templatesService: CardTemplatesService) { }
 
   ngOnInit(): void {
+    this.refreshCards();
+    this.cardsService.getFields().then(fields => {
+      this.filterFields = fields.map(field => field.field).join(',');
+    });
+  }
+
+  refreshCards() {
     this.cardsService.getAll().then(cards => {
       const expandedList: Card[] = [];
       cards.forEach(card => {
-        for (let i = 0; i < (typeof card.count === 'undefined' ? 1 : card.count); i++) {
+        if (this.copySelected === 'singles') {
           expandedList.push(card);
+        } else {
+          for (let i = 0; i < (typeof card.count === 'undefined' ? 1 : card.count); i++) {
+            expandedList.push(card);
+          }
         }
       });
       this.thumbnailCards = expandedList;
-    });
-    this.cardsService.getFields().then(fields => {
-      this.filterFields = fields.map(field => field.field).join(',');
     });
   }
 
