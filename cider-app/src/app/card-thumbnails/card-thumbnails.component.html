@@ -6,6 +6,8 @@
             optionLabel="label" optionValue="value"></p-selectButton>
         <p-selectButton [options]="sideOptions" [(ngModel)]="sideSelected" class="p-mr-3"
             optionLabel="label" optionValue="value"></p-selectButton>
+        <p-selectButton [options]="copyOptions" [(ngModel)]="copySelected" class="p-mr-3"
+            optionLabel="label" optionValue="value" (onChange)="refreshCards()"></p-selectButton>
         <input type="search" pInputText placeholder="Search Cards" (input)="filter($event)">
     </div>
     <div class="card-thumbnails">
