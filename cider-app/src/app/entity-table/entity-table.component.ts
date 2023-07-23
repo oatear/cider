@@ -174,7 +174,7 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
     const stats = this.columns.filter(column => !column.hidden).map(column => {
       const tokenStats = new Map<string, TokenStat>();
       this.records.forEach(record => {
-        const copies = (record as any)['count'] || 1;
+        const copies = Number((record as any)['count'] || 1);
         const value = record[column.field];
         if (value) {
           const strValue = '' + value;
