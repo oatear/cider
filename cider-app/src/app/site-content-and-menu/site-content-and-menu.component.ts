@@ -54,6 +54,10 @@ export class SiteContentAndMenuComponent implements OnInit {
     this.router.routeReuseStrategy.shouldReuseRoute = () => {
       return false;
     };
+    // set unsaved whenever db changes are detected
+    this.db.onChange().subscribe(() => {
+      this.electronService.setProjectUnsaved(true);
+    });
     this.items = [];
     this.selectedDeck$ = this.decksService.getSelectedDeck();
     this.recentProjectUrls$ = this.localStorageService.getRecentProjectUrls();
@@ -389,6 +393,7 @@ export class SiteContentAndMenuComponent implements OnInit {
           this.decksService.selectDeck(undefined);
           this.router.navigateByUrl(`/decks`);
           this.displayLoading = false;
+          this.electronService.setProjectUnsaved(false);
         });
       }
     });
