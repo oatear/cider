@@ -362,6 +362,10 @@ export class SiteContentAndMenuComponent implements OnInit {
 
     // activate the gif
     this.isSaving = true;
+    this.loadingIndeterminate = true;
+    this.displayLoading = true;
+    this.loadingHeader = 'Saving Project';
+    this.loadingInfo = 'Exporting database rows...';
     
     // save to the filesystem
     const assetsPromised = this.assetsService.getAll();
@@ -395,6 +399,7 @@ export class SiteContentAndMenuComponent implements OnInit {
     }).then(() => {
       this.electronService.setProjectUnsaved(false);
       this.isSaving = false;
+      this.displayLoading = false;
     });
   }
 
