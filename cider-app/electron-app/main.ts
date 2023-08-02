@@ -3,8 +3,9 @@ import * as path from 'path';
 import * as fs from 'fs';
 
 let win: BrowserWindow = null;
-const args = process.argv.slice(1),
-  serve = args.some(val => val === '--serve');
+const args = process.argv.slice(1);
+const serve = args.some(val => val === '--serve');
+var shouldClose: Boolean = false;
 
 function createWindow(): BrowserWindow {
 
@@ -52,12 +53,28 @@ function createWindow(): BrowserWindow {
   }
 
   // Emitted when the window is closed.
+  win.on('close', (event) => {
+    if (!shouldClose) {
+      win.webContents.send('app-closed');
+      event.preventDefault();
+    }
+  });
   win.on('closed', () => {
     // Dereference the window object, usually you would store window
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
     win = null;
   });
+  // win.on('close', function (e) {
+  //   let response = dialog.showMessageBoxSync(this, {
+  //       type: 'question',
+  //       buttons: ['Yes', 'No'],
+  //       title: 'Confirm',
+  //       message: 'Are you sure you want to quit?'
+  //   });
+
+  //   if(response == 1) e.preventDefault();
+  // });
 
   return win;
 }
@@ -91,6 +108,11 @@ try {
       createWindow();
     }
   });
+
+  // app.on('before-quit', (event) => {
+  //   win.webContents.send('app-closed');
+  //   event.preventDefault();
+  // });
 
   /**
    * Minimize/maximize the window on titlebar double click
@@ -221,6 +243,7 @@ try {
    * Exit the application
    */
   ipcMain.on('exit-application', async (event, arg) => {
+    shouldClose = true;
     app.quit();
   });
 

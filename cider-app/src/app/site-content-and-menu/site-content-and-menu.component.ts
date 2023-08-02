@@ -1,9 +1,9 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ExportProgress } from 'dexie-export-import/dist/export';
 import { ImportProgress } from 'dexie-export-import/dist/import';
 import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
-import { Observable, combineLatest, lastValueFrom, firstValueFrom } from 'rxjs';
+import { Observable, combineLatest, firstValueFrom } from 'rxjs';
 import { ElectronService } from '../data-services/electron/electron.service';
 import { AppDB } from '../data-services/indexed-db/db';
 import { LocalStorageService } from '../data-services/local-storage/local-storage.service';
@@ -47,13 +47,22 @@ export class SiteContentAndMenuComponent implements OnInit {
     private cardsService: CardsService,
     private cardAttributesService: CardAttributesService,
     private cardTemplatesService: CardTemplatesService,
-    private messageService: MessageService, 
+    private ngZone: NgZone,
     private router: Router,
     private db: AppDB) {
     // allow reloading of the current page
     this.router.routeReuseStrategy.shouldReuseRoute = () => {
       return false;
     };
+    // set unsaved whenever db changes are detected
+    this.db.onChange().subscribe(() => {
+      this.electronService.setProjectUnsaved(true);
+    });
+    this.electronService.getIsAppClosed().subscribe(() => {
+      this.ngZone.run(() => {
+        this.exitCider();
+      });
+    });
     this.items = [];
     this.selectedDeck$ = this.decksService.getSelectedDeck();
     this.recentProjectUrls$ = this.localStorageService.getRecentProjectUrls();
@@ -247,33 +256,43 @@ export class SiteContentAndMenuComponent implements OnInit {
     });
   }
 
-  public openResetDialog() {
+  public async openResetDialog() {
+    let projectUnsaved = await firstValueFrom(this.projectUnsaved$);
+    if (!projectUnsaved) {
+      this.db.resetDatabase();
+      return;
+    }
     this.confirmationService.confirm({
       message: 'Are you sure that you wish to reset the entire database?'
-        + ' This will delete all of your data.',
+        + ' This will delete all unsaved data.',
       header: 'Reset Database',
       icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        this.db.resetDatabase();
-      }
+      accept: () => this.db.resetDatabase()
     });
   }
 
-  public openExitProjectDialog() {
+  public async openExitProjectDialog() {
+    let projectUnsaved = await firstValueFrom(this.projectUnsaved$);
+    if (!projectUnsaved) {
+      this.exitProjectProcedure();
+      return;
+    }
     this.confirmationService.confirm({
       message: 'Are you sure that you wish to exit the project?'
         + ' This will delete all unsaved data.',
       header: 'Exit Project',
       icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        this.db.resetDatabase().then(() => {
-          this.assetsService.updateAssetUrls();
-          this.electronService.selectDirectory(undefined);
-          this.electronService.setProjectUnsaved(false);
-          this.decksService.selectDeck(undefined);
-          this.router.navigateByUrl(`/`);
-        });
-      }
+      accept: () => this.exitProjectProcedure()
+    });
+  }
+
+  private exitProjectProcedure() {
+    this.db.resetDatabase().then(() => {
+      this.assetsService.updateAssetUrls();
+      this.electronService.selectDirectory(undefined);
+      this.electronService.setProjectUnsaved(false);
+      this.decksService.selectDeck(undefined);
+      this.router.navigateByUrl(`/`);
     });
   }
 
@@ -297,19 +316,26 @@ export class SiteContentAndMenuComponent implements OnInit {
     })
   }
 
-  public newProject() {
+  public async newProject() {
+    let projectUnsaved = await firstValueFrom(this.projectUnsaved$);
+    if (!projectUnsaved) {
+      this.newProjectProcedure();
+      return;
+    }
     this.confirmationService.confirm({
       message: 'Are you sure that you wish to create a new project?'
         + ' This will delete all of your unsaved data.',
       header: 'New Project',
       icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        this.db.resetDatabase().then(() => {
-          this.electronService.setProjectUnsaved(true);
-          this.assetsService.updateAssetUrls();
-          this.router.navigateByUrl(`/decks`);
-        });
-      }
+      accept: () => this.newProjectProcedure()
+    });
+  }
+
+  private newProjectProcedure() {
+    this.db.resetDatabase().then(() => {
+      this.electronService.setProjectUnsaved(true);
+      this.assetsService.updateAssetUrls();
+      this.router.navigateByUrl(`/decks`);
     });
   }
 
@@ -336,6 +362,10 @@ export class SiteContentAndMenuComponent implements OnInit {
 
     // activate the gif
     this.isSaving = true;
+    this.loadingIndeterminate = true;
+    this.displayLoading = true;
+    this.loadingHeader = 'Saving Project';
+    this.loadingInfo = 'Exporting database rows...';
     
     // save to the filesystem
     const assetsPromised = this.assetsService.getAll();
@@ -369,28 +399,36 @@ export class SiteContentAndMenuComponent implements OnInit {
     }).then(() => {
       this.electronService.setProjectUnsaved(false);
       this.isSaving = false;
+      this.displayLoading = false;
     });
   }
 
-  public openProject(url: string) {
+  public async openProject(url: string) {
+    let projectUnsaved = await firstValueFrom(this.projectUnsaved$);
+    if (!projectUnsaved) {
+      this.openProjectProcedure(url);
+    }
     this.confirmationService.confirm({
       message: 'Are you sure that you wish to open another project?'
         + ' All unsaved data will be lost.',
       header: 'Open Project',
       icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        this.loadingIndeterminate = true;
-        this.loadingHeader = 'Opening Project';
-        this.loadingInfo = 'Reading project data...';
-        this.displayLoading = true;
-        this.electronService.openProject(url, this.assetsService, this.decksService,
-          this.cardTemplatesService, this.cardAttributesService, this.cardsService).then(() => {
-          this.assetsService.updateAssetUrls();
-          this.decksService.selectDeck(undefined);
-          this.router.navigateByUrl(`/decks`);
-          this.displayLoading = false;
-        });
-      }
+      accept: () => this.openProjectProcedure(url)
+    });
+  }
+
+  private openProjectProcedure(url: string) {
+    this.loadingIndeterminate = true;
+    this.loadingHeader = 'Opening Project';
+    this.loadingInfo = 'Reading project data...';
+    this.displayLoading = true;
+    this.electronService.openProject(url, this.assetsService, this.decksService,
+      this.cardTemplatesService, this.cardAttributesService, this.cardsService).then(() => {
+      this.assetsService.updateAssetUrls();
+      this.decksService.selectDeck(undefined);
+      this.router.navigateByUrl(`/decks`);
+      this.displayLoading = false;
+      this.electronService.setProjectUnsaved(false);
     });
   }
 
@@ -398,8 +436,18 @@ export class SiteContentAndMenuComponent implements OnInit {
     this.electronService.titlebarDoubleClick();
   }
 
-  public exitCider() {
-    this.electronService.exitApplication();
+  public async exitCider() {
+    let projectUnsaved = await firstValueFrom(this.projectUnsaved$);
+    if (!projectUnsaved) {
+      this.electronService.exitApplication();
+    }
+    this.confirmationService.confirm({
+      message: 'Are you sure that you wish to exit the application?'
+        + ' All unsaved data will be lost.',
+      header: 'Exit Application',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => this.electronService.exitApplication()
+    });
   }
 
 }

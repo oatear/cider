@@ -9,7 +9,7 @@ import { ExportProgress } from "dexie-export-import/dist/export";
 import { ImportProgress } from "dexie-export-import/dist/import";
 import { FieldType } from "../types/field-type.type";
 import { HttpClient } from "@angular/common/http";
-import { firstValueFrom } from "rxjs";
+import { BehaviorSubject, Subject, firstValueFrom } from "rxjs";
 import { Injectable } from "@angular/core";
 
 @Injectable({
@@ -34,10 +34,12 @@ export class AppDB extends Dexie {
     assets!: Table<Asset, number>;
     cardTemplates!: Table<CardTemplate, number>;
     private httpClient;
+    private changeSubject: Subject<null>;
 
     constructor(httpClient: HttpClient) {
         super(AppDB.DB_NAME);
         this.httpClient = httpClient;
+        this.changeSubject = new Subject<null>();
         this.version(1).stores({
             games: '++id, name',
             cards: '++id, gameId, count, frontCardTemplateId, backCardTemplateId',
@@ -88,6 +90,11 @@ export class AppDB extends Dexie {
             console.log('populate from file');
             return this.populateFromFile().then(() => true);
         }));
+
+        // trigger changeSubject when change emitted to db
+        Dexie.on('storagemutated', (event) => {
+            this.changeSubject.next(null);
+        });
     }
 
     async populateFromFile() {
@@ -146,5 +153,9 @@ export class AppDB extends Dexie {
             }
             return true;
         });
+    }
+
+    public onChange() {
+        return this.changeSubject.asObservable();
     }
 }
