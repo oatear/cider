@@ -4,14 +4,14 @@
   "author": {
     "name": "Hristo Iankov"
   },
-  "version": "0.4.3",
+  "version": "0.4.6",
   "repository": "https://github.com/oatear/cider",
   "main": "electron-app/dist/main.js",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "build:gh-pages": "ng build --baseHref=/cider/",
+    "build:gh-pages": "ng build --base-href=/cider/",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "electron": "ng build --base-href ./ && tsc --p electron-app && electron .",

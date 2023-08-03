@@ -11,6 +11,7 @@ import { CardsService } from '../services/cards.service';
 import { DecksService } from '../services/decks.service';
 import XlsxUtils from 'src/app/shared/utils/xlsx-utils';
 import { EntityService } from '../types/entity-service.type';
+import { Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -20,10 +21,16 @@ export class ElectronService {
   private static readonly DECKS_DIR = "decks";
   private projectHomeUrl: BehaviorSubject<string | undefined>;
   private projectUnsaved: BehaviorSubject<boolean>;
+  private appClosed: Subject<null>;
 
   constructor() {
     this.projectHomeUrl = new BehaviorSubject<string | undefined>(undefined);
     this.projectUnsaved = new BehaviorSubject<boolean>(false);
+    this.appClosed = new Subject<null>();
+
+    this.getIpcRenderer().on('app-closed', () => {
+      this.appClosed.next(null);
+    });
   }
 
   public getProjectHomeUrl() {
@@ -32,6 +39,10 @@ export class ElectronService {
 
   public getProjectUnsaved() {
     return this.projectUnsaved.asObservable();
+  }
+
+  public getIsAppClosed() {
+    return this.appClosed.asObservable();
   }
 
   public setProjectUnsaved(unsaved: boolean) {
@@ -159,6 +170,7 @@ export class ElectronService {
           this.writeFile(deckUrl + '/' + StringUtils.toKebabCase(template.name) + '.html', template.html)
         ]);
       }));
+      this.setProjectUnsaved(false);
       return true;
     }));
   }
@@ -182,7 +194,7 @@ export class ElectronService {
     await cardsService.emptyTable();
     await decksService.emptyTable();
     await this.listDirectory(assetsUrl).then(assetUrls => Promise.all(assetUrls
-      .filter(assetUrl => assetUrl.isFile).map(async assetUrl => {
+      .filter(assetUrl => assetUrl.isFile && !assetUrl.name.includes('.DS_Store')).map(async assetUrl => {
       const assetNameSplit = StringUtils.splitNameAndExtension(assetUrl.name);
       const assetName = assetNameSplit.name;
       const assetExt = assetNameSplit.extension;
@@ -220,6 +232,7 @@ export class ElectronService {
       const cardsUrl = deckFullUrl + '/cards.csv';
       const attributes = await this.importCsv(attributesUrl, 'attributes.csv', cardAttributesService, deck.id);
       const cards = await this.importCsv(cardsUrl, 'cards.csv', cardsService, deck.id);
+      this.setProjectUnsaved(false);
     });
   }
 

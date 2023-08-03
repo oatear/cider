@@ -164,12 +164,38 @@ export class ExportCardsComponent implements OnInit {
     }
   }
 
+  private async prerenderCardImages() {
+    const sliceSize = 3;
+    const renderSlices = this.sliceIntoChunks(this.cards, sliceSize);
+    const hardLimit = pLimit(1);
+    this.showFront = true;
+    this.showBack = true;
+    this.renderCache = true;
+    this.loadingPercent = 0;
+    const preRenders$ = renderSlices.map((slice, index) => {
+      return hardLimit(async () => {
+        this.sheet = slice;
+        this.loadingInfo = 'Pre-rendering cards ' + (sliceSize * index) 
+          + '-' + (sliceSize * index + slice.length - 1) + '/' + this.cards.length + '...';
+        await GeneralUtils.delay(1000);
+        const promisedCards$ = this.cardSheetCards.map(card => lastValueFrom(card.isCacheLoaded()));
+        const completedPromises = await Promise.all(promisedCards$);
+        this.loadingPercent += 100.0/(renderSlices.length);
+        return completedPromises;
+      });
+    });
+    return (await Promise.all(preRenders$)).flatMap(renders  => renders);
+  }
+
   private async exportCardSheetsAsImages() {
     this.displayLoading = true;
     this.loadingPercent = 0;
     this.renderCache = true;
     const hardLimit = pLimit(1);
     const limit = pLimit(3);
+
+    await this.prerenderCardImages();
+    this.loadingPercent = 0;
 
     const promisedSheetImages$ = this.slicedCards.map((sheet, sheetIndex) => {
       return Promise.all([true, false].map(async (showFront) => {
@@ -179,8 +205,8 @@ export class ExportCardsComponent implements OnInit {
           this.showBack = !showFront;
           this.loadingInfo = 'Rendering sheet ' + sheetIndex + ' ' 
             + (showFront ? 'front' : 'back') + ' card images...';
-          await GeneralUtils.delay(5000);
-          const promisedCards$ = this.cardSheetCards.map(card => lastValueFrom(card.isLoaded()));
+          await GeneralUtils.delay(1000);
+          const promisedCards$ = this.cardSheetCards.map(card => lastValueFrom(card.isCacheLoaded()));
           await Promise.all(promisedCards$);
           
           this.loadingInfo = 'Generating sheet ' + sheetIndex + ' ' 
@@ -191,7 +217,7 @@ export class ExportCardsComponent implements OnInit {
           const imgName = 'sheet-' + (showFront ? 'front-' : 'back-')
             + sheetIndex + '.png';
           const sheetImage = this.dataUrlToFile(imgUri, imgName);
-          this.loadingPercent += 100.0/(this.slicedCards.length * 2 + 1);
+          this.loadingPercent += 80.0/(this.slicedCards.length * 2);
           return sheetImage;
         });
       }));
@@ -203,8 +229,11 @@ export class ExportCardsComponent implements OnInit {
     this.loadingInfo = 'Saving file...';
     FileUtils.saveAs(zippedImages, 'cards.zip');
     this.loadingPercent = 100;
-    this.displayLoading = false
+    this.sheet = this.slicedCards ? this.slicedCards[0] : [];
+    this.showFront = true;
+    this.showBack = false;
     this.renderCache = false;
+    this.displayLoading = false
   }
 
   private async exportCardSheets() {
@@ -218,8 +247,8 @@ export class ExportCardsComponent implements OnInit {
       return await hardLimit(async () => {
         this.sheet = sheet;
         this.loadingInfo = 'Rendering sheet ' + sheetIndex + ' card images...';
-        await GeneralUtils.delay(10000);
-        const promisedCards$ = this.cardSheetCards.map(card => lastValueFrom(card.isLoaded()));
+        await GeneralUtils.delay(1000);
+        const promisedCards$ = this.cardSheetCards.map(card => lastValueFrom(card.isCacheLoaded()));
         await Promise.all(promisedCards$);
 
         this.loadingInfo = 'Generating sheet ' + sheetIndex + ' images...';
@@ -271,7 +300,7 @@ export class ExportCardsComponent implements OnInit {
     this.loadingInfo = 'Generating card images...';
     const limit = pLimit(3);
     const frontCards$ = this.frontCards.map(async cardPreview => {
-      await lastValueFrom(cardPreview.isLoaded());
+      await lastValueFrom(cardPreview.isCacheLoaded());
       const imgUri = await limit(() => htmlToImage.toPng((<any>cardPreview).element.nativeElement, 
       {pixelRatio: this.individualExportPixelRatio}));
       const imgIdentifier = this.individualExportUseCardName 
@@ -281,7 +310,7 @@ export class ExportCardsComponent implements OnInit {
       return this.dataUrlToFile(imgUri, imgName);
     });
     const backCards$ = this.backCards.map(async cardPreview => {
-      await lastValueFrom(cardPreview.isLoaded());
+      await lastValueFrom(cardPreview.isCacheLoaded());
       const imgUri = await limit(() => htmlToImage.toPng((<any>cardPreview).element.nativeElement, 
       {pixelRatio: this.individualExportPixelRatio}));
       const imgIdentifier = this.individualExportUseCardName 

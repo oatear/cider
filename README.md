@@ -11,6 +11,7 @@ Card IDE (CIDEr) - Design game cards using `HTML/Handlebars`, `CSS`, and `tabula
 [![][downloads]][releases-url]
 [![][last-commit]][gh-url]
 [![][website]][pages-url]
+[![][discord]][discord-url]
 
 Website: [Start using Cider][pages-url]
 
@@ -82,6 +83,7 @@ The repository itself is protected by [AGPL-3.0][license-url] to ensure the proj
 [license]: https://badgen.net/github/license/oatear/cider?cache=600
 [stars]: https://img.shields.io/github/stars/oatear/cider
 [release]: https://img.shields.io/github/v/release/oatear/cider
+[discord]: https://img.shields.io/discord/1129380421642240133?logo=discord&label=discord&color=%23515fe4&link=https%3A%2F%2Fdiscord.gg%2FHu9wMB5W
 [downloads]: https://img.shields.io/github/downloads/oatear/cider/total
 [website]: https://img.shields.io/website?down_color=red&down_message=offline&up_color=green&up_message=online&url=https%3A%2F%2Foatear.github.io%2Fcider
 [logo-url]: docs/assets/cider-logo-80.png
@@ -98,3 +100,4 @@ The repository itself is protected by [AGPL-3.0][license-url] to ensure the proj
 [ttsexport-url]: TTS_EXPORT.md
 [license-url]: LICENSE.md
 [pages-url]: https://oatear.github.io/cider
+[discord-url]: https://discord.gg/Hu9wMB5W
