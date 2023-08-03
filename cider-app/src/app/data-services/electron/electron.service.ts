@@ -28,9 +28,11 @@ export class ElectronService {
     this.projectUnsaved = new BehaviorSubject<boolean>(false);
     this.appClosed = new Subject<null>();
 
-    this.getIpcRenderer().on('app-closed', () => {
-      this.appClosed.next(null);
-    });
+    if (this.isElectron()) {
+      this.getIpcRenderer().on('app-closed', () => {
+        this.appClosed.next(null);
+      });
+    }
   }
 
   public getProjectHomeUrl() {
