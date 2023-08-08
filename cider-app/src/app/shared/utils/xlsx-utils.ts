@@ -63,7 +63,9 @@ export default class XlsxUtils {
         file: File): Promise<Entity[]> {
         const headers = columns.filter(column => !column.hidden);
         return file.arrayBuffer().then(buffer => {
-            const workbook: XLSX.WorkBook = XLSX.read(buffer, {type: "buffer"});
+            const decoder = new TextDecoder("utf-8");
+            const decoded = decoder.decode(buffer);
+            const workbook: XLSX.WorkBook = XLSX.read(decoded, {type: "string"});
             const worksheet: XLSX.WorkSheet = workbook.Sheets[workbook.SheetNames[0]];
             const parsedObjects = XLSX.utils.sheet_to_json(worksheet);
             const convertedObjects = parsedObjects.map(object => {
