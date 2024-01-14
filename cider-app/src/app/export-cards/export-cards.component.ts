@@ -66,6 +66,7 @@ export class ExportCardsComponent implements OnInit {
   public maxTtsPixels: number = 4096;
   public scale: number = 0.1;
   public exportSelectionDialogVisible: boolean = false;
+  public someCardsMissingTemplates: boolean = false;
   renderCache: boolean = false;
   zoomOptions: any[] = [
     { label: 's', value: 0.05 },
@@ -77,8 +78,11 @@ export class ExportCardsComponent implements OnInit {
   constructor(cardsService: CardsService, 
     public templatesService: CardTemplatesService) {
       cardsService.getAll().then(cards => {
-        this.originalCards = cards;
-        this.cards = cards;
+        // check cards for front/back templates being defined
+        const cardsWithTemplatesDefined = cards.filter(card => card.backCardTemplateId && card.frontCardTemplateId);
+        this.someCardsMissingTemplates = cards.length != cardsWithTemplatesDefined.length;
+        this.originalCards = cardsWithTemplatesDefined;
+        this.cards = cardsWithTemplatesDefined;
         this.updateExpandedCards();
         this.updateSlices();
       });

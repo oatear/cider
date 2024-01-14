@@ -32,7 +32,7 @@ export class CardsService extends DecksChildService<Card, number> {
     const attributes = await this.attributesService.getAll(equalityCriterias);
     return this.fields.concat(attributes.map(attribute => {
       return {
-        field: attribute.name.trim().replace(/ /g, '-').toLowerCase(),
+        field: ('' + attribute.name).trim().replace(/ /g, '-').toLowerCase(),
         header: attribute.name,
         type: attribute.type,
         description: attribute.description,

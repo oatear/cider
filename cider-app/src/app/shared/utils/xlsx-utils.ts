@@ -46,7 +46,7 @@ export default class XlsxUtils {
      static entityExportToFile<Entity>(columns: EntityField<Entity>[], 
         lookups: Map<EntityService<any, string | number>, Map<string | number, string>>, records: Entity[]) {
         const csv = XlsxUtils.entityExport(columns, lookups, records);
-        const blob = new Blob([csv], {type: 'text/csv'});
+        const blob = new Blob([csv], {type: 'text/csv;charset=utf-8'});
         FileUtils.saveAs(blob, 'data.csv');
     }
 
@@ -63,7 +63,7 @@ export default class XlsxUtils {
         file: File): Promise<Entity[]> {
         const headers = columns.filter(column => !column.hidden);
         return file.arrayBuffer().then(buffer => {
-            const workbook: XLSX.WorkBook = XLSX.read(buffer, {type: "buffer"});
+            const workbook: XLSX.WorkBook = XLSX.read(buffer, {type: "buffer", codepage: 65001});
             const worksheet: XLSX.WorkSheet = workbook.Sheets[workbook.SheetNames[0]];
             const parsedObjects = XLSX.utils.sheet_to_json(worksheet);
             const convertedObjects = parsedObjects.map(object => {
