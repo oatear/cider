@@ -12,7 +12,7 @@ export default class StringUtils {
         if (!input) {
             return input;
         }
-        return input.trim().replace(/ /g, '-').toLowerCase();
+        return ('' + input).trim().replace(/ /g, '-').toLowerCase();
     }
 
     /**
