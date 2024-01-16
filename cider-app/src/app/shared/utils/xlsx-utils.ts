@@ -32,7 +32,7 @@ export default class XlsxUtils {
             });
             XLSX.utils.sheet_add_aoa(worksheet, [values], {origin: -1});
         });
-        const csv = XLSX.utils.sheet_to_csv(worksheet);
+        const csv = XLSX.utils.sheet_to_csv(worksheet, {forceQuotes: true});
         return csv;
     }
 
