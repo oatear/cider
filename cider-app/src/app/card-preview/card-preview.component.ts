@@ -9,6 +9,8 @@ import { CardToHtmlPipe } from '../shared/pipes/template-to-html.pipe';
 import * as htmlToImage from 'html-to-image';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import GeneralUtils from '../shared/utils/general-utils';
+import { VariablesService } from '../data-services/services/variables.service';
+import { Variable, VariableCollection } from '../data-services/types/variable.type';
 
 @Component({
   selector: 'app-card-preview',
@@ -25,6 +27,7 @@ export class CardPreviewComponent implements OnInit, AfterViewChecked, OnChanges
   initialWidth: number = 0;
   initialHeight: number = 0;
   assetUrls: any;
+  variables?: VariableCollection;
   uuid: string  = uuid();
   cachedImageUrl?: string;
   private isLoadedSubject: AsyncSubject<boolean>;
@@ -32,6 +35,7 @@ export class CardPreviewComponent implements OnInit, AfterViewChecked, OnChanges
 
   constructor(
     private assetsService: AssetsService,
+    private variablesService: VariablesService,
     private renderCacheService: RenderCacheService,
     private element: ElementRef,
     private changeDetectorRef: ChangeDetectorRef,
@@ -39,6 +43,7 @@ export class CardPreviewComponent implements OnInit, AfterViewChecked, OnChanges
     private sanitizer: DomSanitizer) { 
       this.isLoadedSubject = new AsyncSubject();
       this.isCacheLoadedSubject = new AsyncSubject();
+      variablesService.getCollection().then(vars => this.variables = vars);
   }
 
   /**

@@ -5,6 +5,7 @@ import * as Handlebars from 'handlebars';
 import { CardTemplate } from 'src/app/data-services/types/card-template.type';
 import { Card } from 'src/app/data-services/types/card.type';
 import StringUtils from '../utils/string-utils';
+import { Variable, VariableCollection } from '../../data-services/types/variable.type';
 
 /**
  * Convert a card template into html
@@ -216,23 +217,24 @@ export class CardToHtmlPipe implements PipeTransform {
 
   }
 
-  transform(template: CardTemplate, card: Card, assetUrls?: any, uuid?: string): SafeHtml {
+  transform(template: CardTemplate, card: Card, assetUrls?: any, uuid?: string, variables?: VariableCollection): SafeHtml {
     if (!template || !card) {
       return '';
     }
+
     return this.safeHtmlAndStyle(card, 
-      this.executeHandlebars(template.html, card, assetUrls), 
-      this.executeHandlebars(template.css, card, assetUrls),
+      this.executeHandlebars(template.html, card, assetUrls, variables), 
+      this.executeHandlebars(template.css, card, assetUrls, variables),
       uuid);
   }
 
-  private executeHandlebars(htmlTemplate: string, card: Card, assetUrls?: any): string {
+  private executeHandlebars(htmlTemplate: string, card: Card, assetUrls?: any, variables?: VariableCollection): string {
     if (!htmlTemplate) {
       return '';
     }
     let template = Handlebars.compile(htmlTemplate);
     try {
-      return template({card: card, assets: assetUrls});
+      return template({card: card, assets: assetUrls, variables });
     } catch(error) {
       return '';
     }

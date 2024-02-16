@@ -193,6 +193,12 @@ export class SiteContentAndMenuComponent implements OnInit {
             styleClass: 'assets',
             disabled: this.electronService.isElectron() && !projectHomeUrl && !projectUnsaved,
             routerLink: [`/assets`]
+          }, {
+            label: 'Variables',
+            icon: 'pi pi-pw pi-list',
+            styleClass: 'variables',
+            disabled: this.electronService.isElectron() && !projectHomeUrl && !projectUnsaved,
+            routerLink: [`/variables`]
           }
         ];
     }});

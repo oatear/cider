@@ -11,6 +11,7 @@ import { FieldType } from "../types/field-type.type";
 import { HttpClient } from "@angular/common/http";
 import { BehaviorSubject, Subject, firstValueFrom } from "rxjs";
 import { Injectable } from "@angular/core";
+import { Variable } from "../types/variable.type";
 
 @Injectable({
     providedIn: 'root'
@@ -25,14 +26,16 @@ export class AppDB extends Dexie {
     public static readonly CARD_TEMPLATES_TABLE: string = 'cardTemplates'
     public static readonly PRINT_TEMPLATES_TABLE: string = 'printTemplates';
     public static readonly CARD_ATTRIBUTES_TABLE: string = 'cardAttributes';
+    public static readonly VARIABLES_TABLE: string = 'variables';
     private static readonly ALL_TABLES = [
         AppDB.GAMES_TABLE, AppDB.DECKS_TABLE, AppDB.CARDS_TABLE, AppDB.ASSETS_TABLE, 
-        AppDB.CARD_TEMPLATES_TABLE, AppDB.CARD_ATTRIBUTES_TABLE];
+        AppDB.CARD_TEMPLATES_TABLE, AppDB.CARD_ATTRIBUTES_TABLE, AppDB.VARIABLES_TABLE];
 
     games!: Table<Deck, number>;
     cards!: Table<Card, number>;
     assets!: Table<Asset, number>;
     cardTemplates!: Table<CardTemplate, number>;
+    variables!: Table<Variable, number>;
     private httpClient;
     private changeSubject: Subject<null>;
 
@@ -48,14 +51,15 @@ export class AppDB extends Dexie {
             printTemplates: '++id, gameId, name, description, html, css',
             cardAttributes: '++id, gameId, name, type, options, description'
         });
-        this.version(2).stores({
+        const v2 = {
             decks: '++id, name',
             assets: '++id, name',
             cards: '++id, deckId, count, frontCardTemplateId, backCardTemplateId',
             cardTemplates: '++id, deckId, name, description, html, css',
             printTemplates: null,
             cardAttributes: '++id, deckId, name, type, options, description'
-        }).upgrade(transaction => {
+        };
+        this.version(2).stores(v2).upgrade(transaction => {
             // upgrade to version 2
             return transaction.table(AppDB.GAMES_TABLE).toArray().then(games => {
                 transaction.table(AppDB.DECKS_TABLE).bulkAdd(games);
@@ -80,6 +84,9 @@ export class AppDB extends Dexie {
                 });
             });
         });
+        const v3 = { ...v2, variables:'++id, name, value' };
+        this.version(3).stores(v3)
+        
         // populate in a non-traditional way since the 'on populate' will not allow ajax calls
         this.on('ready', () => this.table(AppDB.DECKS_TABLE).count()
         .then(count => {
