@@ -10,6 +10,7 @@ import { DeckGuard } from './deck.guard';
 import { DecksComponent } from './decks/decks.component';
 import { WelcomeComponent } from './welcome/welcome.component';
 import { ProjectGuard } from './project.guard';
+import { VariablesComponent } from './variables/variables.component';
 
 const routes: Routes = [
   { path: 'decks', component: DecksComponent, canActivate: [ProjectGuard]},
@@ -20,6 +21,7 @@ const routes: Routes = [
   { path: 'decks/:deckId/cards/attributes', component: CardAttributesComponent, canActivate: [ProjectGuard, DeckGuard]},
   { path: 'decks/:deckId/card-templates', component: CardTemplatesComponent, canActivate: [ProjectGuard, DeckGuard]},
   { path: 'decks/:deckId/export-cards', component: ExportCardsComponent, canActivate: [ProjectGuard, DeckGuard]},
+  { path: 'variables', component: VariablesComponent, canActivate: [ProjectGuard]},
   { path: '**', component: WelcomeComponent}
 ];
 

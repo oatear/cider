@@ -58,6 +58,7 @@ import { PageHeaderComponent } from './page-header/page-header.component';
 import { WelcomeComponent } from './welcome/welcome.component';
 import { ExportSelectionDialogComponent } from './export-selection-dialog/export-selection-dialog.component';
 import { CardToHtmlPipe } from './shared/pipes/template-to-html.pipe';
+import { VariablesComponent } from './variables/variables.component';
 
 @NgModule({
   declarations: [
@@ -77,6 +78,7 @@ import { CardToHtmlPipe } from './shared/pipes/template-to-html.pipe';
     CardsTabMenuComponent,
     CardAttributesComponent,
     CardThumbnailsComponent,
+    VariablesComponent,
     PageHeaderComponent,
     WelcomeComponent,
     ExportSelectionDialogComponent
