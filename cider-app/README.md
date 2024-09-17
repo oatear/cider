@@ -23,6 +23,12 @@ Run `npm outdated`
 ## Update dependency
 Run `ng update library@version` or `npm update library@version`. If it doesn't work use `ng update library@version --allow-dirty`.
 
+## Install dependencies from package-lock.json only
+Run `npm ci`
+
+## Install updated dependencies from package.json
+Run `npm install`
+
 # Other
 
 ## Electron application

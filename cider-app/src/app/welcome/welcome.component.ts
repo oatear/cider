@@ -28,7 +28,7 @@ export class WelcomeComponent implements OnInit {
   projectHomeUrl$: Observable<string | undefined>;
   projectUnsaved$: Observable<boolean>;
 
-  recentProjectUrls: { url: string; name: string; hue: number; hover: boolean}[] = [];
+  recentProjectUrls: { url: string; name: string; hue: number; hue2: number; hover: boolean}[] = [];
 
   constructor(private localStorageService: LocalStorageService,
     private confirmationService: ConfirmationService,
@@ -49,10 +49,13 @@ export class WelcomeComponent implements OnInit {
     this.localStorageService.getRecentProjectUrls().pipe(take(1)).subscribe(urls => {
       this.recentProjectUrls = urls.map(url => {
         let name = StringUtils.lastDirectoryFromUrl(url);
+        let hue = this.calculateHue(name);
+        let hue2diff = 60;
         return {
           url: url,
           name: name,
-          hue: this.calculateHue(name),
+          hue: hue,
+          hue2: hue + hue2diff > 255 ? hue - hue2diff : hue + hue2diff,
           hover: false
         }
       });
