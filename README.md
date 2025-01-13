@@ -69,6 +69,9 @@ In the desktop application, the primary project structure is a directory that ho
 
 ![image-file-tree]
 
+### 5.2.1 Running on Mac
+[Download][releases-url] the .dmg file, double click, and drag into Applications. You will then need to open up the terminal and run `xattr -cr /Applications/cider.app` to get around the misleading signing error: `"{application} is damaged and can't be opened."`. Apple requires a yearly subscription fee in order to sign apps for their platform.
+
 # Creative Ownership
 Anything you create using CIDEr is your own intellectual property.
 The website hosts nothing and all of your card data and assets sit
