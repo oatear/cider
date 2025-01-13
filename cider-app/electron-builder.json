@@ -15,18 +15,15 @@
         }
     ],
     "mac": {
-        "icon": "dist/cider/assets/cider-logo.icns"
+        "icon": "dist/cider/assets/cider-logo.icns",
+        "target": ["dmg"]
     },
     "win": {
-        "icon": "dist/cider/favicon.ico"
+        "icon": "dist/cider/favicon.ico",
+        "target": ["msi"]
     },
     "linux": {
-        "icon": "dist/cider/assets/cider-logo.icns"
-    },
-    "snap": {
-        "publish": {
-            "provider": "generic",
-            "url": "https://disable.snapcraft"
-        }
+        "icon": "dist/cider/assets/cider-logo.icns",
+        "target": ["deb"]
     }
 }

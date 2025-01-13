@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
-        node-version: [21.x]
+        node-version: [22.x]
     env:
       SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_TOKEN }}
     defaults:
@@ -26,9 +26,9 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Install Snapcraft
-        uses: oatear/action-snapcraft@v1
-        if: startsWith(matrix.os, 'ubuntu')
+      # - name: Install Snapcraft
+      #   uses: oatear/action-snapcraft@v1
+      #   if: startsWith(matrix.os, 'ubuntu')
 
       - name: Build/release Electron app
         uses: oatear/action-electron-builder@v1.0.1
