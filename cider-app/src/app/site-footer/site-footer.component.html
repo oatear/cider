@@ -1,9 +1,11 @@
 <div class="footer">
     <span>CIDEr (Card IDE)</span>
-    <span>{{
+    <span class="fill">{{
         !(projectHomeUrl$ | async) && (projectUnsaved$ | async) ? 'Untitled' : ''
     }}
         {{projectHomeUrl$ | async}}
         {{(projectUnsaved$ | async) ? '*' : ''}}</span>
-    <span>Copyright Ⓒ 2025 Oatear LLC</span>
+    <span class="p-mr-2">Copyright Ⓒ 2025 Oatear LLC</span>
+    <p-button icon="pi pi-discord" [rounded]="true" [text]="true" (onClick)="navigateToDiscord()"/>
+    <p-button icon="pi pi-github" [rounded]="true" [text]="true" (onClick)="navigateToGithub()"/>
 </div>

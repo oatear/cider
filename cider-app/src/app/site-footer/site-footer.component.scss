@@ -5,8 +5,18 @@
     font-weight: 400;
     // background-color: var(--surface-a);
     background-color: #343e4d;
-    color: rgba(255, 255, 255, 0.6);
+    color: #bfbfbf;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
+}
+
+.footer > * {
+    &.fill {
+        flex-grow: 1;
+    }
+}
+
+:host ::ng-deep .p-button.p-button-text {
+    color: #bfbfbf;
 }
