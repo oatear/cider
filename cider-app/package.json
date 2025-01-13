@@ -2,7 +2,9 @@
   "name": "cider",
   "description": "Design game cards using HTML/Handlebars, CSS, and tabular data.",
   "author": {
-    "name": "Hristo Iankov"
+    "name": "Hristo Iankov",
+    "email": "contact@oatear.com",
+    "url": "https://oatear.com"
   },
   "version": "0.4.10",
   "repository": "https://github.com/oatear/cider",
