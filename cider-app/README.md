@@ -20,7 +20,10 @@ Run `ng generate component component-name` to generate a new component. You can 
 ## List outdated dependencies
 Run `npm outdated`
 
-## Update dependency
+## Update all dependencies (from current to wanted)
+Run `npm update`
+
+## Update specific dependency
 Run `ng update library@version` or `npm update library@version`. If it doesn't work use `ng update library@version --allow-dirty`.
 
 ## Install dependencies from package-lock.json only

@@ -4,13 +4,15 @@ import { EntityNamePipe } from './pipes/entity-name.pipe';
 import { EntityListPipe } from './pipes/entity-list.pipe';
 import { EntityPipe } from './pipes/entity.pipe';
 import { EntityListCachedPipe } from './pipes/entity-list-cached.pipe';
+import { ToStringPipe } from './pipes/to-string.pipe';
 
 @NgModule({
   declarations: [
     EntityNamePipe,
     EntityListPipe,
+    EntityListCachedPipe,
     EntityPipe,
-    EntityListCachedPipe
+    ToStringPipe
   ],
   imports: [
     CommonModule
@@ -19,7 +21,8 @@ import { EntityListCachedPipe } from './pipes/entity-list-cached.pipe';
     EntityNamePipe,
     EntityListPipe,
     EntityListCachedPipe,
-    EntityPipe
+    EntityPipe,
+    ToStringPipe
   ]
 })
 export class DataServicesModule { }
