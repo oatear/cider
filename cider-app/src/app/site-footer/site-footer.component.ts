@@ -20,10 +20,10 @@ export class SiteFooterComponent implements OnInit {
   }
 
   navigateToGithub() {
-    window.location.href = 'https://github.com/oatear/cider'
+    window.open('https://github.com/oatear/cider', "_blank");
   }
   navigateToDiscord() {
-    window.location.href = 'https://discord.gg/8buTjPHh'
+    window.open('https://discord.gg/8buTjPHh', "_blank");
   }
 
 }
