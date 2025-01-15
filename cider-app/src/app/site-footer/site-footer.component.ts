@@ -19,4 +19,11 @@ export class SiteFooterComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  navigateToGithub() {
+    window.open('https://github.com/oatear/cider', "_blank");
+  }
+  navigateToDiscord() {
+    window.open('https://discord.gg/8buTjPHh', "_blank");
+  }
+
 }

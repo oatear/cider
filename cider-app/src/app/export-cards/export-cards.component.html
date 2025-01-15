@@ -146,6 +146,8 @@
                     <div class="p-field">
                         <p-message severity="info"
                             text="Make sure this DPI is the same target DPI for the card templates and always set 'flip on long edge' when printing."></p-message>
+                        <p-message severity="error" class="p-ml-1" *ngIf="someCardsMissingTemplates"
+                            text="Some cards do not have both their back and front template selected and will not appear in the export."></p-message>
                     </div>
                 </ng-container>
                 <ng-container *ngIf="exportType === 'singular-export'">

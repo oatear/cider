@@ -13,10 +13,9 @@
         (mouseout)="projectUrl.hover = false"
         (click)="openProject(projectUrl.url)"
         [style]="{
-            'background-color': projectUrl.hover 
-            ? 'hsl(' + projectUrl.hue + ' 19% 55%)'
-            : 'hsl(' + projectUrl.hue + ' 19% 45%)',
-            'border-color': 'hsl(' + projectUrl.hue + ' 19% 45%)'
+            'background': projectUrl.hover 
+            ? 'linear-gradient(45deg, hsl(' + projectUrl.hue + ' 19% 50%) 0%, hsl(' + projectUrl.hue2 + ' 19% 50%) 100%)'
+            : 'linear-gradient(45deg, hsl(' + projectUrl.hue + ' 19% 45%) 0%, hsl(' + projectUrl.hue2 + ' 19% 45%) 100%)'
         }"></p-button>
     </ng-container>
 </p-card>

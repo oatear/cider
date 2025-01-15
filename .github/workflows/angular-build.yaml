@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [22.x]
     defaults:
       run:
         working-directory: ./cider-app
@@ -23,7 +23,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Cache node modules
-        uses: actions/cache@v1
+        uses: actions/cache@v4
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
@@ -44,7 +44,7 @@ jobs:
 
       - name: Archive build
         if: success()
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: deploy_dist
           path: cider-app/dist
@@ -57,13 +57,16 @@ jobs:
           uses: actions/checkout@v1
 
         - name: Download build
-          uses: actions/download-artifact@v1
+          uses: actions/download-artifact@v4
           with:
             name: deploy_dist
 
+        - name: Display structure of downloaded files
+          run: ls -R
+
         - name: Deploy to GitHub Pages
-          uses: JamesIves/github-pages-deploy-action@releases/v3
+          uses: JamesIves/github-pages-deploy-action@releases/v4
           with:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             BRANCH: gh-pages
-            FOLDER: deploy_dist/cider
+            FOLDER: cider

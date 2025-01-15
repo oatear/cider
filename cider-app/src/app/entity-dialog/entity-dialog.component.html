@@ -9,7 +9,7 @@
                     <div *ngIf="col.service" class="p-field">
                         <label [for]="col.field">{{col.header}}</label>
                         <p-dropdown [options]="(col.service | entityList | async) || []" [(ngModel)]="entity[col.field]" 
-                            [id]="col.field" optionLabel="name" [optionValue]="col.service.getIdField()" class="p-mr-2"
+                            [id]="col.field | toString" optionLabel="name" [optionValue]="col.service.getIdField()" class="p-mr-2"
                             appendTo="body"></p-dropdown>
                     </div>
                 </ng-container>
@@ -18,7 +18,7 @@
                     <div class="p-field">
                         <label [for]="col.field">{{col.header}}</label>
                         <p-dropdown [options]="col.options || []" [(ngModel)]="entity[col.field]" 
-                            [id]="col.field" class="p-mr-2" appendTo="body"></p-dropdown>
+                            [id]="col.field | toString" class="p-mr-2" appendTo="body"></p-dropdown>
                     </div>
                 </ng-container>
                 <ng-container *ngSwitchCase="!col.hidden && col.type === FieldType.optionList 
