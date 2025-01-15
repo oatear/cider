@@ -8,14 +8,17 @@
     <p-button label="Sample Card Game"
         (click)="newProject(false)"></p-button>
     <ng-container *ngFor="let projectUrl of recentProjectUrls">
-        <p-button [label]="projectUrl.name" 
+        <p-button styleClass="project-button"
+        [label]="projectUrl.name" 
         (mouseover)="projectUrl.hover = true"
         (mouseout)="projectUrl.hover = false"
         (click)="openProject(projectUrl.url)"
         [style]="{
             'background': projectUrl.hover 
-            ? 'linear-gradient(45deg, hsl(' + projectUrl.hue + ' 19% 50%) 0%, hsl(' + projectUrl.hue2 + ' 19% 50%) 100%)'
-            : 'linear-gradient(45deg, hsl(' + projectUrl.hue + ' 19% 45%) 0%, hsl(' + projectUrl.hue2 + ' 19% 45%) 100%)'
+            ? 'linear-gradient(45deg, hsl(' + projectUrl.hue + ' 50% 50%), 
+                hsl(' + projectUrl.hue2 + ' 50% 50%)) 0% 0% / 250% 250%'
+            : 'linear-gradient(45deg, hsl(' + projectUrl.hue + ' 50% 45%), 
+                hsl(' + projectUrl.hue2 + ' 50% 45%)) 0% 0% / 250% 250%'
         }"></p-button>
     </ng-container>
 </p-card>

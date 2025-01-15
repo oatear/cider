@@ -12,7 +12,22 @@
         &:hover {
             background: #404d61;
         }
+        &.project-button {
+            animation: gradient 10s ease infinite;
+        }
     }
+}
+
+@keyframes gradient {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
 }
 
 :host ::ng-deep .artwork-card {
@@ -20,4 +35,8 @@
     height: 300px;
     background: url(^assets/crystal-cave.png);
     background-size: auto 300px;
+}
+
+:host ::ng-deep p-card > div.p-card {
+    margin-right: 10px;
 }

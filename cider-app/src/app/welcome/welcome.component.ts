@@ -50,12 +50,12 @@ export class WelcomeComponent implements OnInit {
       this.recentProjectUrls = urls.map(url => {
         let name = StringUtils.lastDirectoryFromUrl(url);
         let hue = this.calculateHue(name);
-        let hue2diff = 60;
+        let hue2diff = 120;
         return {
           url: url,
           name: name,
           hue: hue,
-          hue2: hue + hue2diff > 255 ? hue - hue2diff : hue + hue2diff,
+          hue2: (hue + hue2diff) % 360,
           hover: false
         }
       });
