@@ -203,10 +203,14 @@ export class GraphicalTemplateEditorComponent implements OnInit, OnChanges {
 
   onDragStart(e: any) {
     console.log('drag start', e);
-    e.target.style.position = 'absolute';
+    console.log('drag start dimensions: ', e.target.clientWidth, " ", e.target.clientHeight)
+    var width = e.target.clientWidth;
+    var height = e.target.clientHeight;
+    // e.target.style.position = 'absolute';
+    e.target.style.position = 'relative';
     e.target.style.display = 'block';
-    e.target.style.width = `${e.target.clientWidth}px`;
-    e.target.style.height = `${e.target.clientHeight}px`;
+    e.target.style.width = `${width}px`;
+    e.target.style.height = `${height}px`;
   }
   onDrag(e: any) {
     // e.target.style.transform = e.transform;
