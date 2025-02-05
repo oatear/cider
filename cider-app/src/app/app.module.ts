@@ -58,6 +58,20 @@ import { PageHeaderComponent } from './page-header/page-header.component';
 import { WelcomeComponent } from './welcome/welcome.component';
 import { ExportSelectionDialogComponent } from './export-selection-dialog/export-selection-dialog.component';
 import { CardToHtmlPipe } from './shared/pipes/template-to-html.pipe';
+import { GraphicalTemplateEditorComponent } from './graphical-template-editor/graphical-template-editor.component';
+import {
+  CdkDrag,
+  CdkDragDrop,
+  CdkDragPlaceholder,
+  CdkDropList,
+  moveItemInArray,
+} from '@angular/cdk/drag-drop';
+import { NgFor } from '@angular/common';
+import { DefaultCardBlockComponent } from './blocks/default-card-block/default-card-block.component';
+import { BasicBlockComponent } from './blocks/basic-block/basic-block.component';
+import { HorizontalBlockComponent } from './blocks/horizontal-block/horizontal-block.component';
+import { SpacerBlockComponent } from './blocks/spacer-block/spacer-block.component';
+import { BlockComponent } from './blocks/block/block.component';
 
 @NgModule({
   declarations: [
@@ -79,7 +93,13 @@ import { CardToHtmlPipe } from './shared/pipes/template-to-html.pipe';
     CardThumbnailsComponent,
     PageHeaderComponent,
     WelcomeComponent,
-    ExportSelectionDialogComponent
+    ExportSelectionDialogComponent,
+    GraphicalTemplateEditorComponent,
+    DefaultCardBlockComponent,
+    BasicBlockComponent,
+    HorizontalBlockComponent,
+    SpacerBlockComponent,
+    BlockComponent
   ],
   imports: [
     BrowserModule,
@@ -116,7 +136,11 @@ import { CardToHtmlPipe } from './shared/pipes/template-to-html.pipe';
     ChipsModule,
     DividerModule,
     MultiSelectModule,
-    DataViewModule
+    DataViewModule,
+    CdkDropList, 
+    NgFor, 
+    CdkDrag, 
+    CdkDragPlaceholder,
   ],
   providers: [CardToHtmlPipe],
   bootstrap: [AppComponent]

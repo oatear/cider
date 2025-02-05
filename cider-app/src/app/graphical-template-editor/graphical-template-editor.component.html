@@ -1,0 +1,27 @@
+<p-card styleClass="page-card">
+    <!-- <cdk-drop-list #outerList="cdkDropList" [cdkDropListData]="outerItems" cdkDropListGroup>
+        <div cdkDrag *ngFor="let item of outerItems" [cdkDragData]="item">
+          {{ item.name }}
+          <cdk-drop-list #innerList="cdkDropList" [cdkDropListData]="item.children" (cdkDropListDropped)="drop($event)">
+            <div cdkDrag *ngFor="let child of item.children" [cdkDragData]="child">
+              {{ child.name }}
+            </div>
+          </cdk-drop-list>
+        </div>
+      </cdk-drop-list>
+
+      <div cdkDropList class="example-list" (cdkDropListDropped)="drop($event)">
+        <div class="example-box" *ngFor="let item of outerItems"  cdkDrag>
+            {{item of outerItems}}
+        </div>
+      </div> -->
+
+      <!-- <div cdkDropList class="example-list" (cdkDropListDropped)="drop($event)">
+        <div class="example-box" *ngFor="let movie of movies" cdkDrag>
+          <div class="example-custom-placeholder" *cdkDragPlaceholder></div>
+          {{movie}}
+        </div>
+      </div> -->
+
+      <app-default-card-block [block]="block"></app-default-card-block>
+</p-card>

@@ -71,6 +71,11 @@ export class CardTemplatesComponent implements OnInit {
   previewPanelWidth = 40;
   disablePanels: boolean = false;
   templateChanges: Subject<boolean>;
+  graphicalEditor: boolean = true;
+  editorTypeOptions: any[] = [
+      { label: 'Graphical', value: true },
+      { label: 'Code', value: false }
+  ];
 
   constructor(private domSanitizer: DomSanitizer, 
     public service: CardTemplatesService,

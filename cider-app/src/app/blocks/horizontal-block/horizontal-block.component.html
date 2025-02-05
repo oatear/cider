@@ -1,0 +1,9 @@
+<div class="horizontal-block" cdkDropList 
+    [id]="dropListId"
+    [cdkDropListData]="block['children']" 
+    [cdkDropListConnectedTo]="getConnectedDropLists()"
+    (cdkDropListDropped)="drop($event)">
+    <ng-container *ngFor="let block of block['children']">
+      <app-block [block]="block" [ngStyle]="block.style"></app-block>
+    </ng-container>
+  </div>

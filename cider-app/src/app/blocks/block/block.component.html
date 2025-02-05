@@ -1,0 +1,6 @@
+<ng-container [ngSwitch]="block.type">
+    <app-default-card-block *ngSwitchCase="'default'" [block]="block"></app-default-card-block>
+    <app-basic-block *ngSwitchCase="'basic'" [block]="block"></app-basic-block>
+    <app-horizontal-block *ngSwitchCase="'horizontal'" [block]="block"></app-horizontal-block>
+    <app-spacer-block *ngSwitchCase="'spacer'" [block]="block"></app-spacer-block>
+</ng-container>
