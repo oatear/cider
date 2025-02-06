@@ -46,7 +46,7 @@ export class WelcomeComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.localStorageService.getRecentProjectUrls().pipe(take(1)).subscribe(urls => {
+    this.localStorageService.getRecentProjectUrls().subscribe(urls => {
       this.recentProjectUrls = urls.map(url => {
         let name = StringUtils.lastDirectoryFromUrl(url);
         let hue = this.calculateHue(name);
