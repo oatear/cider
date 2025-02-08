@@ -41,7 +41,7 @@
                         <ng-template pTemplate="icons">
                             <!-- <button pButton pRipple icon="pi pi-info-circle" class="p-panel-header-icon p-link" (click)="openCssInfo()"></button> -->
                         </ng-template>
-                        <ngx-monaco-editor style="height: 100%;" *ngIf="selectedTemplate && !disablePanels"
+                        <ngx-monaco-editor class="code-editor" *ngIf="selectedTemplate && !disablePanels"
                             [options]="cssEditorOptions" [(ngModel)]="selectedTemplate.css" (ngModelChange)="debounceSave()"></ngx-monaco-editor>
                     </p-panel>
                 </div>
@@ -50,7 +50,7 @@
                         <ng-template pTemplate="icons">
                             <!-- <button pButton pRipple icon="pi pi-info-circle" class="p-panel-header-icon p-link" (click)="openHtmlInfo()"></button> -->
                         </ng-template>
-                        <ngx-monaco-editor style="height: 100%;" *ngIf="selectedTemplate && !disablePanels"
+                        <ngx-monaco-editor class="code-editor" *ngIf="selectedTemplate && !disablePanels"
                             [options]="htmlEditorOptions" [(ngModel)]="selectedTemplate.html" (ngModelChange)="debounceSave()"></ngx-monaco-editor>
                     </p-panel>
                 </div>

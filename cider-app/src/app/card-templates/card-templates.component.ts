@@ -1,4 +1,4 @@
-import { Component, OnInit, SecurityContext } from '@angular/core';
+import { Component, OnInit, HostListener, SecurityContext, ViewChild } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { CardTemplatesService } from '../data-services/services/card-templates.service';
@@ -6,6 +6,7 @@ import { CardsService } from '../data-services/services/cards.service';
 import { CardTemplate } from '../data-services/types/card-template.type';
 import { Card } from '../data-services/types/card.type';
 import { Subject, debounceTime } from 'rxjs';
+import { Splitter } from 'primeng/splitter';
 
 const templateCssFront  = 
 `.card {
@@ -71,6 +72,8 @@ export class CardTemplatesComponent implements OnInit {
   previewPanelWidth = 40;
   disablePanels: boolean = false;
   templateChanges: Subject<boolean>;
+  disableSplitter = false;
+  windowResizing$: Subject<boolean>;
 
   constructor(private domSanitizer: DomSanitizer, 
     public service: CardTemplatesService,
@@ -78,6 +81,10 @@ export class CardTemplatesComponent implements OnInit {
     private messageService: MessageService, 
     private confirmationService: ConfirmationService) {
       this.templateChanges = new Subject();
+      this.windowResizing$ = new Subject();
+      this.windowResizing$.pipe(debounceTime(200)).subscribe(() => {
+        this.disablePanels = false;
+      });
     }
 
   ngOnInit(): void {
@@ -97,6 +104,12 @@ export class CardTemplatesComponent implements OnInit {
       .subscribe(() => this.save(this.selectedTemplate));
   }
 
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    this.disablePanels = true;
+    this.windowResizing$.next(true);
+  }
+
   public updateTemplatesList() {
     this.service.getAll().then(templates => this.templates = templates);
   }
@@ -107,7 +120,6 @@ export class CardTemplatesComponent implements OnInit {
       this.zoom = 0.1;
     }
   }
-
 
   public debounceSave() {
     this.templateChanges.next(true);
