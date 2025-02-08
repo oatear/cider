@@ -1,4 +1,4 @@
-import { Component, OnInit, SecurityContext } from '@angular/core';
+import { Component, OnInit, HostListener, SecurityContext, ViewChild } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { CardTemplatesService } from '../data-services/services/card-templates.service';
@@ -6,6 +6,7 @@ import { CardsService } from '../data-services/services/cards.service';
 import { CardTemplate } from '../data-services/types/card-template.type';
 import { Card } from '../data-services/types/card.type';
 import { Subject, debounceTime } from 'rxjs';
+import { Splitter } from 'primeng/splitter';
 
 const templateCssFront  = 
 `.card {
@@ -58,7 +59,7 @@ export class CardTemplatesComponent implements OnInit {
   static readonly DEFAULT_CSS: string = templateCssFront;
 
   htmlEditorOptions: any = {theme: 'vs-dark', language: 'handlebars', automaticLayout: true};
-  cssEditorOptions: any = {theme: 'vs-dark', language: 'css', automaticLayout: true};
+  cssEditorOptions: any = {theme: 'vs-dark-extended', language: 'css-handlebars', automaticLayout: true};
   templates: CardTemplate[] = [];
   cards: Card[] = [];
   selectedCard: Card = {} as Card;
@@ -71,6 +72,8 @@ export class CardTemplatesComponent implements OnInit {
   previewPanelWidth = 40;
   disablePanels: boolean = false;
   templateChanges: Subject<boolean>;
+  disableSplitter = false;
+  windowResizing$: Subject<boolean>;
 
   constructor(private domSanitizer: DomSanitizer, 
     public service: CardTemplatesService,
@@ -78,13 +81,33 @@ export class CardTemplatesComponent implements OnInit {
     private messageService: MessageService, 
     private confirmationService: ConfirmationService) {
       this.templateChanges = new Subject();
+      this.windowResizing$ = new Subject();
+      this.windowResizing$.pipe(debounceTime(200)).subscribe(() => {
+        this.disablePanels = false;
+      });
     }
 
   ngOnInit(): void {
-    this.service.getAll().then(templates => this.templates = templates);
-    this.cardsService.getAll().then(cards => this.cards = cards);
+    this.service.getAll().then(templates => {
+      this.templates = templates;
+      if (this.templates.length > 0) {
+        this.selectedTemplate = this.templates[0];
+      }
+    });
+    this.cardsService.getAll().then(cards => {
+      this.cards = cards;
+      if (this.cards.length > 0) {
+        this.selectedCard = this.cards[0];
+      }
+    });
     this.templateChanges.asObservable().pipe(debounceTime(1000))
       .subscribe(() => this.save(this.selectedTemplate));
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    this.disablePanels = true;
+    this.windowResizing$.next(true);
   }
 
   public updateTemplatesList() {

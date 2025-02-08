@@ -38,7 +38,7 @@ import { DividerModule } from 'primeng/divider';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { DataViewModule } from 'primeng/dataview';
 
-import { MonacoEditorModule } from '@materia-ui/ngx-monaco-editor';
+import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 
 import { SiteHeaderComponent } from './site-header/site-header.component';
 import { SiteFooterComponent } from './site-footer/site-footer.component';
@@ -58,6 +58,7 @@ import { PageHeaderComponent } from './page-header/page-header.component';
 import { WelcomeComponent } from './welcome/welcome.component';
 import { ExportSelectionDialogComponent } from './export-selection-dialog/export-selection-dialog.component';
 import { CardToHtmlPipe } from './shared/pipes/template-to-html.pipe';
+import MonacoExtension from './shared/extensions/monaco-extension';
 
 @NgModule({
   declarations: [
@@ -86,7 +87,7 @@ import { CardToHtmlPipe } from './shared/pipes/template-to-html.pipe';
     BrowserAnimationsModule,
     AppRoutingModule,
     HttpClientModule,
-    MonacoEditorModule,
+    MonacoEditorModule.forRoot(MonacoExtension.monacoConfig),
     ButtonModule,
     RippleModule,
     CardModule,

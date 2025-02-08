@@ -27,10 +27,12 @@ textarea {
 }
 
 :host ::ng-deep ngx-monaco-editor {
+    height: 100%;
     .editor-container {
         height: 100%;
     }
 }
+
 :host ::ng-deep p-panel {
     .p-panel {
         .p-panel-header {
@@ -61,8 +63,9 @@ textarea {
 }
 
 :host ::ng-deep .template-editor {
-    height: calc(100vh - 128px - 58px);
-    height: calc(var(--vh, 1vh) * 100 - 128px - 58px);
+    // height: calc(100vh - 128px - 58px);
+    // height: calc(var(--vh, 1vh) * 100 - 128px - 58px);
+    height: 100%;
     display: flex;
     flex-direction: column;
     .template-header {
@@ -70,9 +73,12 @@ textarea {
             border-top: none;
             border-bottom: none;
             border-radius: 0;
+            border: none;
         }
     }
     .p-splitter {
+        /* reconsider this */
+        width: calc(100% - 1px);
         border-radius: 0;
         border-left: none;
         border-right: none;
@@ -88,19 +94,21 @@ textarea {
     }
     .template-panel {
         .left-panel {
-            height: calc(100vh - 316px);
-            height: calc(var(--vh, 1vh) * 100 - 185px);
+            height: calc(100vh - 179px);
+            // height: calc(var(--vh, 1vh) * 100 - 179px);
             .p-panel {
                 .p-panel-header {
                     border-radius: 0;
                     border-bottom: none;
                     border-right: 0;
                     border-top: 0;
+                    border: none;
                 }
                 .p-panel-content {
                     border-radius: 0;
                     border-right: 0;
                     border-bottom: 0;
+                    border: none;
                     .preview-controls {
                         width: 100%;
                         display: flex;
@@ -117,8 +125,8 @@ textarea {
                         display: flex;
                         align-items: center;
                         justify-content: center;
-                        height: calc(100vh - 316px);
-                        height: calc(var(--vh, 1vh) * 100 - 305px);
+                        height: calc(100vh - 293px);
+                        // height: calc(var(--vh, 1vh) * 100 - 305px);
                     }
                 }
             }
@@ -133,9 +141,15 @@ textarea {
                         border-radius: 0;
                         border-bottom: none;
                         border-top: 0;
+                        border-right: none;
+                        border-left: none;
+                        // border: none;
                     }
                     .p-panel-content {
+                        border-right: none;
+                        border-left: none;
                         border-radius: 0;
+                        // border: none;
                     } 
                 }
             }
@@ -144,12 +158,18 @@ textarea {
                 .p-panel {
                     .p-panel-header {
                         border-top: none;
+                        border-right: none;
+                        border-left: none;
                         border-radius: 0;
+                        // border: none;
                     }
                     .p-panel-content {
                         border-radius: 0;
                         border-top: none;
                         border-bottom: none;
+                        border-right: none;
+                        border-left: none;
+                        // border: none;
                     }
                 }
             }
