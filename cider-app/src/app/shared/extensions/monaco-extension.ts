@@ -25,17 +25,11 @@ export default class MonacoExtension {
     static registerCssHandlebars(monaco: any) {
         monaco.languages.register({ id: 'css-handlebars' });
 
-        const handlebarsLanguage = monaco.languages.getLanguages().find((lang: { id: string; }) => lang.id === 'handlebars');
-        handlebarsLanguage.loader().then((handlebarsModule: any) => {
-            console.log('handlebars module: ', handlebarsModule);
-        });
-
         // Get the existing CSS language configuration and tokenizer
         // https://github.com/microsoft/monaco-editor/blob/main/src/basic-languages/css/css.ts
         const cssLanguage = monaco.languages.getLanguages().find((lang: { id: string; }) => lang.id === 'css');
         if (cssLanguage) {
             cssLanguage.loader().then((cssModule: any) => {
-                console.log('css module: ', cssModule);
                 const cssLanguage = cssModule.language;
                 const cssTokenizer = cssLanguage.tokenizer;
                 const cssConfiguration = cssModule.conf;
@@ -73,8 +67,6 @@ export default class MonacoExtension {
                     ...cssLanguage,
                     tokenizer: handlebarsTokenizer,
                 };
-
-                console.log('extended language: ', extendedLanguage);
 
                 // Register the new language with the extended tokenizer and configuration
                 monaco.languages.register({ id: 'css-handlebars' });

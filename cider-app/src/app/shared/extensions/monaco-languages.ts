@@ -76,7 +76,6 @@ export default class MonacoLanguages {
                         range: wordRange
                     };
                 });
-                console.log('helpers: ', helpers);
             
                 const suggestions: any[] = [
                     ...snippetSuggestions,
@@ -161,12 +160,8 @@ export default class MonacoLanguages {
     static isInsideHandlebars(model: any, position: any): boolean {
         // Scan backwards for '{{'
         const lineContent = model.getLineContent(position.lineNumber);
-        console.log('lineContent: ', lineContent, ' position: ', position, 
-            ' lineContent.lastIndexOf(\'{{\'): ', lineContent.lastIndexOf('{{'), 
-            ' lineContent.lastIndexOf(\'}}\'): ', lineContent.lastIndexOf('}}'));
         const lastIndexOfOpen = lineContent.lastIndexOf('{{');
         return lastIndexOfOpen > -1 && position.column > lastIndexOfOpen;
-        // return lineContent.lastIndexOf('{{') > lineContent.lastIndexOf('}}');
     }
 
     static fromPosition(position: any): any {
