@@ -58,7 +58,7 @@ export class CardTemplatesComponent implements OnInit {
   static readonly DEFAULT_CSS: string = templateCssFront;
 
   htmlEditorOptions: any = {theme: 'vs-dark', language: 'handlebars', automaticLayout: true};
-  cssEditorOptions: any = {theme: 'vs-dark', language: 'css', automaticLayout: true};
+  cssEditorOptions: any = {theme: 'vs-dark-extended', language: 'css-handlebars', automaticLayout: true};
   templates: CardTemplate[] = [];
   cards: Card[] = [];
   selectedCard: Card = {} as Card;
@@ -81,8 +81,18 @@ export class CardTemplatesComponent implements OnInit {
     }
 
   ngOnInit(): void {
-    this.service.getAll().then(templates => this.templates = templates);
-    this.cardsService.getAll().then(cards => this.cards = cards);
+    this.service.getAll().then(templates => {
+      this.templates = templates;
+      if (this.templates.length > 0) {
+        this.selectedTemplate = this.templates[0];
+      }
+    });
+    this.cardsService.getAll().then(cards => {
+      this.cards = cards;
+      if (this.cards.length > 0) {
+        this.selectedCard = this.cards[0];
+      }
+    });
     this.templateChanges.asObservable().pipe(debounceTime(1000))
       .subscribe(() => this.save(this.selectedTemplate));
   }
@@ -97,6 +107,7 @@ export class CardTemplatesComponent implements OnInit {
       this.zoom = 0.1;
     }
   }
+
 
   public debounceSave() {
     this.templateChanges.next(true);
