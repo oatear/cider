@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { ElectronService } from '../electron/electron.service';
 
 /**
  * Local storage is used for storing user preferences
@@ -13,9 +14,16 @@ export class LocalStorageService {
 
   public recentProjectUrls: BehaviorSubject<string[]>;
 
-  constructor() {
+  constructor(
+      private electronService: ElectronService) {
     this.recentProjectUrls = new BehaviorSubject<string[]>(
       this.getRecentProjectUrlsFromLocalStorage());
+     
+    // clean up the recent project urls -- remove any that are empty or don't exist
+    this.cleanRecentProjectUrls().then(urls => {
+      localStorage.setItem(LocalStorageService.RECENT_PROJECT_URLS, JSON.stringify(urls));
+      this.recentProjectUrls.next(urls);
+    });
   }
 
   public addRecentProjectUrl(url : string) {
@@ -35,6 +43,19 @@ export class LocalStorageService {
       return [];
     }
     return JSON.parse(urlsString);
+  }
+
+  /**
+   * Filter out any directories that are empty or don't exist from the recent project urls
+   * 
+   * @returns 
+   */
+  public cleanRecentProjectUrls() : Promise<string[]> {
+    const urls = this.getRecentProjectUrlsFromLocalStorage();
+    const promises = urls.map(url => this.electronService.listDirectory(url)
+      .then(files => files.length > 0 ? url : ""));
+    const validUrls = Promise.all(promises).then((urls) => urls.filter(url => url !== ""));
+    return validUrls;
   }
 
   public getRecentProjectUrls() {
