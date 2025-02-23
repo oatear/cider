@@ -13,7 +13,7 @@ jobs:
         node-version: [22.x]
     env:
       SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_TOKEN }}
-      APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
+      APPLE_API_KEY: ~/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8
       APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
       APPLE_API_ISSUER: ${{ secrets.APPLE_API_KEY_ISSUER }}
     defaults:
@@ -32,6 +32,13 @@ jobs:
       # - name: Install Snapcraft
       #   uses: oatear/action-snapcraft@v1
       #   if: startsWith(matrix.os, 'ubuntu')
+
+      - name: Prepare for app notarization (macOS)
+        if: startsWith(matrix.os, 'macos')
+        # Import Apple API key for app notarization on macOS
+        run: |
+          mkdir -p ~/private_keys/
+          echo '${{ secrets.APPLE_API_KEY }}' > ~/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8
 
       - name: Build/release Electron app
         uses: oatear/action-electron-builder@v1.0.1
