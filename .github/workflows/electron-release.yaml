@@ -13,6 +13,9 @@ jobs:
         node-version: [22.x]
     env:
       SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_TOKEN }}
+      APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
+      APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+      APPLE_API_KEY_ISSUER: ${{ secrets.APPLE_API_KEY_ISSUER }}
     defaults:
       run:
         working-directory: ./cider-app
@@ -32,10 +35,6 @@ jobs:
 
       - name: Build/release Electron app
         uses: oatear/action-electron-builder@v1.0.1
-        env:
-          APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
-          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
-          APPLE_API_KEY_ISSUER: ${{ secrets.APPLE_API_KEY_ISSUER }}
         with:
           # GitHub token, automatically provided to the action
           # (No need to define this secret in the repo settings)
