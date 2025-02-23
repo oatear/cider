@@ -14,9 +14,12 @@
             "filter": ["**/*"]
         }
     ],
+	"afterSign": "electron-builder-notarize",
     "mac": {
         "icon": "dist/cider/assets/cider-logo.icns",
-        "target": ["dmg"]
+        "target": ["dmg"],
+		"hardenedRuntime": true,
+		"entitlements": "build/entitlements.mac.plist"
     },
     "win": {
         "icon": "dist/cider/favicon.ico",

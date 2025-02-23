@@ -32,10 +32,22 @@ jobs:
 
       - name: Build/release Electron app
         uses: oatear/action-electron-builder@v1.0.1
+        env:
+          APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_KEY_ISSUER: ${{ secrets.APPLE_API_KEY_ISSUER }}
         with:
           # GitHub token, automatically provided to the action
           # (No need to define this secret in the repo settings)
           github_token: ${{ secrets.github_token }}
+
+          # Mac certificates and password
+          mac_certs: ${{ secrets.MAC_CERTS }}
+          mac_certs_password: ${{ secrets.MAC_CERTS_PASSWORD }}
+
+          # Windows certificate and password
+          #win_certs: ${{ secrets.WIN_CERTS }}
+          #win_certs_password: ${{ secrets.WIN_CERTS_PASSWORD }}
 
           # If the commit is tagged with a version (e.g. "v1.0.0"),
           # release the app after building
