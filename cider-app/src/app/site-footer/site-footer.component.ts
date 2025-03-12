@@ -23,7 +23,7 @@ export class SiteFooterComponent implements OnInit {
     window.open('https://github.com/oatear/cider', "_blank");
   }
   navigateToDiscord() {
-    window.open('https://discord.gg/8buTjPHh', "_blank");
+    window.open('https://discord.gg/S66xw9Wc9V', "_blank");
   }
 
 }
