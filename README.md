@@ -103,4 +103,4 @@ The repository itself is protected by [AGPL-3.0][license-url] to ensure the proj
 [ttsexport-url]: TTS_EXPORT.md
 [license-url]: LICENSE.md
 [pages-url]: https://oatear.github.io/cider
-[discord-url]: https://discord.gg/Hu9wMB5W
+[discord-url]: https://discord.gg/S66xw9Wc9V
