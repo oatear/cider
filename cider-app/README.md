@@ -11,6 +11,8 @@ Run `npm run start` for a dev server. Navigate to `http://localhost:4200/`. The 
 ## Electron application
 
 Run `npm run electron` for the electron desktop application.
+Run `npm run electron:debug` to start electron with an external debugger.
+
 ## Code scaffolding
 
 Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
