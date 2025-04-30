@@ -16,7 +16,8 @@
     "build:gh-pages": "ng build --base-href=/cider/",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "electron": "ng build --base-href ./ && tsc --p electron-app && electron .",
+    "electron": "ng build --base-href ./ --configuration development && tsc --p electron-app && electron .",
+    "electron:debug": "ng build --base-href ./ --configuration development && tsc --p electron-app && electron . --inspect-brk",
     "electron:compile": "ng build --base-href ./ && tsc --p electron-app",
     "electron:build": "ng build --base-href ./ && tsc --p electron-app && electron-builder build --publish=never"
   },
