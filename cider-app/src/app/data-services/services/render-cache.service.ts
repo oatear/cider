@@ -34,6 +34,8 @@ export class RenderCacheService {
         const url = URL.createObjectURL(file);
         imageSubject.next(url);
         imageSubject.complete();
+      }).catch(err => {
+        imageSubject.error('Failed to generate cache image');
       });
       return imageSubject.asObservable();
     }

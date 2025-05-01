@@ -9,6 +9,7 @@ import { CardToHtmlPipe } from '../shared/pipes/template-to-html.pipe';
 import * as htmlToImage from 'html-to-image';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import GeneralUtils from '../shared/utils/general-utils';
+import { error } from 'console';
 
 @Component({
   selector: 'app-card-preview',
@@ -27,6 +28,7 @@ export class CardPreviewComponent implements OnInit, AfterViewChecked, OnChanges
   assetUrls: any;
   uuid: string  = uuid();
   cachedImageUrl?: string;
+  invalidTemplate: boolean = false;
   private isLoadedSubject: AsyncSubject<boolean>;
   private isCacheLoadedSubject: AsyncSubject<boolean>;
 
@@ -67,12 +69,19 @@ export class CardPreviewComponent implements OnInit, AfterViewChecked, OnChanges
       lastValueFrom(this.isLoadedSubject).then(() => {
         this.renderCacheService.getOrSet(this.getHash(), 
           () => GeneralUtils.delay(2000).then(() => this.toImageUrl()))
-        .subscribe((cachedImageUrl) => {
-            this.cachedImageUrl = cachedImageUrl;
-            GeneralUtils.delay(1000).then(() => {
-              this.isCacheLoadedSubject.next(true);
-              this.isCacheLoadedSubject.complete();
-            });
+        .subscribe({
+          next: (cachedImageUrl) => {
+              this.cachedImageUrl = cachedImageUrl;
+              GeneralUtils.delay(1000).then(() => {
+                this.isCacheLoadedSubject.next(true);
+                this.isCacheLoadedSubject.complete();
+              });
+          },
+          error: (error) => {
+            this.invalidTemplate = true;
+            this.isCacheLoadedSubject.error('Failed to generate card image');
+            this.isCacheLoadedSubject.complete();
+          }
         });
       });
     }
