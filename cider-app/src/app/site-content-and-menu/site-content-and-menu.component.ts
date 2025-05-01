@@ -133,6 +133,11 @@ export class SiteContentAndMenuComponent implements OnInit {
                 icon: 'pi pi-pw pi-database',
                 items: [
                   {
+                    label: 'Reload Project from Disk', 
+                    icon: 'pi pi-pw pi-folder',
+                    visible: this.electronService.isElectron(),
+                    command: () => this.reloadProjectProcedure()
+                  }, {
                     label: 'Reset Database',
                     icon: 'pi pi-pw pi-database',
                     command: () => this.openResetDialog()
@@ -415,6 +420,16 @@ export class SiteContentAndMenuComponent implements OnInit {
       icon: 'pi pi-exclamation-triangle',
       accept: () => this.openProjectProcedure(url)
     });
+  }
+
+  private async reloadProjectProcedure() {
+    const projectHomeUrl = await firstValueFrom(this.electronService.getProjectHomeUrl());
+    if (!projectHomeUrl) {
+      console.log('No project directory open.');
+      this.saveProjectAs();
+      return;
+    }
+    this.openProjectProcedure(projectHomeUrl);
   }
 
   private openProjectProcedure(url: string) {
