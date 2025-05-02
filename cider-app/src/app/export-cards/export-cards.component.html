@@ -166,6 +166,7 @@
         </p-card>
     </div>
 </div>
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
 <app-export-selection-dialog [(visible)]="exportSelectionDialogVisible"
     (onApply)="updateSelection($event)" [records]="originalCards"></app-export-selection-dialog>
 <p-dialog header="Exporting Data" [(visible)]="displayLoading" [style]="{width: '450px'}" [modal]="true" >

@@ -11,11 +11,13 @@ import FileUtils from '../shared/utils/file-utils';
 import { lastValueFrom } from 'rxjs';
 import StringUtils from '../shared/utils/string-utils';
 import GeneralUtils from '../shared/utils/general-utils';
+import { ConfirmationService } from 'primeng/api';
 
 @Component({
   selector: 'app-export-cards',
   templateUrl: './export-cards.component.html',
-  styleUrls: ['./export-cards.component.scss']
+  styleUrls: ['./export-cards.component.scss'],
+    providers: [ConfirmationService]
 })
 export class ExportCardsComponent implements OnInit {
   private static readonly SINGULAR_EXPORT = 'singular-export';
@@ -76,7 +78,8 @@ export class ExportCardsComponent implements OnInit {
   ];
 
   constructor(cardsService: CardsService, 
-    public templatesService: CardTemplatesService) {
+    public templatesService: CardTemplatesService,
+    private confirmationService: ConfirmationService) {
       cardsService.getAll().then(cards => {
         // check cards for front/back templates being defined
         const cardsWithTemplatesDefined = cards.filter(card => card.backCardTemplateId && card.frontCardTemplateId);
@@ -160,12 +163,29 @@ export class ExportCardsComponent implements OnInit {
   public export() {
     if (this.exportType === ExportCardsComponent.SHEET_EXPORT 
       && this.selectedPaper.name === 'Tabletop Simulator') {
-      this.exportCardSheetsAsImages();
+      this.exportCardSheetsAsImages().catch(err => {
+        this.displayErrorDialog(err);
+      });;
     } else if (this.exportType === ExportCardsComponent.SHEET_EXPORT) {
-      this.exportCardSheets();
+      this.exportCardSheets().catch(err => {
+        this.displayErrorDialog(err);
+      });
     } else {
-      this.exportIndividualImages();
+      this.exportIndividualImages().catch(err => {
+        this.displayErrorDialog(err);
+      });;
     }
+  }
+
+  private displayErrorDialog(message: string) {
+    this.confirmationService.confirm({
+      message: message + '\nCheck for errors in this template and card data.',
+      header: 'Error',
+      acceptLabel: "OK",
+      icon: 'pi pi-exclamation-triangle',
+      rejectVisible: false,
+      accept: () => {return;},
+    });
   }
 
   private async prerenderCardImages() {
@@ -182,7 +202,13 @@ export class ExportCardsComponent implements OnInit {
         this.loadingInfo = 'Pre-rendering cards ' + (sliceSize * index) 
           + '-' + (sliceSize * index + slice.length - 1) + '/' + this.cards.length + '...';
         await GeneralUtils.delay(1000);
-        const promisedCards$ = this.cardSheetCards.map(card => lastValueFrom(card.isCacheLoaded()));
+        const promisedCards$ = this.cardSheetCards.map(cardPreview => lastValueFrom(cardPreview.isCacheLoaded()).catch(() => {
+          this.loadingInfo = 'Failed to load card cache.';
+          this.loadingPercent = 0;
+          this.displayLoading = false;
+          this.renderCache = false;
+          return Promise.reject('Failed to render card "' + cardPreview.card.name + '" with template "' + cardPreview.template.name + '".');
+        }));
         const completedPromises = await Promise.all(promisedCards$);
         this.loadingPercent += 100.0/(renderSlices.length);
         return completedPromises;
@@ -210,7 +236,13 @@ export class ExportCardsComponent implements OnInit {
           this.loadingInfo = 'Rendering sheet ' + sheetIndex + ' ' 
             + (showFront ? 'front' : 'back') + ' card images...';
           await GeneralUtils.delay(1000);
-          const promisedCards$ = this.cardSheetCards.map(card => lastValueFrom(card.isCacheLoaded()));
+          const promisedCards$ = this.cardSheetCards.map(cardPreview => lastValueFrom(cardPreview.isCacheLoaded()).catch(() => {
+            this.loadingInfo = 'Failed to load card cache.';
+            this.loadingPercent = 0;
+            this.displayLoading = false;
+            this.renderCache = false;
+            return Promise.reject('Failed to render card "' + cardPreview.card.name + '" with template "' + cardPreview.template.name + '".');
+          }));
           await Promise.all(promisedCards$);
           
           this.loadingInfo = 'Generating sheet ' + sheetIndex + ' ' 
@@ -252,12 +284,18 @@ export class ExportCardsComponent implements OnInit {
         this.sheet = sheet;
         this.loadingInfo = 'Rendering sheet ' + sheetIndex + ' card images...';
         await GeneralUtils.delay(1000);
-        const promisedCards$ = this.cardSheetCards.map(card => lastValueFrom(card.isCacheLoaded()));
+        const promisedCards$ = this.cardSheetCards.map(cardPreview => lastValueFrom(cardPreview.isCacheLoaded()).catch(() => {
+          this.loadingInfo = 'Failed to load card cache.';
+          this.loadingPercent = 0;
+          this.displayLoading = false;
+          this.renderCache = false;
+          return Promise.reject('Failed to render card "' + cardPreview.card.name + '" with template "' + cardPreview.template.name + '".');
+        }));
         await Promise.all(promisedCards$);
 
         this.loadingInfo = 'Generating sheet ' + sheetIndex + ' images...';
         const cardSheets = await Promise.all(this.cardSheets.map(cardSheet => limit(() => {
-          return htmlToImage.toPng((<any>cardSheet).nativeElement, {pixelRatio: 1.0});
+          return htmlToImage.toPng((<any>cardSheet).nativeElement, {pixelRatio: 1.0, onImageErrorHandler: (error) => {console.log('error', error);}});
         })));
         this.loadingPercent += 100.0/(this.slicedCards.length + 1);
         return cardSheets;
@@ -304,7 +342,9 @@ export class ExportCardsComponent implements OnInit {
     this.loadingInfo = 'Generating card images...';
     const limit = pLimit(3);
     const frontCards$ = this.frontCards.map(async cardPreview => {
-      await lastValueFrom(cardPreview.isCacheLoaded());
+      await lastValueFrom(cardPreview.isCacheLoaded()).catch(() => {
+        return Promise.reject('Failed to render card "' + cardPreview.card.name + '" with template "' + cardPreview.template.name + '".');
+      });
       const imgUri = await limit(() => htmlToImage.toPng((<any>cardPreview).element.nativeElement, 
       {pixelRatio: this.individualExportPixelRatio}));
       const imgIdentifier = this.individualExportUseCardName 
@@ -314,7 +354,9 @@ export class ExportCardsComponent implements OnInit {
       return this.dataUrlToFile(imgUri, imgName);
     });
     const backCards$ = this.backCards.map(async cardPreview => {
-      await lastValueFrom(cardPreview.isCacheLoaded());
+      await lastValueFrom(cardPreview.isCacheLoaded()).catch(() => {
+        return Promise.reject('Failed to render card "' + cardPreview.card.name + '" with template "' + cardPreview.template.name + '".');
+      });
       const imgUri = await limit(() => htmlToImage.toPng((<any>cardPreview).element.nativeElement, 
       {pixelRatio: this.individualExportPixelRatio}));
       const imgIdentifier = this.individualExportUseCardName 
@@ -324,7 +366,7 @@ export class ExportCardsComponent implements OnInit {
       return this.dataUrlToFile(imgUri, imgName);
     });
     const allCards$ = frontCards$.concat(backCards$);
-    Promise.all(this.promisesProgress(allCards$, () => this.loadingPercent += 100.0/(allCards$.length + 1)))
+    return Promise.all(this.promisesProgress(allCards$, () => this.loadingPercent += 100.0/(allCards$.length + 1)))
       .then(promisedImages => {
         this.loadingInfo = 'Zipping up files...';
         return this.zipFiles(promisedImages);
@@ -337,6 +379,13 @@ export class ExportCardsComponent implements OnInit {
         this.loadingPercent = 100;
         this.displayLoading = false
         this.renderCache = false;
+      })
+      .catch(err => {
+        this.loadingInfo = 'Failed to load card cache.';
+        this.loadingPercent = 0;
+        this.displayLoading = false;
+        this.renderCache = false;
+        return Promise.reject(err);
       });
   }
 
