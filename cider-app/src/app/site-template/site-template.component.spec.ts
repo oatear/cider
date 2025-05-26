@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { SiteContentAndMenuComponent } from './site-content-and-menu.component';
+import { SiteContentAndMenuComponent } from './site-template.component';
 
 describe('SiteContentAndMenuComponent', () => {
   let component: SiteContentAndMenuComponent;

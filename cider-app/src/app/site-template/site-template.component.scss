@@ -1,0 +1,25 @@
+.site-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(var(--vh, 1vh) * 100 - 58px);
+}
+
+:host ::ng-deep .page-card, 
+:host ::ng-deep .page-card.header-card {
+    margin: 25px;
+    margin-right: 10px;
+}
+
+/**
+ * Card overrides
+ */
+:host ::ng-deep .p-card {
+    border-radius: 10px;
+}
+
+/**
+ * Dialog overrides
+ */
+:host ::ng-deep .p-dialog {
+    border-radius: 10px;
+}

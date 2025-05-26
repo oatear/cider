@@ -1,16 +1,11 @@
-<div class="site-wrapper">
-    <div class="site-menu" (dblclick)="titlebarDoubleClick()">
-        <p-menubar [model]="items">
-            <ng-template pTemplate="start">
-                <img class="logo-image" height="40"
-                [src]="isSaving ? 'assets/cider-logo.gif' : 'assets/cider-logo-128.png'" 
-                (click)="logoClicked()">
-            </ng-template>
-        </p-menubar>
-    </div>
-    <div class="site-content">
-        <ng-content></ng-content>
-    </div>
+<div class="site-menu" (dblclick)="titlebarDoubleClick()">
+    <p-menubar [model]="items">
+        <ng-template pTemplate="start">
+            <img class="logo-image" height="40"
+            [src]="isSaving ? 'assets/cider-logo.gif' : 'assets/cider-logo-128.png'" 
+            (click)="logoClicked()">
+        </ng-template>
+    </p-menubar>
 </div>
 <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
 <p-dialog header="Import Database" [(visible)]="importVisible" [style]="{width: '450px'}" [modal]="true">
@@ -40,4 +35,3 @@
         {{loadingInfo}}
     </div>
 </p-dialog>
-

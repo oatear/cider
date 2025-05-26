@@ -43,7 +43,7 @@ import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { SiteHeaderComponent } from './site-header/site-header.component';
 import { SiteFooterComponent } from './site-footer/site-footer.component';
 import { SiteContentComponent } from './site-content/site-content.component';
-import { SiteContentAndMenuComponent } from './site-content-and-menu/site-content-and-menu.component';
+import { SiteTemplateComponent } from './site-template/site-template.component';
 import { AssetsComponent } from './assets/assets.component';
 import { EntityTableComponent } from './entity-table/entity-table.component';
 import { EntityDialogComponent } from './entity-dialog/entity-dialog.component';
@@ -59,6 +59,7 @@ import { WelcomeComponent } from './welcome/welcome.component';
 import { ExportSelectionDialogComponent } from './export-selection-dialog/export-selection-dialog.component';
 import { CardToHtmlPipe } from './shared/pipes/template-to-html.pipe';
 import MonacoExtension from './shared/extensions/monaco-extension';
+import { SiteMenuComponent } from './site-menu/site-menu.component';
 
 @NgModule({
   declarations: [
@@ -69,7 +70,7 @@ import MonacoExtension from './shared/extensions/monaco-extension';
     SiteHeaderComponent,
     SiteFooterComponent,
     SiteContentComponent,
-    SiteContentAndMenuComponent,
+    SiteTemplateComponent,
     AssetsComponent,
     EntityTableComponent,
     EntityDialogComponent,
@@ -80,7 +81,8 @@ import MonacoExtension from './shared/extensions/monaco-extension';
     CardThumbnailsComponent,
     PageHeaderComponent,
     WelcomeComponent,
-    ExportSelectionDialogComponent
+    ExportSelectionDialogComponent,
+    SiteMenuComponent
   ],
   imports: [
     BrowserModule,
