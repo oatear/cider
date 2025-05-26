@@ -1,8 +1,8 @@
-import { ChangeDetectorRef, Component, NgZone, OnInit } from '@angular/core';
+import { Component, NgZone, OnInit } from '@angular/core';
+import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
 import { Router } from '@angular/router';
 import { ExportProgress } from 'dexie-export-import/dist/export';
 import { ImportProgress } from 'dexie-export-import/dist/import';
-import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
 import { Observable, combineLatest, firstValueFrom } from 'rxjs';
 import { ElectronService } from '../data-services/electron/electron.service';
 import { AppDB } from '../data-services/indexed-db/db';
@@ -17,12 +17,12 @@ import StringUtils from '../shared/utils/string-utils';
 import XlsxUtils from '../shared/utils/xlsx-utils';
 
 @Component({
-  selector: 'app-site-content-and-menu',
-  templateUrl: './site-content-and-menu.component.html',
-  styleUrls: ['./site-content-and-menu.component.scss'],
+  selector: 'app-site-menu',
+  templateUrl: './site-menu.component.html',
+  styleUrls: ['./site-menu.component.scss'], 
   providers: [MessageService, ConfirmationService]
 })
-export class SiteContentAndMenuComponent implements OnInit {
+export class SiteMenuComponent implements OnInit {
 
   selectedDeck$: Observable<Deck | undefined>;
   recentProjectUrls$: Observable<string[]>;
