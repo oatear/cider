@@ -26,6 +26,10 @@ export class DecksChildService<Entity, Identity extends string | number> extends
         {...{deckId: (deck || {}).id}, ...equalityCriterias}));
   }
 
+  getAllUnfiltered(equalityCriterias?: {[key: string]: any;}) {
+    return super.getAll(equalityCriterias);
+  }
+
   override get(id: Identity) {
     return firstValueFrom(this.decksService.getSelectedDeck())
       .then(deck => super.get(id));

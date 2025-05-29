@@ -37,6 +37,7 @@ import { ChipsModule } from 'primeng/chips';
 import { DividerModule } from 'primeng/divider';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { DataViewModule } from 'primeng/dataview';
+import { TreeModule } from 'primeng/tree';
 
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 
@@ -60,6 +61,7 @@ import { ExportSelectionDialogComponent } from './export-selection-dialog/export
 import { CardToHtmlPipe } from './shared/pipes/template-to-html.pipe';
 import MonacoExtension from './shared/extensions/monaco-extension';
 import { SiteMenuComponent } from './site-menu/site-menu.component';
+import { SiteSidebarComponent } from './site-sidebar/site-sidebar.component';
 
 @NgModule({
   declarations: [
@@ -82,7 +84,8 @@ import { SiteMenuComponent } from './site-menu/site-menu.component';
     PageHeaderComponent,
     WelcomeComponent,
     ExportSelectionDialogComponent,
-    SiteMenuComponent
+    SiteMenuComponent,
+    SiteSidebarComponent
   ],
   imports: [
     BrowserModule,
@@ -119,7 +122,8 @@ import { SiteMenuComponent } from './site-menu/site-menu.component';
     ChipsModule,
     DividerModule,
     MultiSelectModule,
-    DataViewModule
+    DataViewModule,
+    TreeModule
   ],
   providers: [CardToHtmlPipe],
   bootstrap: [AppComponent]

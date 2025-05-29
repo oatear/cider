@@ -1,7 +1,16 @@
-.site-wrapper {
+:host ::ng-deep .site-wrapper {
     display: flex;
     flex-direction: column;
-    min-height: calc(var(--vh, 1vh) * 100 - 58px);
+    // min-height: calc(var(--vh, 1vh) * 100 - 58px);
+    min-height: 100vh;
+    height: 100%;
+    width: 100%;
+    > p-splitter {
+        flex: 1;
+        .site-splitter {
+            height: 100%;
+        }
+    }
 }
 
 :host ::ng-deep .page-card, 
@@ -22,4 +31,16 @@
  */
 :host ::ng-deep .p-dialog {
     border-radius: 10px;
+}
+
+:host ::ng-deep .site-splitter {
+    background: none;
+    app-site-sidebar {
+        background: var(--surface-0);
+        flex: 1;
+        overflow: hidden;
+    }
+    app-site-content {
+        background: var(--surface-0);
+    }
 }

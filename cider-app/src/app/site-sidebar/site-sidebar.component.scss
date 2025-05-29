@@ -1,0 +1,12 @@
+:host ::ng-deep p-tree {
+    .file-tree {
+        .p-tree-wrapper {
+            max-height: calc(var(--vh, 1vh)* 100 - 58px - 135px);
+            height: calc(var(--vh, 1vh)* 100 - 58px - 135px);
+            overflow: auto;
+            .p-tree-container {
+                height: 100%;
+            }
+        }
+    }
+}

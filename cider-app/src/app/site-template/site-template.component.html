@@ -1,7 +1,18 @@
 <div class="site-wrapper">
     <app-site-menu></app-site-menu>
-    <app-site-content>
-        <ng-content></ng-content>
-    </app-site-content>
+    <p-splitter styleClass="site-splitter" [panelSizes]="[20, 80]" [minSizes]="[10, 50]"
+        (onResizeStart)="onResizeStart($event)"
+        (onResizeEnd)="onResizeEnd($event)">
+        <ng-template pTemplate>
+            <app-site-sidebar *ngIf="!disablePanels">
+            </app-site-sidebar>
+        </ng-template>
+        <ng-template pTemplate>
+            <app-site-content *ngIf="!disablePanels">
+                <ng-content></ng-content>
+            </app-site-content>
+        </ng-template>
+    </p-splitter>
+    <app-site-footer></app-site-footer>
 </div>
 
