@@ -9,6 +9,7 @@
         flex: 1;
         .site-splitter {
             height: 100%;
+            border: none;
         }
     }
 }
@@ -42,5 +43,17 @@
     }
     app-site-content {
         background: var(--surface-0);
+        flex: 1;
+        display: flex;
+        width: 100%;
+        .site-content {
+            flex: 1;
+        }
+    }
+    .p-splitter-gutter {
+        background: #343b46;
+    }
+    .p-splitter-gutter-resizing {
+        background: #3f4b5b;
     }
 }

@@ -6,6 +6,9 @@ import { CardTemplatesService } from '../data-services/services/card-templates.s
 import { ElectronService } from '../data-services/electron/electron.service';
 import { firstValueFrom } from 'rxjs';
 import StringUtils from '../shared/utils/string-utils';
+import { TreeNodeSelectEvent } from 'primeng/tree';
+import { Router } from '@angular/router';
+import { style } from '@angular/animations';
 
 @Component({
   selector: 'app-site-sidebar',
@@ -19,7 +22,8 @@ export class SiteSidebarComponent implements OnInit {
   constructor(private decksService: DecksService,
     private assetsService: AssetsService,
     private templatesService: CardTemplatesService,
-    private electronService: ElectronService) {
+    private electronService: ElectronService,
+    private router: Router) {
     // Initialize or fetch any necessary data here
     // observe the decks and templates
     // for every deck, fetch every template and create a tree node
@@ -53,8 +57,19 @@ export class SiteSidebarComponent implements OnInit {
       let projectName = StringUtils.lastDirectoryFromUrl(homeUrl || 'Project');
       this.files.push({
         label: projectName,
-        data: projectName,
-        icon: 'pi pi-home'
+        data: {
+          url: '/decks',
+        },
+        icon: 'pi pi-home',
+        styleClass: 'project-home',
+      });
+      this.files.push({
+        label: 'README',
+        data: {
+          url: '/readme',
+        },
+        icon: 'pi pi-file',
+        styleClass: 'readme-file'
       });
     });
     this.decksService.getAll().then(decks => {
@@ -63,28 +78,40 @@ export class SiteSidebarComponent implements OnInit {
 
         deckChildren.push({
           label: 'Cards',
-          data: deck.id,
+          data: {
+            url: '/decks/' + deck.id + '/cards/listing',
+          },
           icon: 'pi pi-list',
+          styleClass: 'card-listing',
         });
 
         deckChildren.push({
           label: 'Thumbnails',
-          data: deck.id,
+          data: {
+            url: '/decks/' + deck.id + '/cards/thumbnails',
+          },
           icon: 'pi pi-th-large',
+          styleClass: 'card-thumbnails',
         })
 
         deckChildren.push({
           label: 'Attributes',
-          data: deck.id,
+          data: {
+            url: '/decks/' + deck.id + '/cards/attributes',
+          },
           icon: 'pi pi-cog',
+          styleClass: 'card-attributes',
         });
 
         this.templatesService.getAllUnfiltered({deckId: (deck || {}).id}).then(templates => 
           templates.forEach(template => {
             deckChildren.push({
               label: template.name,
-              data: template.id,
-              icon: 'pi pi-file',
+              data: {
+                url: '/decks/' + deck.id + '/card-templates',
+              },
+              icon: 'pi pi-id-card',
+              styleClass: 'card-template',
             })
           }
         ));
@@ -93,6 +120,7 @@ export class SiteSidebarComponent implements OnInit {
           label: deck.name,
           data: deck.id,
           icon: 'pi pi-file',
+          styleClass: 'deck-file',
           expanded: true,
           // styleClass: 'selected-deck',
           children: deckChildren
@@ -104,12 +132,15 @@ export class SiteSidebarComponent implements OnInit {
     this.assetsService.getAll().then(assets => {
       this.files.push({
         label: 'Assets',
-        data: 'Assets',
+        data: {
+          url: '/assets',
+        },
         icon: 'pi pi-folder',
         children: assets.map(asset => ({
           label: asset.name,
           data: asset.id,
-          icon: 'pi pi-image'
+          icon: 'pi pi-image',
+          styleClass: 'asset-file',
         }))
       });
     });
@@ -128,20 +159,11 @@ export class SiteSidebarComponent implements OnInit {
     // });
   }
 
-  onNodeSelect(event: any) {
+  onNodeSelect(event: TreeNodeSelectEvent) {
     const selectedNode = event.node;
-    if (selectedNode.data === 'Decks') {
-      this.decksService.selectDeck(undefined);
-    } else if (selectedNode.data === 'Assets') {
-      // Handle asset selection
-    } else if (selectedNode.data === 'Templates') {
-      // Handle template selection
-    } else {
-      // Handle specific deck, asset, or template selection
-      // const id = selectedNode.data;
-      // if (this.decksService.getSelectedDeck()?.id !== id) {
-      //   this.decksService.selectDeck(this.decksService.getAll().then(decks => decks.find(deck => deck.id === id)));
-      // }
+    if (selectedNode.data && typeof selectedNode.data === 'object' && 'url' in selectedNode.data) {
+      // If the node has a URL, open it
+      this.router.navigateByUrl(selectedNode.data.url, { skipLocationChange: false });
     }
   }
 

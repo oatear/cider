@@ -1,11 +1,60 @@
 :host ::ng-deep p-tree {
     .file-tree {
+        border: none;
+        border-radius: 0%;
+        padding: 0;
+        .p-tree-filter-container {
+            padding: 10px;
+            searchicon svg {
+                right: 1.6rem;
+            }
+            .p-tree-filter {
+                padding-right: 2.5rem;
+            }
+        }
         .p-tree-wrapper {
-            max-height: calc(var(--vh, 1vh)* 100 - 58px - 135px);
-            height: calc(var(--vh, 1vh)* 100 - 58px - 135px);
+            max-height: calc(var(--vh, 1vh)* 100 - 58px - 118px);
+            height: calc(var(--vh, 1vh)* 100 - 58px - 118px);
             overflow: auto;
             .p-tree-container {
                 height: 100%;
+                .p-treenode {
+                    &.project-home {
+                        .p-treenode-icon {
+                            color: #42a5f5;
+                        }
+                    }
+                    &.readme-file {
+                        .p-treenode-icon {
+                            color: #ff7043;
+                        }
+                    }
+                    &.card-template {
+                        .p-treenode-icon {
+                            color: #ae80ff;
+                        }
+                    }
+                    &.card-listing {
+                        .p-treenode-icon {
+                            color: #7986cb;
+                        }
+                    }
+                    &.card-thumbnails {
+                        .p-treenode-icon {
+                            color: #64b5f6;
+                        }
+                    }
+                    &.card-attributes {
+                        .p-treenode-icon {
+                            color: #ffb74d;
+                        }
+                    }
+                    &.asset-file {
+                        .p-treenode-icon {
+                            color: #4db6ac;
+                        }
+                    }
+                }
             }
         }
     }
