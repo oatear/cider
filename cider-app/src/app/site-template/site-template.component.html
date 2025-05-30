@@ -6,11 +6,13 @@
         <ng-template pTemplate>
             <app-site-sidebar *ngIf="!disablePanels">
             </app-site-sidebar>
+            <div class="site-sidebar-placeholder" *ngIf="disablePanels"></div>
         </ng-template>
         <ng-template pTemplate>
             <app-site-content *ngIf="!disablePanels">
                 <ng-content></ng-content>
             </app-site-content>
+            <div class="site-content-placeholder" *ngIf="disablePanels"></div>
         </ng-template>
     </p-splitter>
     <app-site-footer></app-site-footer>

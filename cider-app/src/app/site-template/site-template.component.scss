@@ -50,6 +50,15 @@
             flex: 1;
         }
     }
+    .site-sidebar-placeholder {
+        background: #2a323d;
+        flex: 1;
+    }
+    .site-content-placeholder {
+        background: var(--surface-0);
+        flex: 1;
+        width: 100%;
+    }
     .p-splitter-gutter {
         background: #343b46;
     }
