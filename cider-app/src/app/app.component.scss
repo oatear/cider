@@ -24,6 +24,13 @@
 }
 
 /**
+ Syle override: p-card
+ **/
+ :host ::ng-deep .p-card {
+    box-shadow: none
+ }
+
+/**
  Syle override: p-dialog-mask 
  **/
 :host ::ng-deep .p-dialog-mask {
