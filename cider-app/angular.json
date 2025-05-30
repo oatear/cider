@@ -73,10 +73,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "cider:build:production"
+              "buildTarget": "cider:build:production"
             },
             "development": {
-              "browserTarget": "cider:build:development"
+              "buildTarget": "cider:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -84,7 +84,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "cider:build"
+            "buildTarget": "cider:build"
           }
         },
         "test": {
