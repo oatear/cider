@@ -28,6 +28,9 @@ Run `npm update`
 ## Update specific dependency
 Run `ng update library@version` or `npm update library@version`. If it doesn't work use `ng update library@version --allow-dirty`.
 
+## Save updated versions to package.json
+Run `npm update --save`
+
 ## Install dependencies from package-lock.json only
 Run `npm ci`
 
