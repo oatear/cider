@@ -1,3 +1,21 @@
+:host ::ng-deep .side-menu {
+    flex-direction: column;
+    border: none;
+    .p-menubar-root-list {
+        flex-direction: column;
+        .p-menubar-item-content {
+            display: flex;
+            flex-direction: column;
+            .p-menubar-item-icon {
+                font-size: 20px;
+            }
+            .p-menubar-item-label {
+                display: none;
+            }
+        }
+    }
+}
+
 :host ::ng-deep p-tree {
     flex: 1;
     display: flex;
@@ -17,6 +35,7 @@
 
         .p-tree-root {
             flex: 1 0 0;
+            overflow: scroll;
             .p-tree-node {
                 .p-tree-node-icon {
                     &.pi-home {

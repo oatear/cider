@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { TreeNode } from 'primeng/api';
+import { MenuItem, TreeNode } from 'primeng/api';
 import { DecksService } from '../data-services/services/decks.service';
 import { AssetsService } from '../data-services/services/assets.service';
 import { CardTemplatesService } from '../data-services/services/card-templates.service';
@@ -18,6 +18,17 @@ import { style } from '@angular/animations';
 export class SiteSidebarComponent implements OnInit {
   files: TreeNode[] = [];
   selectedFile: TreeNode | null = null;
+  menuItems: MenuItem[] = [
+    {
+      label: 'Explorer',
+      icon: 'pi pi-fw pi-folder',
+    },
+    {
+      label: 'Test 2',
+      icon: 'pi pi-fw pi-plus',
+    }
+  ];
+  isSaving: boolean = false;
 
   constructor(private decksService: DecksService,
     private assetsService: AssetsService,
@@ -167,5 +178,11 @@ export class SiteSidebarComponent implements OnInit {
     }
   }
 
+  public logoClicked() {
+    this.isSaving = true;
+    setTimeout (() => {
+      this.isSaving = false;
+    }, 1800);
+  }
 
 }
