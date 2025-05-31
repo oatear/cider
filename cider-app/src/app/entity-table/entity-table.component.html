@@ -50,7 +50,7 @@
                         <th [class]="col.type">
                             <p-columnFilter [field]="col.field" matchMode="in" [showMenu]="false">
                                 <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-                                    <p-multiSelect [ngModel]="value" [options]="(col.service | entityListCached: optionsCache | async) || []" placeholder="" 
+                                    <p-multiSelect [ngModel]="value" [options]="(col.service | entityListCached: optionsCache | async) || []" placeholder="Filter" 
                                         (onChange)="filter($event.value)" optionLabel="name" [optionValue]="col.service.getIdField()"
                                         appendTo="body">
                                     </p-multiSelect>
@@ -63,7 +63,7 @@
                         <th [class]="col.type">
                             <p-columnFilter [field]="col.field" matchMode="in" [showMenu]="false">
                                 <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-                                    <p-multiSelect [ngModel]="value" [options]="col.options || []" placeholder="" 
+                                    <p-multiSelect [ngModel]="value" [options]="col.options || []" placeholder="Filter" 
                                         (onChange)="filter($event.value)" appendTo="body">
                                     </p-multiSelect>
                                 </ng-template>
@@ -75,7 +75,7 @@
                     </ng-container>
                     <ng-container *ngSwitchDefault>
                         <th [class]="col.type"><p-columnFilter type="text" [field]="col.field" matchMode="contains" [showMenu]="false"
-                            [showMatchModes]="false" [showOperator]="false" [showAddButton]="false"></p-columnFilter></th>
+                            [showMatchModes]="false" [showOperator]="false" [showAddButton]="false" placeholder="Filter"></p-columnFilter></th>
                     </ng-container>
                 </ng-container>
             </ng-container>

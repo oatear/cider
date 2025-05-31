@@ -14,6 +14,16 @@
     border: none;
 }
 
+:host ::ng-deep .p-datatable .p-datatable-header {
+    p-iconfield {
+        display: inline-block;
+    }
+}
+
+:host ::ng-deep .p-datatable .p-datatable-thead > tr > th {
+    white-space: nowrap;
+}
+
 :host ::ng-deep .p-datatable .p-datatable-thead > tr > th,
 :host ::ng-deep .p-datatable .p-datatable-tbody > tr > td 
 {
