@@ -43,7 +43,7 @@
                 <ng-container *ngSwitchCase="!col.hidden && col.type === FieldType.textArea">
                     <div class="p-field">
                         <label [for]="col.field">{{col.header}}</label>
-                        <textarea [rows]="5" [cols]="30" pInputTextarea [autoResize]="true" 
+                        <textarea [rows]="5" [cols]="30" pTextarea [autoResize]="true" 
                             [id]="col.field" [(ngModel)]="entity[col.field]" ></textarea>
                     </div>
                 </ng-container>

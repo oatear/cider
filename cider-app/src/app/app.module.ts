@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -20,7 +20,7 @@ import { MenubarModule } from 'primeng/menubar';
 import { ToolbarModule } from 'primeng/toolbar';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
+import { TextareaModule } from 'primeng/textarea';
 import { SplitterModule } from 'primeng/splitter';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
@@ -33,11 +33,16 @@ import { SelectButtonModule } from 'primeng/selectbutton';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { CheckboxModule } from 'primeng/checkbox';
 import { TabMenuModule } from 'primeng/tabmenu';
-import { ChipsModule } from 'primeng/chips';
+import { ChipModule } from 'primeng/chip';
 import { DividerModule } from 'primeng/divider';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { DataViewModule } from 'primeng/dataview';
 import { TreeModule } from 'primeng/tree';
+import { TooltipModule } from 'primeng/tooltip';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 
@@ -62,70 +67,80 @@ import { CardToHtmlPipe } from './shared/pipes/template-to-html.pipe';
 import MonacoExtension from './shared/extensions/monaco-extension';
 import { SiteMenuComponent } from './site-menu/site-menu.component';
 import { SiteSidebarComponent } from './site-sidebar/site-sidebar.component';
+import { providePrimeNG } from 'primeng/config';
+import { CiderTheme } from './cider-theme';
 
-@NgModule({
-  declarations: [
-    AppComponent,
-    DecksComponent,
-    CardTemplatesComponent,
-    CardsComponent,
-    SiteHeaderComponent,
-    SiteFooterComponent,
-    SiteContentComponent,
-    SiteTemplateComponent,
-    AssetsComponent,
-    EntityTableComponent,
-    EntityDialogComponent,
-    CardPreviewComponent,
-    ExportCardsComponent,
-    CardsTabMenuComponent,
-    CardAttributesComponent,
-    CardThumbnailsComponent,
-    PageHeaderComponent,
-    WelcomeComponent,
-    ExportSelectionDialogComponent,
-    SiteMenuComponent,
-    SiteSidebarComponent
-  ],
-  imports: [
-    BrowserModule,
-    BrowserAnimationsModule,
-    AppRoutingModule,
-    HttpClientModule,
-    MonacoEditorModule.forRoot(MonacoExtension.monacoConfig),
-    ButtonModule,
-    RippleModule,
-    CardModule,
-    TableModule,
-    PanelModule,
-    PanelMenuModule,
-    MenubarModule,
-    ToolbarModule,
-    DialogModule,
-    FormsModule,
-    InputTextModule,
-    InputTextareaModule,
-    SplitterModule,
-    ConfirmDialogModule,
-    ToastModule,
-    DropdownModule,
-    TabViewModule,
-    DataServicesModule,
-    SharedModule,
-    ScrollPanelModule,
-    FileUploadModule,
-    MessageModule,
-    SelectButtonModule,
-    ProgressBarModule,
-    CheckboxModule,
-    TabMenuModule,
-    ChipsModule,
-    DividerModule,
-    MultiSelectModule,
-    DataViewModule,
-    TreeModule
-  ],
-  providers: [CardToHtmlPipe],
-  bootstrap: [AppComponent]
-})
+@NgModule({ declarations: [
+        AppComponent,
+        DecksComponent,
+        CardTemplatesComponent,
+        CardsComponent,
+        SiteHeaderComponent,
+        SiteFooterComponent,
+        SiteContentComponent,
+        SiteTemplateComponent,
+        AssetsComponent,
+        EntityTableComponent,
+        EntityDialogComponent,
+        CardPreviewComponent,
+        ExportCardsComponent,
+        CardsTabMenuComponent,
+        CardAttributesComponent,
+        CardThumbnailsComponent,
+        PageHeaderComponent,
+        WelcomeComponent,
+        ExportSelectionDialogComponent,
+        SiteMenuComponent,
+        SiteSidebarComponent
+    ],
+    bootstrap: [AppComponent], 
+    imports: [BrowserModule,
+        BrowserAnimationsModule,
+        AppRoutingModule,
+        MonacoEditorModule.forRoot(MonacoExtension.monacoConfig),
+        ButtonModule,
+        RippleModule,
+        CardModule,
+        TableModule,
+        PanelModule,
+        PanelMenuModule,
+        MenubarModule,
+        ToolbarModule,
+        DialogModule,
+        FormsModule,
+        InputTextModule,
+        TextareaModule,
+        SplitterModule,
+        ConfirmDialogModule,
+        ToastModule,
+        DropdownModule,
+        TabViewModule,
+        DataServicesModule,
+        SharedModule,
+        ScrollPanelModule,
+        FileUploadModule,
+        MessageModule,
+        SelectButtonModule,
+        ProgressBarModule,
+        CheckboxModule,
+        TabMenuModule,
+        ChipModule,
+        DividerModule,
+        MultiSelectModule,
+        DataViewModule,
+        TreeModule,
+        TooltipModule,
+        IconFieldModule,
+        InputIconModule,
+    ], 
+    providers: [
+        CardToHtmlPipe, provideHttpClient(withInterceptorsFromDi()),
+        provideAnimationsAsync(),
+        providePrimeNG({
+            theme: {
+                preset: CiderTheme
+            }
+        })
+    ]})
 export class AppModule { }
+

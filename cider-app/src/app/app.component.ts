@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 
-import { PrimeNGConfig } from 'primeng/api';
 import { filter } from 'rxjs';
 
 // setup in index.html
@@ -10,17 +9,14 @@ declare const gtag: Function;
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit{
 
-  constructor(private primengConfig: PrimeNGConfig, 
-    private router: Router) {
+  constructor(private router: Router) {
   }
 
   ngOnInit() {
-      this.primengConfig.ripple = true;
-
       this.updateViewWidthHeightVar();
       window.addEventListener('resize', () => {
         this.updateViewWidthHeightVar();

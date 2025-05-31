@@ -4,17 +4,20 @@
         margin-top: 0px;
     }
     &.header-card {
-        .p-card-title {
-            display: inline-block;
-            margin-right: 21px;
-            margin-bottom: 0;
-        }
-        .p-card-subtitle {
-            display: inline-block;
-            margin-bottom: 0;
-        }
-        .p-card-content {
-            padding: 0;
+        .p-card-body {
+            flex-direction: row;
+            .p-card-title {
+                display: inline-block;
+                margin-right: 12px;
+                margin-bottom: 0;
+            }
+            .p-card-subtitle {
+                display: inline-block;
+                margin-bottom: 0;
+            }
+            .p-card-content {
+                padding: 0;
+            }
         }
     }
 }

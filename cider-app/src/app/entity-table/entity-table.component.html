@@ -19,10 +19,10 @@
                     <button pButton pRipple label="" icon="pi pi-file-excel" class="p-button-success p-mr-2" 
                         pTooltip="Export data" (click)="exportData()"></button>
                 </ng-container>
-                <span class="p-input-icon-left">
-                    <i class="pi pi-search"></i>
-                    <input pInputText type="text" (input)="filterGlobal(dt, $event)" placeholder="Search keyword" />
-                </span>
+                <p-iconfield>
+                    <input type="text" pInputText placeholder="Search" (input)="filterGlobal(dt, $event)" />
+                    <p-inputicon styleClass="pi pi-search" />
+                </p-iconfield>
             </div>
         </div>
     </ng-template>
@@ -134,7 +134,7 @@
                     <ng-container *ngSwitchCase="!col.hidden && col.type === FieldType.optionList 
                         && $any(rowData).type && $any(rowData).type === FieldType.option">
                         <td *ngIf="!allowEditing || !showInlineEditor" [class]="col.type">
-                            <textarea pInputTextarea [(ngModel)]="rowData[col.field]" [rows]="1" [cols]="12" [autoResize]="true" [disabled]="true"></textarea>
+                            <textarea pTextarea [(ngModel)]="rowData[col.field]" [rows]="1" [cols]="12" [autoResize]="true" [disabled]="true"></textarea>
                         </td>
                         <td *ngIf="allowEditing && showInlineEditor" [pEditableColumn]="rowData[col.field]" [pEditableColumnField]="col.field" [class]="col.type">
                             <p-cellEditor>
@@ -142,7 +142,7 @@
                                     <p-chips [(ngModel)]="rowData[col.field]" [id]="col.field" (ngModelChange)="debounceSave(rowData)"></p-chips>
                                 </ng-template>
                                 <ng-template pTemplate="output">
-                                    <textarea pInputTextarea [(ngModel)]="rowData[col.field]" [rows]="1" [cols]="12" [autoResize]="true" [disabled]="true"></textarea>
+                                    <textarea pTextarea [(ngModel)]="rowData[col.field]" [rows]="1" [cols]="12" [autoResize]="true" [disabled]="true"></textarea>
                                 </ng-template>
                             </p-cellEditor>
                         </td>
@@ -152,16 +152,16 @@
                     </ng-container>
                     <ng-container *ngSwitchDefault>
                         <td *ngIf="!allowEditing || !showInlineEditor" [class]="col.type">
-                            <textarea pInputTextarea [(ngModel)]="rowData[col.field]" [rows]="1" [cols]="12" [autoResize]="true" [disabled]="true"></textarea>
+                            <textarea pTextarea [(ngModel)]="rowData[col.field]" [rows]="1" [cols]="12" [autoResize]="true" [disabled]="true"></textarea>
                         </td>
                         <td *ngIf="allowEditing && showInlineEditor" [pEditableColumn]="rowData[col.field]" [pEditableColumnField]="col.field" [class]="col.type">
                             <p-cellEditor>
                                 <ng-template pTemplate="input">
-                                    <textarea pInputTextarea [(ngModel)]="rowData[col.field]" [rows]="1" [cols]="12" [autoResize]="true" 
+                                    <textarea pTextarea [(ngModel)]="rowData[col.field]" [rows]="1" [cols]="12" [autoResize]="true" 
                                     (ngModelChange)="debounceSave(rowData)"></textarea>
                                 </ng-template>
                                 <ng-template pTemplate="output">
-                                    <!-- <textarea pInputTextarea [(ngModel)]="rowData[col.field]" [rows]="1" [cols]="12" [autoResize]="true" [disabled]="true"></textarea> -->
+                                    <!-- <textarea pTextarea [(ngModel)]="rowData[col.field]" [rows]="1" [cols]="12" [autoResize]="true" [disabled]="true"></textarea> -->
                                     <div class="base textarea">{{rowData[col.field]}}</div>
                                 </ng-template>
                             </p-cellEditor>

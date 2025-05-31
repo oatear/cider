@@ -119,8 +119,8 @@ export class SiteSidebarComponent implements OnInit {
         let file = {
           label: deck.name,
           data: deck.id,
-          icon: 'pi pi-file',
-          styleClass: 'deck-file',
+          icon: 'pi pi-folder',
+          styleClass: 'deck-folder',
           expanded: true,
           // styleClass: 'selected-deck',
           children: deckChildren

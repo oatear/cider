@@ -17,7 +17,12 @@
 :host ::ng-deep .page-card, 
 :host ::ng-deep .page-card.header-card {
     margin: 25px;
+    margin-top: 0px;
     margin-right: 10px;
+}
+
+:host ::ng-deep .page-card.tabbed-card {
+    margin-bottom: 0px;
 }
 
 /**
@@ -39,6 +44,7 @@
     app-site-sidebar {
         background: var(--surface-0);
         flex: 1;
+        display: flex;
         overflow: hidden;
     }
     app-site-content {
@@ -51,7 +57,9 @@
         }
     }
     .site-sidebar-placeholder {
-        background: #2a323d;
+        background: var(--p-content-background);
+        border-radius: 10px;
+        margin-left: 10px;
         flex: 1;
     }
     .site-content-placeholder {
@@ -60,7 +68,12 @@
         width: 100%;
     }
     .p-splitter-gutter {
-        background: #343b46;
+        background: transparent;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        &:hover {
+            background: var(--p-surface-800);
+        }
     }
     .p-splitter-gutter-resizing {
         background: #3f4b5b;

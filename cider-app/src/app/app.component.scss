@@ -71,21 +71,19 @@
 }
 /* Track */
 :host ::ng-deep ::-webkit-scrollbar-track {
-    background: #2b313d;
     background: transparent;
     //border-radius: 10px;
 }
 /* Handle */
 :host ::ng-deep ::-webkit-scrollbar-thumb {
-    background: #333e4d;
+    background: var(--p-surface-800);
     border-radius: 10px;
     border: 4px solid transparent;
     background-clip: content-box;
 }
 /* Handle on hover */
 :host ::ng-deep ::-webkit-scrollbar-thumb:hover {
-    background: #1d2229;
-    background: #384555;
+    background: var(--p-surface-700);
     border: 4px solid transparent;
     background-clip: content-box;
 }
