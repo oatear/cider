@@ -174,31 +174,32 @@ export class SiteMenuComponent implements OnInit {
                 command: () => this.exitCider()
               }
             ]
-          }, {
-            label: selectedDeck ? selectedDeck.name : 'Select Deck',
-            icon: 'pi pi-pw pi-book',
-            styleClass: 'selected-deck',
-            disabled: this.electronService.isElectron() && !projectHomeUrl && !projectUnsaved,
-            routerLink: ['/decks']
-          }, {
-            label: 'Cards',
-            icon: 'pi pi-pw pi-table',
-            styleClass: 'cards',
-            disabled: !selectedDeck,
-            routerLink: [`/decks/${selectedDeck?.id}/cards/listing`]
-          }, {
-            label: 'Templates',
-            icon: 'pi pi-pw pi-id-card',
-            styleClass: 'templates',
-            disabled: !selectedDeck,
-            routerLink: [`/decks/${selectedDeck?.id}/card-templates`]
-          }, {
-            label: 'Assets',
-            icon: 'pi pi-pw pi-image',
-            styleClass: 'assets',
-            disabled: this.electronService.isElectron() && !projectHomeUrl && !projectUnsaved,
-            routerLink: [`/assets`]
-          }
+          }, 
+          // {
+          //   label: selectedDeck ? selectedDeck.name : 'Select Deck',
+          //   icon: 'pi pi-pw pi-book',
+          //   styleClass: 'selected-deck',
+          //   disabled: this.electronService.isElectron() && !projectHomeUrl && !projectUnsaved,
+          //   routerLink: ['/decks']
+          // }, {
+          //   label: 'Cards',
+          //   icon: 'pi pi-pw pi-table',
+          //   styleClass: 'cards',
+          //   disabled: !selectedDeck,
+          //   routerLink: [`/decks/${selectedDeck?.id}/cards/listing`]
+          // }, {
+          //   label: 'Templates',
+          //   icon: 'pi pi-pw pi-id-card',
+          //   styleClass: 'templates',
+          //   disabled: !selectedDeck,
+          //   routerLink: [`/decks/${selectedDeck?.id}/card-templates`]
+          // }, {
+          //   label: 'Assets',
+          //   icon: 'pi pi-pw pi-image',
+          //   styleClass: 'assets',
+          //   disabled: this.electronService.isElectron() && !projectHomeUrl && !projectUnsaved,
+          //   routerLink: [`/assets`]
+          // }
         ];
     }});
   }

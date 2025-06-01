@@ -25,7 +25,7 @@ function createWindow(): BrowserWindow {
       color: '#343e4d',
       symbolColor: '#aeb2b8'
     },
-    trafficLightPosition: { x: 20, y: 22 },
+    trafficLightPosition: { x: 20, y: 15 },
     webPreferences: {
       nodeIntegration: true,
       allowRunningInsecureContent: (serve),
