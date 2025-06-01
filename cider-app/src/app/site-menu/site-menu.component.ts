@@ -1,9 +1,9 @@
 import { Component, NgZone, OnInit } from '@angular/core';
 import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { ExportProgress } from 'dexie-export-import/dist/export';
 import { ImportProgress } from 'dexie-export-import/dist/import';
-import { Observable, combineLatest, firstValueFrom } from 'rxjs';
+import { Observable, combineLatest, filter, firstValueFrom } from 'rxjs';
 import { ElectronService } from '../data-services/electron/electron.service';
 import { AppDB } from '../data-services/indexed-db/db';
 import { LocalStorageService } from '../data-services/local-storage/local-storage.service';
@@ -38,6 +38,7 @@ export class SiteMenuComponent implements OnInit {
   public loadingPercent: number = 0;
   public loadingInfo: string = '';
   public loadingHeader: string = '';
+  public currentRoute: string = '';
 
   constructor(private decksService : DecksService,
     private confirmationService: ConfirmationService,
@@ -202,6 +203,18 @@ export class SiteMenuComponent implements OnInit {
           // }
         ];
     }});
+
+    // use the router to update the current route
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: any) => {
+      console.log('NavigationEnd', event);
+      this.ngZone.run(() => {
+        this.currentRoute = event.urlAfterRedirects;
+      }
+      );
+    });
+
   }
   
   public uploadFile(event: any) {

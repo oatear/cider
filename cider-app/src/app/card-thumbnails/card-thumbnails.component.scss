@@ -8,8 +8,11 @@
     margin-bottom: 14px;
     margin-left: 10px;
     margin-right: 10px;
+    .filler {
+        flex: 1;
+    }
 }
-:host ::ng-deep .card-thumbnails {
+:host ::ng-deep .card-thumbnails .p-dataview-content {
     display: flex;
     flex-wrap: wrap;
     app-card-preview {

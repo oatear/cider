@@ -41,6 +41,7 @@ import { TreeModule } from 'primeng/tree';
 import { TooltipModule } from 'primeng/tooltip';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
+import { TagModule } from 'primeng/tag';
 
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
@@ -134,6 +135,7 @@ import { SiteActivitybarComponent } from './site-activitybar/site-activitybar.co
         TooltipModule,
         IconFieldModule,
         InputIconModule,
+        TagModule,
     ], 
     providers: [
         CardToHtmlPipe, provideHttpClient(withInterceptorsFromDi()),
