@@ -12,6 +12,7 @@
         overflow: hidden;
         > p-splitter {
             flex: 1;
+            width: 0px;
             .site-splitter {
                 height: 100%;
                 border: none;

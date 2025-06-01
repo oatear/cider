@@ -1,17 +1,30 @@
 :host ::ng-deep .side-menu {
     flex-direction: column;
     border: none;
-    .p-menubar-root-list {
-        flex-direction: column;
-        .p-menubar-item-content {
-            display: flex;
+    height: 100%;
+    p-menubarsub {
+        height: 100%;
+        .p-menubar-root-list {
             flex-direction: column;
-            .p-menubar-item-icon {
-                font-size: 20px;
-            }
-            .p-menubar-item-label {
-                display: none;
+            height: 100%;
+            .p-menubar-item {
+                &.menu-item-bottom {
+                    margin-top: auto;
+                }
+                .p-menubar-item-content {
+                    display: flex;
+                    flex-direction: column;
+                    .p-menubar-item-icon {
+                        font-size: 20px;
+                    }
+                    .p-menubar-item-label {
+                        display: none;
+                    }
+                }
             }
         }
+    }
+    .p-menubar-end {
+        display: none;
     }
 }

@@ -11,18 +11,27 @@ export class SiteActivitybarComponent {
     {
       label: 'Explorer',
       icon: 'pi pi-fw pi-folder',
+      tooltip: 'Explorer',
+      tooltipPosition: 'right',
     },
     {
       label: 'AI Tools',
       icon: 'pi pi-fw pi-sparkles',
+      tooltip: 'AI Tools',
+      tooltipPosition: 'right',
     },
     {
       label: 'Add Test',
       icon: 'pi pi-fw pi-plus',
+      tooltip: 'Add Test',
+      tooltipPosition: 'right',
     },
     {
       label: 'Settings',
       icon: 'pi pi-fw pi-cog',
+      tooltip: 'Settings',
+      tooltipPosition: 'right',
+      styleClass: 'menu-item-bottom'
     },
   ];
   isSaving: boolean = false;
