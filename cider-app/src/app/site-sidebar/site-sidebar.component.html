@@ -1,14 +1,5 @@
-<!-- <p-scrollPanel> -->
-    <p-menubar [model]="menuItems" [styleClass]="'side-menu'">
-        <ng-template pTemplate="start">
-            <!-- <span class="site-title">Cider</span> -->
-            <img class="logo-image" height="40"
-            [src]="isSaving ? 'assets/cider-logo.gif' : 'assets/cider-logo-128.png'" 
-            (click)="logoClicked()">
-        </ng-template>
-    </p-menubar>
-    <p-tree [value]="files" styleClass="file-tree" 
-        [filter]="true" [filterPlaceholder]="'Search'" [selectionMode]="'single'"
-        (onNodeSelect)="onNodeSelect($event)"
-        />
-<!-- </p-scrollPanel> -->
+<p-tree [value]="files" styleClass="file-tree" 
+    [filter]="true" [filterPlaceholder]="'Search'" [selectionMode]="'single'"
+    (onNodeSelect)="onNodeSelect($event)"
+    />
+    

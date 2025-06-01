@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MenuItem, TreeNode } from 'primeng/api';
+import { TreeNode } from 'primeng/api';
 import { DecksService } from '../data-services/services/decks.service';
 import { AssetsService } from '../data-services/services/assets.service';
 import { CardTemplatesService } from '../data-services/services/card-templates.service';
@@ -8,7 +8,6 @@ import { firstValueFrom } from 'rxjs';
 import StringUtils from '../shared/utils/string-utils';
 import { TreeNodeSelectEvent } from 'primeng/tree';
 import { Router } from '@angular/router';
-import { style } from '@angular/animations';
 
 @Component({
   selector: 'app-site-sidebar',
@@ -18,17 +17,6 @@ import { style } from '@angular/animations';
 export class SiteSidebarComponent implements OnInit {
   files: TreeNode[] = [];
   selectedFile: TreeNode | null = null;
-  menuItems: MenuItem[] = [
-    {
-      label: 'Explorer',
-      icon: 'pi pi-fw pi-folder',
-    },
-    {
-      label: 'Test 2',
-      icon: 'pi pi-fw pi-plus',
-    }
-  ];
-  isSaving: boolean = false;
 
   constructor(private decksService: DecksService,
     private assetsService: AssetsService,
@@ -147,6 +135,7 @@ export class SiteSidebarComponent implements OnInit {
           url: '/assets',
         },
         icon: 'pi pi-folder',
+        expanded: true,
         children: assets.map(asset => ({
           label: asset.name,
           data: asset.id,
@@ -155,19 +144,6 @@ export class SiteSidebarComponent implements OnInit {
         }))
       });
     });
-
-    // this.templatesService.getAll().then(templates => {
-    //   console.log('Templates:', templates);
-    //   this.files.push({
-    //     label: 'Templates',
-    //     data: 'Templates',
-    //     children: templates.map(template => ({
-    //       label: template.name,
-    //       data: template.id,
-    //       icon: 'pi pi-file'
-    //     }))
-    //   });
-    // });
   }
 
   onNodeSelect(event: TreeNodeSelectEvent) {
@@ -176,13 +152,6 @@ export class SiteSidebarComponent implements OnInit {
       // If the node has a URL, open it
       this.router.navigateByUrl(selectedNode.data.url, { skipLocationChange: false });
     }
-  }
-
-  public logoClicked() {
-    this.isSaving = true;
-    setTimeout (() => {
-      this.isSaving = false;
-    }, 1800);
   }
 
 }

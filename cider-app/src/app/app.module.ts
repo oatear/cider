@@ -69,6 +69,7 @@ import { SiteMenuComponent } from './site-menu/site-menu.component';
 import { SiteSidebarComponent } from './site-sidebar/site-sidebar.component';
 import { providePrimeNG } from 'primeng/config';
 import { CiderTheme } from './cider-theme';
+import { SiteActivitybarComponent } from './site-activitybar/site-activitybar.component';
 
 @NgModule({ declarations: [
         AppComponent,
@@ -91,7 +92,8 @@ import { CiderTheme } from './cider-theme';
         WelcomeComponent,
         ExportSelectionDialogComponent,
         SiteMenuComponent,
-        SiteSidebarComponent
+        SiteSidebarComponent,
+        SiteActivitybarComponent
     ],
     bootstrap: [AppComponent], 
     imports: [BrowserModule,

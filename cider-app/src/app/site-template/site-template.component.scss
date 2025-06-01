@@ -5,11 +5,17 @@
     min-height: 100vh;
     height: 100%;
     width: 100%;
-    > p-splitter {
+    .site-body {
+        display: flex;
         flex: 1;
-        .site-splitter {
-            height: 100%;
-            border: none;
+        flex-direction: row;
+        overflow: hidden;
+        > p-splitter {
+            flex: 1;
+            .site-splitter {
+                height: 100%;
+                border: none;
+            }
         }
     }
 }

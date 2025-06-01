@@ -1,0 +1,17 @@
+:host ::ng-deep .side-menu {
+    flex-direction: column;
+    border: none;
+    .p-menubar-root-list {
+        flex-direction: column;
+        .p-menubar-item-content {
+            display: flex;
+            flex-direction: column;
+            .p-menubar-item-icon {
+                font-size: 20px;
+            }
+            .p-menubar-item-label {
+                display: none;
+            }
+        }
+    }
+}

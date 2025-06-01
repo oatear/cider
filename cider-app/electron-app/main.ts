@@ -44,8 +44,8 @@ function createWindow(): BrowserWindow {
     let pathIndex = './index.html';
 
     // Path when running electron in local folder
-    if (fs.existsSync(path.join(__dirname, '../../dist/cider/index.html'))) {
-      pathIndex = '../../dist/cider/index.html';
+    if (fs.existsSync(path.join(__dirname, '../../dist/cider/browser/index.html'))) {
+      pathIndex = '../../dist/cider/browser/index.html';
     }
 
     const url = new URL(path.join('file:', __dirname, pathIndex));
@@ -89,7 +89,7 @@ try {
 
     // If on mac, push the menu icon over for the traffic lights to fit in title bar
     if (process.platform === 'darwin') {
-      var css = ".site-wrapper .logo-image { margin-left: 80px; }"
+      var css = ".site-wrapper .site-menu { margin-left: 80px; }"
       win.webContents.insertCSS(css, {
         cssOrigin: 'author'
       });

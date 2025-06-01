@@ -1,20 +1,23 @@
 <div class="site-wrapper">
     <app-site-menu></app-site-menu>
-    <p-splitter styleClass="site-splitter" [panelSizes]="[20, 80]" [minSizes]="[10, 50]"
-        (onResizeStart)="onResizeStart($event)"
-        (onResizeEnd)="onResizeEnd($event)">
-        <ng-template pTemplate>
-            <app-site-sidebar *ngIf="!disablePanels">
-            </app-site-sidebar>
-            <div class="site-sidebar-placeholder" *ngIf="disablePanels"></div>
-        </ng-template>
-        <ng-template pTemplate>
-            <app-site-content *ngIf="!disablePanels">
-                <ng-content></ng-content>
-            </app-site-content>
-            <div class="site-content-placeholder" *ngIf="disablePanels"></div>
-        </ng-template>
-    </p-splitter>
+    <div class="site-body">
+        <app-site-activitybar></app-site-activitybar>
+        <p-splitter styleClass="site-splitter" [panelSizes]="[20, 80]" [minSizes]="[10, 50]"
+            (onResizeStart)="onResizeStart($event)"
+            (onResizeEnd)="onResizeEnd($event)">
+            <ng-template pTemplate>
+                <app-site-sidebar *ngIf="!disablePanels">
+                </app-site-sidebar>
+                <div class="site-sidebar-placeholder" *ngIf="disablePanels"></div>
+            </ng-template>
+            <ng-template pTemplate>
+                <app-site-content *ngIf="!disablePanels">
+                    <ng-content></ng-content>
+                </app-site-content>
+                <div class="site-content-placeholder" *ngIf="disablePanels"></div>
+            </ng-template>
+        </p-splitter>
+    </div>
     <app-site-footer></app-site-footer>
 </div>
 
