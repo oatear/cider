@@ -4,7 +4,7 @@
     font-size: 1rem;
     font-weight: 400;
     background-color: var(--p-menubar-background);
-    color: #bfbfbf;
+    color: var(--p-text-muted-color);
     display: flex;
     align-items: center;
     justify-content: flex-start;
@@ -18,5 +18,5 @@
 }
 
 :host ::ng-deep .p-button.p-button-text {
-    color: #bfbfbf;
+    color: var(--p-text-muted-color);
 }
