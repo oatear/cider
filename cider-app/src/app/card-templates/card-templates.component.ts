@@ -6,7 +6,6 @@ import { CardsService } from '../data-services/services/cards.service';
 import { CardTemplate } from '../data-services/types/card-template.type';
 import { Card } from '../data-services/types/card.type';
 import { Subject, debounceTime } from 'rxjs';
-import { Splitter } from 'primeng/splitter';
 
 const templateCssFront  = 
 `.card {
@@ -58,7 +57,7 @@ export class CardTemplatesComponent implements OnInit {
   static readonly DEFAULT_HTML: string = templateHtmlFront;
   static readonly DEFAULT_CSS: string = templateCssFront;
 
-  htmlEditorOptions: any = {theme: 'vs-dark', language: 'handlebars', automaticLayout: true};
+  htmlEditorOptions: any = {theme: 'vs-dark-extended', language: 'handlebars', automaticLayout: true};
   cssEditorOptions: any = {theme: 'vs-dark-extended', language: 'css-handlebars', automaticLayout: true};
   templates: CardTemplate[] = [];
   cards: Card[] = [];

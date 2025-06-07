@@ -16,12 +16,14 @@
         <p-dataview #dv [value]="thumbnailCards" [rows]="25" [paginator]="true" paginatorPosition="both" 
             [filterBy]="filterFields" [alwaysShowPaginator]="false" [showCurrentPageReport]="true">
             <ng-template let-cards #list>
-                <ng-container *ngFor="let card of cards">
-                    <app-card-preview *ngIf="sideSelected == 'fronts' || sideSelected == 'both'" [cache]="false"
-                        [card]="card" [scale]="zoomLevel" [template]="card.frontCardTemplateId | entity: templatesService | async"></app-card-preview>
-                    <app-card-preview *ngIf="sideSelected == 'backs' || sideSelected == 'both'" [cache]="false"
-                        [card]="card" [scale]="zoomLevel" [template]="card.backCardTemplateId | entity: templatesService | async"></app-card-preview>
-                </ng-container>
+                <div class="card-list">
+                    <ng-container *ngFor="let card of cards">
+                        <app-card-preview *ngIf="sideSelected == 'fronts' || sideSelected == 'both'" [cache]="false"
+                            [card]="card" [scale]="zoomLevel" [template]="card.frontCardTemplateId | entity: templatesService | async"></app-card-preview>
+                        <app-card-preview *ngIf="sideSelected == 'backs' || sideSelected == 'both'" [cache]="false"
+                            [card]="card" [scale]="zoomLevel" [template]="card.backCardTemplateId | entity: templatesService | async"></app-card-preview>
+                    </ng-container>
+                </div>
             </ng-template>
         </p-dataview>
     </div>

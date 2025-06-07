@@ -12,7 +12,7 @@
         flex: 1;
     }
 }
-:host ::ng-deep .card-thumbnails .p-dataview-content {
+:host ::ng-deep .card-thumbnails .p-dataview-content .card-list {
     display: flex;
     flex-wrap: wrap;
     app-card-preview {

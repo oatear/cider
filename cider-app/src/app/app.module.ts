@@ -42,6 +42,8 @@ import { TooltipModule } from 'primeng/tooltip';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { TagModule } from 'primeng/tag';
+import { InputGroup } from 'primeng/inputgroup';
+import { ButtonGroup } from 'primeng/buttongroup';
 
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
@@ -102,6 +104,7 @@ import { SiteActivitybarComponent } from './site-activitybar/site-activitybar.co
         AppRoutingModule,
         MonacoEditorModule.forRoot(MonacoExtension.monacoConfig),
         ButtonModule,
+        ButtonGroup,
         RippleModule,
         CardModule,
         TableModule,
@@ -112,6 +115,7 @@ import { SiteActivitybarComponent } from './site-activitybar/site-activitybar.co
         DialogModule,
         FormsModule,
         InputTextModule,
+        InputGroup,
         TextareaModule,
         SplitterModule,
         ConfirmDialogModule,
