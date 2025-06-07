@@ -47,6 +47,11 @@
     border-radius: 10px;
 }
 
+:host ::ng-deep .p-field {
+    display: flex;
+    flex-direction: column;
+}
+
 :host ::ng-deep .site-splitter {
     background: none;
     app-site-sidebar {
