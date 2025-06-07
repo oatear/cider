@@ -72,17 +72,9 @@ textarea {
         .p-col {
             padding: 0;
         }
-        // .p-splitter-panel:first-child {
-        //     flex-basis: calc(40% - 4px);
-        // }
-        // .p-splitter-panel:last-child {
-        //     flex-basis: calc(60% - 4px);
-        // }
     }
     .template-panel {
         .left-panel {
-            // height: calc(100vh - 179px);
-            // height: calc(var(--vh, 1vh) * 100 - 179px);
             .page-card {
                 height: 100%;
                 .preview-controls {
@@ -103,8 +95,6 @@ textarea {
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    // height: calc(100vh - 293px);
-                    // height: calc(var(--vh, 1vh) * 100 - 305px);
                 }
             }
             p-card {
@@ -124,55 +114,13 @@ textarea {
                     }
                 }
             }
-
-            // .p-panel {
-            //     .p-panel-header {
-            //         border-radius: 0;
-            //         border-bottom: none;
-            //         border-right: 0;
-            //         border-top: 0;
-            //         border: none;
-            //     }
-            //     .p-panel-content {
-            //         border-radius: 0;
-            //         border-right: 0;
-            //         border-bottom: 0;
-            //         border: none;
-            //         .preview-controls {
-            //             width: 100%;
-            //             display: flex;
-            //             p-dropdown {
-            //                 flex: 1;
-            //                 margin-left: 10px;
-            //                 margin-right: 10px;
-            //             }
-            //             .p-buttonset {
-            //                 margin: 15px;
-            //                 margin-left: 0;
-            //             }
-            //         }
-            //         .preview-space {
-            //             overflow: hidden;
-            //             display: flex;
-            //             align-items: center;
-            //             justify-content: center;
-            //             height: calc(100vh - 293px);
-            //             // height: calc(var(--vh, 1vh) * 100 - 305px);
-            //         }
-            //     }
-            // }
         }
         .right-panel {
             display: flex;
             flex-direction: column;
+            margin-right: 10px;
+            margin-left: 10px;
             p-card {
-                // flex: 1;
-                    // &:first-child {
-                    //     margin-bottom: 5px;
-                    // }
-                    // &:last-child {
-                    //     margin-top: 5px;
-                    // }
                 .p-card {
                     height: 100%;
                     .p-card-body {
@@ -183,45 +131,10 @@ textarea {
                     }
                 }
             }
-            // .top-panel {
-            //     flex: 1;
-            //     .p-panel {
-            //         .p-panel-header {
-            //             border-radius: 0;
-            //             border-bottom: none;
-            //             border-top: 0;
-            //             border-right: none;
-            //             border-left: none;
-            //             // border: none;
-            //         }
-            //         .p-panel-content {
-            //             border-right: none;
-            //             border-left: none;
-            //             border-radius: 0;
-            //             // border: none;
-            //         } 
-            //     }
-            // }
-            // .bottom-panel {
-            //     flex: 1;
-            //     .p-panel {
-            //         .p-panel-header {
-            //             border-top: none;
-            //             border-right: none;
-            //             border-left: none;
-            //             border-radius: 0;
-            //             // border: none;
-            //         }
-            //         .p-panel-content {
-            //             border-radius: 0;
-            //             border-top: none;
-            //             border-bottom: none;
-            //             border-right: none;
-            //             border-left: none;
-            //             // border: none;
-            //         }
-            //     }
-            // }
+            .p-splitter-gutter {
+                margin-right: 10px;
+                margin-left: 10px;
+            }
         }
     }
 }

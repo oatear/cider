@@ -23,7 +23,8 @@
 
 :host ::ng-deep .page-card, 
 :host ::ng-deep .page-card.header-card {
-    margin: 25px;
+    // margin: 25px;
+    margin-bottom: 25px;
     margin-top: 0px;
     margin-right: 10px;
 }
@@ -53,12 +54,14 @@
         flex: 1;
         display: flex;
         overflow: hidden;
+        margin-right: 10px;
     }
     app-site-content {
         background: var(--surface-0);
         flex: 1;
         display: flex;
         width: 100%;
+        margin-left: 10px;
         .site-content {
             flex: 1;
         }
@@ -66,10 +69,12 @@
     .site-sidebar-placeholder {
         background: var(--p-content-background);
         border-radius: 10px;
+        margin-right: 10px;
         flex: 1;
     }
     .site-content-placeholder {
         background: var(--surface-0);
+        margin-left: 10px;
         flex: 1;
         width: 100%;
     }
