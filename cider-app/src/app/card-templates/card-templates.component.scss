@@ -69,12 +69,19 @@ textarea {
         // border-left: none;
         // border-right: none;
         background-color: transparent;
+        min-height: 0;
         .p-col {
             padding: 0;
         }
     }
     .template-panel {
+        > .p-splitter {
+            height: 100%;
+            width: 100%;
+        }
         .left-panel {
+            height: 100%;
+            width: 100%;
             .page-card {
                 height: 100%;
                 .preview-controls {

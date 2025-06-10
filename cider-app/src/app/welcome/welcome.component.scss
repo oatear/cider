@@ -1,5 +1,5 @@
 :host ::ng-deep .welcome-card {
-    margin: 25px;
+    // margin: 25px;
 
     .p-button {
         width: 100px;
@@ -65,8 +65,12 @@
     }
 }
 
+:host ::ng-deep app-page-header .p-card {
+    margin-left: 0;
+}
+
 :host ::ng-deep .artwork-card {
-    margin: 25px;
+    // margin: 25px;
     height: 300px;
     background: url(/assets/crystal-cave.png);
     background-size: auto 300px;
