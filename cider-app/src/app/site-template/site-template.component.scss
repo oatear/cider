@@ -55,15 +55,6 @@
 :host ::ng-deep .site-splitter {
     background: none;
 
-    &.no-sidebar {
-        > .p-splitterpanel:first-child {
-            display: none;
-        }
-        > .p-splitter-gutter {
-            display: none;
-        }
-    }
-
     app-site-sidebar {
         background: var(--surface-0);
         flex: 1;
@@ -103,5 +94,27 @@
     }
     .p-splitter-gutter-resizing {
         background: #3f4b5b;
+    }
+
+    &.no-sidebar {
+        > .p-splitterpanel:first-child {
+            flex: 0 0 0px !important;
+        }
+        > .p-splitter-gutter {
+            flex: 0 0 0px !important;
+            display: none;
+        }
+        app-site-content {
+            margin-left: 0px;
+        }
+    }
+}
+
+:host ::ng-deep .site-splitter:not(.p-splitter-resizing) {
+    > .p-splitterpanel:first-child {
+        transition: flex 0.3s ease-in-out;
+    }
+    > .p-splitter-gutter {
+        transition: flex 0.3s ease-in-out, display 0s 0.3s allow-discrete;
     }
 }

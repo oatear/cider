@@ -8,7 +8,7 @@
             [panelSizes]="[20, 80]" [minSizes]="[10, 50]"
             (onResizeStart)="onResizeStart($event)"
             (onResizeEnd)="onResizeEnd($event)">
-            <ng-template pTemplate *ngIf="selectedActivity !== ''">
+            <ng-template pTemplate>
                 <app-site-sidebar *ngIf="!disablePanels">
                 </app-site-sidebar>
                 <div class="site-sidebar-placeholder" *ngIf="disablePanels"></div>
