@@ -59,23 +59,4 @@
     .p-menuitem.p-menuitem-active > .p-menuitem-link {
         background: var(--surface-d);
     }
-
-    // .p-menuitem:hover {
-    //     &.selected-deck > .p-menuitem-link:not(.p-disabled) .p-menuitem-text,
-    //     &.selected-deck > .p-menuitem-link:not(.p-disabled) .p-menuitem-icon {
-    //         color: hsl(220, 100%, 80%);
-    //     }
-    //     &.cards > .p-menuitem-link:not(.p-disabled) .p-menuitem-text,
-    //     &.cards > .p-menuitem-link:not(.p-disabled) .p-menuitem-icon {
-    //         color: hsl(255, 100%, 80%);
-    //     }
-    //     &.templates > .p-menuitem-link:not(.p-disabled) .p-menuitem-text,
-    //     &.templates > .p-menuitem-link:not(.p-disabled) .p-menuitem-icon {
-    //         color: hsl(128, 100%, 80%);
-    //     }
-    //     &.assets > .p-menuitem-link:not(.p-disabled) .p-menuitem-text,
-    //     &.assets > .p-menuitem-link:not(.p-disabled) .p-menuitem-icon {
-    //         color: hsl(26, 100%, 80%);
-    //     }
-    // }
 }

@@ -1,4 +1,5 @@
-import { Component, HostListener } from '@angular/core';
+import { AfterViewInit, Component, HostListener, OnInit, ViewChild } from '@angular/core';
+import { Splitter } from 'primeng/splitter';
 import { debounceTime, Subject } from 'rxjs';
 
 @Component({
@@ -7,6 +8,8 @@ import { debounceTime, Subject } from 'rxjs';
   styleUrls: ['./site-template.component.scss']
 })
 export class SiteTemplateComponent {
+  splitterPanels: any[] = []
+  selectedActivity: string = 'explorer';
   disablePanels: boolean = false;
   windowResizing$: Subject<boolean>;
 

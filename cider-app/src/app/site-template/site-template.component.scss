@@ -54,6 +54,16 @@
 
 :host ::ng-deep .site-splitter {
     background: none;
+
+    &.no-sidebar {
+        > .p-splitterpanel:first-child {
+            display: none;
+        }
+        > .p-splitter-gutter {
+            display: none;
+        }
+    }
+
     app-site-sidebar {
         background: var(--surface-0);
         flex: 1;

@@ -1,11 +1,14 @@
 <div class="site-wrapper">
     <app-site-menu></app-site-menu>
     <div class="site-body">
-        <app-site-activitybar></app-site-activitybar>
-        <p-splitter styleClass="site-splitter" [panelSizes]="[20, 80]" [minSizes]="[10, 50]"
+        <app-site-activitybar 
+            [(selectedActivity)]="selectedActivity"></app-site-activitybar>
+        <p-splitter #splitter
+            [styleClass]="'site-splitter' + (selectedActivity === '' ? ' no-sidebar' : '')" 
+            [panelSizes]="[20, 80]" [minSizes]="[10, 50]"
             (onResizeStart)="onResizeStart($event)"
             (onResizeEnd)="onResizeEnd($event)">
-            <ng-template pTemplate>
+            <ng-template pTemplate *ngIf="selectedActivity !== ''">
                 <app-site-sidebar *ngIf="!disablePanels">
                 </app-site-sidebar>
                 <div class="site-sidebar-placeholder" *ngIf="disablePanels"></div>
