@@ -11,6 +11,7 @@ import { ElectronService } from '../electron/electron.service';
 export class LocalStorageService {
   static readonly RECENT_PROJECT_URLS = "recent-project-urls";
   static readonly MAX_RECENT_PROJECT_URLS = 5;
+  static readonly DARK_MODE = "dark-mode";
 
   public recentProjectUrls: BehaviorSubject<string[]>;
 
@@ -61,4 +62,14 @@ export class LocalStorageService {
   public getRecentProjectUrls() {
     return this.recentProjectUrls.asObservable();
   }
+
+  public getDarkMode() : boolean {
+    const darkMode = localStorage.getItem(LocalStorageService.DARK_MODE);
+    return darkMode === 'true' || darkMode === null; // Default to true if not set
+  }
+
+  public setDarkMode(darkMode: boolean) {
+    localStorage.setItem(LocalStorageService.DARK_MODE, darkMode.toString());
+  }
+
 }

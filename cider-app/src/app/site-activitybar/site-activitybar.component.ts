@@ -7,7 +7,8 @@ import { MenuItem } from 'primeng/api';
   styleUrl: './site-activitybar.component.scss'
 })
 export class SiteActivitybarComponent {
-  menuItems: MenuItem[] = [
+  public settingsDialogVisible: boolean = false;
+  public menuItems: MenuItem[] = [
     {
       label: 'Explorer',
       icon: 'pi pi-fw pi-folder',
@@ -31,10 +32,13 @@ export class SiteActivitybarComponent {
       icon: 'pi pi-fw pi-cog',
       tooltip: 'Settings',
       tooltipPosition: 'right',
-      styleClass: 'menu-item-bottom'
+      styleClass: 'menu-item-bottom',
+      command: () => {
+        this.settingsDialogVisible = true;
+      }
     },
   ];
-  isSaving: boolean = false;
+  public isSaving: boolean = false;
 
 
   public logoClicked() {

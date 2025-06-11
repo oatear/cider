@@ -162,10 +162,10 @@
     .token-row {
         display: table-row;
         &.token-header {
-            color: #5c7089;
+            color: var(--p-text-color);
             top: 0;
             position: sticky;
-            background-color: #2b313d;
+            background-color: var(--p-surface-900);
             & > div {
                 padding-top: 1rem;
                 padding-bottom: 1rem;
@@ -177,10 +177,10 @@
             padding-right: 5px;
             max-width: 200px;
             h3 {
-                color: #5c7089;
+                color: var(--p-text-muted-color);
             }
             span {
-                background-color: #333e4d;
+                background-color: var(--p-surface-800);
                 border-radius: 10px;
                 padding: 2px;
                 padding-left: 7px;

@@ -346,7 +346,32 @@ export const CiderTheme = definePreset(Aura, {
                     borderColor: "{content.background}",
                     borderRadius: "10px",
                     color: "{surface.200}",
-                }
+                },
+            },
+            light: {
+                surface: {
+                    0: "#ffffff",
+                    50: "#f7f8f9",
+                    100: "#d9dce2",
+                    200: "#bbc1cb",
+                    300: "#9ca5b3",
+                    400: "#7e8a9c",
+                    500: "#606e85",
+                    600: "#525e71",
+                    700: "#434d5d",
+                    800: "#353d49",
+                    900: "#262c35",
+                    950: "#181c21"
+                },
+                text: {
+                    color: "{surface.400}",
+                },
+                formField: {
+                    borderColor: "{surface.100}",
+                    background: "{surface.50}",
+                    borderRadius: "10px",
+                    color: "{surface.400}",
+                },
             }
         }
     },
@@ -361,6 +386,20 @@ export const CiderTheme = definePreset(Aura, {
                 // padding: "0.5rem 0.75rem",
                 // transitionDuration: "{transition.duration}"
             },
+            colorScheme: {
+                dark: {
+                    root: {
+                        background: "{surface.950}",
+                        color: "{text.color}",
+                    },
+                },
+                light: {
+                    root: {
+                        background: "{surface.100}",
+                        color: "{text.color}",
+                    },
+                }
+            }
         },
     }
 });

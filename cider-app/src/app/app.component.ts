@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostBinding, OnInit } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 
 import { filter } from 'rxjs';
+import { LocalStorageService } from './data-services/local-storage/local-storage.service';
 
 // setup in index.html
 declare const gtag: Function;
@@ -13,7 +14,8 @@ declare const gtag: Function;
 })
 export class AppComponent implements OnInit{
 
-  constructor(private router: Router) {
+  constructor(private router: Router,
+              private localStorageService: LocalStorageService) {
   }
 
   ngOnInit() {
@@ -23,6 +25,7 @@ export class AppComponent implements OnInit{
       });
 
       this.setUpAnalytics();
+      this.initDarkMode();
   }
 
   private setUpAnalytics() {
@@ -41,5 +44,10 @@ export class AppComponent implements OnInit{
     let vw = window.innerWidth * 0.01;
     document.documentElement.style.setProperty('--vh', `${vh}px`);
     document.documentElement.style.setProperty('--vw', `${vw}px`);
+  }
+
+  private initDarkMode() {
+    const darkMode = this.localStorageService.getDarkMode()
+    document.querySelector('html')?.classList.toggle(LocalStorageService.DARK_MODE, darkMode);
   }
 }

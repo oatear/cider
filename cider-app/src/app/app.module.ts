@@ -44,6 +44,7 @@ import { InputIconModule } from 'primeng/inputicon';
 import { TagModule } from 'primeng/tag';
 import { InputGroup } from 'primeng/inputgroup';
 import { ButtonGroup } from 'primeng/buttongroup';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
 
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
@@ -73,6 +74,8 @@ import { SiteSidebarComponent } from './site-sidebar/site-sidebar.component';
 import { providePrimeNG } from 'primeng/config';
 import { CiderTheme } from './cider-theme';
 import { SiteActivitybarComponent } from './site-activitybar/site-activitybar.component';
+import { LocalStorageService } from './data-services/local-storage/local-storage.service';
+import { SettingsDialogComponent } from './settings-dialog/settings-dialog.component';
 
 @NgModule({ declarations: [
         AppComponent,
@@ -96,7 +99,8 @@ import { SiteActivitybarComponent } from './site-activitybar/site-activitybar.co
         ExportSelectionDialogComponent,
         SiteMenuComponent,
         SiteSidebarComponent,
-        SiteActivitybarComponent
+        SiteActivitybarComponent,
+        SettingsDialogComponent,
     ],
     bootstrap: [AppComponent], 
     imports: [BrowserModule,
@@ -140,13 +144,17 @@ import { SiteActivitybarComponent } from './site-activitybar/site-activitybar.co
         IconFieldModule,
         InputIconModule,
         TagModule,
+        ToggleSwitchModule,
     ], 
     providers: [
         CardToHtmlPipe, provideHttpClient(withInterceptorsFromDi()),
         provideAnimationsAsync(),
         providePrimeNG({
             theme: {
-                preset: CiderTheme
+                preset: CiderTheme,
+                options: {
+                    darkModeSelector: "." + LocalStorageService.DARK_MODE,
+                }
             }
         })
     ]})

@@ -1,1 +1,9 @@
-<p>settings-dialog works!</p>
+<p-dialog header="Settings" [(visible)]="visible" (visibleChange)="visibleChange.emit($event)"
+    (onHide)="hideDialog()" [styleClass]="'settings-dialog'"
+    [modal]="true" [style]="{width: '400px'}" [closable]="true">
+    <div class="p-field">
+        <label for="darkMode">Dark Mode</label>
+        <p-toggleswitch [(ngModel)]="darkMode" (onChange)="setDarkMode($event)"/>
+        <p-message severity="info" text="Enable dark mode for a better night-time experience"></p-message>
+    </div>
+</p-dialog>
