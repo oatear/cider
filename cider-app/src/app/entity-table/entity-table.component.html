@@ -170,8 +170,8 @@
                 </ng-container>
             </ng-container>
             <td *ngIf="allowEditing && showActions" class="action-col" alignFrozen="right" pFrozenColumn>
-                <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button p-mr-2 p-ml-2 p-mb-2" (click)="openEditDialog(rowData)"></button>
-                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger p-mb-2" (click)="openDeleteDialog(rowData, dt)"></button>
+                <button pButton pRipple icon="pi pi-pencil" [text]="true" class="p-button-rounded p-button p-mr-2 p-ml-2 p-mb-2" (click)="openEditDialog(rowData)"></button>
+                <button pButton pRipple icon="pi pi-trash" [text]="true" class="p-button-rounded p-button-danger p-mb-2" (click)="openDeleteDialog(rowData, dt)"></button>
             </td>
         </tr>
     </ng-template>

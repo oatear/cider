@@ -1,5 +1,15 @@
 <p-tree [value]="files" styleClass="file-tree" 
     [filter]="true" [filterPlaceholder]="'Search'" [selectionMode]="'single'"
-    (onNodeSelect)="onNodeSelect($event)"
-    />
+    [(selection)]="selectedFile" [contextMenu]="cm"
+    (onNodeSelect)="onNodeSelect($event)">
+    <ng-template let-node pTemplate="default">
+        <span>{{ node.label }}</span>
+        <span class="file-controls">
+            <!-- <p-button *ngIf="node.data.addAction" icon="pi pi-plus" [rounded]="true" [text]="true" />
+            <p-button *ngIf="node.data.editAction" icon="pi pi-pencil" [rounded]="true" [text]="true" /> -->
+            <!-- <p-button *ngIf="node.data.removeAction" icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger" /> -->
+        </span>
+    </ng-template>
+</p-tree>
+<p-contextmenu #cm [model]="menuItems" />
     

@@ -1,0 +1,19 @@
+<p-card styleClass="page-card controls-card">
+    <span class="asset-name">{{ asset.name }}</span>
+    <!-- <p-buttongroup>
+        <button pButton type="button" icon="pi pi-search-minus" (click)="changeZoom(-0.1)"></button>
+        <button pButton type="button" icon="pi pi-search-plus" (click)="changeZoom(0.1)"></button>
+    </p-buttongroup> -->
+    <span class="asset-controls">
+        <button pButton type="button" icon="pi pi-pencil" (click)="openEditDialog(asset)" class="p-mr-2"></button>
+        <button pButton type="button" icon="pi pi-trash" (click)="openDeleteDialog(asset)" severity="danger" ></button>
+    </span>
+</p-card>
+<p-card styleClass="page-card asset-card">
+    <!-- <img [src]="asset.file | fileUrl" [style.transform]="'scale(' + zoom + ')'"/> -->
+    <img [src]="asset.file | fileUrl"/>
+
+</p-card>
+<app-entity-dialog [service]="assetsService" [(visible)]="dialogVisible" [entity]="asset"></app-entity-dialog>
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+<p-toast></p-toast>

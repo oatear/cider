@@ -45,6 +45,7 @@ import { TagModule } from 'primeng/tag';
 import { InputGroup } from 'primeng/inputgroup';
 import { ButtonGroup } from 'primeng/buttongroup';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { ContextMenuModule } from 'primeng/contextmenu';
 
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
@@ -76,6 +77,7 @@ import { CiderTheme } from './cider-theme';
 import { SiteActivitybarComponent } from './site-activitybar/site-activitybar.component';
 import { LocalStorageService } from './data-services/local-storage/local-storage.service';
 import { SettingsDialogComponent } from './settings-dialog/settings-dialog.component';
+import { AssetComponent } from './asset/asset.component';
 
 @NgModule({ declarations: [
         AppComponent,
@@ -87,6 +89,7 @@ import { SettingsDialogComponent } from './settings-dialog/settings-dialog.compo
         SiteContentComponent,
         SiteTemplateComponent,
         AssetsComponent,
+        AssetComponent,
         EntityTableComponent,
         EntityDialogComponent,
         CardPreviewComponent,
@@ -145,6 +148,7 @@ import { SettingsDialogComponent } from './settings-dialog/settings-dialog.compo
         InputIconModule,
         TagModule,
         ToggleSwitchModule,
+        ContextMenuModule,
     ], 
     providers: [
         CardToHtmlPipe, provideHttpClient(withInterceptorsFromDi()),

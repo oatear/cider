@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { firstValueFrom, Observable } from 'rxjs';
-import { ElectronService } from './data-services/electron/electron.service';
+import { ElectronService } from '../../data-services/electron/electron.service';
 
 @Injectable({
   providedIn: 'root'

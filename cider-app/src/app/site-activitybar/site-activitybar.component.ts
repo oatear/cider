@@ -15,8 +15,12 @@ export class SiteActivitybarComponent {
     {
       label: 'Explorer',
       icon: 'pi pi-fw pi-folder',
-      tooltip: 'Explorer',
-      tooltipPosition: 'right',
+      tooltipOptions: {
+        tooltipLabel: 'Explorer',
+        tooltipPosition: 'right',
+        showDelay: 500,
+        hideDelay: 500
+      },
       command: () => {
         if (this.selectedActivity == 'explorer') {
           this.selectedActivity = '';
@@ -30,8 +34,12 @@ export class SiteActivitybarComponent {
     {
       label: 'AI Tools',
       icon: 'pi pi-fw pi-sparkles',
-      tooltip: 'AI Tools',
-      tooltipPosition: 'right',
+      tooltipOptions: {
+        tooltipLabel: 'AI Tools',
+        tooltipPosition: 'right',
+        showDelay: 500,
+        hideDelay: 500
+      },
       command: () => {
         if (this.selectedActivity == 'ai-tools') {
           this.selectedActivity = '';
@@ -44,14 +52,22 @@ export class SiteActivitybarComponent {
     {
       label: 'Create New Project',
       icon: 'pi pi-fw pi-plus',
-      tooltip: 'Create New Project',
-      tooltipPosition: 'right',
+      tooltipOptions: {
+        tooltipLabel: 'Create New Project',
+        tooltipPosition: 'right',
+        showDelay: 500,
+        hideDelay: 500
+      },
     },
     {
       label: 'Settings',
       icon: 'pi pi-fw pi-cog',
-      tooltip: 'Settings',
-      tooltipPosition: 'right',
+      tooltipOptions: {
+        tooltipLabel: 'Settings',
+        tooltipPosition: 'right',
+        showDelay: 500,
+        hideDelay: 500
+      },
       styleClass: 'menu-item-bottom',
       command: () => {
         this.settingsDialogVisible = true;

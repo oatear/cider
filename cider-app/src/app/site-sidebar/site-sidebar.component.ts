@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { TreeNode } from 'primeng/api';
+import { MenuItem, TreeNode } from 'primeng/api';
 import { DecksService } from '../data-services/services/decks.service';
 import { AssetsService } from '../data-services/services/assets.service';
 import { CardTemplatesService } from '../data-services/services/card-templates.service';
 import { ElectronService } from '../data-services/electron/electron.service';
-import { firstValueFrom } from 'rxjs';
+import { debounceTime, firstValueFrom } from 'rxjs';
 import StringUtils from '../shared/utils/string-utils';
 import { TreeNodeSelectEvent } from 'primeng/tree';
 import { Router } from '@angular/router';
@@ -17,6 +17,8 @@ import { Router } from '@angular/router';
 export class SiteSidebarComponent implements OnInit {
   files: TreeNode[] = [];
   selectedFile: TreeNode | null = null;
+  menuItems: MenuItem[] = [];
+  updatingFiles: boolean = false;
 
   constructor(private decksService: DecksService,
     private assetsService: AssetsService,
@@ -30,39 +32,39 @@ export class SiteSidebarComponent implements OnInit {
 
   ngOnInit() {
     this.updateFiles();
-    // this.decksService.getAll().then(decks => {
-    //   this.files = [
-    //     { label: 'Decks', data: 'Decks', expandedIcon: 'pi pi-folder-open', collapsedIcon: 'pi pi-folder', children: [] },
-    //     { label: 'Assets', data: 'Assets', expandedIcon: 'pi pi-folder-open', collapsedIcon: 'pi pi-folder', children: [] },
-    //     { label: 'Templates', data: 'Templates', expandedIcon: 'pi pi-folder-open', collapsedIcon: 'pi pi-folder', children: [] }
-    //   ];
-    //   decks.forEach(deck => {
-    //     this.files[0].children!.push({ label: deck.name, data: deck.id, icon: 'pi pi-file' });
-    //   });
-    // });
+    this.electronService.getProjectUnsaved().pipe(debounceTime(500)).subscribe(unsaved => {
+      console.log('Project unsaved status changed:', unsaved);
+      this.updateFiles();
+    });
   }
 
-  updateFiles() {
+  async updateFiles() {
+    if (this.updatingFiles) {
+      console.warn('Files are already being updated. Skipping this update.');
+      return;
+    }
+    this.updatingFiles = true;
     // this.electronService.getProjectHomeUrl()
     // get project home URL from Electron service
-    this.files = []; // Reset files array
+    const updatedFiles: TreeNode[] = [];
+    // this.files = []; // Reset files array
     // this.files.push({
     //   label: 'Project Home',
     //   data: this.electronService.getProjectHomeUrl(),
     //   icon: 'pi pi-home',
     //   url: this.electronService.getProjectHomeUrl()
     // });
-    firstValueFrom(this.electronService.getProjectHomeUrl()).then(homeUrl => {
+    await firstValueFrom(this.electronService.getProjectHomeUrl()).then(homeUrl => {
       let projectName = StringUtils.lastDirectoryFromUrl(homeUrl || 'Project');
-      this.files.push({
-        label: projectName,
-        data: {
-          url: '/decks',
-        },
-        icon: 'pi pi-home',
-        styleClass: 'project-home',
-      });
-      this.files.push({
+      // this.files.push({
+      //   label: projectName,
+      //   data: {
+      //     url: '/decks',
+      //   },
+      //   icon: 'pi pi-home',
+      //   styleClass: 'project-home',
+      // });
+      updatedFiles.push({
         label: 'README',
         data: {
           url: '/readme',
@@ -71,7 +73,8 @@ export class SiteSidebarComponent implements OnInit {
         styleClass: 'readme-file'
       });
     });
-    this.decksService.getAll().then(decks => {
+    await this.decksService.getAll().then(decks => {
+      let deckFolderChildren: TreeNode[] = [];
       decks.forEach(deck => {
         let deckChildren: TreeNode[] = [];
 
@@ -102,12 +105,22 @@ export class SiteSidebarComponent implements OnInit {
           styleClass: 'card-attributes',
         });
 
+        deckChildren.push({
+          label: 'Export Cards',
+          data: {
+            url: '/decks/' + deck.id + '/export-cards',
+          },
+          icon: 'pi pi-file-pdf',
+          styleClass: 'card-export',
+        });
+
         this.templatesService.getAllUnfiltered({deckId: (deck || {}).id}).then(templates => 
           templates.forEach(template => {
             deckChildren.push({
               label: template.name,
               data: {
                 url: '/decks/' + deck.id + '/card-templates',
+                removeAction: () => {},
               },
               icon: 'pi pi-id-card',
               styleClass: 'card-template',
@@ -115,35 +128,57 @@ export class SiteSidebarComponent implements OnInit {
           }
         ));
 
-        let file = {
+        let deckFile = {
           label: deck.name,
-          data: deck.id,
+          data: {
+            url: '/decks/' + deck.id + '/cards',
+            addAction: () => {},
+          },
           icon: 'pi pi-folder',
           styleClass: 'deck-folder',
           expanded: true,
           // styleClass: 'selected-deck',
           children: deckChildren
         };
-        this.files.push(file);
+        deckFolderChildren.push(deckFile);
       });
+
+      let decksFolder: TreeNode = {
+        label: 'Decks',
+        data: {
+          url: '/decks',
+          addAction: () => {},
+        },
+        icon: 'pi pi-folder',
+        expanded: true,
+        children: deckFolderChildren
+      };
+      updatedFiles.push(decksFolder);
+
     });
 
-    this.assetsService.getAll().then(assets => {
-      this.files.push({
+    await this.assetsService.getAll().then(assets => {
+      updatedFiles.push({
         label: 'Assets',
         data: {
           url: '/assets',
+          addAction: () => {},
         },
         icon: 'pi pi-folder',
         expanded: true,
         children: assets.map(asset => ({
           label: asset.name,
-          data: asset.id,
+          data: {
+            url: '/assets/' + asset.id,
+          },
           icon: 'pi pi-image',
           styleClass: 'asset-file',
         }))
       });
     });
+
+    this.files = updatedFiles;
+    this.updatingFiles = false;
   }
 
   onNodeSelect(event: TreeNodeSelectEvent) {

@@ -14,15 +14,24 @@
             margin: 10px;
         }
 
+        .p-tree-empty-message {
+            // text-align: center;
+            margin-left: 25px;
+        }
+
         .p-tree-root {
             flex: 1 0 0;
             overflow: scroll;
             .p-tree-node {
+                width: 100%;
                 .p-tree-node-icon {
                     &.pi-home {
                         color: #42a5f5;
                     }
                     &.pi-file {
+                        color: #42a5f5;
+                    }
+                    &.pi-file-pdf {
                         color: #ff7043;
                     }
                     &.pi-id-card {
@@ -39,6 +48,16 @@
                     }
                     &.pi-image {
                         color: #4db6ac;
+                    }
+                }
+                .p-tree-node-label {
+                    width: 100%;
+                    > span {
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        .file-controls {
+                        }
                     }
                 }
             }
