@@ -6,6 +6,7 @@ import { CardsService } from '../data-services/services/cards.service';
 import { CardTemplate } from '../data-services/types/card-template.type';
 import { Card } from '../data-services/types/card.type';
 import { Subject, debounceTime } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
 
 const templateCssFront  = 
 `.card {
@@ -78,7 +79,20 @@ export class CardTemplatesComponent implements OnInit {
     public service: CardTemplatesService,
     private cardsService: CardsService,
     private messageService: MessageService, 
-    private confirmationService: ConfirmationService) {
+    private confirmationService: ConfirmationService,
+    private route: ActivatedRoute) {
+      this.route.paramMap.subscribe(params => {
+        const templateIdString = params.get('templateId') || '';
+        const templateId = parseInt(templateIdString, 10);
+        if (!isNaN(templateId)) {
+          this.service.get(templateId).then((template) => {
+            this.selectedTemplate = template;
+            // this.selectedCard = this.cards.find(card => card.templateId === template.id) || {} as Card;
+          }).catch(error => {
+            console.error(`Error fetching template with ID ${templateId}:`, error);
+          });
+        }
+      });
       this.templateChanges = new Subject();
       this.windowResizing$ = new Subject();
       this.windowResizing$.pipe(debounceTime(200)).subscribe(() => {
@@ -89,9 +103,9 @@ export class CardTemplatesComponent implements OnInit {
   ngOnInit(): void {
     this.service.getAll().then(templates => {
       this.templates = templates;
-      if (this.templates.length > 0) {
-        this.selectedTemplate = this.templates[0];
-      }
+      // if (this.templates.length > 0) {
+      //   this.selectedTemplate = this.templates[0];
+      // }
     });
     this.cardsService.getAll().then(cards => {
       this.cards = cards;

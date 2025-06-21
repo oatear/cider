@@ -1,6 +1,6 @@
 <p-toast></p-toast>
 <p-dialog [(visible)]="visible" (visibleChange)="visibleChange.emit($event)" (onHide)="hideDialog()"
-    [style]="{width: '450px'}" header="Create/Edit" [modal]="true" styleClass="p-fluid">
+    [style]="{width: '450px'}" [header]="title || 'Create/Edit'" [modal]="true" styleClass="p-fluid">
     <ng-template pTemplate="content">
         <ng-container *ngFor="let col of columns">
             <ng-container [ngSwitch]="true">

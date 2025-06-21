@@ -20,7 +20,7 @@ const routes: Routes = [
   { path: 'decks/:deckId/cards/listing', component: CardsComponent, canActivate: [ProjectGuard, DeckGuard]},
   { path: 'decks/:deckId/cards/thumbnails', component: CardThumbnailsComponent, canActivate: [ProjectGuard, DeckGuard]},
   { path: 'decks/:deckId/cards/attributes', component: CardAttributesComponent, canActivate: [ProjectGuard, DeckGuard]},
-  { path: 'decks/:deckId/card-templates', component: CardTemplatesComponent, canActivate: [ProjectGuard, DeckGuard]},
+  { path: 'decks/:deckId/templates/:templateId', component: CardTemplatesComponent, canActivate: [ProjectGuard, DeckGuard]},
   { path: 'decks/:deckId/export-cards', component: ExportCardsComponent, canActivate: [ProjectGuard, DeckGuard]},
   { path: '**', component: WelcomeComponent}
 ];

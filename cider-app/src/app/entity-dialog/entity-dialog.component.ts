@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { MessageService } from 'primeng/api';
 import { EntityField } from '../data-services/types/entity-field.type';
@@ -11,11 +11,12 @@ import { FieldType } from '../data-services/types/field-type.type';
   styleUrls: ['./entity-dialog.component.scss'],
   providers: [MessageService]
 })
-export class EntityDialogComponent<Entity, Identifier extends string | number> implements OnInit {
+export class EntityDialogComponent<Entity, Identifier extends string | number> implements OnInit, OnChanges {
   @Input() service: EntityService<Entity, Identifier> | undefined;
   @Input() columns: EntityField<Entity>[] = [];
   @Input() visible: boolean = false;
   @Input() entity: Entity = {} as Entity;
+  @Input() title: string = '';
   @Output() visibleChange: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Output() onCreate: EventEmitter<Entity> = new EventEmitter<Entity>();
   loading: boolean = false;
@@ -25,6 +26,12 @@ export class EntityDialogComponent<Entity, Identifier extends string | number> i
 
   ngOnInit(): void {
     this.service?.getFields().then(fields => this.columns = fields);
+  }
+  
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['service'] && this.service) {
+      this.service.getFields().then(fields => this.columns = fields);
+    }
   }
 
   public save() {
