@@ -19,7 +19,7 @@ export interface EntityService<Entity, Identity extends string | number> {
     getAll: () => Promise<Entity[]>;
     get: (id: Identity) => Promise<Entity>;
     create: (entity: Entity, overrideParent?: boolean) => Promise<Entity>;
-    update: (id: Identity, entity: Entity) => Promise<Entity>;
+    update: (id: Identity, entity: Entity, overrideParent?: boolean) => Promise<Entity>;
     delete: (id: Identity) => Promise<boolean>;
     deleteAll: () => Promise<boolean>;
     emptyTable: () => Promise<boolean>;

@@ -146,7 +146,7 @@ export class CardTemplatesComponent implements OnInit {
   }
 
   public updateExisting(id: number, entity: CardTemplate) {
-    this.service?.update(id, entity).then(result => {}).catch(error => {});
+    this.service?.update(id, entity, true).then(result => {}).catch(error => {});
   }
 
   public openCreateNew() {

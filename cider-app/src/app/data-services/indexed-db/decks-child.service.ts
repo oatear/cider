@@ -1,4 +1,4 @@
-import { firstValueFrom } from 'rxjs';
+import { first, firstValueFrom } from 'rxjs';
 import { DecksService } from '../services/decks.service';
 import { EntityField } from '../types/entity-field.type';
 import { SearchParameters } from '../types/search-parameters.type';
@@ -36,21 +36,27 @@ export class DecksChildService<Entity, Identity extends string | number> extends
   }
 
   override create(entity: Entity, overrideParent?: boolean) {
-    return firstValueFrom(this.decksService.getSelectedDeck())
-      .then(deck => {
-        if (!overrideParent) {
+    if (overrideParent) {
+      return super.create(entity);
+    } else {
+      return firstValueFrom(this.decksService.getSelectedDeck())
+        .then(deck => {
           (<any>entity)[DecksChildService.DECK_ID] = deck?.id;
-        }
-        return super.create(entity);
-      });
+          return super.create(entity);
+        });
+    }
   }
 
-  override update(id: Identity, entity: Entity) {
-    return firstValueFrom(this.decksService.getSelectedDeck())
-      .then(deck => {
-        (<any>entity)[DecksChildService.DECK_ID] = deck?.id;
-        return super.update(id, entity);
-      });
+  override update(id: Identity, entity: Entity, overrideParent?: boolean) {
+    if (overrideParent) {
+      return super.update(id, entity);
+    } else {
+      return firstValueFrom(this.decksService.getSelectedDeck())
+        .then(deck => {
+          (<any>entity)[DecksChildService.DECK_ID] = deck?.id;
+          return super.update(id, entity);
+        });
+    }
   }
 
   override delete(id: Identity): Promise<boolean> {
