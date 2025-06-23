@@ -66,10 +66,125 @@ export default class TemplateDefaults {
         'Tarot (Landscape)': { width: 1500, height: 900, padding: 50 },
         'Square': { width: 1125, height: 1125, padding: 50 },
     };
-    public static readonly CARD_SIDES = {
-        FRONT: 'front',
-        BACK: 'back',
-    } as const;
+
+    public static readonly CARD_LAYOUTS: Record<string, { html: string, css: string }> = {
+        'blank': {
+            html: '<div class="card"></div>',
+            css: `.card {
+                width: {{cardSize.width}}px;
+                height: {{cardSize.height}}px;
+                padding: {{cardSize.padding}}px;
+            }`
+        },
+        'card-back': {
+            html: '<div class="card"><div class="card-back"></div></div>',
+            css: `.card {
+                width: {{cardSize.width}}px;
+                height: {{cardSize.height}}px;
+                padding: {{cardSize.padding}}px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .card-back {
+                width: 100%;
+                height: 100%;
+                background-color: #000;
+            }`
+        },
+        'tcg': {
+            html: `<div class="card"><div class="tcg-card">
+                <div class="tcg-header">{{card.name}}</div>
+                <div class="tcg-art"></div>
+                <div class="tcg-text">Card description</div>
+                <div class="tcg-footer">A{{#padZeros card.id 3}}{{/padZeros}}</div>
+            </div></div>`,
+            css: `.card {
+                width: {{cardSize.width}}px;
+                height: {{cardSize.height}}px;
+                padding: {{cardSize.padding}}px;
+            }
+            .tcg-card {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+            
+            }
+            .tcg-header {
+                font-size: 20px;
+                padding: 5px;
+                text-align: center;
+            }
+            .tcg-art {
+                flex: 1;
+                background-color: grey;
+                margin: 5px;
+            }
+            .tcg-text {
+                padding: 5px;
+                font-size: 14px;
+            }
+            .tcg-footer {
+                padding: 5px;
+                text-align: right;
+                font-size: 12px;
+            }`
+        },
+        'trick-taking': {
+            html: `<div class="card"><div class="trick-taking-card">
+                <div class="trick-taking-header">{{card.name}}</div>
+                <div class="trick-taking-suit">Suit</div>
+                <div class="trick-taking-value">Value</div>
+            </div></div>`,
+            css: `.card {
+                width: {{cardSize.width}}px;
+                height: {{cardSize.height}}px;
+                padding: {{cardSize.padding}}px;
+            }
+            .trick-taking-card {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+                justify-content: space-around;
+                align-items: center;
+            }
+            .trick-taking-header {
+                font-size: 24px;
+            }
+            .trick-taking-suit {
+                font-size: 40px;
+            }
+            .trick-taking-value {
+                font-size: 60px;
+            }`
+        },
+        'resource': {
+            html: `<div class="card"><div class="resource-card">
+                <div class="resource-name">{{card.name}}</div>
+                <div class="resource-amount">Amount</div>
+            </div></div>`,
+            css: `.card {
+                width: {{cardSize.width}}px;
+                height: {{cardSize.height}}px;
+                padding: {{cardSize.padding}}px;
+            }
+            .resource-card {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+                justify-content: center;
+                align-items: center;
+            }
+            .resource-name {
+                font-size: 24px;
+            }
+            .resource-amount {
+                font-size: 40px;
+            }`
+        },
+    };
+    // Define a set of layouts for the cards (ex. blank, card-back, tcg, 
+    // trick-taking, resource, etc.)
 
     public static getCardTemplate(): CardTemplate {
         return {
@@ -88,5 +203,29 @@ export default class TemplateDefaults {
         });
     }
 
+    public static generateCardTemplate(cardSize: CardSize, layoutName: string): CardTemplate {
+        const layout = TemplateDefaults.CARD_LAYOUTS[layoutName];
+        const html = layout.html;
+        const css = layout.css.replace(/\{\{cardSize\.width\}\}/g, cardSize.width.toString())
+            .replace(/\{\{cardSize\.height\}\}/g, cardSize.height.toString())
+            .replace(/\{\{cardSize\.padding\}\}/g, cardSize.padding.toString());
 
+        return {
+            name: `${layoutName} Template`,
+            description: `Card template using ${layoutName} layout.`,
+            html: html,
+            css: css,
+        } as CardTemplate;
+    }
+
+    // public static createCard(cardSize: CardSize, layoutName: string): Card {
+    //     const cardTemplate = TemplateDefaults.generateCardTemplate(cardSize, layoutName);
+    //     return {
+    //         id: 0,
+    //         deckId: 0,
+    //         name: layoutName,
+    //         description: "Description of the card",
+    //         frontCardTemplate: cardTemplate,
+    //     } as Card;
+    // }
 }
