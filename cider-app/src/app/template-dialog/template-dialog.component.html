@@ -1,0 +1,14 @@
+<p-dialog header="New Template Wizard" [(visible)]="visible" (visibleChange)="visibleChange.emit($event)"
+    (onHide)="hideDialog()" [styleClass]="'template-dialog'"
+    [modal]="true" [style]="{width: '400px'}" [closable]="true">
+    <ng-template pTemplate="content">
+
+        <div class="card-list">
+            <ng-container *ngFor="let card of cards">
+                <app-card-preview [cache]="false" [card]="card" [scale]="zoomLevel" 
+                [template]="card.frontCardTemplateId | entity: templatesService | async"></app-card-preview>
+            </ng-container>
+        </div>
+
+    </ng-template>
+</p-dialog>

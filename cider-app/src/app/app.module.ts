@@ -78,6 +78,7 @@ import { SiteActivitybarComponent } from './site-activitybar/site-activitybar.co
 import { LocalStorageService } from './data-services/local-storage/local-storage.service';
 import { SettingsDialogComponent } from './settings-dialog/settings-dialog.component';
 import { AssetComponent } from './asset/asset.component';
+import { TemplateDialogComponent } from './template-dialog/template-dialog.component';
 
 @NgModule({ declarations: [
         AppComponent,
@@ -104,6 +105,7 @@ import { AssetComponent } from './asset/asset.component';
         SiteSidebarComponent,
         SiteActivitybarComponent,
         SettingsDialogComponent,
+        TemplateDialogComponent,
     ],
     bootstrap: [AppComponent], 
     imports: [BrowserModule,
