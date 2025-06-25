@@ -23,10 +23,13 @@ export class TemplateDialogComponent implements OnInit {
 
   ngOnInit() {
     this.sizeCards = TemplateDefaults.getSizeCards();
-    this.selectedSize = undefined;
   }
 
   public hideDialog() {
+    this.selectedSize = undefined;
+    this.selectedLayout = undefined;
+    this.layoutCards = [];
+    this.zoomLevel = 0.1;
     this.visible = false;
     this.visibleChange.emit(false);
   }
@@ -41,6 +44,7 @@ export class TemplateDialogComponent implements OnInit {
     if (!this.selectedLayout) {
       return;
     }
+    this.hideDialog();
   }
 
 }

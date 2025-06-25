@@ -1,5 +1,5 @@
 <p-dialog header="New Template Wizard" [(visible)]="visible" (visibleChange)="visibleChange.emit($event)"
-    (onHide)="hideDialog()" [styleClass]="'template-dialog'"
+    (onHide)="hideDialog()" [styleClass]="'template-dialog'" focusOnShow="false"
     [modal]="true" [style]="{width: '600px'}" [closable]="true">
     <ng-template pTemplate="content">
 
