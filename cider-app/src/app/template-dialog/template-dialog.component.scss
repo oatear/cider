@@ -1,0 +1,47 @@
+:host ::ng-deep .card-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+
+    p-selectbutton {
+        align-items: stretch;
+        flex-wrap: wrap;
+        p-togglebutton {
+            button.p-togglebutton {
+                height: 100%;
+                background: none;
+                border: none;
+                &:hover {
+                    background: none;
+                    // background: var(--p-button-primary-hover-background);
+                    border-radius: var(--p-selectbutton-border-radius);
+                    &::before {
+                        background: var(--p-button-outlined-contrast-hover-background);
+                    }
+                }
+                &.p-togglebutton-checked {
+                    // background: var(--primary-color);
+                    // color: var(--primary-text-color);
+                    &::before {
+                        background: var(--p-button-outlined-contrast-active-background);
+                    }
+                }
+                .p-togglebutton-content {
+                    flex-direction: column;
+                    text-align: left;
+                }
+            }
+        }
+    }
+}
+
+:host ::ng-deep .card-preview {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+:host ::ng-deep .step-controls {
+    display: flex;
+}

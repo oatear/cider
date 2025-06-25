@@ -46,6 +46,7 @@ import { InputGroup } from 'primeng/inputgroup';
 import { ButtonGroup } from 'primeng/buttongroup';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { ContextMenuModule } from 'primeng/contextmenu';
+import { StepperModule } from 'primeng/stepper';
 
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
@@ -151,6 +152,7 @@ import { TemplateDialogComponent } from './template-dialog/template-dialog.compo
         TagModule,
         ToggleSwitchModule,
         ContextMenuModule,
+        StepperModule,
     ], 
     providers: [
         CardToHtmlPipe, provideHttpClient(withInterceptorsFromDi()),
