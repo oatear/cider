@@ -3,7 +3,7 @@
     [modal]="true" [style]="{width: '600px'}" [closable]="true">
     <ng-template pTemplate="content">
 
-        <p-stepper [value]="1">
+        <p-stepper [value]="1" [linear]="true">
             <p-step-list>
                 <p-step [value]="1">Card Size</p-step>
                 <p-step [value]="2">Layout</p-step>
@@ -25,6 +25,7 @@
                         </div>
                         <div class="step-controls p-justify-end">
                             <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" 
+                                [disabled]="!selectedSize"
                                 (onClick)="activateCallback(2)" />
                         </div>
                     </ng-template>
@@ -34,6 +35,7 @@
                     <ng-template #content let-activateCallback="activateCallback">
                         <div class="card-list">
                             <p-selectbutton [options]="layoutCards" [(ngModel)]="selectedLayout" 
+                                (onChange)="selectedLayoutChange($event)"
                                 optionLabel="key" [style]="{width: '100%'}">
                                 <ng-template #item let-item>
                                     <app-card-preview [cache]="false" [card]="item" [scale]="zoomLevel" 
@@ -44,7 +46,9 @@
                         </div>
                         <div class="step-controls p-justify-between">
                             <p-button label="Back" severity="secondary" icon="pi pi-arrow-left" (onClick)="activateCallback(1)" />
-                            <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" (onClick)="activateCallback(3)" />
+                            <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" 
+                                [disabled]="!selectedLayout"
+                                (onClick)="activateCallback(3)" />
                         </div>
                     </ng-template>
                 </p-step-panel>
@@ -54,6 +58,11 @@
                         <div class="card-preview">
                             <app-card-preview [cache]="false" [card]="selectedLayout" 
                                 [scale]="0.25" [template]="selectedLayout.frontCardTemplate"></app-card-preview>
+                        </div>
+                        <div class="template-form">
+                            <label for="templateName">Template Name</label>
+                            <input pInputText id="templateName" aria-describedby="name-help" [(ngModel)]="templateName" />
+                            <small id="name-help">Enter a name for your template.</small>
                         </div>
                         <div class="step-controls p-justify-between">
                             <p-button label="Back" severity="secondary" icon="pi pi-arrow-left" (onClick)="activateCallback(2)" />

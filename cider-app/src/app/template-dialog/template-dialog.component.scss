@@ -36,6 +36,23 @@
     }
 }
 
+:host ::ng-deep p-stepper {
+    .p-steplist {
+        .p-step {
+            &.p-step-active {
+                .p-step-number {
+                    background: var(--p-button-outlined-plain-active-background);
+                    color: var(--p-text-hover-muted-color);
+                }
+            }
+        }
+    }
+    p-step-panels {
+        display: block;
+        padding-bottom: 0;
+    }
+}
+
 :host ::ng-deep .card-preview {
     width: 100%;
     display: flex;
@@ -44,4 +61,25 @@
 
 :host ::ng-deep .step-controls {
     display: flex;
+    margin-top: 15px;
+}
+
+
+:host ::ng-deep .template-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+
+    label {
+        font-weight: bold;
+    }
+
+    input {
+        width: 100%;
+    }
+
+    small {
+        color: var(--p-text-secondary-color);
+    }
 }

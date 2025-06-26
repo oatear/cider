@@ -1,6 +1,6 @@
 <p-toast></p-toast>
 <div class="template-editor">
-    <p-card styleClass="page-card template-header">
+    <!-- <p-card styleClass="page-card template-header">
         <p-toolbar styleClass="mb-4">
             <ng-template pTemplate="left">
                 <p-dropdown [options]="templates" [(ngModel)]="selectedTemplate" 
@@ -12,7 +12,7 @@
                 <button pButton pRipple label="Delete" icon="pi pi-trash" class="p-button-danger" (click)="openDeleteDialog(selectedTemplate)"></button>
             </ng-template>
         </p-toolbar>
-    </p-card>
+    </p-card> -->
     <p-splitter class="template-panel" [panelSizes]="[40, 60]" [minSizes]="[25, 25]" 
         (onResizeStart)="onResizeStart($event)"
         (onResizeEnd)="onResizeEnd($event)">

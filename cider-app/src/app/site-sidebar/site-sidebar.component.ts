@@ -17,6 +17,7 @@ import { EntityService } from '../data-services/types/entity-service.type';
   providers: [MessageService, ConfirmationService]
 })
 export class SiteSidebarComponent implements OnInit {
+  deckId: number = 0;
   files: TreeNode[] = [];
   selectedFile: TreeNode | null = null;
   menuItems: MenuItem[] = [];
@@ -154,7 +155,8 @@ export class SiteSidebarComponent implements OnInit {
                     label: 'Add New Card Template',
                     icon: 'pi pi-plus',
                     command: () => {
-                      this.openCreateDialog(this.templatesService, 'Create New Card Template');
+                      // this.openCreateDialog(this.templatesService, 'Create New Card Template');
+                      this.openTemplateDialog(deck.id);
                     }
                   },
                   {
@@ -189,7 +191,7 @@ export class SiteSidebarComponent implements OnInit {
                 icon: 'pi pi-plus',
                 command: () => {
                   // this.openCreateDialog(this.templatesService, 'Create New Card Template');
-                  this.openTemplateDialog();
+                  this.openTemplateDialog(deck.id);
                 }
               },
               {
@@ -359,7 +361,8 @@ export class SiteSidebarComponent implements OnInit {
     this.dialogVisible = true;
   }
 
-  public openTemplateDialog() {
+  public openTemplateDialog(deckId: number) {
+    this.deckId = deckId;
     this.templateDialogVisible = true;
   }
 
