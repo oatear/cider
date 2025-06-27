@@ -16,6 +16,7 @@ const routes: Routes = [
   { path: 'decks', component: DecksComponent, canActivate: [ProjectGuard]},
   { path: 'assets', component: AssetsComponent, canActivate: [ProjectGuard]},
   { path: 'assets/:assetId', component: AssetComponent, canActivate: [ProjectGuard]},
+  { path: 'decks/:deckId', component: CardsComponent, canActivate: [ProjectGuard, DeckGuard]},
   { path: 'decks/:deckId/cards', component: CardsComponent, canActivate: [ProjectGuard, DeckGuard]},
   { path: 'decks/:deckId/cards/listing', component: CardsComponent, canActivate: [ProjectGuard, DeckGuard]},
   { path: 'decks/:deckId/cards/thumbnails', component: CardThumbnailsComponent, canActivate: [ProjectGuard, DeckGuard]},
