@@ -1,7 +1,7 @@
 <div class="site-menu" (dblclick)="titlebarDoubleClick()">
     <p-menubar [model]="items">
     </p-menubar>
-    <p-tag [rounded]="true">{{currentRoute}}</p-tag>
+    <p-breadcrumb class="max-w-full" [model]="breadcrumbs" [home]="home" />
 </div>
 <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
 <p-dialog header="Import Database" [(visible)]="importVisible" [style]="{width: '450px'}" [modal]="true">

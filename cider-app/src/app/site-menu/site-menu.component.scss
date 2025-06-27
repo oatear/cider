@@ -60,3 +60,7 @@
         background: var(--surface-d);
     }
 }
+
+:host ::ng-deep .p-breadcrumb {
+    background: none;
+}

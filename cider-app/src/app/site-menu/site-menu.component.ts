@@ -39,6 +39,8 @@ export class SiteMenuComponent implements OnInit {
   public loadingInfo: string = '';
   public loadingHeader: string = '';
   public currentRoute: string = '';
+  public breadcrumbs: MenuItem[] = [];
+  public home: MenuItem | undefined;
 
   constructor(private decksService : DecksService,
     private confirmationService: ConfirmationService,
@@ -210,11 +212,36 @@ export class SiteMenuComponent implements OnInit {
     ).subscribe((event: any) => {
       console.log('NavigationEnd', event);
       this.ngZone.run(() => {
-        this.currentRoute = event.urlAfterRedirects;
+        const routeUrl = event.urlAfterRedirects;
+        this.currentRoute = routeUrl;
+        this.updateBreadcrumbs(routeUrl);
       }
       );
     });
 
+  }
+
+  private updateBreadcrumbs(routeUrl: string) {
+    console.log('routeUrl: ', routeUrl);
+    this.home = { icon: 'pi pi-home', routerLink: '/' };
+    const breadcrumbs: MenuItem[] = [];
+    const urlSegments = routeUrl.split('/').filter((segment) => segment);
+    let currentPath = '';
+
+    for (let i = 0; i < urlSegments.length; i++) {
+      const segment = urlSegments[i];
+      let pathSegment = `/${segment}`;
+      currentPath += pathSegment;
+      const label = StringUtils.kebabToTitleCase(segment);
+
+      breadcrumbs.push({
+        label: label,
+        routerLink: currentPath,
+        disabled: i == urlSegments.length - 1
+      });
+    }
+
+    this.breadcrumbs = breadcrumbs;
   }
   
   public uploadFile(event: any) {

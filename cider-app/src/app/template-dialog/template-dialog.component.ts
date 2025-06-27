@@ -4,6 +4,7 @@ import { Card } from '../data-services/types/card.type';
 import { CardTemplatesService } from '../data-services/services/card-templates.service';
 import TemplateDefaults from '../shared/defaults/template-defaults';
 import { ActivatedRoute } from '@angular/router';
+import { generateRandomCardBackground } from '../shared/generators/card-background-generator';
 
 @Component({
   selector: 'app-template-dialog',
@@ -27,6 +28,9 @@ export class TemplateDialogComponent implements OnInit {
 
   ngOnInit() {
     this.sizeCards = TemplateDefaults.getSizeCards();
+
+    const background: string = generateRandomCardBackground({width: 500, height: 700});
+    console.log('random background svg:', background);
   }
 
   public hideDialog() {
