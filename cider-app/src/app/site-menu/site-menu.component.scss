@@ -63,4 +63,9 @@
 
 :host ::ng-deep .p-breadcrumb {
     background: none;
+    .p-breadcrumb-item-link {
+        .p-breadcrumb-item-icon {
+            line-height: 17px;
+        }
+    }
 }
