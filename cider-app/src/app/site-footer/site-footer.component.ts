@@ -25,6 +25,9 @@ export class SiteFooterComponent implements OnInit {
   navigateToGithub() {
     window.open('https://github.com/oatear/cider', "_blank");
   }
+  navigateToUserGuide() {
+    window.open('https://github.com/oatear/cider/blob/main/HANDLEBARS.md', "_blank");
+  }
   navigateToDiscord() {
     window.open('https://discord.gg/S66xw9Wc9V', "_blank");
   }
