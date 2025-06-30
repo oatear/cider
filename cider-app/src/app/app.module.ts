@@ -36,6 +36,7 @@ import { TabMenuModule } from 'primeng/tabmenu';
 import { ChipModule } from 'primeng/chip';
 import { DividerModule } from 'primeng/divider';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { SelectModule } from 'primeng/select';
 import { DataViewModule } from 'primeng/dataview';
 import { TreeModule } from 'primeng/tree';
 import { TooltipModule } from 'primeng/tooltip';
@@ -48,6 +49,8 @@ import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { ContextMenuModule } from 'primeng/contextmenu';
 import { StepperModule } from 'primeng/stepper';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { ColorPickerModule } from 'primeng/colorpicker';
+import { InputNumberModule } from 'primeng/inputnumber';
 
 
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -82,6 +85,7 @@ import { LocalStorageService } from './data-services/local-storage/local-storage
 import { SettingsDialogComponent } from './settings-dialog/settings-dialog.component';
 import { AssetComponent } from './asset/asset.component';
 import { TemplateDialogComponent } from './template-dialog/template-dialog.component';
+import { AssetGeneratorComponent } from './asset-generator/asset-generator.component';
 
 @NgModule({ declarations: [
         AppComponent,
@@ -109,6 +113,7 @@ import { TemplateDialogComponent } from './template-dialog/template-dialog.compo
         SiteActivitybarComponent,
         SettingsDialogComponent,
         TemplateDialogComponent,
+        AssetGeneratorComponent,
     ],
     bootstrap: [AppComponent], 
     imports: [BrowserModule,
@@ -146,6 +151,7 @@ import { TemplateDialogComponent } from './template-dialog/template-dialog.compo
         ChipModule,
         DividerModule,
         MultiSelectModule,
+        SelectModule,
         DataViewModule,
         TreeModule,
         TooltipModule,
@@ -156,6 +162,8 @@ import { TemplateDialogComponent } from './template-dialog/template-dialog.compo
         ContextMenuModule,
         StepperModule,
         BreadcrumbModule,
+        ColorPickerModule,
+        InputNumberModule,
     ], 
     providers: [
         CardToHtmlPipe, provideHttpClient(withInterceptorsFromDi()),

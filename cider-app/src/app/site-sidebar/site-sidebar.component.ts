@@ -264,6 +264,13 @@ export class SiteSidebarComponent implements OnInit {
               command: () => {
                 this.openCreateDialog(this.assetsService, 'Create New Asset');
               }
+            },
+            {
+              label: 'Generate New Asset',
+              icon: 'pi pi-sparkles',
+              command: () => {
+                  this.router.navigateByUrl(`/assets/generator`);
+              }
             }
           ],
         },
@@ -279,6 +286,13 @@ export class SiteSidebarComponent implements OnInit {
                 icon: 'pi pi-plus',
                 command: () => {
                   this.openCreateDialog(this.assetsService, 'Create New Asset');
+                }
+              },
+              {
+                label: 'Generate New Asset',
+                icon: 'pi pi-sparkles',
+                command: () => {
+                    this.router.navigateByUrl(`/assets/generator`);
                 }
               },
               {
