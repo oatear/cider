@@ -8,6 +8,16 @@ interface AssetTypeOption {
   value: 'symbol' | 'badge' | 'art' | 'background' | 'banner' | 'textbox';
 }
 
+interface ShapeTypeOption {
+  label: string;
+  value: 'blob' | 'star' | 'convex' | 'none';
+}
+
+interface MirrorTypeOption {
+  label: string;
+  value: 'vertical' | 'horizontal' | 'both' | 'none';
+}
+
 @Component({
   selector: 'app-asset-generator',
   templateUrl: './asset-generator.component.html',
@@ -23,6 +33,22 @@ export class AssetGeneratorComponent {
     { label: 'Textbox', value: 'textbox' },
   ];
   selectedAssetOption: AssetTypeOption = this.assetOptions[0];
+  shapeOptions: ShapeTypeOption[] = [
+    { label: 'Blob', value: 'blob' },
+    { label: 'Star', value: 'star' },
+    { label: 'Convex', value: 'convex' },
+    { label: 'None', value: 'none' },
+  ];
+  frontShape: ShapeTypeOption | undefined;
+  backShape: ShapeTypeOption | undefined;
+  mirrorOptions: MirrorTypeOption[] = [
+    { label: 'Vertical', value: 'vertical' },
+    { label: 'Horizontal', value: 'horizontal' },
+    { label: 'Both', value: 'both' },
+    { label: 'None', value: 'none' },
+  ];
+  frontMirror: MirrorTypeOption | undefined;
+  backMirror: MirrorTypeOption | undefined;
   frontColor: string | undefined;
   backColor: string | undefined;
   backgroundColor: string | undefined;
@@ -81,9 +107,9 @@ export class AssetGeneratorComponent {
       foregroundShape: {
         // type: 'convex',
         // fillColor: 'white',
-        type: 'blob',
+        type: this.frontShape?.value || 'blob',
         fillColor: this.frontColor || undefined,
-        outlineColor: this.outlineColor || '#262c35',
+        outlineColor: this.outlineColor || undefined,
         outlineWidth: this.outlineWidth, 
         // mirror: 'none',
         // numPoints: 7,
@@ -91,8 +117,10 @@ export class AssetGeneratorComponent {
       backgroundShape: {
         // type: 'blob',
         // fillColor: 'grey',
+        type: this.backShape?.value,
         fillColor: this.backColor || undefined,
-        outlineColor: this.outlineColor || '#262c35',
+        // outlineColor: this.outlineColor || '#262c35',
+        outlineColor: this.outlineColor || undefined,
         outlineWidth: this.outlineWidth, 
         // mirror: 'none',
         // numPoints: 7,
@@ -106,15 +134,16 @@ export class AssetGeneratorComponent {
     const svgString: string = generateRandomCardSymbol({
       width: 64, height: 64, 
       foregroundShape: {
-        type: 'convex',
+        type: this.frontShape?.value || 'convex',
         fillColor: this.frontColor || undefined,
-        outlineColor: this.outlineColor || '#262c35',
+        outlineColor: this.outlineColor || undefined,
         outlineWidth: this.outlineWidth, 
         mirror: 'none',
       },
       backgroundShape: {
+        type: this.backShape?.value,
         fillColor: this.backColor || undefined,
-        outlineColor: this.outlineColor || '#262c35',
+        outlineColor: this.outlineColor || undefined,
         outlineWidth: this.outlineWidth, 
       }
     });

@@ -25,28 +25,38 @@
         <p-panel header="Advanced Settings" [toggleable]="true">
             <div class="column">
                 <div>
-                    <p-colorpicker [(ngModel)]="frontColor" inputId="frontColor" class="p-mr-2"/>
                     <input pInputText [(ngModel)]="frontColor" type="text" 
                         placeholder="Random" class="p-mr-2"/>
-                    <label for="frontColor" class="p-mr-2">Front</label>
+                    <p-colorpicker [(ngModel)]="frontColor" [class.rainbow]="!frontColor" inputId="frontColor" class="p-mr-2"/>
+                    <label for="frontColor" class="p-mr-2">Front Color</label>
                 </div>
                 <div>
-                    <p-colorpicker [(ngModel)]="backColor" inputId="backColor" class="p-mr-2"/>
                     <input pInputText [(ngModel)]="backColor" type="text" 
                         placeholder="Random" class="p-mr-2"/>
-                    <label for="backColor" class="p-mr-2">Back</label>
+                    <p-colorpicker [(ngModel)]="backColor" [class.rainbow]="!backColor" inputId="backColor" class="p-mr-2"/>
+                    <label for="backColor" class="p-mr-2">Back Color</label>
                 </div>
                 <div>
-                    <p-colorpicker [(ngModel)]="outlineColor" inputId="outlineColor" class="p-mr-2"/>
                     <input pInputText [(ngModel)]="outlineColor" type="text" 
                         placeholder="Random" class="p-mr-2"/>
-                    <label for="outlineColor" class="p-mr-2">Outline</label>
+                    <p-colorpicker [(ngModel)]="outlineColor" [class.rainbow]="!outlineColor" inputId="outlineColor" class="p-mr-2"/>
+                    <label for="outlineColor" class="p-mr-2">Outline Color</label>
                 </div>
                 <div>
-                    <p-colorpicker [(ngModel)]="backgroundColor" inputId="backgroundColor" class="p-mr-2"/>
                     <input pInputText [(ngModel)]="backgroundColor" type="text" 
                         placeholder="Random" class="p-mr-2"/>
-                    <label for="backgroundColor" class="p-mr-2">Background</label>
+                    <p-colorpicker [(ngModel)]="backgroundColor" [class.rainbow]="!backgroundColor" inputId="backgroundColor" class="p-mr-2"/>
+                    <label for="backgroundColor" class="p-mr-2">Background Color</label>
+                </div>
+                <div>
+                    <p-select [options]="shapeOptions" [(ngModel)]="frontShape" optionLabel="label" 
+                        placeholder="Random" inputId="frontShape" class="p-mr-2" />
+                    <label for="frontShape" class="p-mr-2">Front Shape</label>
+                </div>
+                <div>
+                    <p-select [options]="shapeOptions" [(ngModel)]="backShape" optionLabel="label" 
+                        placeholder="Random" inputId="backShape" class="p-mr-2" />
+                    <label for="backShape" class="p-mr-2">Back Shape</label>
                 </div>
             </div>
             <div class="column">
@@ -67,6 +77,16 @@
                     <p-inputnumber [(ngModel)]="frontScale" inputId="frontScale" 
                     [min]="0.1" [max]="1.0" [minFractionDigits]="1" class="p-mr-2"/>
                     <label for="frontScale" class="p-mr-2">Front Scale</label>
+                </div>
+                <div>
+                    <p-select [options]="mirrorOptions" [(ngModel)]="frontMirror" optionLabel="label" 
+                        placeholder="Random" inputId="frontMirror" class="p-mr-2" />
+                    <label for="frontMirror" class="p-mr-2">Front Mirror</label>
+                </div>
+                <div>
+                    <p-select [options]="mirrorOptions" [(ngModel)]="backMirror" optionLabel="label" 
+                        placeholder="Random" inputId="backMirror" class="p-mr-2" />
+                    <label for="backMirror" class="p-mr-2">Back Mirror</label>
                 </div>
             </div>
         </p-panel>

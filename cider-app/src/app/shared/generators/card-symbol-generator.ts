@@ -401,10 +401,10 @@ function generateHarmoniousPalette(): { dark: string; medium: string; light: str
  * @returns An SVG string representing a unique, randomized symbol.
  */
 export function generateRandomCardSymbol(baseOptions: Partial<CardSymbolOptions> = {}): string {
-    // 1. Generate a random, harmonious color palette
+    // Generate a random, harmonious color palette
     const palette = generateHarmoniousPalette();
     
-    // 2. Randomize the assignment of colors. 50% chance for light-on-dark, 50% for dark-on-light.
+    // Randomize the assignment of colors. 50% chance for light-on-dark, 50% for dark-on-light.
     const isLightOnDark = Math.random() < 0.5;
     const randomBackgroundColor = isLightOnDark ? palette.medium : palette.light;
     const randomForegroundColor = isLightOnDark ? palette.light : palette.medium;
@@ -412,12 +412,12 @@ export function generateRandomCardSymbol(baseOptions: Partial<CardSymbolOptions>
     // The outline should almost always be the darkest color for good definition.
     const randomOutlineColor = palette.dark;
     
-    // 3. Randomize the mirror option
+    // Randomize the mirror option
     // const mirrorOptions: MirrorOption[] = ['none', 'vertical', 'horizontal', 'both'];
     const mirrorOptions: MirrorOption[] = ['vertical', 'horizontal', 'both'];
     const randomMirror = mirrorOptions[Math.floor(Math.random() * mirrorOptions.length)];
 
-    // 4. Randomize the outline width
+    // Randomize the outline width
     let randomOutlineWidth = 0;
     const symbolWidth = baseOptions.width || 100; // Use provided width or default
     // Scale outline width based on symbol size, maxing out at 5% of width.
@@ -433,38 +433,33 @@ export function generateRandomCardSymbol(baseOptions: Partial<CardSymbolOptions>
     const foregroundShapeType = shapeOptions[Math.floor(Math.random() * shapeOptions.length)];
     const backgroundShapeType = shapeOptions[Math.floor(Math.random() * shapeOptions.length)];
     
-    // 5. Create an object with all our randomized defaults
+    // Create an object with all our randomized defaults
     const randomizedDefaults: Omit<CardSymbolOptions, 'width' | 'height'> = {
       ...baseOptions,
       foregroundShape: {
-        type: foregroundShapeType,
-        fillColor: randomForegroundColor,
-        outlineColor: randomOutlineColor,
-        outlineWidth: randomOutlineWidth,
-        mirror: randomMirror,
-        numPoints: foregroundNumPoints,
-        turbulence: 0.2,
-        scale: 0.7,
-        ...baseOptions.foregroundShape,
+        type: baseOptions?.foregroundShape?.type || foregroundShapeType,
+        fillColor: baseOptions?.foregroundShape?.fillColor || randomForegroundColor,
+        outlineColor: baseOptions?.foregroundShape?.outlineColor || randomOutlineColor,
+        outlineWidth: baseOptions?.foregroundShape?.outlineWidth || randomOutlineWidth,
+        mirror: baseOptions?.foregroundShape?.mirror || randomMirror,
+        numPoints: baseOptions?.foregroundShape?.numPoints || foregroundNumPoints,
+        turbulence: baseOptions?.foregroundShape?.turbulence || 0.2,
+        scale: baseOptions?.foregroundShape?.scale || 0.7,
       },
       backgroundShape: {
-        type: backgroundShapeType,
-        fillColor: randomBackgroundColor,
-        outlineColor: randomOutlineColor,
-        outlineWidth: randomOutlineWidth,
-        mirror: randomMirror,
-        numPoints: backgroundNumPoints,
-        turbulence: 0.2,
-        ...baseOptions.backgroundShape,
+        type: baseOptions?.backgroundShape?.type || backgroundShapeType,
+        fillColor: baseOptions?.backgroundShape?.fillColor || randomBackgroundColor,
+        outlineColor: baseOptions?.backgroundShape?.outlineColor || randomOutlineColor,
+        outlineWidth: baseOptions?.backgroundShape?.outlineWidth || randomOutlineWidth,
+        mirror: baseOptions?.backgroundShape?.mirror || randomMirror,
+        numPoints: baseOptions?.backgroundShape?.numPoints || backgroundNumPoints,
+        turbulence: baseOptions?.backgroundShape?.turbulence || 0.2,
       }
     };
     
-    // 6. Merge the randomized defaults with the user-provided baseOptions.
-    // The user's options will overwrite the random ones.
     const finalOptions: CardSymbolOptions = {
         ...randomizedDefaults,
     };
 
-    // 7. Call the original generator with the complete, merged options
     return generateCardSymbol(finalOptions);
 }

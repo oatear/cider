@@ -16,8 +16,7 @@
             }
             .p-panel {
                 margin-top: 15px;
-                border-radius: 15px;
-                // background: #20262d;
+                border-radius: var(--p-card-border-radius);
                 background: var(--p-button-secondary-background);
                 border: none;
                 .p-panel-content {
@@ -25,6 +24,15 @@
                     flex-direction: row;
                     .column {
                         flex: 1;
+                    }
+                }
+            }
+            p-colorpicker {
+                &.rainbow {
+                    .p-colorpicker-preview {
+                        background: conic-gradient(
+                            red, orange, yellow, lime, cyan, royalblue, violet, red
+                        );
                     }
                 }
             }
