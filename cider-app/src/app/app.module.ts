@@ -51,6 +51,7 @@ import { StepperModule } from 'primeng/stepper';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { ColorPickerModule } from 'primeng/colorpicker';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { PopoverModule } from 'primeng/popover';
 
 
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -86,6 +87,7 @@ import { SettingsDialogComponent } from './settings-dialog/settings-dialog.compo
 import { AssetComponent } from './asset/asset.component';
 import { TemplateDialogComponent } from './template-dialog/template-dialog.component';
 import { AssetGeneratorComponent } from './asset-generator/asset-generator.component';
+import { DocumentComponent } from './document/document.component';
 
 @NgModule({ declarations: [
         AppComponent,
@@ -114,6 +116,7 @@ import { AssetGeneratorComponent } from './asset-generator/asset-generator.compo
         SettingsDialogComponent,
         TemplateDialogComponent,
         AssetGeneratorComponent,
+        DocumentComponent,
     ],
     bootstrap: [AppComponent], 
     imports: [BrowserModule,
@@ -164,6 +167,7 @@ import { AssetGeneratorComponent } from './asset-generator/asset-generator.compo
         BreadcrumbModule,
         ColorPickerModule,
         InputNumberModule,
+        PopoverModule,
     ], 
     providers: [
         CardToHtmlPipe, provideHttpClient(withInterceptorsFromDi()),

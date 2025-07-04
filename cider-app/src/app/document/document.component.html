@@ -1,0 +1,15 @@
+<p-splitter class="markdown-panel" [panelSizes]="[50, 50]" [minSizes]="[25, 25]" 
+        (onResizeStart)="onResizeStart($event)"
+        (onResizeEnd)="onResizeEnd($event)">
+    <ng-template pTemplate>
+        <p-card styleClass="page-card">
+        </p-card>
+    </ng-template>
+    <ng-template pTemplate>
+        <p-card styleClass="code-editor">
+            <ngx-monaco-editor class="code-editor" *ngIf="!disablePanels"
+                [options]="editorOptions" [(ngModel)]="textDocument.content" 
+                (ngModelChange)="debounceSave()"></ngx-monaco-editor>
+        </p-card>
+    </ng-template>
+</p-splitter>

@@ -47,7 +47,7 @@ export function generateCardBackground(options: CardBackgroundOptions): string {
     gradientType = 'radial',
     gradientAngle = 45,
     textureType = 'grain',
-    textureOpacity = 0.15, // Increased default opacity to make it more visible
+    textureOpacity = 0.15,
     textureScale = 1,
     textureColor = 'white',
   } = options;

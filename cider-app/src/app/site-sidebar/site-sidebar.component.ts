@@ -72,7 +72,7 @@ export class SiteSidebarComponent implements OnInit {
       updatedFiles.push({
         label: 'README',
         data: {
-          url: '/readme',
+          url: '/documents/0',
         },
         icon: 'pi pi-file',
         styleClass: 'readme-file'

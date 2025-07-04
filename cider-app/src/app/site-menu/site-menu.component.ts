@@ -210,7 +210,6 @@ export class SiteMenuComponent implements OnInit {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: any) => {
-      console.log('NavigationEnd', event);
       this.ngZone.run(() => {
         const routeUrl = event.urlAfterRedirects;
         this.currentRoute = routeUrl;
@@ -222,7 +221,6 @@ export class SiteMenuComponent implements OnInit {
   }
 
   private updateBreadcrumbs(routeUrl: string) {
-    console.log('routeUrl: ', routeUrl);
     this.home = { icon: 'pi pi-home', routerLink: '/' };
     const breadcrumbs: MenuItem[] = [];
     const urlSegments = routeUrl.split('/').filter((segment) => segment);

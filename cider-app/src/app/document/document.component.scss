@@ -1,0 +1,48 @@
+:host {
+    height: 100%;
+}
+
+:host ::ng-deep p-splitter {
+    height: 100%;
+}
+
+:host ::ng-deep .p-splitter {
+    height: 100%;
+    background-color: transparent;
+    min-height: 0;
+    margin-right: 10px;
+    .p-col {
+        padding: 0;
+    }
+
+    .p-splitter-gutter {
+        margin-right: 10px;
+        margin-left: 10px;
+    }
+
+    p-card {
+        width: 100%;
+        height: 100%;
+        .p-card {
+            height: 100%;
+            width: 100%;
+            .p-card-body {
+                height: 100%;
+                .p-card-content {
+                    height: 100%;
+                }
+            }
+        }
+        .page-card {
+        }
+        .code-editor {
+        }
+    }
+}
+
+:host ::ng-deep ngx-monaco-editor {
+    height: 100%;
+    .editor-container {
+        height: 100%;
+    }
+}

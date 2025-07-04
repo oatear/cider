@@ -1,4 +1,4 @@
-import Dexie, { IndexableType, Table } from "dexie";
+import Dexie, { Table } from "dexie";
 import { Card } from "primeng/card";
 import { Asset } from "../types/asset.type";
 import { CardTemplate } from "../types/card-template.type";
@@ -7,9 +7,8 @@ import { exportDB, importDB } from "dexie-export-import";
 import FileUtils from "src/app/shared/utils/file-utils";
 import { ExportProgress } from "dexie-export-import/dist/export";
 import { ImportProgress } from "dexie-export-import/dist/import";
-import { FieldType } from "../types/field-type.type";
 import { HttpClient } from "@angular/common/http";
-import { BehaviorSubject, Subject, firstValueFrom } from "rxjs";
+import { Subject, firstValueFrom } from "rxjs";
 import { Injectable } from "@angular/core";
 
 @Injectable({
@@ -25,9 +24,10 @@ export class AppDB extends Dexie {
     public static readonly CARD_TEMPLATES_TABLE: string = 'cardTemplates'
     public static readonly PRINT_TEMPLATES_TABLE: string = 'printTemplates';
     public static readonly CARD_ATTRIBUTES_TABLE: string = 'cardAttributes';
+    public static readonly DOCUMENTS_TABLE: string = 'documents';
     private static readonly ALL_TABLES = [
         AppDB.GAMES_TABLE, AppDB.DECKS_TABLE, AppDB.CARDS_TABLE, AppDB.ASSETS_TABLE, 
-        AppDB.CARD_TEMPLATES_TABLE, AppDB.CARD_ATTRIBUTES_TABLE];
+        AppDB.CARD_TEMPLATES_TABLE, AppDB.CARD_ATTRIBUTES_TABLE, AppDB.DOCUMENTS_TABLE];
 
     games!: Table<Deck, number>;
     cards!: Table<Card, number>;
@@ -40,13 +40,18 @@ export class AppDB extends Dexie {
         super(AppDB.DB_NAME);
         this.httpClient = httpClient;
         this.changeSubject = new Subject<null>();
+        /**
+         * Dexie Versioning Documentation:
+         * 
+         * https://dexie.org/docs/Tutorial/Design#database-versioning
+         */
         this.version(1).stores({
             games: '++id, name',
             cards: '++id, gameId, count, frontCardTemplateId, backCardTemplateId',
             assets: '++id, gameId, name',
             cardTemplates: '++id, gameId, name, description, html, css',
             printTemplates: '++id, gameId, name, description, html, css',
-            cardAttributes: '++id, gameId, name, type, options, description'
+            cardAttributes: '++id, gameId, name, type, options, description',
         });
         this.version(2).stores({
             decks: '++id, name',
@@ -54,7 +59,7 @@ export class AppDB extends Dexie {
             cards: '++id, deckId, count, frontCardTemplateId, backCardTemplateId',
             cardTemplates: '++id, deckId, name, description, html, css',
             printTemplates: null,
-            cardAttributes: '++id, deckId, name, type, options, description'
+            cardAttributes: '++id, deckId, name, type, options, description',
         }).upgrade(transaction => {
             // upgrade to version 2
             return transaction.table(AppDB.GAMES_TABLE).toArray().then(games => {
@@ -79,6 +84,10 @@ export class AppDB extends Dexie {
                     delete asset.gameId;
                 });
             });
+        });
+        this.version(3).stores({
+            // other tables are inherited from previous versions
+            documents: '++id, name, content',
         });
         // populate in a non-traditional way since the 'on populate' will not allow ajax calls
         this.on('ready', () => this.table(AppDB.DECKS_TABLE).count()

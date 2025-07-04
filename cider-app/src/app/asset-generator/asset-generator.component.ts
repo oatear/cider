@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { generateRandomCardSymbol } from '../shared/generators/card-symbol-generator';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { generateRandomCardBackground } from '../shared/generators/card-background-generator';
+import { AssetsService } from '../data-services/services/assets.service';
+import FileUtils from '../shared/utils/file-utils';
 
 interface AssetTypeOption {
   label: string;
@@ -10,12 +12,23 @@ interface AssetTypeOption {
 
 interface ShapeTypeOption {
   label: string;
-  value: 'blob' | 'star' | 'convex' | 'none';
+  value: 'blob' | 'star' | 'convex' | 'none' | undefined;
 }
 
 interface MirrorTypeOption {
   label: string;
-  value: 'vertical' | 'horizontal' | 'both' | 'none';
+  value: 'vertical' | 'horizontal' | 'both' | 'none' | undefined;
+}
+
+interface BackgroundTypeOption {
+  label: string,
+  value: 'solid' | 'none' | undefined;
+}
+
+interface GeneratedSvg {
+  safeHtml: SafeHtml;
+  svg: string;
+  type: AssetTypeOption;
 }
 
 @Component({
@@ -34,6 +47,7 @@ export class AssetGeneratorComponent {
   ];
   selectedAssetOption: AssetTypeOption = this.assetOptions[0];
   shapeOptions: ShapeTypeOption[] = [
+    { label: 'Random', value: undefined },
     { label: 'Blob', value: 'blob' },
     { label: 'Star', value: 'star' },
     { label: 'Convex', value: 'convex' },
@@ -42,6 +56,7 @@ export class AssetGeneratorComponent {
   frontShape: ShapeTypeOption | undefined;
   backShape: ShapeTypeOption | undefined;
   mirrorOptions: MirrorTypeOption[] = [
+    { label: 'Random', value: undefined },
     { label: 'Vertical', value: 'vertical' },
     { label: 'Horizontal', value: 'horizontal' },
     { label: 'Both', value: 'both' },
@@ -49,6 +64,11 @@ export class AssetGeneratorComponent {
   ];
   frontMirror: MirrorTypeOption | undefined;
   backMirror: MirrorTypeOption | undefined;
+  backgroundOptions: BackgroundTypeOption[] = [
+    { label: 'None', value: 'none' },
+    { label: 'Solid', value: 'solid' },
+  ]
+  backgroundType: BackgroundTypeOption | undefined = this.backgroundOptions[0];
   frontColor: string | undefined;
   backColor: string | undefined;
   backgroundColor: string | undefined;
@@ -57,19 +77,23 @@ export class AssetGeneratorComponent {
   imageWidth: number = 64;
   imageHeight: number = 64;
   frontScale: number = 0.7;
+  saveSvg: string = "";
+  saveName: string = "";
 
-  public symbols: SafeHtml[] = [];
+  public generatedSvgs: GeneratedSvg[] = [];
 
-  constructor(private sanitizer: DomSanitizer) {
+  constructor(private sanitizer: DomSanitizer,
+    private assetsService: AssetsService
+  ) {
 
   }
 
   public resetAssets() {
-    this.symbols = [];
+    this.generatedSvgs = [];
   }
 
   public generateAsset() {
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 5; i++) {
       this.generateOneAsset();
     }
   }
@@ -97,24 +121,28 @@ export class AssetGeneratorComponent {
 
   public generateRandomBackground() {
     const svgString: string = generateRandomCardBackground({width: 500, height: 700});
-    const safeSvg = this.sanitizer.bypassSecurityTrustHtml(svgString);
-    this.symbols.push(safeSvg);
+    this.generatedSvgs.push({
+      safeHtml: this.sanitizer.bypassSecurityTrustHtml(svgString),
+      svg: svgString,
+      type: this.selectedAssetOption,
+    });
   }
 
   public generateRandomSymbol() {
     const svgString: string = generateRandomCardSymbol({
-      width: 64, height: 64, 
-      foregroundShape: {
+      width: this.imageWidth || 64, 
+      height: this.imageHeight || 64, 
+      frontShape: {
         // type: 'convex',
         // fillColor: 'white',
         type: this.frontShape?.value || 'blob',
         fillColor: this.frontColor || undefined,
         outlineColor: this.outlineColor || undefined,
         outlineWidth: this.outlineWidth, 
-        // mirror: 'none',
+        mirror: this.frontMirror?.value
         // numPoints: 7,
       },
-      backgroundShape: {
+      backShape: {
         // type: 'blob',
         // fillColor: 'grey',
         type: this.backShape?.value,
@@ -122,33 +150,63 @@ export class AssetGeneratorComponent {
         // outlineColor: this.outlineColor || '#262c35',
         outlineColor: this.outlineColor || undefined,
         outlineWidth: this.outlineWidth, 
-        // mirror: 'none',
+        mirror: this.backMirror?.value
         // numPoints: 7,
-      }
+      },
+      backgroundType: this.backgroundType?.value,
+      backgroundColor: this.backgroundColor,
     });
-    const safeSvg = this.sanitizer.bypassSecurityTrustHtml(svgString);
-    this.symbols.push(safeSvg);
+    this.generatedSvgs.push({
+      safeHtml: this.sanitizer.bypassSecurityTrustHtml(svgString),
+      svg: svgString,
+      type: this.selectedAssetOption,
+    });
   }
 
   public generateRandomBadge() {
     const svgString: string = generateRandomCardSymbol({
-      width: 64, height: 64, 
-      foregroundShape: {
+      width: this.imageWidth || 64, 
+      height: this.imageHeight || 64, 
+      frontShape: {
         type: this.frontShape?.value || 'convex',
         fillColor: this.frontColor || undefined,
         outlineColor: this.outlineColor || undefined,
         outlineWidth: this.outlineWidth, 
-        mirror: 'none',
+        mirror: this.frontMirror?.value || 'none',
       },
-      backgroundShape: {
+      backShape: {
         type: this.backShape?.value,
         fillColor: this.backColor || undefined,
         outlineColor: this.outlineColor || undefined,
         outlineWidth: this.outlineWidth, 
-      }
+        mirror: this.backMirror?.value,
+      },
+      backgroundType: this.backgroundType?.value,
+      backgroundColor: this.backgroundColor,
     });
-    const safeSvg = this.sanitizer.bypassSecurityTrustHtml(svgString);
-    this.symbols.push(safeSvg);
+    this.generatedSvgs.push({
+      safeHtml: this.sanitizer.bypassSecurityTrustHtml(svgString),
+      svg: svgString,
+      type: this.selectedAssetOption,
+    });
+  }
+
+  public showSavePopover(event: any, popover: any, asset: GeneratedSvg) {
+    if (!popover.render) {
+      this.saveSvg = asset.svg;
+      this.saveName = `${asset.type.value}-${Math.random().toString(36).substr(2, 9)}`;
+    }
+    popover.toggle(event);
+  }
+
+  public saveAsset(event: any, popover: any) {
+    // save the selected asset
+    this.assetsService.create({
+      name: this.saveName,
+      file: FileUtils.svgStringToBlob(this.saveSvg),
+    } as any).then(() => {
+      popover.hide(event);
+    });
   }
 
 }

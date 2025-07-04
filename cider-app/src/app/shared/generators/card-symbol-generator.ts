@@ -238,6 +238,7 @@ function generateGeometricPath(
 
 export type MirrorOption = 'vertical' | 'horizontal' | 'both' | 'none';
 export type ShapeOption = 'blob' | 'star' | 'convex' | 'none';
+export type BackgroundOption = 'solid' | 'none';
 
 export interface ShapeOptions {
     /** The shape option. Defaults to 'blob' */
@@ -266,9 +267,13 @@ export interface CardSymbolOptions {
   /** The height of the SVG in pixels. Defaults to 100. */
   height?: number;
   /** The foreground shape options. */
-  foregroundShape?: ShapeOptions;
+  frontShape?: ShapeOptions;
   /** The background shape options. */
-  backgroundShape?: ShapeOptions;
+  backShape?: ShapeOptions;
+  /** The background option */
+  backgroundType?: BackgroundOption;
+  /** The background color */
+  backgroundColor?: string;
 }
 
 /**
@@ -281,16 +286,18 @@ export function generateCardSymbol(options?: CardSymbolOptions): string {
   const {
     width = 100,
     height = 100,
-    foregroundShape = {
+    frontShape = {
         scale: 0.7, type: 'blob', fillColor: 'white',
         starInnerScale: 0.8, outlineColor: '#333', 
         mirror: 'none', outlineWidth: 2
     },
-    backgroundShape = {
+    backShape = {
         scale: 1.0, type: 'blob', fillColor: 'grey',
         starInnerScale: 0.8, outlineColor: '#333', 
         mirror: 'none', outlineWidth: 2
     },
+    backgroundType,
+    backgroundColor,
   } = options || {};
 
   const patternWidth = width;
@@ -298,7 +305,7 @@ export function generateCardSymbol(options?: CardSymbolOptions): string {
 
   let useElements = '';
   let symbolDef = '';
-  [backgroundShape, foregroundShape].forEach((shape) => {
+  [backShape, frontShape].forEach((shape) => {
     // setup outline
     const outlineStroke = shape.outlineWidth && shape.outlineWidth > 0 
       ? `stroke="${shape.outlineColor}" stroke-width="${shape.outlineWidth}"` : '';
@@ -365,11 +372,18 @@ export function generateCardSymbol(options?: CardSymbolOptions): string {
     }
   });
 
+  // add background if background has been set
+  let backgroundRect = '';
+  if (backgroundType == 'solid') {
+    backgroundRect = `<rect width="${width}" height="${height}" fill="${backgroundColor}" />`
+  }
+
   return `
 <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
   <defs>
     ${symbolDef}
   </defs>
+  ${backgroundRect}
   ${useElements}
 </svg>`.trim();
 }
@@ -430,31 +444,36 @@ export function generateRandomCardSymbol(baseOptions: Partial<CardSymbolOptions>
 
     // Randomize the shape types
     const shapeOptions: ShapeOption[] = ['blob', 'star', 'convex'];
-    const foregroundShapeType = shapeOptions[Math.floor(Math.random() * shapeOptions.length)];
-    const backgroundShapeType = shapeOptions[Math.floor(Math.random() * shapeOptions.length)];
+    const frontShapeType = shapeOptions[Math.floor(Math.random() * shapeOptions.length)];
+    const backShapeType = shapeOptions[Math.floor(Math.random() * shapeOptions.length)];
     
+    // Randomize the background
+    const backgroundColor = palette.medium;
+
     // Create an object with all our randomized defaults
     const randomizedDefaults: Omit<CardSymbolOptions, 'width' | 'height'> = {
       ...baseOptions,
-      foregroundShape: {
-        type: baseOptions?.foregroundShape?.type || foregroundShapeType,
-        fillColor: baseOptions?.foregroundShape?.fillColor || randomForegroundColor,
-        outlineColor: baseOptions?.foregroundShape?.outlineColor || randomOutlineColor,
-        outlineWidth: baseOptions?.foregroundShape?.outlineWidth || randomOutlineWidth,
-        mirror: baseOptions?.foregroundShape?.mirror || randomMirror,
-        numPoints: baseOptions?.foregroundShape?.numPoints || foregroundNumPoints,
-        turbulence: baseOptions?.foregroundShape?.turbulence || 0.2,
-        scale: baseOptions?.foregroundShape?.scale || 0.7,
+      frontShape: {
+        type: baseOptions?.frontShape?.type || frontShapeType,
+        fillColor: baseOptions?.frontShape?.fillColor || randomForegroundColor,
+        outlineColor: baseOptions?.frontShape?.outlineColor || randomOutlineColor,
+        outlineWidth: baseOptions?.frontShape?.outlineWidth || randomOutlineWidth,
+        mirror: baseOptions?.frontShape?.mirror || randomMirror,
+        numPoints: baseOptions?.frontShape?.numPoints || foregroundNumPoints,
+        turbulence: baseOptions?.frontShape?.turbulence || 0.2,
+        scale: baseOptions?.frontShape?.scale || 0.7,
       },
-      backgroundShape: {
-        type: baseOptions?.backgroundShape?.type || backgroundShapeType,
-        fillColor: baseOptions?.backgroundShape?.fillColor || randomBackgroundColor,
-        outlineColor: baseOptions?.backgroundShape?.outlineColor || randomOutlineColor,
-        outlineWidth: baseOptions?.backgroundShape?.outlineWidth || randomOutlineWidth,
-        mirror: baseOptions?.backgroundShape?.mirror || randomMirror,
-        numPoints: baseOptions?.backgroundShape?.numPoints || backgroundNumPoints,
-        turbulence: baseOptions?.backgroundShape?.turbulence || 0.2,
-      }
+      backShape: {
+        type: baseOptions?.backShape?.type || backShapeType,
+        fillColor: baseOptions?.backShape?.fillColor || randomBackgroundColor,
+        outlineColor: baseOptions?.backShape?.outlineColor || randomOutlineColor,
+        outlineWidth: baseOptions?.backShape?.outlineWidth || randomOutlineWidth,
+        mirror: baseOptions?.backShape?.mirror || randomMirror,
+        numPoints: baseOptions?.backShape?.numPoints || backgroundNumPoints,
+        turbulence: baseOptions?.backShape?.turbulence || 0.2,
+      },
+      backgroundType: baseOptions?.backgroundType || 'none',
+      backgroundColor: baseOptions?.backgroundColor || backgroundColor,
     };
     
     const finalOptions: CardSymbolOptions = {

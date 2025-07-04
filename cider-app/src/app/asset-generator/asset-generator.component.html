@@ -1,18 +1,8 @@
 <p-card styleClass="page-card asset-generator-card">
-    <!-- <span class="asset-name">Asset Generator</span> -->
-    <!-- <p-buttongroup>
-        <button pButton type="button" icon="pi pi-search-minus" (click)="changeZoom(-0.1)"></button>
-        <button pButton type="button" icon="pi pi-search-plus" (click)="changeZoom(0.1)"></button>
-    </p-buttongroup> -->
-    <!-- <span class="asset-controls">
-        <button pButton type="button" icon="pi pi-pencil" (click)="openEditDialog(asset)" class="p-mr-2"></button>
-        <button pButton type="button" icon="pi pi-trash" (click)="openDeleteDialog(asset)" severity="danger" ></button>
-    </span> -->
-    <!-- <img [src]="asset.file | fileUrl"/> -->
      <div class="generator-controls">
         <div class="controls-bar">
             <span class="left">
-                <button pButton type="button" icon="pi pi-sparkles" label="Generate" 
+                <button pButton type="button" icon="pi pi-sparkles" label="Generate (x5)" 
                     (click)="generateAsset()" class="p-mr-2" severity="help"></button>
                 <p-select [options]="assetOptions" [(ngModel)]="selectedAssetOption" optionLabel="label" 
                     placeholder="Select an asset type" class="p-mr-2" />
@@ -58,6 +48,11 @@
                         placeholder="Random" inputId="backShape" class="p-mr-2" />
                     <label for="backShape" class="p-mr-2">Back Shape</label>
                 </div>
+                <div>
+                    <p-select [options]="backgroundOptions" [(ngModel)]="backgroundType" optionLabel="label" 
+                        placeholder="Random" inputId="backgroundType" class="p-mr-2" />
+                    <label for="backgroundType" class="p-mr-2">Background Type</label>
+                </div>
             </div>
             <div class="column">
                 <div>
@@ -92,6 +87,24 @@
         </p-panel>
      </div>
      <div class="generator-output">
-        <div *ngFor="let symbol of symbols" class="symbol-item" [innerHTML]="symbol"></div>
+        @for (asset of generatedSvgs; track asset) {
+            <p-button variant="text" size="small" class=""
+                (click)="showSavePopover($event, popover, asset)">
+                <div class="symbol-item" [innerHTML]="asset.safeHtml"></div>
+            </p-button>
+        }
      </div>
 </p-card>
+<p-popover #popover>
+    <div class="popover-body">
+        <div>
+            <label for="saveName" class="p-mr-2">Asset Name</label>
+            <input pInputText [(ngModel)]="saveName" type="text" inputId="saveName" 
+                placeholder="Enter a unique name" class="p-mr-2"/>
+        </div>
+        <div>
+            <button pButton type="button" label="Save" [disabled]="!saveName"
+                (click)="saveAsset($event, popover)" class=""></button>
+        </div>
+    </div>
+</p-popover>

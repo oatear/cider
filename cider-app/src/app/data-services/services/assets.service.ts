@@ -29,7 +29,6 @@ export class AssetsService extends IndexedDbService<Asset, number> {
     console.log('update asset urls');
     this.isLoadingSubject.next(false);
     this.getAll().then(assets => {
-      console.log("all assets: ", assets);
       // release the old URLs
       Object.keys(this.assetUrls.getValue()).forEach(key => URL.revokeObjectURL(this.assetUrls.getValue()[key]));
       // generate the new URLs
