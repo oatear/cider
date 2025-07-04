@@ -88,6 +88,7 @@ import { AssetComponent } from './asset/asset.component';
 import { TemplateDialogComponent } from './template-dialog/template-dialog.component';
 import { AssetGeneratorComponent } from './asset-generator/asset-generator.component';
 import { DocumentComponent } from './document/document.component';
+import { MarkdownModule } from 'ngx-markdown';
 
 @NgModule({ declarations: [
         AppComponent,
@@ -168,6 +169,7 @@ import { DocumentComponent } from './document/document.component';
         ColorPickerModule,
         InputNumberModule,
         PopoverModule,
+        MarkdownModule.forRoot(),
     ], 
     providers: [
         CardToHtmlPipe, provideHttpClient(withInterceptorsFromDi()),

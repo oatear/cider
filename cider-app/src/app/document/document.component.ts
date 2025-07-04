@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Document } from '../data-services/types/document.type';
 import { DocumentsService } from '../data-services/services/documents.service';
 import { Subject } from 'rxjs';
+import { LocalStorageService } from '../data-services/local-storage/local-storage.service';
 
 @Component({
   selector: 'app-document',
@@ -10,7 +11,8 @@ import { Subject } from 'rxjs';
   styleUrl: './document.component.scss'
 })
 export class DocumentComponent {
-  editorOptions: any = {theme: 'vs-dark-extended', language: 'markdown', automaticLayout: true};
+  editorOptions: any = { theme: 'vs-dark-extended', language: 'markdown', 
+    automaticLayout: true};
   textDocument: Document = {
     name: "README",
     content: "# This is a sample readme document"
@@ -19,6 +21,7 @@ export class DocumentComponent {
   templateChanges: Subject<boolean>;
 
   constructor(private route: ActivatedRoute,
+    private localStorage: LocalStorageService,
     private documentsService: DocumentsService,
   ) {
     this.route.paramMap.subscribe(params => {
@@ -35,6 +38,9 @@ export class DocumentComponent {
         // }
     });
     this.templateChanges = new Subject();
+    if (!this.localStorage.getDarkMode()) {
+      this.editorOptions.theme = 'vs';
+    }
   }
     
   public save(entity : Document) {

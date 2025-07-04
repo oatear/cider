@@ -2,7 +2,8 @@
         (onResizeStart)="onResizeStart($event)"
         (onResizeEnd)="onResizeEnd($event)">
     <ng-template pTemplate>
-        <p-card styleClass="page-card">
+        <p-card styleClass="preview-card markdown-body">
+            <markdown [data]="textDocument.content"></markdown>
         </p-card>
     </ng-template>
     <ng-template pTemplate>
