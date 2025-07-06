@@ -12,7 +12,7 @@ import { LocalStorageService } from '../data-services/local-storage/local-storag
 })
 export class DocumentComponent {
   editorOptions: any = { theme: 'vs-dark-extended', language: 'markdown', 
-    automaticLayout: true};
+    automaticLayout: true, minimap: { enabled: false } };
   textDocument: Document = {
     name: "README",
     content: "# This is a sample readme document"

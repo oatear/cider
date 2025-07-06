@@ -58,8 +58,10 @@ export class CardTemplatesComponent implements OnInit {
   static readonly DEFAULT_HTML: string = templateHtmlFront;
   static readonly DEFAULT_CSS: string = templateCssFront;
 
-  htmlEditorOptions: any = {theme: 'vs-dark-extended', language: 'handlebars', automaticLayout: true};
-  cssEditorOptions: any = {theme: 'vs-dark-extended', language: 'css-handlebars', automaticLayout: true};
+  htmlEditorOptions: any = { theme: 'vs-dark-extended', language: 'handlebars', 
+    automaticLayout: true, minimap: { enabled: false } };
+  cssEditorOptions: any = { heme: 'vs-dark-extended', language: 'css-handlebars', 
+    automaticLayout: true, minimap: { enabled: false } };
   templates: CardTemplate[] = [];
   cards: Card[] = [];
   selectedCard: Card = {} as Card;
