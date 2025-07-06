@@ -11,6 +11,7 @@ import { CardsService } from '../data-services/services/cards.service';
 import { Router } from '@angular/router';
 import StringUtils from '../shared/utils/string-utils';
 import { AppDB } from '../data-services/indexed-db/db';
+import { DocumentsService } from '../data-services/services/documents.service';
 
 @Component({
   selector: 'app-welcome',
@@ -38,6 +39,7 @@ export class WelcomeComponent implements OnInit {
     private cardTemplatesService: CardTemplatesService,
     private cardAttributesService: CardAttributesService,
     private cardsService: CardsService,
+    private documentsService: DocumentsService,
     private router: Router,
     private db: AppDB) {
       this.isElectron = electronService.isElectron();
@@ -110,7 +112,8 @@ export class WelcomeComponent implements OnInit {
     this.loadingInfo = 'Reading project data...';
     this.displayLoading = true;
     this.electronService.openProject(url, this.assetsService, this.decksService,
-      this.cardTemplatesService, this.cardAttributesService, this.cardsService).then(() => {
+      this.cardTemplatesService, this.cardAttributesService, this.cardsService, 
+      this.documentsService).then(() => {
       this.assetsService.updateAssetUrls();
       this.decksService.selectDeck(undefined);
       this.router.navigateByUrl(`/decks`);

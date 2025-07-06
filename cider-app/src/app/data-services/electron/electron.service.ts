@@ -12,6 +12,7 @@ import { DecksService } from '../services/decks.service';
 import XlsxUtils from 'src/app/shared/utils/xlsx-utils';
 import { EntityService } from '../types/entity-service.type';
 import { Subject } from 'rxjs';
+import { DocumentsService } from '../services/documents.service';
 
 @Injectable({
   providedIn: 'root'
@@ -179,10 +180,11 @@ export class ElectronService {
 
   public async openProject(homeUrl: string, assetsService: AssetsService, decksService: DecksService,
     cardTemplatesService: CardTemplatesService, cardAttributesService: CardAttributesService,
-    cardsService: CardsService) {
+    cardsService: CardsService, documentsService: DocumentsService) {
     if (!this.isElectron()) {
       return;
     }
+    const documentsUrl = homeUrl + "/";
     const assetsUrl = homeUrl + "/" + ElectronService.ASSETS_DIR;
     const decksUrl = homeUrl + "/" + ElectronService.DECKS_DIR;
     // read assets
@@ -190,11 +192,38 @@ export class ElectronService {
     //   read attributes
     //   read cards
     //   read templates
+    await documentsService.emptyTable();
     await assetsService.emptyTable();
     await cardTemplatesService.emptyTable();
     await cardAttributesService.emptyTable();
     await cardsService.emptyTable();
     await decksService.emptyTable();
+
+    // read document/markdown files
+    await this.listDirectory(documentsUrl).then(documentUrls => Promise.all(documentUrls
+      .filter(documentUrl => documentUrl.isFile 
+        && !documentUrl.name.includes('.DS_Store')
+        && (documentUrl.name.includes('.md') || documentUrl.name.includes('.markdown') 
+        || documentUrl.name.includes('.MD'))
+      ).map(async documentUrl => {
+      const documentNameSplit = StringUtils.splitNameAndExtension(documentUrl.name);
+      const documentName = documentNameSplit.name;
+      const documentExt = documentNameSplit.extension;
+      const documentBuffer = await this.readFile(documentsUrl + '/' + documentUrl.name);
+      if (!documentBuffer) {
+        return;
+      }
+      const fileType = StringUtils.extensionToMime(documentExt);
+      const blob: Blob = new Blob([documentBuffer], {type: fileType});
+      const content: string = await blob.text();
+      const document = await documentsService.create(<any>{
+        name: documentName,
+        content: content,
+      }, true);
+      return document;
+    })));
+
+    // read assets
     await this.listDirectory(assetsUrl).then(assetUrls => Promise.all(assetUrls
       .filter(assetUrl => assetUrl.isFile && !assetUrl.name.includes('.DS_Store')).map(async assetUrl => {
       const assetNameSplit = StringUtils.splitNameAndExtension(assetUrl.name);

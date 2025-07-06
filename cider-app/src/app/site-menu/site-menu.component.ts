@@ -15,6 +15,7 @@ import { DecksService } from '../data-services/services/decks.service';
 import { Deck } from '../data-services/types/deck.type';
 import StringUtils from '../shared/utils/string-utils';
 import XlsxUtils from '../shared/utils/xlsx-utils';
+import { DocumentsService } from '../data-services/services/documents.service';
 
 @Component({
   selector: 'app-site-menu',
@@ -50,6 +51,7 @@ export class SiteMenuComponent implements OnInit {
     private cardsService: CardsService,
     private cardAttributesService: CardAttributesService,
     private cardTemplatesService: CardTemplatesService,
+    private documentsService: DocumentsService,
     private ngZone: NgZone,
     private router: Router,
     private db: AppDB) {
@@ -477,7 +479,8 @@ export class SiteMenuComponent implements OnInit {
     this.loadingInfo = 'Reading project data...';
     this.displayLoading = true;
     this.electronService.openProject(url, this.assetsService, this.decksService,
-      this.cardTemplatesService, this.cardAttributesService, this.cardsService).then(() => {
+      this.cardTemplatesService, this.cardAttributesService, this.cardsService, 
+      this.documentsService).then(() => {
       this.assetsService.updateAssetUrls();
       this.decksService.selectDeck(undefined);
       this.router.navigateByUrl(`/decks`);
