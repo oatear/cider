@@ -9,6 +9,8 @@ import StringUtils from '../shared/utils/string-utils';
 import { TreeNodeContextMenuSelectEvent, TreeNodeSelectEvent } from 'primeng/tree';
 import { Router } from '@angular/router';
 import { EntityService } from '../data-services/types/entity-service.type';
+import { DocumentsService } from '../data-services/services/documents.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-site-sidebar',
@@ -31,9 +33,11 @@ export class SiteSidebarComponent implements OnInit {
   constructor(private decksService: DecksService,
     private assetsService: AssetsService,
     private templatesService: CardTemplatesService,
+    private documentsService: DocumentsService,
     private electronService: ElectronService,
     private confirmationService: ConfirmationService,
     private messageService: MessageService, 
+    private httpClient: HttpClient,
     private router: Router) {
     // Initialize or fetch any necessary data here
     // observe the decks and templates
@@ -61,21 +65,68 @@ export class SiteSidebarComponent implements OnInit {
     // -----------------------------------------------
     await firstValueFrom(this.electronService.getProjectHomeUrl()).then(homeUrl => {
       let projectName = StringUtils.lastDirectoryFromUrl(homeUrl || 'Project');
-      // this.files.push({
-      //   label: projectName,
-      //   data: {
-      //     url: '/decks',
-      //   },
-      //   icon: 'pi pi-home',
-      //   styleClass: 'project-home',
-      // });
       updatedFiles.push({
-        label: 'README',
+        label: projectName,
         data: {
-          url: '/documents/0',
+          url: '/',
+          contextMenu: [
+            {
+              label: 'Add New Deck',
+              icon: 'pi pi-plus',
+              command: () => {
+                this.openCreateDialog(this.decksService, 'Create New Deck');
+              }
+            },
+            {
+              label: 'Add New Document',
+              icon: 'pi pi-file',
+              command: () => {
+                this.openCreateDocumentDialog(this.documentsService, 'Create New Document');
+              }
+            },
+          ],
         },
-        icon: 'pi pi-file',
-        styleClass: 'readme-file'
+        icon: 'pi pi-home',
+        styleClass: 'project-home',
+      });
+    });
+
+    // -----------------------------------------------
+    // Fetch documents
+    // -----------------------------------------------
+    await this.documentsService.getAll().then(documents => {
+      documents.forEach(document => {
+        updatedFiles.push({
+          label: document.name,
+          data: {
+            url: '/documents/' + document.id,
+            contextMenu: [
+              {
+                label: 'Add New Document',
+                icon: 'pi pi-file',
+                command: () => {
+                  this.openCreateDocumentDialog(this.documentsService, 'Create New Document');
+                }
+              },
+              {
+                label: 'Edit/Rename Document',
+                icon: 'pi pi-pencil',
+                command: () => {
+                  this.openEditDialog(this.documentsService, document.id, 'Edit/Rename Document');
+                }
+              },
+              {
+                label: 'Delete Document',
+                icon: 'pi pi-trash',
+                command: () => {
+                  this.openDeleteDialog(document.id, this.documentsService);
+                }
+              }
+            ],
+          },
+          icon: 'pi pi-file',
+          styleClass: 'document-file',
+        });
       });
     });
 
@@ -358,10 +409,26 @@ export class SiteSidebarComponent implements OnInit {
     });
   }
 
-  public openCreateDialog(service: EntityService<any, any>, dialogTitle: string) {
+  public async openCreateDocumentDialog(service: EntityService<any, any>, dialogTitle: string) {
+    // Create a random name for the new document
+    const randomName = 'README-' + Math.floor(Math.random() * 10000);
+    const blob = await firstValueFrom(this.httpClient.get('assets/README-TEMPLATE.md', {responseType: 'blob'}));
+    const defaultContent = await blob.text();
+    this.entity = {
+      name: randomName,
+      content: defaultContent,
+    } as any;
+    this.openCreateDialog(service, dialogTitle, this.entity);
+  }
+
+  public openCreateDialog(service: EntityService<any, any>, dialogTitle: string, entity?: any) {
     this.service = service;
     this.dialogTitle = dialogTitle || 'Create New Entity';
-    this.entity = {} as any;
+    if (entity) {
+      this.entity = entity;
+    } else {
+      this.entity = {} as any;
+    }
     this.dialogVisible = true;
   }
 

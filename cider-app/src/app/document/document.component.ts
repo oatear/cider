@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Document } from '../data-services/types/document.type';
 import { DocumentsService } from '../data-services/services/documents.service';
-import { Subject } from 'rxjs';
+import { debounceTime, Subject } from 'rxjs';
 import { LocalStorageService } from '../data-services/local-storage/local-storage.service';
 
 @Component({
@@ -10,15 +10,15 @@ import { LocalStorageService } from '../data-services/local-storage/local-storag
   templateUrl: './document.component.html',
   styleUrl: './document.component.scss'
 })
-export class DocumentComponent {
+export class DocumentComponent implements OnInit {
   editorOptions: any = { theme: 'vs-dark-extended', language: 'markdown', 
     automaticLayout: true, minimap: { enabled: false } };
   textDocument: Document = {
-    name: "README",
-    content: "# This is a sample readme document"
+    name: "",
+    content: ""
   } as Document;
   disablePanels: boolean = false;
-  templateChanges: Subject<boolean>;
+  documentChanges: Subject<boolean>;
 
   constructor(private route: ActivatedRoute,
     private localStorage: LocalStorageService,
@@ -27,27 +27,35 @@ export class DocumentComponent {
     this.route.paramMap.subscribe(params => {
         const documentIdString = params.get('documentId') || '';
         const documentId = parseInt(documentIdString, 10);
-        // if (!isNaN(documentId)) {
-        //   this.documentsService.get(documentId).then((textDocument) => {
-        //     this.textDocument = textDocument;
-        //   }).catch(error => {
-        //     console.error(`Error fetching document with ID ${documentId}:`, error);
-        //   });
-        // } else {
-        //   // open up the README file
-        // }
+        if (!isNaN(documentId)) {
+          this.documentsService.get(documentId).then((textDocument) => {
+            this.textDocument = textDocument;
+          }).catch(error => {
+            console.error(`Error fetching document with ID ${documentId}:`, error);
+          });
+        } else {
+          this.textDocument = {
+            name: "New Document",
+            content: ""
+          } as Document;
+        }
     });
-    this.templateChanges = new Subject();
+    this.documentChanges = new Subject();
     if (!this.localStorage.getDarkMode()) {
       this.editorOptions.theme = 'vs';
     }
   }
+
+  ngOnInit(): void {
+    this.documentChanges.asObservable().pipe(debounceTime(1000))
+      .subscribe(() => this.save(this.textDocument));
+  }
     
   public save(entity : Document) {
-    // const id = (<any>this.textDocument)[this.documentsService?.getIdField()];
-    // if (id) {
-    //   this.updateExisting(id, this.textDocument);
-    // }
+    const id = (<any>this.textDocument)[this.documentsService?.getIdField()];
+    if (id) {
+      this.updateExisting(id, this.textDocument);
+    }
   }
 
   public updateExisting(id: number, entity: Document) {
@@ -55,7 +63,7 @@ export class DocumentComponent {
   }
 
   public debounceSave() {
-    this.templateChanges.next(true);
+    this.documentChanges.next(true);
   }
 
 
