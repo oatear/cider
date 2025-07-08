@@ -62,6 +62,9 @@ textarea {
             padding: 0px;
         }
     }
+    p-splitter {
+        max-height: 100%;
+    }
     .p-splitter {
         /* reconsider this */
         // width: calc(100% - 1px);
@@ -87,21 +90,15 @@ textarea {
                 .preview-controls {
                     width: 100%;
                     display: flex;
+                    margin-bottom: 10px;
                     p-dropdown {
                         flex: 1;
-                        margin-left: 10px;
                         margin-right: 10px;
                     }
                     .p-buttonset {
                         margin: 15px;
                         margin-left: 0;
                     }
-                }
-                .preview-space {
-                    overflow: hidden;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
                 }
             }
             p-card {
@@ -114,6 +111,7 @@ textarea {
                         flex-direction: column;
                         .preview-space {
                             flex: 1;
+                            display: flex;
                             overflow: hidden;
                             align-items: center;
                             justify-content: center;

@@ -7,6 +7,7 @@ import { CardTemplate } from '../data-services/types/card-template.type';
 import { Card } from '../data-services/types/card.type';
 import { Subject, debounceTime } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
+import { LocalStorageService } from '../data-services/local-storage/local-storage.service';
 
 const templateCssFront  = 
 `.card {
@@ -57,6 +58,9 @@ const templateHtmlFront =
 export class CardTemplatesComponent implements OnInit {
   static readonly DEFAULT_HTML: string = templateHtmlFront;
   static readonly DEFAULT_CSS: string = templateCssFront;
+  // have to be non-static
+  readonly ZOOM_UP: number = 1.5;
+  readonly ZOOM_DOWN: number = 1/1.5;
 
   htmlEditorOptions: any = { theme: 'vs-dark-extended', language: 'handlebars', 
     automaticLayout: true, minimap: { enabled: false } };
@@ -70,7 +74,7 @@ export class CardTemplatesComponent implements OnInit {
   dialogVisible: boolean = false;
   infoVisible: boolean = false;
   infoText: string = '';
-  zoom: number = 0.3;
+  zoom: number = Math.pow(this.ZOOM_DOWN, 2);
   previewPanelWidth = 40;
   disablePanels: boolean = false;
   templateChanges: Subject<boolean>;
@@ -82,6 +86,7 @@ export class CardTemplatesComponent implements OnInit {
     private cardsService: CardsService,
     private messageService: MessageService, 
     private confirmationService: ConfirmationService,
+    private localStorage: LocalStorageService,
     private route: ActivatedRoute) {
       this.route.paramMap.subscribe(params => {
         const templateIdString = params.get('templateId') || '';
@@ -100,6 +105,10 @@ export class CardTemplatesComponent implements OnInit {
       this.windowResizing$.pipe(debounceTime(200)).subscribe(() => {
         this.disablePanels = false;
       });
+      if (!this.localStorage.getDarkMode()) {
+        this.htmlEditorOptions.theme = 'vs';
+        this.cssEditorOptions.theme = 'vs';
+      }
     }
 
   ngOnInit(): void {
@@ -130,9 +139,11 @@ export class CardTemplatesComponent implements OnInit {
   }
 
   public changeZoom(change: number) {
-    this.zoom += change;
-    if (this.zoom < 0.1) {
-      this.zoom = 0.1;
+    this.zoom *= change;
+    if (this.zoom < Math.pow(this.ZOOM_DOWN, 5)) {
+      this.zoom = Math.pow(this.ZOOM_DOWN, 5);
+    } else if (this.zoom > Math.pow(this.ZOOM_UP, 5)) {
+      this.zoom = Math.pow(this.ZOOM_UP, 5);
     }
   }
 

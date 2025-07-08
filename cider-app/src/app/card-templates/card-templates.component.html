@@ -5,18 +5,20 @@
         (onResizeEnd)="onResizeEnd($event)">
         <ng-template pTemplate>
             <div class="left-panel p-col p-flex p-align-items-center p-justify-content-center">
-                <p-card styleClass="page-card" header="Preview">
+                <p-card styleClass="page-card">
                     <div class="preview-controls" *ngIf="!disablePanels">
                         <p-dropdown [options]="cards" [(ngModel)]="selectedCard" [filter]="true" filterby="name"
                             optionLabel="name" styleClass="card-dropdown"></p-dropdown>
                         <p-buttongroup>
-                            <button pButton type="button" icon="pi pi-search-minus" (click)="changeZoom(-0.1)"></button>
-                            <button pButton type="button" icon="pi pi-search-plus" (click)="changeZoom(0.1)"></button>
+                            <button pButton type="button" icon="pi pi-search-minus" 
+                                (click)="changeZoom(ZOOM_DOWN)"></button>
+                            <button pButton type="button" icon="pi pi-search-plus" 
+                                (click)="changeZoom(ZOOM_UP)"></button>
                         </p-buttongroup>
                     </div>
                     <div class="preview-space" *ngIf="!disablePanels">
-                        <app-card-preview [card]="selectedCard" [template]="selectedTemplate" *ngIf="selectedCard" [scale]="zoom"
-                            [cache]="false"></app-card-preview>
+                        <app-card-preview [card]="selectedCard" [template]="selectedTemplate" *ngIf="selectedCard"
+                            [scale]="zoom" [cache]="false"></app-card-preview>
                     </div>
                 </p-card>
             </div>

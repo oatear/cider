@@ -364,7 +364,7 @@ export const CiderTheme = definePreset(Aura, {
                     950: "#181c21"
                 },
                 text: {
-                    color: "{surface.500}",
+                    color: "{surface.600}",
                 },
                 formField: {
                     borderColor: "{surface.100}",

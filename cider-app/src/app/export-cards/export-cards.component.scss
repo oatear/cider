@@ -1,16 +1,32 @@
+:host {
+    height:100%;
+    margin-right: 10px;
+}
 
-.page-wrapper {
-    min-height: calc(100vh - 140px - 58px - 0px);
-    min-height: calc(var(--vh, 1vh) * 100 - 140px - 58px - 0px);
+:host ::ng-deep .page-wrapper {
+    // min-height: calc(100vh - 140px - 58px - 0px);
+    // min-height: calc(var(--vh, 1vh) * 100 - 140px - 58px - 0px);
     width: 100%;
+    height: 100%;
     display: flex;
     flex-direction: row;
     align-items: stretch;
+    gap: 25px;
+    // padding-right: 10px;
     > div {
-        margin: 25px;
         flex: 1;
-        &:first-child {
-            margin-right: 0px;
+        flex-basis: 50%;
+        max-width: 50%;
+        .p-card {
+            height: 100%;
+            .p-card-body {
+                height: 100%;
+                .p-card-content {
+                    height: 100%;
+                    display: flex;
+                    flex-direction: column;
+                }
+            }
         }
     }
 }
@@ -28,8 +44,8 @@ $preview-sheets-scale: 0.08;
 $preview-individual-scale: 0.08;
 
 :host ::ng-deep p-scrollpanel div.p-scrollpanel {
-    width: calc(50vw - 70px);
-    height: calc(var(--vh, 1vh) * 100 - 330px);
+    // width: calc(50vw - 70px);
+    // height: calc(var(--vh, 1vh) * 100 - 330px);
 }
 
 // @media screen and (max-width: 500px) {
@@ -47,10 +63,12 @@ $preview-individual-scale: 0.08;
 .card-controls {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
 }
 
 .preview-wrapper {
+    flex: 1;
+    overflow: scroll;
     .preview-sheets {
         transform-origin: top left;
         display: flex;
@@ -58,6 +76,7 @@ $preview-individual-scale: 0.08;
         overflow-wrap: normal;
         flex-direction: row;
         align-content: flex-start;
+        gap: 10px;
         .preview-page {
             background-color: white;
             overflow: hidden;
@@ -78,6 +97,7 @@ $preview-individual-scale: 0.08;
         overflow-wrap: normal;
         flex-direction: row;
         align-content: flex-start;
+        gap: 10px;
         .card-wrapper {
             transform-origin: top left;
         }
