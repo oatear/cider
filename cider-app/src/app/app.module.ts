@@ -89,6 +89,7 @@ import { TemplateDialogComponent } from './template-dialog/template-dialog.compo
 import { AssetGeneratorComponent } from './asset-generator/asset-generator.component';
 import { DocumentComponent } from './document/document.component';
 import { MarkdownModule } from 'ngx-markdown';
+import { DocumentsComponent } from './documents/documents.component';
 
 @NgModule({ declarations: [
         AppComponent,
@@ -118,6 +119,7 @@ import { MarkdownModule } from 'ngx-markdown';
         TemplateDialogComponent,
         AssetGeneratorComponent,
         DocumentComponent,
+        DocumentsComponent,
     ],
     bootstrap: [AppComponent], 
     imports: [BrowserModule,

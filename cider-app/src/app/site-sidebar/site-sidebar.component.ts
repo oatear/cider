@@ -74,7 +74,9 @@ export class SiteSidebarComponent implements OnInit {
               label: 'Add New Deck',
               icon: 'pi pi-plus',
               command: () => {
-                this.openCreateDialog(this.decksService, 'Create New Deck');
+                this.openCreateDialog(this.decksService, 'Create New Deck', {
+                  name: `Deck-${Math.random().toString(36).substr(2, 9)}`
+                });
               }
             },
             {
@@ -206,7 +208,6 @@ export class SiteSidebarComponent implements OnInit {
                     label: 'Add New Card Template',
                     icon: 'pi pi-plus',
                     command: () => {
-                      // this.openCreateDialog(this.templatesService, 'Create New Card Template');
                       this.openTemplateDialog(deck.id);
                     }
                   },
@@ -241,7 +242,6 @@ export class SiteSidebarComponent implements OnInit {
                 label: 'Add New Card Template',
                 icon: 'pi pi-plus',
                 command: () => {
-                  // this.openCreateDialog(this.templatesService, 'Create New Card Template');
                   this.openTemplateDialog(deck.id);
                 }
               },
@@ -286,7 +286,9 @@ export class SiteSidebarComponent implements OnInit {
               label: 'Add New Deck',
               icon: 'pi pi-plus',
               command: () => {
-                this.openCreateDialog(this.decksService, 'Create New Deck');
+                this.openCreateDialog(this.decksService, 'Create New Deck', {
+                  name: `Deck-${Math.random().toString(36).substr(2, 9)}`
+                });
               }
             }
           ],
@@ -313,7 +315,9 @@ export class SiteSidebarComponent implements OnInit {
               label: 'Add New Asset',
               icon: 'pi pi-plus',
               command: () => {
-                this.openCreateDialog(this.assetsService, 'Create New Asset');
+                this.openCreateDialog(this.assetsService, 'Create New Asset', {
+                  name: `asset-${Math.random().toString(36).substr(2, 9)}`
+                });
               }
             },
             {
@@ -336,7 +340,9 @@ export class SiteSidebarComponent implements OnInit {
                 label: 'Add New Asset',
                 icon: 'pi pi-plus',
                 command: () => {
-                  this.openCreateDialog(this.assetsService, 'Create New Asset');
+                  this.openCreateDialog(this.assetsService, 'Create New Asset', {
+                    name: `asset-${Math.random().toString(36).substr(2, 9)}`
+                  });
                 }
               },
               {
