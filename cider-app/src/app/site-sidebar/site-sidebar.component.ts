@@ -219,6 +219,13 @@ export class SiteSidebarComponent implements OnInit {
                     }
                   },
                   {
+                    label: 'Duplicate Template',
+                    icon: 'pi pi-copy',
+                    command: () => {
+                      this.openDuplicateDialog(this.templatesService, template.id, 'Duplicate Template');
+                    }
+                  },
+                  {
                     label: 'Delete Template',
                     icon: 'pi pi-trash',
                     command: () => {
@@ -444,6 +451,24 @@ export class SiteSidebarComponent implements OnInit {
     this.entity = {} as any;
     service.get(entityId).then(entity => {
       this.entity = entity;
+    });
+    this.dialogVisible = true;
+  }
+
+  public openDuplicateDialog(service: EntityService<any, any>, entityId: any, dialogTitle: string) {
+    this.service = service;
+    this.dialogTitle = dialogTitle || 'Duplicate Entity';
+    this.entity = {} as any;
+    service.get(entityId).then(entity => {
+      // Create a new entity with the same properties but without the ID
+      this.entity = {...entity};
+      delete this.entity.id; // Remove the ID to create a new entity
+      // Optionally, you can modify the name to indicate it's a duplicate
+      if (this.entity.name) {
+        this.entity.name = `Copy of ${this.entity.name}`;
+      } else {
+        this.entity.name = `Copy of Entity-${Math.random().toString(36).substr(2, 9)}`;
+      }
     });
     this.dialogVisible = true;
   }
