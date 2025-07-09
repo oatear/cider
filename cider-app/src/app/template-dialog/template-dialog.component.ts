@@ -42,7 +42,7 @@ export class TemplateDialogComponent implements OnInit {
   }
 
   public selectedLayoutChange(event: any) {
-    this.templateName = event.value.key || '';
+    this.templateName = `${event.value.key}-${Math.random().toString(36).substr(2, 9)}`;
   }
 
   public createTemplate() {

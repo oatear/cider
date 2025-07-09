@@ -4,6 +4,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { generateRandomCardBackground } from '../shared/generators/card-background-generator';
 import { AssetsService } from '../data-services/services/assets.service';
 import FileUtils from '../shared/utils/file-utils';
+import { generateRandomDialogFrame } from '../shared/generators/card-textbox-generator';
 
 interface AssetTypeOption {
   label: string;
@@ -65,6 +66,7 @@ export class AssetGeneratorComponent {
   frontMirror: MirrorTypeOption | undefined;
   backMirror: MirrorTypeOption | undefined;
   backgroundOptions: BackgroundTypeOption[] = [
+    { label: 'Default', value: undefined },
     { label: 'None', value: 'none' },
     { label: 'Solid', value: 'solid' },
   ]
@@ -73,10 +75,10 @@ export class AssetGeneratorComponent {
   backColor: string | undefined;
   backgroundColor: string | undefined;
   outlineColor: string | undefined;
-  outlineWidth: number = 2;
-  imageWidth: number = 64;
-  imageHeight: number = 64;
-  frontScale: number = 0.7;
+  outlineWidth: number | undefined = undefined;
+  imageWidth: number | undefined = undefined;
+  imageHeight: number | undefined = undefined;
+  frontScale: number | undefined = undefined;
   saveSvg: string = "";
   saveName: string = "";
 
@@ -107,20 +109,26 @@ export class AssetGeneratorComponent {
         this.generateRandomSymbol();
         break;
       case 'art':
+        this.generateRandomArt();
         break;
       case 'background':
         this.generateRandomBackground();
         break;
       case 'banner':
+        this.generateRandomBanner();
         break;
       case 'textbox':
+        this.generateRandomTextbox();
         break;
     }
 
   }
 
   public generateRandomBackground() {
-    const svgString: string = generateRandomCardBackground({width: 500, height: 700});
+    const svgString: string = generateRandomCardBackground({
+      width: this.imageWidth || 500, 
+      height: this.imageHeight || 700
+    });
     this.generatedSvgs.push({
       safeHtml: this.sanitizer.bypassSecurityTrustHtml(svgString),
       svg: svgString,
@@ -133,25 +141,18 @@ export class AssetGeneratorComponent {
       width: this.imageWidth || 64, 
       height: this.imageHeight || 64, 
       frontShape: {
-        // type: 'convex',
-        // fillColor: 'white',
         type: this.frontShape?.value || 'blob',
         fillColor: this.frontColor || undefined,
         outlineColor: this.outlineColor || undefined,
-        outlineWidth: this.outlineWidth, 
+        outlineWidth: this.outlineWidth || 2, 
         mirror: this.frontMirror?.value
-        // numPoints: 7,
       },
       backShape: {
-        // type: 'blob',
-        // fillColor: 'grey',
         type: this.backShape?.value,
         fillColor: this.backColor || undefined,
-        // outlineColor: this.outlineColor || '#262c35',
         outlineColor: this.outlineColor || undefined,
-        outlineWidth: this.outlineWidth, 
+        outlineWidth: this.outlineWidth || 2, 
         mirror: this.backMirror?.value
-        // numPoints: 7,
       },
       backgroundType: this.backgroundType?.value,
       backgroundColor: this.backgroundColor,
@@ -171,18 +172,75 @@ export class AssetGeneratorComponent {
         type: this.frontShape?.value || 'convex',
         fillColor: this.frontColor || undefined,
         outlineColor: this.outlineColor || undefined,
-        outlineWidth: this.outlineWidth, 
+        outlineWidth: this.outlineWidth || 2, 
         mirror: this.frontMirror?.value || 'none',
       },
       backShape: {
         type: this.backShape?.value,
         fillColor: this.backColor || undefined,
         outlineColor: this.outlineColor || undefined,
-        outlineWidth: this.outlineWidth, 
+        outlineWidth: this.outlineWidth || 2, 
         mirror: this.backMirror?.value,
       },
       backgroundType: this.backgroundType?.value,
       backgroundColor: this.backgroundColor,
+    });
+    this.generatedSvgs.push({
+      safeHtml: this.sanitizer.bypassSecurityTrustHtml(svgString),
+      svg: svgString,
+      type: this.selectedAssetOption,
+    });
+  }
+
+  public generateRandomArt() {
+    const svgString: string = generateRandomCardSymbol({
+      width: this.imageWidth || 640, 
+      height: this.imageHeight || 480, 
+      frontShape: {
+        type: this.frontShape?.value || 'blob',
+        fillColor: this.frontColor || undefined,
+        outlineColor: this.outlineColor || undefined,
+        outlineWidth: this.outlineWidth || 2, 
+        mirror: this.frontMirror?.value
+      },
+      backShape: {
+        type: this.backShape?.value,
+        fillColor: this.backColor || undefined,
+        outlineColor: this.outlineColor || undefined,
+        outlineWidth: this.outlineWidth || 2, 
+        mirror: this.backMirror?.value
+      },
+      backgroundType: this.backgroundType?.value || 'solid',
+      backgroundColor: this.backgroundColor,
+    });
+    this.generatedSvgs.push({
+      safeHtml: this.sanitizer.bypassSecurityTrustHtml(svgString),
+      svg: svgString,
+      type: this.selectedAssetOption,
+    });
+  }
+  public generateRandomBanner() {
+    const svgString: string = generateRandomDialogFrame({
+      width: this.imageWidth || 640,
+      height: this.imageHeight || 180,
+    });
+    this.generatedSvgs.push({
+      safeHtml: this.sanitizer.bypassSecurityTrustHtml(svgString),
+      svg: svgString,
+      type: this.selectedAssetOption,
+    });
+  }
+
+  public generateRandomTextbox() {
+    const svgString: string = generateRandomDialogFrame({
+      width: this.imageWidth || 200,
+      height: this.imageHeight || 100,
+      outlineWidth: 2,
+      turbulence: 0.2,
+      frameOption: 'rounded',
+      edgeOption: 'ripped',
+      frameWidth: 0,
+      resketch: true,
     });
     this.generatedSvgs.push({
       safeHtml: this.sanitizer.bypassSecurityTrustHtml(svgString),

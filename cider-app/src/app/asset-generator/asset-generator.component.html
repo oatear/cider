@@ -50,26 +50,26 @@
                 </div>
                 <div>
                     <p-select [options]="backgroundOptions" [(ngModel)]="backgroundType" optionLabel="label" 
-                        placeholder="Random" inputId="backgroundType" class="p-mr-2" />
+                        placeholder="Default" inputId="backgroundType" class="p-mr-2" />
                     <label for="backgroundType" class="p-mr-2">Background Type</label>
                 </div>
             </div>
             <div class="column">
                 <div>
-                    <p-inputnumber [(ngModel)]="imageWidth" inputId="imageWidth" suffix=" px" class="p-mr-2"/>
+                    <p-inputnumber [(ngModel)]="imageWidth" placeholder="Default" inputId="imageWidth" suffix=" px" class="p-mr-2"/>
                     <label for="imageWidth" class="p-mr-2">Width</label>
                 </div>
                 <div>
-                    <p-inputnumber [(ngModel)]="imageHeight" inputId="imageHeight" suffix=" px" class="p-mr-2"/>
+                    <p-inputnumber [(ngModel)]="imageHeight" placeholder="Default" inputId="imageHeight" suffix=" px" class="p-mr-2"/>
                     <label for="imageHeight" class="p-mr-2">Height</label>
                 </div>
                 <div>
-                    <p-inputnumber [(ngModel)]="outlineWidth" inputId="outlineWidth" suffix=" px" 
+                    <p-inputnumber [(ngModel)]="outlineWidth" placeholder="Default" inputId="outlineWidth" suffix=" px" 
                     [min]="0" [max]="10" class="p-mr-2"/>
                     <label for="outlineWidth" class="p-mr-2">Outline Thickness</label>
                 </div>
                 <div>
-                    <p-inputnumber [(ngModel)]="frontScale" inputId="frontScale" 
+                    <p-inputnumber [(ngModel)]="frontScale" placeholder="Default" inputId="frontScale" 
                     [min]="0.1" [max]="1.0" [minFractionDigits]="1" class="p-mr-2"/>
                     <label for="frontScale" class="p-mr-2">Front Scale</label>
                 </div>

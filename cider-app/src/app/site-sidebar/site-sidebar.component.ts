@@ -411,7 +411,7 @@ export class SiteSidebarComponent implements OnInit {
 
   public async openCreateDocumentDialog(service: EntityService<any, any>, dialogTitle: string) {
     // Create a random name for the new document
-    const randomName = 'README-' + Math.floor(Math.random() * 10000);
+    const randomName = `README-${Math.random().toString(36).substr(2, 9)}`;
     const blob = await firstValueFrom(this.httpClient.get('assets/README-TEMPLATE.md', {responseType: 'blob'}));
     const defaultContent = await blob.text();
     this.entity = {

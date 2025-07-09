@@ -3,12 +3,13 @@
     [modal]="true" [style]="{width: '400px'}" [closable]="true">
     <ng-template pTemplate="content">
 
-        <div class="p-field">
+        <div class="p-field p-d-flex p-flex-row">
+            <p-toggleswitch [(ngModel)]="darkMode" (onChange)="setDarkMode($event)" 
+                class="p-mr-2"/>
             <label for="darkMode">Dark Mode</label>
-            <p-toggleswitch [(ngModel)]="darkMode" (onChange)="setDarkMode($event)"/>
-            <p-message severity="info" escape="false"
-                text="Enable dark mode for a better night-time experience"></p-message>
         </div>
-
+        <p-message severity="info" escape="false"
+            text="Enable dark mode for a better night-time experience"></p-message>
+            
     </ng-template>
 </p-dialog>
