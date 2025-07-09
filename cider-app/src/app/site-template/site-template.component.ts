@@ -1,6 +1,7 @@
 import { AfterViewInit, Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import { Splitter } from 'primeng/splitter';
-import { debounceTime, Subject } from 'rxjs';
+import { debounceTime, Observable, Subject } from 'rxjs';
+import { ElectronService } from '../data-services/electron/electron.service';
 
 @Component({
   selector: 'app-site-template',
@@ -12,12 +13,16 @@ export class SiteTemplateComponent {
   selectedActivity: string = 'explorer';
   disablePanels: boolean = false;
   windowResizing$: Subject<boolean>;
+  isElectron: boolean;
+  projectHomeUrl$: Observable<string | undefined>;
 
-  constructor() {
+  constructor(electronService: ElectronService) {
     this.windowResizing$ = new Subject();
     this.windowResizing$.pipe(debounceTime(200)).subscribe(() => {
       this.disablePanels = false;
     });
+    this.isElectron = electronService.isElectron();
+    this.projectHomeUrl$ = electronService.getProjectHomeUrl();
   }
 
   @HostListener('window:resize', ['$event'])

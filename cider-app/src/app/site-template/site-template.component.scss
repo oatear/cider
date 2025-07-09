@@ -96,9 +96,15 @@
         background: #3f4b5b;
     }
 
+
+    > .p-splitterpanel:first-child {
+        min-width: 200px;
+    }
+
     &.no-sidebar {
         > .p-splitterpanel:first-child {
             flex: 0 0 0px !important;
+            min-width: 0px;
         }
         > .p-splitter-gutter {
             flex: 0 0 0px !important;
@@ -112,7 +118,7 @@
 
 :host ::ng-deep .site-splitter:not(.p-splitter-resizing) {
     > .p-splitterpanel:first-child {
-        transition: flex 0.3s ease-in-out;
+        transition: flex 0.3s ease-in-out, min-width 0.3s ease-in-out;
     }
     > .p-splitter-gutter {
         transition: flex 0.3s ease-in-out, display 0s 0.3s allow-discrete;
