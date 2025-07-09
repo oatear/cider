@@ -49,19 +49,31 @@ export class WelcomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.localStorageService.getRecentProjectUrls().subscribe(urls => {
-      this.recentProjectUrls = urls.map(url => {
-        let name = StringUtils.lastDirectoryFromUrl(url);
-        let hue = this.calculateHue(name);
-        let hue2diff = 120;
-        return {
-          url: url,
-          name: name,
-          hue: hue,
-          hue2: (hue + hue2diff) % 360,
-          hover: false
-        }
-      });
+      this.recentProjectUrls = urls.map(url => this.urlToProjectInfo(url));
     });
+    // uncomment to test recent projects
+    // this.isElectron = true;
+    // const urls = [
+    //   'usr/samurai-saga',
+    //   'usr/tribulating-troubles',
+    //   'usr/mystical-mountain-adventure',
+    //   'usr/epic-quest-of-heroes',
+    //   'usr/ancient-ruins-exploration',
+    // ];
+    // this.recentProjectUrls = urls.map(url => this.urlToProjectInfo(url));
+  }
+
+  private urlToProjectInfo(url: string) {
+      let name = StringUtils.lastDirectoryFromUrl(url);
+      let hue = this.calculateHue(name);
+      let hue2diff = 120;
+      return {
+        url: url,
+        name: name,
+        hue: hue,
+        hue2: (hue + hue2diff) % 360,
+        hover: false
+      }
   }
 
   public async newProject(keepEmpty: boolean) {

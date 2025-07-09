@@ -2,7 +2,7 @@
     [subheader]="isElectron ? 'Start a new project or open an existing one'
                     : 'Select a deck to get started'"></app-page-header>
 <p-card styleClass="artwork-card"></p-card>
-<p-card *ngIf="isElectron" styleClass="welcome-card">
+<p-card *ngIf="isElectron" styleClass="projects-card">
     <p-button label="+ Blank Project"
         (click)="newProject(true)"></p-button>
     <p-button label="Sample Card Game"
