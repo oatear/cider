@@ -1,5 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Route, Router } from '@angular/router';
 import { MenuItem } from 'primeng/api';
+import { ElectronService } from '../data-services/electron/electron.service';
 
 @Component({
   selector: 'app-site-activitybar',
@@ -31,34 +33,56 @@ export class SiteActivitybarComponent {
         console.log('Explorer activity selected:', this.selectedActivity);
       }
     },
-    {
-      label: 'AI Tools',
-      icon: 'pi pi-fw pi-sparkles',
-      tooltipOptions: {
-        tooltipLabel: 'AI Tools',
-        tooltipPosition: 'right',
-        showDelay: 500,
-        hideDelay: 500
-      },
-      command: () => {
-        if (this.selectedActivity == 'ai-tools') {
-          this.selectedActivity = '';
-        } else {
-          this.selectedActivity = 'ai-tools';
-        }
-        this.selectedActivityChange.emit(this.selectedActivity);
-      }
-    },
-    {
-      label: 'Create New Project',
-      icon: 'pi pi-fw pi-plus',
-      tooltipOptions: {
-        tooltipLabel: 'Create New Project',
-        tooltipPosition: 'right',
-        showDelay: 500,
-        hideDelay: 500
-      },
-    },
+    // {
+    //   label: 'Source Control',
+    //   icon: 'pi pi-fw pi-share-alt',
+    //   tooltipOptions: {
+    //     tooltipLabel: 'Source Control',
+    //     tooltipPosition: 'right',
+    //     showDelay: 500,
+    //     hideDelay: 500
+    //   },
+    //   command: () => {
+    //     if (this.selectedActivity == 'source-control') {
+    //       this.selectedActivity = '';
+    //     } else {
+    //       this.selectedActivity = 'source-control';
+    //     }
+    //     this.selectedActivityChange.emit(this.selectedActivity);
+    //     console.log('Source Control activity selected:', this.selectedActivity);
+    //   }
+    // },
+    // {
+    //   label: 'AI Tools',
+    //   icon: 'pi pi-fw pi-sparkles',
+    //   tooltipOptions: {
+    //     tooltipLabel: 'AI Tools',
+    //     tooltipPosition: 'right',
+    //     showDelay: 500,
+    //     hideDelay: 500
+    //   },
+    //   command: () => {
+    //     if (this.selectedActivity == 'ai-tools') {
+    //       this.selectedActivity = '';
+    //     } else {
+    //       this.selectedActivity = 'ai-tools';
+    //     }
+    //     this.selectedActivityChange.emit(this.selectedActivity);
+    //   }
+    // },
+    // {
+    //   label: 'Create New Project',
+    //   icon: 'pi pi-fw pi-plus',
+    //   tooltipOptions: {
+    //     tooltipLabel: 'Create New Project',
+    //     tooltipPosition: 'right',
+    //     showDelay: 500,
+    //     hideDelay: 500
+    //   },
+    //   command: () => {
+    //     this.router.navigate(['/welcome']);
+    //   }
+    // },
     {
       label: 'Settings',
       icon: 'pi pi-fw pi-cog',
@@ -75,6 +99,12 @@ export class SiteActivitybarComponent {
     },
   ];
   public isSaving: boolean = false;
+
+  constructor(private router: Router,
+    private electronService: ElectronService
+  ) {
+    // Do nothing here
+  }
 
 
   public logoClicked() {

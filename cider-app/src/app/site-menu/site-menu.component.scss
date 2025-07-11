@@ -61,6 +61,16 @@
     }
 }
 
+:host ::ng-deep p-breadcrumb {
+    --webkit-app-region: no-drag;
+    app-region: no-drag;
+    .p-breadcrumb-list {
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-app-region: none;
+    }
+}
+
 :host ::ng-deep .p-breadcrumb {
     background: none;
     .p-breadcrumb-item-link {

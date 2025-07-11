@@ -52,6 +52,7 @@ import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { ColorPickerModule } from 'primeng/colorpicker';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { PopoverModule } from 'primeng/popover';
+import { MeterGroupModule } from 'primeng/metergroup';
 
 
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -90,6 +91,7 @@ import { AssetGeneratorComponent } from './asset-generator/asset-generator.compo
 import { DocumentComponent } from './document/document.component';
 import { MarkdownModule } from 'ngx-markdown';
 import { DocumentsComponent } from './documents/documents.component';
+import { ProjectComponent } from './project/project.component';
 
 @NgModule({ declarations: [
         AppComponent,
@@ -120,6 +122,7 @@ import { DocumentsComponent } from './documents/documents.component';
         AssetGeneratorComponent,
         DocumentComponent,
         DocumentsComponent,
+        ProjectComponent,
     ],
     bootstrap: [AppComponent], 
     imports: [BrowserModule,
@@ -171,6 +174,7 @@ import { DocumentsComponent } from './documents/documents.component';
         ColorPickerModule,
         InputNumberModule,
         PopoverModule,
+        MeterGroupModule,
         MarkdownModule.forRoot(),
     ], 
     providers: [

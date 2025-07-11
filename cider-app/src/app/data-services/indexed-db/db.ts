@@ -54,6 +54,7 @@ export class AppDB extends Dexie {
             cardAttributes: '++id, gameId, name, type, options, description',
         });
         this.version(2).stores({
+            games: null,
             decks: '++id, name',
             assets: '++id, name',
             cards: '++id, deckId, count, frontCardTemplateId, backCardTemplateId',
@@ -92,12 +93,12 @@ export class AppDB extends Dexie {
         // populate in a non-traditional way since the 'on populate' will not allow ajax calls
         this.on('ready', () => this.table(AppDB.DECKS_TABLE).count()
         .then(count => {
-            if (count > 0) {
-                console.log('db already populated');
-                return true;
-            }
-            console.log('populate from file');
-            return this.populateFromFile().then(() => true);
+            // if (count > 0) {
+            //     console.log('db already populated');
+            //     return true;
+            // }
+            // console.log('populate from file');
+            // return this.populateFromFile().then(() => true);
         }));
 
         // trigger changeSubject when change emitted to db

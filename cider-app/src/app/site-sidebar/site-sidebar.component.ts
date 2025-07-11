@@ -68,7 +68,7 @@ export class SiteSidebarComponent implements OnInit {
       updatedFiles.push({
         label: projectName,
         data: {
-          url: '/',
+          url: '/project',
           contextMenu: [
             {
               label: 'Add New Deck',
@@ -181,7 +181,7 @@ export class SiteSidebarComponent implements OnInit {
           data: {
             url: '/decks/' + deck.id + '/cards/attributes',
           },
-          icon: 'pi pi-cog',
+          icon: 'pi pi-tags',
           styleClass: 'card-attributes',
         });
 

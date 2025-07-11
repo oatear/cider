@@ -223,7 +223,7 @@ export class SiteMenuComponent implements OnInit {
   }
 
   private updateBreadcrumbs(routeUrl: string) {
-    this.home = { icon: 'pi pi-home', routerLink: '/' };
+    this.home = { icon: 'pi pi-home', routerLink: '/project' };
     const breadcrumbs: MenuItem[] = [];
     const urlSegments = routeUrl.split('/').filter((segment) => segment);
     let currentPath = '';

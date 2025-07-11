@@ -99,12 +99,22 @@
 
     > .p-splitterpanel:first-child {
         min-width: 200px;
+
+        // transform-style: preserve-3d;
+        // transition: transform 0.3s ease, box-shadow 0.3s ease;
+        // transform: perspective(1000px) rotateX(0deg) rotateY(0deg);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        // backface-visibility: hidden;
+        // will-change: transform;
     }
 
     &.no-sidebar {
         > .p-splitterpanel:first-child {
             flex: 0 0 0px !important;
             min-width: 0px;
+
+            transform: perspective(1000px) rotateX(5deg) rotateY(-5deg);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
         }
         > .p-splitter-gutter {
             flex: 0 0 0px !important;
@@ -118,7 +128,7 @@
 
 :host ::ng-deep .site-splitter:not(.p-splitter-resizing) {
     > .p-splitterpanel:first-child {
-        transition: flex 0.3s ease-in-out, min-width 0.3s ease-in-out;
+        transition: flex 0.3s ease-in-out, min-width 0.3s ease-in-out, transform 0.3s ease, box-shadow 0.3s ease;
     }
     > .p-splitter-gutter {
         transition: flex 0.3s ease-in-out, display 0s 0.3s allow-discrete;

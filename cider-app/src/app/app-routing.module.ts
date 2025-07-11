@@ -14,6 +14,7 @@ import { AssetComponent } from './asset/asset.component';
 import { AssetGeneratorComponent } from './asset-generator/asset-generator.component';
 import { DocumentComponent } from './document/document.component';
 import { DocumentsComponent } from './documents/documents.component';
+import { ProjectComponent } from './project/project.component';
 
 const routes: Routes = [
   { path: 'decks', component: DecksComponent, canActivate: [ProjectGuard]},
@@ -29,6 +30,7 @@ const routes: Routes = [
   { path: 'decks/:deckId/cards/attributes', component: CardAttributesComponent, canActivate: [ProjectGuard, DeckGuard]},
   { path: 'decks/:deckId/templates/:templateId', component: CardTemplatesComponent, canActivate: [ProjectGuard, DeckGuard]},
   { path: 'decks/:deckId/export-cards', component: ExportCardsComponent, canActivate: [ProjectGuard, DeckGuard]},
+  { path: 'project', component: ProjectComponent, canActivate: [ProjectGuard]},
   { path: '**', component: WelcomeComponent}
 ];
 

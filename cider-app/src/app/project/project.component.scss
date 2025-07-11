@@ -1,0 +1,29 @@
+:host {
+    height: 100%;
+}
+
+:host ::ng-deep app-page-header .p-card {
+    margin-left: 0;
+}
+:host ::ng-deep .project-card {
+    margin-right: 10px;
+    height: 100%;
+}
+:host ::ng-deep .project-info {
+    margin-bottom: 10px;
+}
+
+:host ::ng-deep .decks {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+    .deck-button {
+        display: flex;
+        flex-direction: column;
+        border-color: transparent;
+        color: var(--p-text-color);
+        // align-items: center;
+        // justify-content: center;
+    }
+}

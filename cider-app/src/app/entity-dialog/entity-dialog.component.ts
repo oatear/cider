@@ -25,11 +25,13 @@ export class EntityDialogComponent<Entity, Identifier extends string | number> i
   constructor(private messageService: MessageService, private domSanitizer: DomSanitizer) { }
 
   ngOnInit(): void {
-    this.service?.getFields().then(fields => this.columns = fields);
+    if (this.service && this.service.getFields) {
+      this.service?.getFields().then(fields => this.columns = fields);
+    }
   }
   
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['service'] && this.service) {
+    if (changes['service'] && this.service && this.service.getFields) {
       this.service.getFields().then(fields => this.columns = fields);
     }
   }

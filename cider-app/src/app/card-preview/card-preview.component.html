@@ -1,6 +1,7 @@
 <div class='scale-wrapper'
     [style.width]="scale !== 1.0 && initialWidth ? initialWidth * scale + 'px': 'initial'" 
-    [style.height]="scale !== 1.0 && initialHeight ? initialHeight * scale + 'px': 'initial'">
+    [style.height]="scale !== 1.0 && initialHeight ? initialHeight * scale + 'px': 'initial'"
+    [class.tiltable]="tiltable">
     <div *ngIf="cache && cachedImageUrl" class="card-preview" [style.transform]="'scale(' + scale + ')'">
         <div class="image-placeholder" [style.width.px]="initialWidth" [style.height.px]="initialHeight">
             <img [src]="cachedImageUrl | safeUrl">
