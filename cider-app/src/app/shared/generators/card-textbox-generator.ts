@@ -24,23 +24,58 @@ export interface DialogFrameOptions {
   turbulence: number;
   /** If true, adds extra sketchy lines over the final shape for a hand-drawn effect. */
   resketch: boolean;
+  /** The direction of the arch for 'arched' frames. 'up' or 'down'. */
+  archDirection?: 'up' | 'down';
 }
 
 /**
  * Generates the "skeleton" points for the base shape (sharp, rounded, arched).
  * These points define the ideal, non-turbulent path.
  */
-function generateSkeletonPoints(frame: FrameOption, width: number, height: number): {x: number, y: number}[] {
+function generateSkeletonPoints(
+    frame: FrameOption, 
+    width: number, 
+    height: number, 
+    archDirection: 'up' | 'down' = 'up'
+): {x: number, y: number}[] {
     const points: {x: number, y: number}[] = [];
     const cornerRadius = Math.min(width, height) * 0.15;
 
     switch (frame) {
-        case 'arched':
-            // This implementation is fine. It creates a nice curve with enough points.
-            const archHeight = height * 0.3;
-            for (let i = 0; i <= 20; i++) points.push({ x: i/20 * width, y: Math.sin(i/20 * Math.PI) * archHeight });
-            for (let i = 20; i >= 0; i--) points.push({ x: i/20 * width, y: height - Math.sin(i/20 * Math.PI) * archHeight });
+        case 'arched': {
+            // --- CORRECTED IMPLEMENTATION TO STAY WITHIN BOUNDS ---
+            const archHeight = height * 0.3; // The amplitude of the curve
+            const steps = 20;
+
+            if (archDirection === 'up') {
+                // Top edge: Moves from y=archHeight up to y=0 and back.
+                for (let i = 0; i <= steps; i++) {
+                    const t = i / steps;
+                    const curve = Math.sin(t * Math.PI) * archHeight;
+                    points.push({ x: t * width, y: archHeight - curve });
+                }
+                // Bottom edge: Moves from y=height up to y=height-archHeight and back.
+                for (let i = steps; i >= 0; i--) {
+                    const t = i / steps;
+                    const curve = Math.sin(t * Math.PI) * archHeight;
+                    points.push({ x: t * width, y: height - curve });
+                }
+            } else { // archDirection === 'down'
+                // Top edge: Moves from y=0 down to y=archHeight and back.
+                for (let i = 0; i <= steps; i++) {
+                    const t = i / steps;
+                    const curve = Math.sin(t * Math.PI) * archHeight;
+                    points.push({ x: t * width, y: curve });
+                }
+                // Bottom edge: Moves from y=height-archHeight down to y=height and back.
+                for (let i = steps; i >= 0; i--) {
+                    const t = i / steps;
+                    const curve = Math.sin(t * Math.PI) * archHeight;
+                    points.push({ x: t * width, y: (height - archHeight) + curve });
+                }
+            }
             break;
+        }
             
         case 'rounded': { // Wrapped in a block for local const declarations
             // --- CORRECTED IMPLEMENTATION ---
@@ -192,7 +227,8 @@ function pointsToSmoothPathString(points: {x: number, y: number}[]): string {
 export function generateDialogFrame(options: DialogFrameOptions): string {
   const {
     width, height, backColor, frontColor, outlineColor, outlineWidth,
-    frameOption, edgeOption, frameWidth, turbulence, resketch
+    frameOption, edgeOption, frameWidth, turbulence, resketch,
+    archDirection = 'up'
   } = options;
 
   let frameElements = '';
@@ -238,7 +274,7 @@ export function generateDialogFrame(options: DialogFrameOptions): string {
   const transform = `transform="translate(${canvas.x}, ${canvas.y})"`;
   
   // 2. Generate the path data
-  const skeletonPoints = generateSkeletonPoints(frameOption, canvas.width, canvas.height);
+  const skeletonPoints = generateSkeletonPoints(frameOption, canvas.width, canvas.height, archDirection);
   const styledPoints = applyEdgeStyle(skeletonPoints, edgeOption, turbulence);
   const pathData = pointsToSharpPathString(styledPoints, edgeOption);
   

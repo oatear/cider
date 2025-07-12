@@ -88,7 +88,7 @@
      </div>
      <div class="generator-output">
         @for (asset of generatedSvgs; track asset) {
-            <p-button variant="text" size="small" class=""
+            <p-button variant="text" size="small" styleClass="asset-button tiltable"
                 (click)="showSavePopover($event, popover, asset)">
                 <div class="symbol-item" [innerHTML]="asset.safeHtml"></div>
             </p-button>
