@@ -3,6 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule } from '@angular/forms';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { CdkDrag } from '@angular/cdk/drag-drop';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -92,6 +93,7 @@ import { DocumentComponent } from './document/document.component';
 import { MarkdownModule } from 'ngx-markdown';
 import { DocumentsComponent } from './documents/documents.component';
 import { ProjectComponent } from './project/project.component';
+import { GameSimulatorComponent } from './game-simulator/game-simulator.component';
 
 @NgModule({ declarations: [
         AppComponent,
@@ -123,12 +125,14 @@ import { ProjectComponent } from './project/project.component';
         DocumentComponent,
         DocumentsComponent,
         ProjectComponent,
+        GameSimulatorComponent,
     ],
     bootstrap: [AppComponent], 
     imports: [BrowserModule,
         BrowserAnimationsModule,
         AppRoutingModule,
         MonacoEditorModule.forRoot(MonacoExtension.monacoConfig),
+        MarkdownModule.forRoot(),
         ButtonModule,
         ButtonGroup,
         RippleModule,
@@ -175,7 +179,7 @@ import { ProjectComponent } from './project/project.component';
         InputNumberModule,
         PopoverModule,
         MeterGroupModule,
-        MarkdownModule.forRoot(),
+        CdkDrag,
     ], 
     providers: [
         CardToHtmlPipe, provideHttpClient(withInterceptorsFromDi()),

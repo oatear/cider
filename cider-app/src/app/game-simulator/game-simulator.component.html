@@ -1,0 +1,52 @@
+Game Simulator
+<div class="game-simulator">
+    <!-- <div class="card-stacks">
+    </div> -->
+    <div class="field game-boundary">
+        <!-- Field
+        Decks -->
+        @for (stack of stacks; track stack.deckId) {
+        <div *ngIf="stack.cards" class="card-stack game-card" 
+            (click)="drawCard(stack.cards)" cdkDragBoundary=".game-boundary" cdkDrag>
+            <app-card-preview [cache]="false" [tiltable]="true"
+                 *ngIf="stack.cards[0].backCardTemplateId"
+                [template]="stack.cards[0].backCardTemplateId | entity: cardTemplatesService | async"
+                [card]="stack.cards[0]" [scale]="zoomLevel" ></app-card-preview>
+            <div class="count">{{ stack.cards.length }}</div>
+        </div>
+        }
+        <!-- Discard -->
+        <div *ngIf="discard.cards && discard.cards[0]" 
+            class="card-stack discard-stack game-card" 
+            (click)="drawCard(discard.cards)" cdkDragBoundary=".game-boundary" cdkDrag>
+            <app-card-preview *ngIf="discard.cards[discard.cards.length - 1].frontCardTemplateId"
+                [cache]="false" [tiltable]="true"
+                [template]="discard.cards[discard.cards.length - 1].frontCardTemplateId | entity: cardTemplatesService | async"
+                [card]="discard.cards[discard.cards.length - 1]" [scale]="zoomLevel" ></app-card-preview>
+            <div class="count">{{ discard.cards.length }}</div>
+        </div>
+
+        <ng-container *ngFor="let card of field.cards">
+            <div class="field-card game-card" *ngIf="card.frontCardTemplateId" 
+                (click)="discardCard(field.cards, card)" cdkDragBoundary=".game-boundary" cdkDrag>
+                <app-card-preview [cache]="false" [tiltable]="true"
+                    [template]="card.frontCardTemplateId | entity: cardTemplatesService | async"
+                    [card]="card" [scale]="zoomLevel" ></app-card-preview>
+            </div>
+        </ng-container>
+        
+        <!-- <ng-container *ngFor="let card of hand.cards">
+            <div class="hand-card" *ngIf="card.frontCardTemplateId" 
+                (click)="playCard(hand.cards, card)" cdkDrag>
+                <app-card-preview [cache]="false" [tiltable]="true"
+                    [template]="card.frontCardTemplateId | entity: cardTemplatesService | async"
+                    [card]="card" [scale]="zoomLevel" ></app-card-preview>
+            </div>
+        </ng-container> -->
+    </div>
+    <!-- <div class="game-bottom">
+        <div class="hand">
+            Hand
+        </div>
+    </div> -->
+</div>

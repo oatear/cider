@@ -30,7 +30,7 @@ export class SiteActivitybarComponent {
           this.selectedActivity = 'explorer';
         }
         this.selectedActivityChange.emit(this.selectedActivity);
-        console.log('Explorer activity selected:', this.selectedActivity);
+        // console.log('Explorer activity selected:', this.selectedActivity);
       }
     },
     // {
@@ -83,6 +83,21 @@ export class SiteActivitybarComponent {
     //     this.router.navigate(['/welcome']);
     //   }
     // },
+    {
+      label: 'Game Simulator',
+      icon: 'pi pi-fw pi-crown',
+      tooltipOptions: {
+        tooltipLabel: 'Game Simulator',
+        tooltipPosition: 'right',
+        showDelay: 500,
+        hideDelay: 500
+      },
+      command: () => {
+        this.selectedActivity = '';
+        this.selectedActivityChange.emit(this.selectedActivity);
+        this.router.navigate(['/simulator']);
+      }
+    },
     {
       label: 'Settings',
       icon: 'pi pi-fw pi-cog',

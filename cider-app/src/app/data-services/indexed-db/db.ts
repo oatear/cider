@@ -159,7 +159,7 @@ export class AppDB extends Dexie {
         this.close();
         return this.delete().then(() => this.open()).then(() => {
             if (!keepEmpty) {
-                return this.populateFromFile();
+                // return this.populateFromFile();
             }
             return true;
         });

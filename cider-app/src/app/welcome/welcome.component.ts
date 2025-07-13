@@ -128,7 +128,7 @@ export class WelcomeComponent implements OnInit {
       this.documentsService).then(() => {
       this.assetsService.updateAssetUrls();
       this.decksService.selectDeck(undefined);
-      this.router.navigateByUrl(`/decks`);
+      this.router.navigateByUrl(`/project`);
       this.displayLoading = false;
     });
   }

@@ -1,0 +1,100 @@
+:host {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+:host ::ng-deep .game-simulator {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+
+    .card-stacks {
+        display: flex;
+        flex-direction: row;
+        // width: 100%;
+        // height: 100%;
+        overflow: hidden;
+        gap: 20px;
+    }
+
+    .field {
+        flex: 1;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        // width: 100%;
+        // height: 100%;
+        overflow: hidden;
+        gap: 10px;
+    }
+
+    .game-bottom {
+        display: flex;
+        flex-direction: row;
+        // width: 100%;
+        // height: 100%;
+        overflow: hidden;
+        gap: 10px;
+
+        .hand {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            height: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
+            gap: 10px;
+        }
+    }
+}
+
+:host ::ng-deep {
+    .game-card {
+        position: absolute;
+        // z-index: 2;
+        height: fit-content;
+        width: fit-content;
+    }
+}
+
+:host ::ng-deep .card-stack-old {
+    position: relative;
+    background: white;
+    border: 1px solid #ccc;
+    // border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    z-index: 3;
+
+    app-card-preview {
+        // opacity: 0.1;
+    }
+
+    &::before,
+    &::after {
+        content: '';
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        width: 100%;
+        height: 100%;
+        background: white;
+        border: 1px solid #ccc;
+        // border-radius: 8px;
+        z-index: -1;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    }
+
+    &::before {
+        top: 8px;
+        left: 8px;
+        z-index: -2;
+        opacity: 0.8;
+    }
+
+    &::after {
+        top: 4px;
+        left: 4px;
+        opacity: 0.9;
+    }
+}
