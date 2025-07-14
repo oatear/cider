@@ -19,6 +19,7 @@ interface CardStack extends Positionable {
   name: string;
   cards: GameCard[];
   faceUp: boolean;
+  deletable: boolean;
 }
 
 interface GameCard extends Positionable {
@@ -48,7 +49,8 @@ export class GameSimulatorComponent {
   discard: CardStack = { 
     name: 'Discard', cards: [], faceUp: true,
     uniqueId: StringUtils.generateRandomString(),
-    pos: { x: 0, y: 0 }};
+    pos: { x: 0, y: 0 },
+    deletable: false};
   zoomLevel: number = 0.20;
   contextMenuItems: MenuItem[] = [];
   hoveredItem: Positionable | undefined;
@@ -85,7 +87,8 @@ export class GameSimulatorComponent {
             name: deck.name,
             cards: expandedCards,
             faceUp: false,
-            pos: { x: 0, y: 0 }
+            pos: { x: 0, y: 0 },
+            deletable: true,
           });
         });
       });
@@ -95,7 +98,8 @@ export class GameSimulatorComponent {
         cards: [], 
         uniqueId: StringUtils.generateRandomString(),
         faceUp: true,
-        pos: { x: 0, y: 0 }
+        pos: { x: 0, y: 0 },
+        deletable: false,
       };
       stacks.push(this.discard);
 
@@ -147,6 +151,13 @@ export class GameSimulatorComponent {
     }
   }
 
+  public deleteStack(stack: CardStack) {
+    const index = this.stacks.indexOf(stack);
+    if (index > -1) {
+      this.stacks.splice(index, 1);
+    }
+  }
+
   public onStackContextMenu(event: MouseEvent, cm: ContextMenu, stack: CardStack) {
     event.preventDefault();
     this.contextMenuItems = [
@@ -162,7 +173,7 @@ export class GameSimulatorComponent {
       },
       {
         label: 'Shuffle Stack',
-        icon: 'pi pi-refresh',
+        icon: 'pi pi-arrow-right-arrow-left',
         command: () => this.shuffleCards(stack.cards)
       },
       {
@@ -175,6 +186,12 @@ export class GameSimulatorComponent {
         icon: 'pi pi-clone',
         command: () => this.splitInHalf(stack)
       },
+      {
+        label: 'Delete',
+        icon: 'pi pi-trash',
+        command: () => this.deleteStack(stack),
+        disabled: !stack.deletable
+      },
     ];
     cm.show(event);
   }
@@ -184,11 +201,16 @@ export class GameSimulatorComponent {
     this.contextMenuItems = [
       {
         label: 'Flip Card',
-        icon: 'pi pi-arrow-right-arrow-left',
+        icon: 'pi pi-refresh',
         command: () => {
           // Logic to flip the card, if applicable
           card.faceUp = !card.faceUp;
         }
+      },
+      {
+        label: 'Create Stack',
+        icon: 'pi pi-book',
+        command: () => this.createStack(this.field.cards, card)
       },
       {
         label: 'Discard Card',
@@ -197,6 +219,23 @@ export class GameSimulatorComponent {
       }
     ];
     cm.show(event);
+  }
+
+  public createStack(cards: GameCard[], card: GameCard) {
+    const index = cards.indexOf(card);
+    if (index < 0) {
+      return
+    }
+    cards.splice(index, 1);
+    const newCards: GameCard[] = [card];
+    this.stacks.push({
+      uniqueId: StringUtils.generateRandomString(),
+      name: 'stack-' + StringUtils.generateRandomString(3),
+      cards: newCards,
+      faceUp: true,
+      pos: { x: card.pos.x, y: card.pos.y },
+      deletable: true,
+    });
   }
 
   public splitInHalf(stack: CardStack) {
@@ -212,7 +251,8 @@ export class GameSimulatorComponent {
       name: stack.name + ' copy',
       cards: cards,
       faceUp: false,
-      pos: { x: 0, y: 0 }
+      pos: { x: 0, y: 0 },
+      deletable: true,
     });
   }
 

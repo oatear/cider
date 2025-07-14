@@ -57,6 +57,7 @@
         width: fit-content;
     }
     .card-stack {
+        z-index: 1;
         .stack-placeholder {
             display: flex;
             align-items: center;
