@@ -1,22 +1,38 @@
-Game Simulator
-<div class="game-simulator">
-    <!-- <div class="card-stacks">
-    </div> -->
+<!-- Game Simulator -->
+<div class="game-simulator" cdkDropListGroup>
+    <!-- <div class="field game-boundary"
+        cdkDropListSortingDisabled="true"
+        [cdkDropListData]="field.cards"
+        (cdkDropListDropped)="onCardDropped($event)"
+        cdkDropList> -->
     <div class="field game-boundary">
-        <!-- Field
-        Decks -->
-        @for (stack of stacks; track stack.deckId) {
-        <div *ngIf="stack.cards" class="card-stack game-card" 
-            (click)="drawCard(stack.cards)" cdkDragBoundary=".game-boundary" cdkDrag>
+            <!-- cdkDropList
+            [cdkDropListData]="stack.cards"
+            (cdkDropListDropped)="onCardDropped($event)" -->
+        <!-- Stacks -->
+        @for (stack of stacks; track stack.uniqueId) {
+        <div *ngIf="stack.cards" class="card-stack game-card"
+            [class.empty]="stack.cards.length === 0"
+            (click)="drawCard(stack.cards)" 
+            (contextmenu)="onStackContextMenu($event, cm, stack)"
+            cdkDragBoundary=".game-boundary" cdkDrag>
             <app-card-preview [cache]="false" [tiltable]="true"
-                 *ngIf="stack.cards[0].backCardTemplateId"
-                [template]="stack.cards[0].backCardTemplateId | entity: cardTemplatesService | async"
-                [card]="stack.cards[0]" [scale]="zoomLevel" ></app-card-preview>
-            <div class="count">{{ stack.cards.length }}</div>
+                 *ngIf="stack.cards.length > 0 && stack.cards[stack.cards.length - 1].card.backCardTemplateId"
+                [template]="(stack.faceUp ? stack.cards[stack.cards.length - 1].card.frontCardTemplateId 
+                    : stack.cards[stack.cards.length - 1].card.backCardTemplateId)
+                    | entity: cardTemplatesService | async"
+                [card]="stack.cards[stack.cards.length - 1].card" [scale]="zoomLevel" ></app-card-preview>
+            <div class="stack-placeholder" *ngIf="stack.cards.length === 0">
+                <span class="placeholder-text">{{ stack.name }}</span>
+            </div>
+            <div class="dropzone" *ngIf="dragging"
+                (mouseover)="onMouseEntered($event, stack)"
+                (mouseout)="onMouseExited($event, stack)"></div>
+            <div class="count">{{ stack.name }} {{ stack.cards.length }}</div>
         </div>
         }
         <!-- Discard -->
-        <div *ngIf="discard.cards && discard.cards[0]" 
+        <!-- <div *ngIf="discard.cards && discard.cards[0]" 
             class="card-stack discard-stack game-card" 
             (click)="drawCard(discard.cards)" cdkDragBoundary=".game-boundary" cdkDrag>
             <app-card-preview *ngIf="discard.cards[discard.cards.length - 1].frontCardTemplateId"
@@ -24,29 +40,33 @@ Game Simulator
                 [template]="discard.cards[discard.cards.length - 1].frontCardTemplateId | entity: cardTemplatesService | async"
                 [card]="discard.cards[discard.cards.length - 1]" [scale]="zoomLevel" ></app-card-preview>
             <div class="count">{{ discard.cards.length }}</div>
-        </div>
+        </div> -->
+
+                <!-- [style.top.px]="card.pos.y"
+                [style.left.px]="card.pos.x"  -->
 
         <ng-container *ngFor="let card of field.cards">
-            <div class="field-card game-card" *ngIf="card.frontCardTemplateId" 
-                (click)="discardCard(field.cards, card)" cdkDragBoundary=".game-boundary" cdkDrag>
+            <div class="field-card game-card" *ngIf="card.card.frontCardTemplateId"
+                (click)="discardCard(field.cards, card)" 
+                (contextmenu)="onCardContextMenu($event, cm, card)"
+                [cdkDragData]="card"
+                (cdkDragStarted)="onDragStarted($event, field.cards, card)"
+                (cdkDragDropped)="changePosition($event, card)"
+                (cdkDragEnded)="onDragEnded($event, field.cards, card)"
+                (cdkDragEntered)="onDragEntered($event, card)"
+                [cdkDragFreeDragPosition]="card.pos"
+                cdkDragBoundary=".game-boundary" cdkDrag>
                 <app-card-preview [cache]="false" [tiltable]="true"
-                    [template]="card.frontCardTemplateId | entity: cardTemplatesService | async"
-                    [card]="card" [scale]="zoomLevel" ></app-card-preview>
+                    [template]="(card.faceUp ? card.card.frontCardTemplateId 
+                        : card.card.backCardTemplateId) 
+                        | entity: cardTemplatesService | async"
+                    [card]="card.card" [scale]="zoomLevel" ></app-card-preview>
+                <!-- <div class="drop-zone"
+                style="width: 100px; height: 100px; background-color: red;"
+                cdkDropList
+                [cdkDropListData]="field.cards"></div> -->
             </div>
         </ng-container>
-        
-        <!-- <ng-container *ngFor="let card of hand.cards">
-            <div class="hand-card" *ngIf="card.frontCardTemplateId" 
-                (click)="playCard(hand.cards, card)" cdkDrag>
-                <app-card-preview [cache]="false" [tiltable]="true"
-                    [template]="card.frontCardTemplateId | entity: cardTemplatesService | async"
-                    [card]="card" [scale]="zoomLevel" ></app-card-preview>
-            </div>
-        </ng-container> -->
     </div>
-    <!-- <div class="game-bottom">
-        <div class="hand">
-            Hand
-        </div>
-    </div> -->
 </div>
+<p-contextmenu #cm [model]="contextMenuItems" />
