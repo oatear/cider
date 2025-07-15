@@ -28,6 +28,13 @@ interface GameCard extends Positionable {
   faceUp: boolean;
 }
 
+interface GameComponent extends Positionable {
+  uniqueId: string;
+  className: string;
+  faceUp: boolean;
+  contextMenu: MenuItem[];
+}
+
 interface Positionable {
   pos: Position;
 }
@@ -45,7 +52,8 @@ interface Position {
 export class GameSimulatorComponent {
   stacks: CardStack[] = [];
   field: CardZone = { name: 'Field', cards: [] };
-  hand: CardZone = { name: 'Hand', cards: [] };
+  components: GameComponent[] = [];
+  // hand: CardZone = { name: 'Hand', cards: [] };
   discard: CardStack = { 
     name: 'Discard', cards: [], faceUp: true,
     uniqueId: StringUtils.generateRandomString(),
@@ -54,7 +62,8 @@ export class GameSimulatorComponent {
   zoomLevel: number = 0.20;
   contextMenuItems: MenuItem[] = [];
   hoveredItem: Positionable | undefined;
-  dragging: boolean = false;
+  draggingCard: boolean = false;
+  draggingComponent: boolean = false;
 
   constructor(
     private decksService: DecksService,
@@ -67,7 +76,7 @@ export class GameSimulatorComponent {
   private resetGame() {
     const stacks: CardStack[] = [];
     this.decksService.getAll().then(decks => {
-      return decks.forEach(deck => {
+      return decks.forEach((deck, index) => {
         return this.cardsService.getAll({ deckId: deck.id }).then(cards => {
           const expandedCards: GameCard[] = [];
           cards.forEach(card => {
@@ -82,12 +91,16 @@ export class GameSimulatorComponent {
             }
           });
           this.shuffleCards(expandedCards);
+          const dropPos: Position = {
+            x: index  * 200,
+            y: 0
+          };
           stacks.push({ 
             uniqueId: StringUtils.generateRandomString(),
             name: deck.name,
             cards: expandedCards,
             faceUp: false,
-            pos: { x: 0, y: 0 },
+            pos: dropPos,
             deletable: true,
           });
         });
@@ -98,14 +111,14 @@ export class GameSimulatorComponent {
         cards: [], 
         uniqueId: StringUtils.generateRandomString(),
         faceUp: true,
-        pos: { x: 0, y: 0 },
+        pos: { x: 800, y: 0 },
         deletable: false,
       };
       stacks.push(this.discard);
 
       this.stacks = stacks;
       this.field.cards = [];
-      this.hand.cards = [];
+      // this.hand.cards = [];
       this.discard.cards = [];
     });
   }
@@ -122,16 +135,34 @@ export class GameSimulatorComponent {
     stack.faceUp = !stack.faceUp;
   }
 
-  public drawCard(cards: GameCard[], faceUp: boolean = true) {
-    if (cards.length > 0) {
-      const drawnCard = cards.pop();
+  public drawCard(stack: CardStack, faceUp: boolean = true) {
+    if (stack.cards.length > 0) {
+      const drawnCard = stack.cards.pop();
       if (drawnCard) {
         // change position to deck position + offset
-        drawnCard.pos.x = 100;
-        drawnCard.pos.y = 100;
+        drawnCard.pos.x = stack.pos.x + 50 + (Math.random() * 20 - 10);
+        drawnCard.pos.y = stack.pos.y + 50 + (Math.random() * 20 - 10);
         drawnCard.faceUp = faceUp;
         this.field.cards.push(drawnCard);
       }
+    }
+  }
+
+  public drawSpecificCardFromStack(stack: CardStack, cardToDraw: GameCard) {
+    const cardIndex = stack.cards.findIndex(c => c.uniqueId === cardToDraw.uniqueId);
+
+    if (cardIndex > -1) {
+      // Remove the specific card from the stack array
+      const [drawnCard] = stack.cards.splice(cardIndex, 1);
+      
+      // Set its properties for being on the field
+      drawnCard.faceUp = true;
+      // Position it near the stack it came from for a better user experience
+      drawnCard.pos.x = stack.pos.x + 40;
+      drawnCard.pos.y = stack.pos.y + 40;
+
+      // Add the card to the field
+      this.field.cards.push(drawnCard);
     }
   }
 
@@ -151,10 +182,10 @@ export class GameSimulatorComponent {
     }
   }
 
-  public deleteStack(stack: CardStack) {
-    const index = this.stacks.indexOf(stack);
+  public deleteItem(items: Positionable[], item: Positionable) {
+    const index = items.indexOf(item);
     if (index > -1) {
-      this.stacks.splice(index, 1);
+      items.splice(index, 1);
     }
   }
 
@@ -164,32 +195,47 @@ export class GameSimulatorComponent {
       {
         label: 'Draw Card',
         icon: 'pi pi-plus',
-        command: () => this.drawCard(stack.cards)
+        command: () => this.drawCard(stack),
+        disabled: stack.cards.length === 0
       },
       {
         label: 'Draw Card Facedown',
         icon: 'pi pi-eye-slash',
-        command: () => this.drawCard(stack.cards, false)
+        command: () => this.drawCard(stack, false),
+        disabled: stack.cards.length === 0
+      },
+      {
+        label: 'Draw Specific Card',
+        icon: 'pi pi-id-card',
+        disabled: stack.cards.length === 0,
+        // Dynamically create a submenu for each card in the stack
+        items: stack.cards.map(gameCard => ({
+          label: gameCard.card.name,
+          command: () => this.drawSpecificCardFromStack(stack, gameCard)
+        }))
       },
       {
         label: 'Shuffle Stack',
         icon: 'pi pi-arrow-right-arrow-left',
-        command: () => this.shuffleCards(stack.cards)
+        command: () => this.shuffleCards(stack.cards),
+        disabled: stack.cards.length < 2
       },
       {
         label: 'Flip Stack',
         icon: 'pi pi-refresh',
-        command: () => this.flipStack(stack)
+        command: () => this.flipStack(stack),
+        disabled: stack.cards.length === 0
       },
       {
         label: 'Split in Half',
         icon: 'pi pi-clone',
-        command: () => this.splitInHalf(stack)
+        command: () => this.splitInHalf(stack),
+        disabled: stack.cards.length < 2
       },
       {
         label: 'Delete',
         icon: 'pi pi-trash',
-        command: () => this.deleteStack(stack),
+        command: () => this.deleteItem(this.stacks, stack),
         disabled: !stack.deletable
       },
     ];
@@ -217,6 +263,73 @@ export class GameSimulatorComponent {
         icon: 'pi pi-trash',
         command: () => this.discardCard(this.field.cards, card)
       }
+    ];
+    cm.show(event);
+  }
+
+  public onComponentContextMenu(event: MouseEvent, cm: ContextMenu, 
+    component: GameComponent) {
+    event.preventDefault();
+    this.contextMenuItems = [
+      ...component.contextMenu,
+      {
+        label: 'Flip Over',
+        icon: 'pi pi-refresh',
+        command: () => {
+          component.faceUp = !component.faceUp;
+        }
+      },
+      {
+        label: 'Duplicate',
+        icon: 'pi pi-clone',
+        command: () => this.components.push({
+          ...component,
+          uniqueId: 'coin-' + StringUtils.generateRandomString(),
+          pos: { 
+            x: component.pos.x + 10 + (Math.random() * 10 - 5), 
+            y: component.pos.y + 10 + (Math.random() * 10 - 5)
+          },
+        }),
+      },
+      {
+        label: 'Delete',
+        icon: 'pi pi-trash',
+        command: () => this.deleteItem(this.components, component),
+      },
+    ]
+    cm.show(event);
+  }
+
+  public onFieldContextMenu(event: MouseEvent, cm: ContextMenu) {
+    event.preventDefault();
+    console.log('field context menu: ', event, cm);
+    this.contextMenuItems = [
+      {
+        label: 'Add Coin',
+        icon: 'pi pi-plus',
+        command: () => {
+          const component: GameComponent = {
+            uniqueId: 'coin-' + StringUtils.generateRandomString(),
+            className: 'game-coin',
+            faceUp: true,
+            pos: { 
+              x: event.offsetX, 
+              y: event.offsetY
+            },
+            contextMenu: [],
+          };
+          component.contextMenu = [
+            {
+              label: 'Flip Randomly',
+              icon: 'pi pi-percentage',
+              command: () => {
+                component.faceUp = Math.random() < 0.5;
+              }
+            },
+          ];
+          this.components.push(component);
+        }
+      },
     ];
     cm.show(event);
   }
@@ -256,15 +369,19 @@ export class GameSimulatorComponent {
     });
   }
 
-  public onDragStarted(event: any, cards: GameCard[], card: GameCard) {
+  public onDragStarted(event: any, items: Positionable[], item: Positionable) {
     // send card to the end of the cards array
-    const index = cards.indexOf(card);
+    const index = items.indexOf(item);
     if (index > -1) {
-      cards.splice(index, 1);
-      cards.push(card);
+      items.splice(index, 1);
+      items.push(item);
     }
-    this.dragging = true;
     this.hoveredItem = undefined;
+  }
+
+  public onCardDragStarted(event: any, items: Positionable[], item: Positionable) {
+    this.onDragStarted(event, items, item);
+    this.draggingCard = true;
   }
 
   // onCardDropped(event: CdkDragDrop<GameCard[]>) {
@@ -282,22 +399,26 @@ export class GameSimulatorComponent {
   //   }
   // }
 
-  onDragEnded(event: CdkDragEnd<any>, cards: GameCard[], card: GameCard) {
-    console.log('drag ended: ', event, card);
+  onDragEnded(event: CdkDragEnd<any>, items: Positionable[], item: Positionable) {
+    item.pos.x += event.distance.x;
+    item.pos.y += event.distance.y;
+    // this.dragging = false;
+  }
+
+  onCardDragEnded(event: CdkDragEnd<any>, cards: GameCard[], card: GameCard) {
     card.pos.x += event.distance.x;
     card.pos.y += event.distance.y;
-    console.log('hovered: ', this.hoveredItem);
     if (this.hoveredItem) {
       const index = cards.indexOf(card);
       cards.splice(index, 1);
       (this.hoveredItem as any).cards.push(card);
     }
-    this.dragging = false;
+    this.draggingCard = false;
   }
 
-  onDragEntered(event: CdkDragEnter<any>, item: Positionable) {
-    console.log('drag entered: ', event, item);
-  }
+  // onDragEntered(event: CdkDragEnter<any>, item: Positionable) {
+  //   console.log('drag entered: ', event, item);
+  // }
 
   onMouseEntered(event: any, item: Positionable) {
     if (this.hoveredItem == item) {
@@ -313,29 +434,5 @@ export class GameSimulatorComponent {
       this.hoveredItem = undefined;
     }
   }
-
-
-  changePosition(event: CdkDragDrop<any>, item: Positionable) {
-    // const rectZone=this.dropZone.nativeElement.getBoundingClientRect()
-    // const rectElement=event.item.element.nativeElement.getBoundingClientRect()
-
-    // let y=+field.y+event.distance.y
-    // let x=+field.x+event.distance.x
-    // const out=y<0 || x<0 || (y>(rectZone.height-rectElement.height)) || (x>(rectZone.width-rectElement.width))
-    
-    // if (!out)
-    // {
-    //    field.y=y
-    //    field.x=x
-    //    this.done=this.done.sort((a,b)=>a['z-index']>b['z-index']?1:a['z-index']<b['z-index']?-1:0)
-    // }
-    // else{
-    //   this.todo.push(field)
-    //   this.done=this.done.filter(x=>x!=field)
-    // }
-    console.log('drag dropped', event, item);
-    item.pos.x += event.distance.x;
-    item.pos.y += event.distance.y;
-  }
-
+  
 }

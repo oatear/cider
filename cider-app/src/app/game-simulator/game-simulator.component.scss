@@ -97,11 +97,11 @@
 }
 
 :host ::ng-deep .card-stack.empty {
-    position: relative;
+    // position: relative;
 }
 
 :host ::ng-deep .card-stack:not(.empty) {
-    position: relative;
+    // position: relative;
     // background: white;
     // border: 1px solid #ccc;
     border-radius: 2px;
@@ -154,4 +154,77 @@
   box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
               0 8px 10px 1px rgba(0, 0, 0, 0.14),
               0 3px 14px 2px rgba(0, 0, 0, 0.12);
+}
+
+.game-component {
+    position: absolute;
+    .component {
+        width: 50px;
+        height: 50px;
+        background: rgb(213, 92, 92);
+    }
+}
+
+.tiltable {
+    display: inline-block;
+    transform-style: preserve-3d;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transform: perspective(1000px) rotateX(0deg) rotateY(0deg);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    backface-visibility: hidden;
+    will-change: transform;
+
+    &:hover {
+        transform: perspective(1000px) rotateX(5deg) rotateY(-5deg);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+    &:active {
+        transform: perspective(1000px) rotateX(2deg) rotateY(-2deg) scale(0.98);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+}
+
+.game-component .game-coin {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #ffd92b;
+    border: 4px solid #f1c40f;
+    color: #f1c40f;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0.5px;
+        left: 0.5px;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: rgb(198, 152, 46);
+        z-index: -1;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.20);
+    }
+
+    &::after {
+        content: '✶';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 40px;
+        line-height: 50px;
+        pointer-events: none;
+    }
+
+    &.back::after {
+        content: '⛨';
+    }
+}
+
+:host ::ng-deep .p-contextmenu-submenu {
+    max-height: 300px;
+    overflow: scroll;
 }
