@@ -7,6 +7,7 @@ import { CardsService } from '../data-services/services/cards.service';
 import { CardTemplatesService } from '../data-services/services/card-templates.service';
 import { CardAttributesService } from '../data-services/services/card-attributes.service';
 import { Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 
 interface ProjectInfo {
   name: string;
@@ -112,18 +113,15 @@ export class ProjectComponent implements OnInit {
     ];
   }
 
-  private async getProjectName(): Promise<string> {
+  private getProjectName(): Promise<string> {
     if (this.electronService.isElectron()) {
-      const homeUrl = await this.electronService.getProjectHomeUrl().toPromise();
-      if (homeUrl) {
-        return homeUrl.split('/').pop() || 'Cider Project';
-      }
+      return firstValueFrom(this.electronService.getProjectHomeUrl())
+        .then(homeUrl => homeUrl?.split('/').pop() || 'Cider Project');
     }
-    return 'Cider Project';
+    return new Promise((resolve, reject) => resolve('Cider Project'));
   }
 
   private async getProjectInfo(): Promise<ProjectInfo> {
-    console.log('Get project info');
     const projectName = await this.getProjectName();
     const assets = await this.assetsService.getAll()
     const documents = await this.documentsService.getAll();

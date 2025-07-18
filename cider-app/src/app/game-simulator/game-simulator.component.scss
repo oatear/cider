@@ -1,13 +1,55 @@
+// background, foreground, side
+$colors: (
+  silver:   (#c0c0c0, #e8e8e8, #9a9a9a),   // slightly brighter top, softened edge
+  gold:     (#f1c40f, #ffe877, #b88e0a),   // warm highlight, rich side
+  crimson:  (#c0162e, #f88a9b, #84121f),   // more muted than high contrast version
+  emerald:  (#3cab6c, #9ce6c1, #287c4d),   // rich green, gentle contrast
+  azure:    (#1a80d6, #aad7ff, #0c5b9b),   // softened vibrant blue
+  lilac:    (#b78fc4, #ead7f3, #7e6291),   // more pastel balance
+  ivory:    (#b3b396, #ffffff, #c5c5a5),   // calm, subtle contrast
+  charcoal: (#3b4a54, #a1b0bc, #27333a)    // balanced depth and top face
+);
+
+@each $name, $values in $colors {
+  $bg: nth($values, 1);
+  $fg: nth($values, 2);
+  $side: nth($values, 3);
+
+  .game-simulator .game-component .color-#{"" + $name} {
+    background-color: $bg;
+    border-color: $fg;
+    color: $fg;
+
+    .depth {
+        background: $side;
+    }
+
+    &.game-d6 {
+        background-color: $fg;
+        .pip {
+            // background-color: $side;
+        }
+    }
+  }
+}
+
 :host {
     height: 100%;
     display: flex;
     flex-direction: column;
 }
+
+:host ::ng-deep .p-contextmenu-submenu {
+    max-height: 300px;
+    overflow: scroll;
+}
+
 :host ::ng-deep .game-simulator {
     display: flex;
     flex-direction: column;
     width: 100%;
     height: 100%;
+    overflow: hidden;
 
     .card-stacks {
         display: flex;
@@ -55,6 +97,9 @@
         // z-index: 2;
         height: fit-content;
         width: fit-content;
+        &.magnified {
+            z-index: 3;
+        }
     }
     .card-stack {
         z-index: 1;
@@ -106,7 +151,7 @@
     // border: 1px solid #ccc;
     border-radius: 2px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-    z-index: 3;
+    z-index: 1;
 
     app-card-preview {
         // opacity: 0.1;
@@ -158,6 +203,7 @@
 
 .game-component {
     position: absolute;
+    z-index: 1;
     .component {
         width: 50px;
         height: 50px;
@@ -184,27 +230,29 @@
     }
 }
 
+$game-coin-size: 50px;
 .game-component .game-coin {
     position: absolute;
-    width: 50px;
-    height: 50px;
+    width: $game-coin-size;
+    height: $game-coin-size;
     border-radius: 50%;
     background: #ffd92b;
     border: 4px solid #f1c40f;
     color: #f1c40f;
     box-sizing: border-box;
     font-family: Arial, Helvetica, sans-serif;
+    transform-style: preserve-3d;
 
-    &::before {
-        content: '';
+    .depth {
         position: absolute;
         top: 0.5px;
         left: 0.5px;
-        width: 50px;
-        height: 50px;
+        width: $game-coin-size;
+        height: $game-coin-size;
         border-radius: 50%;
-        background: rgb(198, 152, 46);
+        background: #c6982e;
         z-index: -1;
+        transform: translateZ(-1px);
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.20);
     }
 
@@ -224,7 +272,143 @@
     }
 }
 
-:host ::ng-deep .p-contextmenu-submenu {
-    max-height: 300px;
-    overflow: scroll;
+$game-cube-size: 30px;
+
+.game-component {
+    .game-cube {
+        position: absolute;
+        width: $game-cube-size;
+        height: $game-cube-size;
+        background-color: #50c878; // emerald base
+        border: 2px solid #2e8b57;
+        box-sizing: border-box;
+        box-shadow: inset 0 1px 1px rgba(255,255,255,0.4),
+                    0 2px 3px rgba(0,0,0,0.2);
+        color: #fff;
+        font-weight: bold;
+        font-size: 14px;
+        text-align: center;
+        line-height: $game-cube-size;
+        border-radius: 4px;
+        font-family: Arial, Helvetica, sans-serif;
+        transform-style: preserve-3d;
+
+        .depth {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: $game-cube-size;
+            height: $game-cube-size;
+            background: #2e8b57;
+            z-index: -1;
+            transform: translateZ(-1px);
+            border-radius: 4px;
+        }
+
+        &::after {
+            content: '✦';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 30px;
+            line-height: $game-cube-size;
+            pointer-events: none;
+        }
+
+        &.back::after {
+            content: '●';
+        }
+    }
+}
+
+$die-size: 40px;
+$die-bg: #f9f9f9;
+$die-border: #ccc;
+$die-color: #222;
+$die-side-color: #e0e0e0;
+$die-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+
+.game-component {
+  .game-d6 {
+    position: absolute;
+    width: $die-size;
+    height: $die-size;
+    background-color: $die-bg;
+    border: 2px solid $die-border;
+    border-radius: 8px;
+    box-shadow: $die-shadow;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    padding: 4px;
+    box-sizing: border-box;
+    transform-style: preserve-3d;
+
+    // Depth simulation layer
+    .depth {
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        width: $die-size;
+        height: $die-size;
+        border-radius: 8px;
+        background-color: $die-side-color;
+        z-index: -1;
+        transform: translateZ(-1px);
+    }
+
+    .pip {
+        width: 6px;
+        height: 6px;
+        background: $die-color;
+        border-radius: 50%;
+        margin: auto;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+
+    &.face-1 .pip:nth-child(5),
+    &.face-2 .pip:nth-child(1),
+    &.face-2 .pip:nth-child(9),
+    &.face-3 .pip:nth-child(1),
+    &.face-3 .pip:nth-child(5),
+    &.face-3 .pip:nth-child(9),
+    &.face-4 .pip:nth-child(1),
+    &.face-4 .pip:nth-child(3),
+    &.face-4 .pip:nth-child(7),
+    &.face-4 .pip:nth-child(9),
+    &.face-5 .pip:nth-child(1),
+    &.face-5 .pip:nth-child(3),
+    &.face-5 .pip:nth-child(5),
+    &.face-5 .pip:nth-child(7),
+    &.face-5 .pip:nth-child(9),
+    &.face-6 .pip:nth-child(1),
+    &.face-6 .pip:nth-child(3),
+    &.face-6 .pip:nth-child(4),
+    &.face-6 .pip:nth-child(6),
+    &.face-6 .pip:nth-child(7),
+    &.face-6 .pip:nth-child(9) {
+        opacity: 1;
+    }
+  }
+}
+
+@keyframes dice-shake-roll {
+  0%   { transform: translate(0, 0) rotate(0deg); }
+  10%  { transform: translate(-2px, 1px) rotate(-3deg); }
+  20%  { transform: translate(2px, -1px) rotate(3deg); }
+  30%  { transform: translate(-3px, 2px) rotate(-2deg); }
+  40%  { transform: translate(3px, -2px) rotate(2deg); }
+  50%  { transform: translate(-2px, 1px) rotate(-1deg); }
+  60%  { transform: translate(2px, 0) rotate(1deg); }
+  70%  { transform: translate(-1px, 1px) rotate(-2deg); }
+  80%  { transform: translate(1px, -1px) rotate(2deg); }
+  90%  { transform: translate(0px, 0px) rotate(-1deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+.game-component .component.rolling,
+.card-stack .shuffling {
+  animation: dice-shake-roll 0.6s ease-in-out;
 }

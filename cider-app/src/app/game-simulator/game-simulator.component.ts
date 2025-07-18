@@ -2,12 +2,12 @@ import { Component } from '@angular/core';
 import { DecksService } from '../data-services/services/decks.service';
 import { CardsService } from '../data-services/services/cards.service';
 import { CardTemplatesService } from '../data-services/services/card-templates.service';
-import { Deck } from '../data-services/types/deck.type';
 import { Card } from '../data-services/types/card.type';
 import { MenuItem } from 'primeng/api/menuitem';
 import { ContextMenu } from 'primeng/contextmenu';
 import { CdkDragDrop, CdkDragEnd, CdkDragEnter, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import StringUtils from '../shared/utils/string-utils';
+import MathUtils from '../shared/utils/math-utils';
 
 interface CardZone {
   name: string;
@@ -20,18 +20,23 @@ interface CardStack extends Positionable {
   cards: GameCard[];
   faceUp: boolean;
   deletable: boolean;
+  shuffling?: boolean;
 }
 
 interface GameCard extends Positionable {
   uniqueId: string;
   card: Card;
   faceUp: boolean;
+  magnified?: boolean;
 }
 
 interface GameComponent extends Positionable {
   uniqueId: string;
+  type: 'coin' | 'cube' | 'd6';
   className: string;
   faceUp: boolean;
+  face?: number;
+  rolling?: boolean;
   contextMenu: MenuItem[];
 }
 
@@ -50,6 +55,8 @@ interface Position {
   styleUrl: './game-simulator.component.scss'
 })
 export class GameSimulatorComponent {
+  private static readonly COLORS = ['silver', 'gold', 'crimson', 
+    'emerald', 'azure', 'lilac', 'ivory', 'charcoal'];
   stacks: CardStack[] = [];
   field: CardZone = { name: 'Field', cards: [] };
   components: GameComponent[] = [];
@@ -60,6 +67,7 @@ export class GameSimulatorComponent {
     pos: { x: 0, y: 0 },
     deletable: false};
   zoomLevel: number = 0.20;
+  zoomMagnifiedLevel: number = 0.40;
   contextMenuItems: MenuItem[] = [];
   hoveredItem: Positionable | undefined;
   draggingCard: boolean = false;
@@ -92,8 +100,8 @@ export class GameSimulatorComponent {
           });
           this.shuffleCards(expandedCards);
           const dropPos: Position = {
-            x: index  * 200,
-            y: 0
+            x: (index % 4) * 200,
+            y: Math.floor(index / 4) * 300
           };
           stacks.push({ 
             uniqueId: StringUtils.generateRandomString(),
@@ -217,7 +225,13 @@ export class GameSimulatorComponent {
       {
         label: 'Shuffle Stack',
         icon: 'pi pi-arrow-right-arrow-left',
-        command: () => this.shuffleCards(stack.cards),
+        command: (event) => {
+          stack.shuffling = true;
+          setTimeout(() => {
+            this.shuffleCards(stack.cards);
+            stack.shuffling = false;
+          }, 600);
+        },
         disabled: stack.cards.length < 2
       },
       {
@@ -273,13 +287,6 @@ export class GameSimulatorComponent {
     this.contextMenuItems = [
       ...component.contextMenu,
       {
-        label: 'Flip Over',
-        icon: 'pi pi-refresh',
-        command: () => {
-          component.faceUp = !component.faceUp;
-        }
-      },
-      {
         label: 'Duplicate',
         icon: 'pi pi-clone',
         command: () => this.components.push({
@@ -296,39 +303,127 @@ export class GameSimulatorComponent {
         icon: 'pi pi-trash',
         command: () => this.deleteItem(this.components, component),
       },
-    ]
+    ];
+    this.contextMenuItems.forEach(item => {
+      item.state = component;
+    })
     cm.show(event);
   }
 
   public onFieldContextMenu(event: MouseEvent, cm: ContextMenu) {
     event.preventDefault();
-    console.log('field context menu: ', event, cm);
     this.contextMenuItems = [
       {
         label: 'Add Coin',
         icon: 'pi pi-plus',
-        command: () => {
-          const component: GameComponent = {
-            uniqueId: 'coin-' + StringUtils.generateRandomString(),
-            className: 'game-coin',
-            faceUp: true,
-            pos: { 
-              x: event.offsetX, 
-              y: event.offsetY
-            },
-            contextMenu: [],
-          };
-          component.contextMenu = [
-            {
-              label: 'Flip Randomly',
-              icon: 'pi pi-percentage',
-              command: () => {
-                component.faceUp = Math.random() < 0.5;
-              }
-            },
-          ];
-          this.components.push(component);
-        }
+        items: GameSimulatorComponent.COLORS.map(color => ({
+          label: color,
+          command: () => {
+            const component: GameComponent = {
+              uniqueId: 'coin-' + StringUtils.generateRandomString(),
+              type: 'coin',
+              className: 'game-coin color-' + color,
+              faceUp: true,
+              pos: { 
+                x: event.offsetX, 
+                y: event.offsetY
+              },
+              contextMenu: [],
+            };
+            component.contextMenu = [
+              {
+                label: 'Flip Randomly',
+                icon: 'pi pi-percentage',
+                command: (event) => {
+                  const componentState: GameComponent | undefined = 
+                    event.item?.state as GameComponent;
+                  componentState.rolling = true;
+                  setTimeout(() => {
+                    componentState.faceUp = Math.random() < 0.5;
+                    componentState.rolling = false;
+                  }, 600);
+                }
+              },
+              {
+                label: 'Flip Over',
+                icon: 'pi pi-refresh',
+                command: (event) => {
+                  const componentState: GameComponent | undefined = 
+                    event.item?.state as GameComponent;
+                  componentState.faceUp = !componentState.faceUp;
+                }
+              },
+            ];
+            this.components.push(component);
+          }
+        }))
+      },
+      {
+        label: 'Add Cube',
+        icon: 'pi pi-plus',
+        items: GameSimulatorComponent.COLORS.map(color => ({
+          label: color,
+          command: () => {
+            const component: GameComponent = {
+              uniqueId: 'cube-' + StringUtils.generateRandomString(),
+              type: 'cube',
+              className: `game-cube color-${color}`,
+              faceUp: true,
+              pos: { 
+                x: event.offsetX, 
+                y: event.offsetY
+              },
+              contextMenu: [
+                {
+                  label: 'Flip Over',
+                  icon: 'pi pi-refresh',
+                  command: (event) => {
+                    const componentState: GameComponent | undefined = 
+                      event.item?.state as GameComponent;
+                    componentState.faceUp = !componentState.faceUp;
+                  }
+                },
+              ],
+            };
+            this.components.push(component);
+          }
+        }))
+      },
+      {
+        label: 'Add Die (D6)',
+        icon: 'pi pi-plus',
+        items: GameSimulatorComponent.COLORS.map(color => ({
+          label: color,
+          command: () => {
+            const component: GameComponent = {
+              uniqueId: 'd6-' + StringUtils.generateRandomString(),
+              type: 'd6',
+              className: `game-d6 color-${color}`,
+              faceUp: true,
+              face: 6,
+              pos: { 
+                x: event.offsetX, 
+                y: event.offsetY
+              },
+              contextMenu: [
+                {
+                  label: 'Roll Die',
+                  icon: 'pi pi-percentage',
+                  command: (event) => {
+                    const componentState: GameComponent | undefined = 
+                      event.item?.state as GameComponent;
+                    componentState.rolling = true;
+                    setTimeout(() => {
+                      componentState.face = MathUtils.randomInt(1, 6);
+                      componentState.rolling = false;
+                    }, 600);
+                  }
+                },
+              ],
+            };
+            this.components.push(component);
+          }
+        }))
       },
     ];
     cm.show(event);
@@ -384,21 +479,6 @@ export class GameSimulatorComponent {
     this.draggingCard = true;
   }
 
-  // onCardDropped(event: CdkDragDrop<GameCard[]>) {
-  //   console.log('card dropped: ', event);
-  //   if (event.previousContainer === event.container) {
-  //     // moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
-  //     console.log('container is the same, ignore');
-  //   } else {
-  //     transferArrayItem(
-  //       event.previousContainer.data,
-  //       event.container.data,
-  //       event.previousIndex,
-  //       event.currentIndex,
-  //     );
-  //   }
-  // }
-
   onDragEnded(event: CdkDragEnd<any>, items: Positionable[], item: Positionable) {
     item.pos.x += event.distance.x;
     item.pos.y += event.distance.y;
@@ -416,10 +496,6 @@ export class GameSimulatorComponent {
     this.draggingCard = false;
   }
 
-  // onDragEntered(event: CdkDragEnter<any>, item: Positionable) {
-  //   console.log('drag entered: ', event, item);
-  // }
-
   onMouseEntered(event: any, item: Positionable) {
     if (this.hoveredItem == item) {
       return;
@@ -434,5 +510,17 @@ export class GameSimulatorComponent {
       this.hoveredItem = undefined;
     }
   }
-  
+
+  onCardMouseDown(event: MouseEvent, card: GameCard) {
+    if (event.button == 1) {
+      card.magnified = true;
+    }
+  }
+
+  onCardMouseUp(event: MouseEvent, card: GameCard) {
+    if (event.button == 1) {
+      card.magnified = false;
+    }
+  }
+
 }
