@@ -54,6 +54,8 @@ import { ColorPickerModule } from 'primeng/colorpicker';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { PopoverModule } from 'primeng/popover';
 import { MeterGroupModule } from 'primeng/metergroup';
+import { AutoCompleteModule } from 'primeng/autocomplete';
+
 
 
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -181,6 +183,7 @@ import { GameSimulatorComponent } from './game-simulator/game-simulator.componen
         MeterGroupModule,
         CdkDrag,
         DragDropModule,
+        AutoCompleteModule,
     ], 
     providers: [
         CardToHtmlPipe, provideHttpClient(withInterceptorsFromDi()),

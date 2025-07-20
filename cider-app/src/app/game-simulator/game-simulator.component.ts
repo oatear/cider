@@ -8,6 +8,7 @@ import { ContextMenu } from 'primeng/contextmenu';
 import { CdkDragDrop, CdkDragEnd, CdkDragEnter, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import StringUtils from '../shared/utils/string-utils';
 import MathUtils from '../shared/utils/math-utils';
+import { EntityField } from '../data-services/types/entity-field.type';
 
 interface CardZone {
   name: string;
@@ -197,8 +198,14 @@ export class GameSimulatorComponent {
     }
   }
 
-  public onStackContextMenu(event: MouseEvent, cm: ContextMenu, stack: CardStack) {
+  public async onStackContextMenu(event: MouseEvent, cm: ContextMenu, stack: CardStack) {
     event.preventDefault();
+    const deckIds = stack.cards.map((card) => card.card.deckId)
+      .filter((value, index, array) => array.indexOf(value) === index);
+    const optionAttributes = await Promise.all(deckIds.map((deckId) =>  this.cardsService.getFieldsUnfiltered({ deckId: deckId })))
+      .then((fieldArrays) => fieldArrays.flatMap((fieldArray) => fieldArray)
+      .filter((field) => field.type == 'option' && field.field !== 'frontCardTemplateId' && field.field !== 'backCardTemplateId'));
+
     this.contextMenuItems = [
       {
         label: 'Draw Card',
@@ -245,6 +252,20 @@ export class GameSimulatorComponent {
         icon: 'pi pi-clone',
         command: () => this.splitInHalf(stack),
         disabled: stack.cards.length < 2
+      },
+      {
+        label: 'Split by Attribute',
+        icon: 'pi pi-clone',
+        disabled: stack.cards.length === 0 || optionAttributes.length < 1,
+        // Dynamically create a submenu for each card in the stack
+        // items: stack.cards.map(gameCard => ({
+        //   label: gameCard.card.name,
+        //   command: () => this.drawSpecificCardFromStack(stack, gameCard)
+        // })),
+        items: optionAttributes.map(attribute => ({
+          label: attribute.header,
+          command: () => this.splitByAttribute(stack, attribute)
+        }))
       },
       {
         label: 'Delete',
@@ -459,9 +480,38 @@ export class GameSimulatorComponent {
       name: stack.name + ' copy',
       cards: cards,
       faceUp: false,
-      pos: { x: 0, y: 0 },
+      pos: { 
+        x: stack.pos.x + 50 + (Math.random() * 20 - 10), 
+        y: stack.pos.y + 50 + (Math.random() * 20 - 10)
+      },
       deletable: true,
     });
+  }
+
+  public splitByAttribute(stack: CardStack, attribute: EntityField<Card>) {
+    if (stack.cards.length < 2) {
+      return;
+    }
+    const newStacks = attribute.options?.map((option) => ({
+      uniqueId: StringUtils.generateRandomString(),
+      name: stack.name + ' ' + option,
+      cards: stack.cards.filter((card) => card.card[attribute.field] == option),
+      faceUp: false,
+      pos: { 
+        x: stack.pos.x + (Math.random() * 100 - 50), 
+        y: stack.pos.y + (Math.random() * 100 - 50)
+      },
+      deletable: true,
+    } as CardStack)).filter((cardStack) => cardStack.cards.length > 0);
+
+    // remove cards taken out of the main stack, and remove stack if empty and deletable
+    stack.cards = stack.cards.filter((card) => !newStacks?.some((newStack) => newStack.cards.includes(card)));
+    if (stack.cards.length < 1 && stack.deletable) {
+      this.deleteItem(this.stacks, stack);
+    }
+
+    // add new stacks to the game
+    newStacks?.forEach((stack) => this.stacks.push(stack));
   }
 
   public onDragStarted(event: any, items: Positionable[], item: Positionable) {
