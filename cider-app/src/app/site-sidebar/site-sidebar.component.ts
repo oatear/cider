@@ -4,13 +4,14 @@ import { DecksService } from '../data-services/services/decks.service';
 import { AssetsService } from '../data-services/services/assets.service';
 import { CardTemplatesService } from '../data-services/services/card-templates.service';
 import { ElectronService } from '../data-services/electron/electron.service';
-import { debounceTime, firstValueFrom } from 'rxjs';
+import { debounceTime, firstValueFrom, lastValueFrom } from 'rxjs';
 import StringUtils from '../shared/utils/string-utils';
 import { TreeNodeContextMenuSelectEvent, TreeNodeSelectEvent } from 'primeng/tree';
 import { Router } from '@angular/router';
 import { EntityService } from '../data-services/types/entity-service.type';
 import { DocumentsService } from '../data-services/services/documents.service';
 import { HttpClient } from '@angular/common/http';
+import { AppDB } from '../data-services/indexed-db/db';
 
 @Component({
   selector: 'app-site-sidebar',
@@ -38,7 +39,8 @@ export class SiteSidebarComponent implements OnInit {
     private confirmationService: ConfirmationService,
     private messageService: MessageService, 
     private httpClient: HttpClient,
-    private router: Router) {
+    private router: Router,
+    private db: AppDB) {
     // Initialize or fetch any necessary data here
     // observe the decks and templates
     // for every deck, fetch every template and create a tree node
@@ -46,10 +48,22 @@ export class SiteSidebarComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.updateFiles();
-    this.electronService.getProjectUnsaved().pipe(debounceTime(500)).subscribe(unsaved => {
-      console.log('Project unsaved status changed:', unsaved);
-      this.updateFiles();
+    console.log('init sidebar');
+    this.electronService.getProjectOpen().subscribe(isProjectOpen => {
+        if (isProjectOpen) {
+          console.log('project just opened, sidebar update');
+          this.updateFiles();
+        }
+    });
+    this.db.onChange().pipe(debounceTime(500)).subscribe(() => {
+      lastValueFrom(this.electronService.getProjectOpen()).then(isProjectOpen => {
+        if (isProjectOpen) {
+          // console.log('project is open, sidebar update');
+          this.updateFiles();
+        } else {
+          console.log('project is not open, skipping sidebar update');
+        }
+      });
     });
   }
 
@@ -97,7 +111,7 @@ export class SiteSidebarComponent implements OnInit {
     // Fetch documents
     // -----------------------------------------------
     await this.documentsService.getAll().then(documents => {
-      documents.forEach(document => {
+      return documents.forEach(document => {
         updatedFiles.push({
           label: document.name,
           data: {

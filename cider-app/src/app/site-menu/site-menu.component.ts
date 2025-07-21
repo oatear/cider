@@ -3,7 +3,7 @@ import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
 import { NavigationEnd, Router } from '@angular/router';
 import { ExportProgress } from 'dexie-export-import/dist/export';
 import { ImportProgress } from 'dexie-export-import/dist/import';
-import { Observable, combineLatest, filter, firstValueFrom } from 'rxjs';
+import { Observable, combineLatest, filter, firstValueFrom, lastValueFrom } from 'rxjs';
 import { ElectronService } from '../data-services/electron/electron.service';
 import { AppDB } from '../data-services/indexed-db/db';
 import { LocalStorageService } from '../data-services/local-storage/local-storage.service';
@@ -59,9 +59,13 @@ export class SiteMenuComponent implements OnInit {
     this.router.routeReuseStrategy.shouldReuseRoute = () => {
       return false;
     };
-    // set unsaved whenever db changes are detected
+    // set unsaved whenever db changes are detected on a project with a url
     this.db.onChange().subscribe(() => {
-      this.electronService.setProjectUnsaved(true);
+      lastValueFrom(this.projectHomeUrl$).then(homeUrl => {
+        if (homeUrl) {
+          this.electronService.setProjectUnsaved(true);
+        }
+      })
     });
     this.electronService.getIsAppClosed().subscribe(() => {
       this.ngZone.run(() => {
@@ -333,10 +337,11 @@ export class SiteMenuComponent implements OnInit {
   }
 
   private exitProjectProcedure() {
-    this.db.resetDatabase().then(() => {
+    this.db.resetDatabase(true).then(() => {
       this.assetsService.updateAssetUrls();
       this.electronService.selectDirectory(undefined);
       this.electronService.setProjectUnsaved(false);
+      this.electronService.setProjectOpen(false);
       this.decksService.selectDeck(undefined);
       this.router.navigateByUrl(`/`);
     });
@@ -382,6 +387,7 @@ export class SiteMenuComponent implements OnInit {
       this.electronService.setProjectUnsaved(true);
       this.assetsService.updateAssetUrls();
       this.router.navigateByUrl(`/decks`);
+      this.electronService.setProjectOpen(true);
     });
   }
 
@@ -486,6 +492,7 @@ export class SiteMenuComponent implements OnInit {
       this.router.navigateByUrl(`/decks`);
       this.displayLoading = false;
       this.electronService.setProjectUnsaved(false);
+      this.electronService.setProjectOpen(true);
     });
   }
 

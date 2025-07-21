@@ -96,7 +96,8 @@ export class WelcomeComponent implements OnInit {
     this.db.resetDatabase(keepEmpty).then(() => {
       this.assetsService.updateAssetUrls();
       this.electronService.setProjectUnsaved(true);
-      this.router.navigateByUrl(`/decks`);
+      this.electronService.setProjectOpen(true);
+      this.router.navigateByUrl(`/project`);
     });
   }
 
@@ -127,6 +128,8 @@ export class WelcomeComponent implements OnInit {
       this.cardTemplatesService, this.cardAttributesService, this.cardsService, 
       this.documentsService).then(() => {
       this.assetsService.updateAssetUrls();
+      this.electronService.setProjectUnsaved(false);
+      this.electronService.setProjectOpen(true);
       this.decksService.selectDeck(undefined);
       this.router.navigateByUrl(`/project`);
       this.displayLoading = false;

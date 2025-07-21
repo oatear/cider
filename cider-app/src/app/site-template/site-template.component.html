@@ -5,7 +5,9 @@
             [(selectedActivity)]="selectedActivity"></app-site-activitybar>
         <p-splitter #splitter
             [styleClass]="'site-splitter' + 
-                (selectedActivity === '' || (isElectron && (projectHomeUrl$ | async) == undefined) ? ' no-sidebar' : '')"
+                (selectedActivity === '' 
+                || (isElectron && !(projectOpen$ | async)) 
+                ? ' no-sidebar' : '')"
             [panelSizes]="[20, 80]" [minSizes]="[10, 50]"
             (onResizeStart)="onResizeStart($event)"
             (onResizeEnd)="onResizeEnd($event)">

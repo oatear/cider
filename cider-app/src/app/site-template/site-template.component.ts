@@ -15,6 +15,8 @@ export class SiteTemplateComponent {
   windowResizing$: Subject<boolean>;
   isElectron: boolean;
   projectHomeUrl$: Observable<string | undefined>;
+  projectUnsaved$: Observable<boolean>;
+  projectOpen$: Observable<boolean>;
 
   constructor(electronService: ElectronService) {
     this.windowResizing$ = new Subject();
@@ -23,6 +25,8 @@ export class SiteTemplateComponent {
     });
     this.isElectron = electronService.isElectron();
     this.projectHomeUrl$ = electronService.getProjectHomeUrl();
+    this.projectUnsaved$ = electronService.getProjectUnsaved();
+    this.projectOpen$ = electronService.getProjectOpen();
   }
 
   @HostListener('window:resize', ['$event'])

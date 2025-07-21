@@ -20,11 +20,13 @@ import { DocumentsService } from '../services/documents.service';
 export class ElectronService {
   private static readonly ASSETS_DIR = "assets";
   private static readonly DECKS_DIR = "decks";
+  private projectOpen: BehaviorSubject<boolean>;
   private projectHomeUrl: BehaviorSubject<string | undefined>;
   private projectUnsaved: BehaviorSubject<boolean>;
   private appClosed: Subject<null>;
 
   constructor() {
+    this.projectOpen = new BehaviorSubject<boolean>(false);
     this.projectHomeUrl = new BehaviorSubject<string | undefined>(undefined);
     this.projectUnsaved = new BehaviorSubject<boolean>(false);
     this.appClosed = new Subject<null>();
@@ -34,6 +36,10 @@ export class ElectronService {
         this.appClosed.next(null);
       });
     }
+  }
+
+  public getProjectOpen() {
+    return this.projectOpen.asObservable();
   }
 
   public getProjectHomeUrl() {
@@ -50,6 +56,10 @@ export class ElectronService {
 
   public setProjectUnsaved(unsaved: boolean) {
     this.projectUnsaved.next(unsaved);
+  }
+
+  public setProjectOpen(isOpen: boolean) {
+    this.projectOpen.next(isOpen);
   }
 
   /**

@@ -93,12 +93,12 @@ export class AppDB extends Dexie {
         // populate in a non-traditional way since the 'on populate' will not allow ajax calls
         this.on('ready', () => this.table(AppDB.DECKS_TABLE).count()
         .then(count => {
-            // if (count > 0) {
-            //     console.log('db already populated');
-            //     return true;
-            // }
-            // console.log('populate from file');
-            // return this.populateFromFile().then(() => true);
+            if (count > 0) {
+                console.log('db already populated');
+            } else {
+                console.log('populate from file');
+                this.resetDatabase()
+            }
         }));
 
         // trigger changeSubject when change emitted to db
@@ -110,10 +110,9 @@ export class AppDB extends Dexie {
     async populateFromFile() {
         const blob = await firstValueFrom(this.httpClient.get(AppDB.SAMPLE_DB_FILE, {responseType: 'blob'}));
         const file = new File([blob], 'database.json', {type: 'application/json', lastModified: Date.now()});
-        await importDB(file, {
+        return importDB(file, {
             //noTransaction: true
         });
-        return true;
     }
 
     /**
@@ -132,7 +131,7 @@ export class AppDB extends Dexie {
             progressCallback: progressCallback
         }).then(tempDb => tempDb.close())
         .then(result => this.open())
-        .then(result => true);
+        .then(() => true);
     }
 
     /**
@@ -155,14 +154,16 @@ export class AppDB extends Dexie {
     /**
      * Delete all data in database and return to default data.
      */
-    public resetDatabase(keepEmpty?: boolean) {
+    public async resetDatabase(keepEmpty?: boolean) {
         this.close();
-        return this.delete().then(() => this.open()).then(() => {
-            if (!keepEmpty) {
-                // return this.populateFromFile();
-            }
-            return true;
-        });
+        await this.delete();
+        if (!keepEmpty) {
+            const tempDb = await this.populateFromFile();
+            tempDb.close();
+        }
+        await this.open();
+        this.changeSubject.next(null);
+        return true;
     }
 
     public onChange() {

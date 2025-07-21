@@ -7,6 +7,10 @@
     }
 }
 
+:host ::ng-deep .p-datatable .p-datatable-thead {
+    z-index: 1;
+}
+
 :host ::ng-deep .p-datatable .p-datatable-header,
 :host ::ng-deep .p-datatable .p-datatable-thead > tr > th,
 :host ::ng-deep .p-datatable .p-datatable-tbody > tr > td 
