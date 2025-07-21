@@ -61,11 +61,10 @@ export class SiteMenuComponent implements OnInit {
     };
     // set unsaved whenever db changes are detected on a project with a url
     this.db.onChange().subscribe(() => {
-      lastValueFrom(this.projectHomeUrl$).then(homeUrl => {
-        if (homeUrl) {
-          this.electronService.setProjectUnsaved(true);
-        }
-      })
+      const isProjectOpen = this.electronService.getIsProjectOpen().getValue();
+      if (isProjectOpen) {
+        this.electronService.setProjectUnsaved(true);
+      }
     });
     this.electronService.getIsAppClosed().subscribe(() => {
       this.ngZone.run(() => {
@@ -489,10 +488,10 @@ export class SiteMenuComponent implements OnInit {
       this.documentsService).then(() => {
       this.assetsService.updateAssetUrls();
       this.decksService.selectDeck(undefined);
-      this.router.navigateByUrl(`/decks`);
-      this.displayLoading = false;
       this.electronService.setProjectUnsaved(false);
       this.electronService.setProjectOpen(true);
+      this.router.navigateByUrl(`/project`);
+      this.displayLoading = false;
     });
   }
 

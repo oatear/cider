@@ -26,7 +26,7 @@ export class SiteTemplateComponent {
     this.isElectron = electronService.isElectron();
     this.projectHomeUrl$ = electronService.getProjectHomeUrl();
     this.projectUnsaved$ = electronService.getProjectUnsaved();
-    this.projectOpen$ = electronService.getProjectOpen();
+    this.projectOpen$ = electronService.getIsProjectOpen().asObservable();
   }
 
   @HostListener('window:resize', ['$event'])

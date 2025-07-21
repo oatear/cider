@@ -38,8 +38,8 @@ export class ElectronService {
     }
   }
 
-  public getProjectOpen() {
-    return this.projectOpen.asObservable();
+  public getIsProjectOpen() {
+    return this.projectOpen;
   }
 
   public getProjectHomeUrl() {

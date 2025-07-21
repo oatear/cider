@@ -49,21 +49,22 @@ export class SiteSidebarComponent implements OnInit {
 
   ngOnInit() {
     console.log('init sidebar');
-    this.electronService.getProjectOpen().subscribe(isProjectOpen => {
+    this.electronService.getIsProjectOpen().asObservable().pipe(debounceTime(500)).subscribe(isProjectOpen => {
         if (isProjectOpen) {
           console.log('project just opened, sidebar update');
           this.updateFiles();
         }
     });
+    // this.db.onChange()
+    // this.electronService.getProjectUnsaved()
     this.db.onChange().pipe(debounceTime(500)).subscribe(() => {
-      lastValueFrom(this.electronService.getProjectOpen()).then(isProjectOpen => {
-        if (isProjectOpen) {
-          // console.log('project is open, sidebar update');
-          this.updateFiles();
-        } else {
-          console.log('project is not open, skipping sidebar update');
-        }
-      });
+      const isProjectOpen: boolean = this.electronService.getIsProjectOpen().getValue();
+      if (isProjectOpen) {
+        console.log('change detected, project is open, sidebar update');
+        this.updateFiles();
+      } else {
+        console.log('change detected, project is not open, skipping sidebar update');
+      }
     });
   }
 
