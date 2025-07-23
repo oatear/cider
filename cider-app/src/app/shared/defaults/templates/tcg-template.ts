@@ -21,44 +21,62 @@ export const TCG_TEMPLATE: CardTemplate = {
     `),
     css: StringUtils.dedent(`
     .card {
-        width: {{cardSize.width}}px;
-        height: {{cardSize.height}}px;
-        padding: {{cardSize.padding}}px;
-        background-color: hsl(0, 0%, 10%);
-        color: hsl(0, 0%, 10%);
+        width: {{size.width}}px;
+        height: {{size.height}}px;
+        padding: {{size.padding}}px;
+        background: {{theme.border}};
+        color: {{theme.color}};
         font-size: 40px;
+        // background: hsl(0, 0%, 10%);
+        background: {{theme.background}};
     }
     .inner {
         width: 100%;
         height: 100%;
-        background-color: hsl(0, 0%, 60%);
+        // background: {{theme.background}};
         display: flex;
         flex-direction: column;
+        background-size: cover;
+        background-position: center;
     }
     .tcg-header {
-        font-size: 55px;
-        padding: 5px;
+        background: {{theme.banner}};
+        background-size: contain;
+        background-position: center;
+        background-repeat: no-repeat;
+        padding: 15px;
         text-align: center;
+        font-size: 50px;
     }
     .tcg-art {
-        background-color: hsl(0, 0%, 30%);
-        flex-basis: 50%;
+        background: {{theme.art}};
+        background-size: contain;
+        background-position: center;
+        background-repeat: no-repeat;
+        flex: 1;
     }
     .tcg-type {
-        background-color: hsl(0, 0%, 50%);
+        background: {{theme.bannerB}};
+        background-size: contain;
+        background-position: center;
+        background-repeat: no-repeat;
+        padding: 23px;
         text-align: center;
-        padding: 10px;
     }
     .tcg-description {
-        flex: 1;
-        padding-left: 25px;
-        padding-right: 25px;
-        padding-bottom: 10px;
+        background: {{theme.textbox}};
+        background-size: contain;
+        background-position: center;
+        background-repeat: no-repeat;
+        font-size: 35px;
+        padding: 40px 50px;
+        height: 230px;
     }
     .tcg-footer {
         padding: 15px 25px;
+        padding-bottom: 0;
         display: flex;
         justify-content: space-between;
-        font-size: 35px;
+        font-size: 30px;
     }`)
 } as CardTemplate;

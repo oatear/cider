@@ -7,14 +7,18 @@ export const CARD_BACK_TEMPLATE: CardTemplate = {
         <div class="inner"></div>
     </div>`),
     css: StringUtils.dedent(`.card {
-        width: {{cardSize.width}}px;
-        height: {{cardSize.height}}px;
-        padding: {{cardSize.padding}}px;
-        background-color: hsl(0, 0%, 70%);
+        width: {{size.width}}px;
+        height: {{size.height}}px;
+        padding: {{size.padding}}px;
+        background: {{theme.border}};
     }
     .inner {
         width: 100%;
         height: 100%;
-        background-color: hsl(0, 0%, 50%);
+        background: {{theme.background}};
+        background: {{theme.art}};
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
     }`)
 } as CardTemplate;

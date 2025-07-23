@@ -1,7 +1,7 @@
 import { Component, OnInit, EventEmitter, Input, Output } from '@angular/core';
 import { CardTemplate } from "../data-services/types/card-template.type";
 import { CardTemplatesService } from '../data-services/services/card-templates.service';
-import TemplateDefaults from '../shared/defaults/template-defaults';
+import TemplateDefaults, { TemplateDesign } from '../shared/defaults/template-defaults';
 
 @Component({
   selector: 'app-template-dialog',
@@ -12,11 +12,14 @@ export class TemplateDialogComponent implements OnInit {
   @Input() visible: boolean = false;
   @Input() deckId: number = 0;
   @Output() visibleChange: EventEmitter<boolean> = new EventEmitter<boolean>();
-  zoomLevel: number = 0.1;
+  zoomLevel: number = 0.15;
+  previewZoom: number = 0.30;
   sizeCards: any[] = [];
-  selectedSize: any = undefined;
   layoutCards: any[] = [];
+  themeCards: any[] = [];
+  selectedSize: any = undefined;
   selectedLayout: any = undefined;
+  selectedTheme: any = undefined;
   templateName: string = '';
 
   constructor(
@@ -43,6 +46,11 @@ export class TemplateDialogComponent implements OnInit {
 
   public selectedLayoutChange(event: any) {
     this.templateName = `${event.value.key}-${Math.random().toString(36).substr(2, 9)}`;
+    this.refreshThemeCards();
+  }
+
+  public selectedThemeChange(event: any) {
+    // do nothing
   }
 
   public createTemplate() {
@@ -54,13 +62,26 @@ export class TemplateDialogComponent implements OnInit {
     }
     const cardSize = TemplateDefaults.CARD_SIZES[this.selectedSize.key];
     const layout = TemplateDefaults.CARD_LAYOUTS[this.selectedLayout.key];
-    const cardTemplate: CardTemplate = TemplateDefaults.generateCardTemplate(cardSize, layout);
+    const design: TemplateDesign = { 
+      size: cardSize,
+      layout: layout,
+      theme: TemplateDefaults.DEFAULT_THEME,
+    };
+    const cardTemplate: CardTemplate = TemplateDefaults.generateCardTemplate(design);
     cardTemplate.deckId = this.deckId;
     cardTemplate.name = this.templateName || cardTemplate.name;
     cardTemplate.description = `Card template using ${this.selectedLayout.key} layout.`;
     this.templatesService.create(cardTemplate, true).then((template: CardTemplate) => {
       this.hideDialog();
     });
+  }
+
+  public refreshThemeCards() {
+    // clean up existing theme card attributes from memory
+    if (this.themeCards) {
+      this.themeCards.forEach(themeCard => TemplateDefaults.cleanUp(themeCard.design.theme));
+    }
+    this.themeCards = TemplateDefaults.getThemeCards(this.selectedSize.key, this.selectedLayout.key);
   }
 
 }

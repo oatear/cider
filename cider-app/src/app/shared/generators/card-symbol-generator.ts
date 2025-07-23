@@ -1,3 +1,5 @@
+import { ColorGenerator, ColorPalette } from "./color-generator";
+
 /**
  * A simple helper function to clamp a number between a min and max value.
  */
@@ -274,6 +276,8 @@ export interface CardSymbolOptions {
   backgroundType?: BackgroundOption;
   /** The background color */
   backgroundColor?: string;
+  /** The color palette */
+  palette?: ColorPalette;
 }
 
 /**
@@ -389,25 +393,6 @@ export function generateCardSymbol(options?: CardSymbolOptions): string {
 }
 
 /**
- * Generates a harmonious color palette based on a single random hue.
- * @returns An object with 'dark', 'medium', and 'light' color strings in HSL format.
- */
-function generateHarmoniousPalette(): { dark: string; medium: string; light: string } {
-    const baseHue = Math.random() * 360;
-    const saturation = Math.random() * 40 + 60; // 60-100% (vibrant)
-
-    const darkLightness = Math.random() * 15 + 15;   // 15-30%
-    const mediumLightness = Math.random() * 20 + 45; // 45-65%
-    const lightLightness = Math.random() * 15 + 80;  // 80-95%
-
-    return {
-        dark: `hsl(${baseHue.toFixed(0)}, ${saturation.toFixed(0)}%, ${darkLightness.toFixed(0)}%)`,
-        medium: `hsl(${baseHue.toFixed(0)}, ${saturation.toFixed(0)}%, ${mediumLightness.toFixed(0)}%)`,
-        light: `hsl(${baseHue.toFixed(0)}, ${saturation.toFixed(0)}%, ${lightLightness.toFixed(0)}%)`,
-    };
-}
-
-/**
  * Generates a procedurally created symbol with randomized creative parameters.
  * It respects any structural options passed in (like width and height).
  *
@@ -415,8 +400,9 @@ function generateHarmoniousPalette(): { dark: string; medium: string; light: str
  * @returns An SVG string representing a unique, randomized symbol.
  */
 export function generateRandomCardSymbol(baseOptions: Partial<CardSymbolOptions> = {}): string {
-    // Generate a random, harmonious color palette
-    const palette = generateHarmoniousPalette();
+    // Generate a random, harmonious color palette if not provided
+    const palette = baseOptions?.palette ? baseOptions?.palette 
+      : ColorGenerator.generateHarmoniousPalette();
     
     // Randomize the assignment of colors. 50% chance for light-on-dark, 50% for dark-on-light.
     const isLightOnDark = Math.random() < 0.5;
@@ -481,4 +467,37 @@ export function generateRandomCardSymbol(baseOptions: Partial<CardSymbolOptions>
     };
 
     return generateCardSymbol(finalOptions);
+}
+
+export function generateRandomArt(palette: ColorPalette): string {
+    const svgString: string = generateRandomCardSymbol({
+        width: 640, 
+        height: 480, 
+        frontShape: {
+            type: 'blob',
+            outlineWidth: 2, 
+        },
+        backShape: {
+            outlineWidth: 2, 
+        },
+        backgroundType: 'solid',
+        palette: palette,
+    });
+    return svgString;
+}
+
+export function generateRandomBadge(palette: ColorPalette): string {
+  return generateRandomCardSymbol({
+    width: 64, 
+    height: 64, 
+    frontShape: {
+      type: 'convex',
+      outlineWidth: 2, 
+      mirror: 'none',
+    },
+    backShape: {
+      outlineWidth: 2, 
+    },
+    palette: palette,
+  });
 }

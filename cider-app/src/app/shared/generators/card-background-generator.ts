@@ -1,3 +1,5 @@
+import { ColorPalette } from "./color-generator";
+
 /**
  * Defines the types of gradients available for the main background.
  */

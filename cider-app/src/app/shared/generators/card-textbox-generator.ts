@@ -1,3 +1,5 @@
+import { ColorGenerator, ColorPalette } from "./color-generator";
+
 export type FrameOption = 'sharp' | 'rounded' | 'arched';
 export type EdgeOption = 'straight' | 'ripped' | 'zigzag';
 
@@ -26,6 +28,8 @@ export interface DialogFrameOptions {
   resketch: boolean;
   /** The direction of the arch for 'arched' frames. 'up' or 'down'. */
   archDirection?: 'up' | 'down';
+  /** The color palette */
+  palette?: ColorPalette;
 }
 
 /**
@@ -329,27 +333,10 @@ export function generateDialogFrame(options: DialogFrameOptions): string {
   `.trim();
 }
 
-/**
- * Generates a harmonious color palette based on a single random hue.
- * @returns An object with 'dark', 'medium', and 'light' color strings in HSL format.
- */
-function generateHarmoniousPalette(): { dark: string; medium: string; light: string } {
-    const baseHue = Math.random() * 360;
-    const saturation = Math.random() * 30 + 40; // 40-70% (not too garish)
-
-    const darkLightness = Math.random() * 15 + 15;   // 15-30%
-    const mediumLightness = Math.random() * 20 + 40; // 40-60%
-    const lightLightness = Math.random() * 15 + 80;  // 80-95%
-
-    return {
-        dark: `hsl(${baseHue.toFixed(0)}, ${saturation.toFixed(0)}%, ${darkLightness.toFixed(0)}%)`,
-        medium: `hsl(${baseHue.toFixed(0)}, ${saturation.toFixed(0)}%, ${mediumLightness.toFixed(0)}%)`,
-        light: `hsl(${baseHue.toFixed(0)}, ${saturation.toFixed(0)}%, ${lightLightness.toFixed(0)}%)`,
-    };
-}
-
 export function generateRandomDialogFrame(baseOptions: Partial<DialogFrameOptions> = {}): string {
-    const palette = generateHarmoniousPalette();
+        // Generate a random, harmonious color palette if not provided
+    const palette = baseOptions?.palette ? baseOptions?.palette 
+      : ColorGenerator.generateHarmoniousPalette();
     const isLightOnDark = Math.random() < 0.5;
     const randomBackColor = isLightOnDark ? palette.medium : palette.light;
     const randomFrontColor = isLightOnDark ? palette.light : palette.medium;
@@ -378,4 +365,32 @@ export function generateRandomDialogFrame(baseOptions: Partial<DialogFrameOption
     };
 
     return generateDialogFrame(finalOptions);
+}
+
+export function generateRandomBanner(palette: ColorPalette) {
+  return generateRandomDialogFrame({
+    width: 640,
+    height: 80,
+    outlineWidth: 2,
+    turbulence: 0.1,
+    frameOption: 'rounded',
+    edgeOption: 'ripped',
+    frameWidth: 0,
+    resketch: true,
+    palette: palette,
+  });
+}
+
+export function generateRandomTextbox(palette: ColorPalette) {
+  return generateRandomDialogFrame({
+    width: 640,
+    height: 200,
+    outlineWidth: 2,
+    turbulence: 0.2,
+    frameOption: 'rounded',
+    edgeOption: 'ripped',
+    frameWidth: 0,
+    resketch: true,
+    palette: palette,
+  });
 }

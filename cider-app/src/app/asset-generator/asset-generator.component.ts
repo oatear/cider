@@ -219,6 +219,7 @@ export class AssetGeneratorComponent {
       type: this.selectedAssetOption,
     });
   }
+  
   public generateRandomBanner() {
     const svgString: string = generateRandomDialogFrame({
       width: this.imageWidth || 640,

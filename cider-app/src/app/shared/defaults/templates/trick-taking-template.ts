@@ -20,9 +20,9 @@ export const TRICK_TAKING_TEMPLATE: CardTemplate = {
     </div>`),
     css:StringUtils.dedent(`
     .card {
-        width: {{cardSize.width}}px;
-        height: {{cardSize.height}}px;
-        padding: {{cardSize.padding}}px;
+        width: {{size.width}}px;
+        height: {{size.height}}px;
+        padding: {{size.padding}}px;
         background-color: hsl(0, 0%, 80%);
         color: hsl(0, 0%, 10%);
         font-size: 40px;
