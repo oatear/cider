@@ -90,7 +90,8 @@
         @for (asset of generatedSvgs; track asset) {
             <p-button variant="text" size="small" styleClass="asset-button tiltable"
                 (click)="showSavePopover($event, popover, asset)">
-                <div class="symbol-item" [innerHTML]="asset.safeHtml"></div>
+                <div class="symbol-item" [innerHTML]="asset.safeHtml" 
+                    [style.width]="asset.width + 'px'" [style.height]="asset.height + 'px'"></div>
             </p-button>
         }
      </div>

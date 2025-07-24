@@ -30,6 +30,8 @@ interface GeneratedSvg {
   safeHtml: SafeHtml;
   svg: string;
   type: AssetTypeOption;
+  width: number;
+  height: number;
 }
 
 @Component({
@@ -125,21 +127,27 @@ export class AssetGeneratorComponent {
   }
 
   public generateRandomBackground() {
+    const width: number = this.imageWidth || 500;
+    const height: number = this.imageHeight || 700;
     const svgString: string = generateRandomCardBackground({
-      width: this.imageWidth || 500, 
-      height: this.imageHeight || 700
+      width: width, 
+      height: height,
     });
     this.generatedSvgs.push({
       safeHtml: this.sanitizer.bypassSecurityTrustHtml(svgString),
       svg: svgString,
       type: this.selectedAssetOption,
+      width: width,
+      height: height,
     });
   }
 
   public generateRandomSymbol() {
+    const width: number = this.imageWidth || 64;
+    const height: number = this.imageHeight || 64;
     const svgString: string = generateRandomCardSymbol({
-      width: this.imageWidth || 64, 
-      height: this.imageHeight || 64, 
+      width: width, 
+      height: height, 
       frontShape: {
         type: this.frontShape?.value || 'blob',
         fillColor: this.frontColor || undefined,
@@ -161,13 +169,17 @@ export class AssetGeneratorComponent {
       safeHtml: this.sanitizer.bypassSecurityTrustHtml(svgString),
       svg: svgString,
       type: this.selectedAssetOption,
+      width: width,
+      height: height,
     });
   }
 
   public generateRandomBadge() {
+    const width: number = this.imageWidth || 64;
+    const height: number = this.imageHeight || 64;
     const svgString: string = generateRandomCardSymbol({
-      width: this.imageWidth || 64, 
-      height: this.imageHeight || 64, 
+      width: width, 
+      height: height, 
       frontShape: {
         type: this.frontShape?.value || 'convex',
         fillColor: this.frontColor || undefined,
@@ -189,13 +201,17 @@ export class AssetGeneratorComponent {
       safeHtml: this.sanitizer.bypassSecurityTrustHtml(svgString),
       svg: svgString,
       type: this.selectedAssetOption,
+      width: width,
+      height: height,
     });
   }
 
   public generateRandomArt() {
+    const width: number = this.imageWidth || 640;
+    const height: number = this.imageHeight || 480;
     const svgString: string = generateRandomCardSymbol({
-      width: this.imageWidth || 640, 
-      height: this.imageHeight || 480, 
+      width: width, 
+      height: height, 
       frontShape: {
         type: this.frontShape?.value || 'blob',
         fillColor: this.frontColor || undefined,
@@ -217,25 +233,33 @@ export class AssetGeneratorComponent {
       safeHtml: this.sanitizer.bypassSecurityTrustHtml(svgString),
       svg: svgString,
       type: this.selectedAssetOption,
+      width: width,
+      height: height,
     });
   }
   
   public generateRandomBanner() {
+    const width: number = this.imageWidth || 640;
+    const height: number = this.imageHeight || 100;
     const svgString: string = generateRandomDialogFrame({
-      width: this.imageWidth || 640,
-      height: this.imageHeight || 180,
+      width: width, 
+      height: height, 
     });
     this.generatedSvgs.push({
       safeHtml: this.sanitizer.bypassSecurityTrustHtml(svgString),
       svg: svgString,
       type: this.selectedAssetOption,
+      width: width,
+      height: height,
     });
   }
 
   public generateRandomTextbox() {
+    const width: number = this.imageWidth || 640;
+    const height: number = this.imageHeight || 200;
     const svgString: string = generateRandomDialogFrame({
-      width: this.imageWidth || 200,
-      height: this.imageHeight || 100,
+      width: width, 
+      height: height, 
       outlineWidth: 2,
       turbulence: 0.2,
       frameOption: 'rounded',
@@ -247,6 +271,8 @@ export class AssetGeneratorComponent {
       safeHtml: this.sanitizer.bypassSecurityTrustHtml(svgString),
       svg: svgString,
       type: this.selectedAssetOption,
+      width: width,
+      height: height,
     });
   }
 

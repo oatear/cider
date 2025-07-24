@@ -12,7 +12,7 @@ export class TemplateDialogComponent implements OnInit {
   @Input() visible: boolean = false;
   @Input() deckId: number = 0;
   @Output() visibleChange: EventEmitter<boolean> = new EventEmitter<boolean>();
-  zoomLevel: number = 0.15;
+  zoomLevel: number = 0.10;
   previewZoom: number = 0.30;
   sizeCards: any[] = [];
   layoutCards: any[] = [];
@@ -42,15 +42,16 @@ export class TemplateDialogComponent implements OnInit {
   public selectedSizeChange(event: any) {
     this.layoutCards = TemplateDefaults.getLayoutCards(event.value.key);
     this.selectedLayout = undefined;
+    this.selectedTheme = undefined;
   }
 
   public selectedLayoutChange(event: any) {
-    this.templateName = `${event.value.key}-${Math.random().toString(36).substr(2, 9)}`;
+    this.selectedTheme = undefined;
     this.refreshThemeCards();
   }
 
   public selectedThemeChange(event: any) {
-    // do nothing
+    this.templateName = `${this.selectedSize.key}-${this.selectedLayout.key}-${Math.random().toString(36).substr(2, 9)}`;
   }
 
   public createTemplate() {
@@ -77,6 +78,7 @@ export class TemplateDialogComponent implements OnInit {
   }
 
   public refreshThemeCards() {
+    this.selectedTheme = undefined;
     // clean up existing theme card attributes from memory
     if (this.themeCards) {
       this.themeCards.forEach(themeCard => TemplateDefaults.cleanUp(themeCard.design.theme));

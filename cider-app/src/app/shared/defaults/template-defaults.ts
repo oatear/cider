@@ -25,6 +25,7 @@ interface CardTheme {
     background: string;
     border: string;
     color: string;
+    colorB: string;
     art: string;
     banner: string;
     bannerB: string;
@@ -112,6 +113,7 @@ export default class TemplateDefaults {
         background: 'hsl(0, 0%, 60%)',
         border: 'hsl(0, 0%, 10%)',
         color: 'hsl(0, 0%, 10%)',
+        colorB: 'hsl(0, 0%, 10%)',
         art: 'hsl(0, 0%, 30%)',
         banner: 'hsl(0, 0%, 50%)',
         bannerB: 'hsl(0, 0%, 50%)',
@@ -119,12 +121,14 @@ export default class TemplateDefaults {
         textbox: 'hsl(0, 0%, 50%)',
         palette: {
             hue: 0,
+            isLightOnDark: true,
             dark: 'hsl(0, 0%, 10%)',
             medium: 'hsl(0, 0%, 30%)',
             light: 'hsl(0, 0%, 60%)'
         },
         paletteB: {
             hue: 0,
+            isLightOnDark: true,
             dark: 'hsl(0, 0%, 20%)',
             medium: 'hsl(0, 0%, 40%)',
             light: 'hsl(0, 0%, 70%)'
@@ -141,6 +145,7 @@ export default class TemplateDefaults {
             ['theme.background', design.theme.background],
             ['theme.border', design.theme.border],
             ['theme.color', design.theme.color],
+            ['theme.colorB', design.theme.colorB],
             ['theme.art', design.theme.art],
             ['theme.banner', design.theme.banner],
             ['theme.bannerB', design.theme.bannerB],
@@ -226,7 +231,8 @@ export default class TemplateDefaults {
         return {
             background: palette.medium,
             border: palette.dark,
-            color: '#000000',
+            color: palette.isLightOnDark ? '#ffffff' : '#000000',
+            colorB: paletteB.isLightOnDark ? '#ffffff' : '#000000',
             art: `url(${artUri})`,
             banner: `url(${bannerUri})`,
             bannerB: `url(${bannerBUri})`,

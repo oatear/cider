@@ -44,6 +44,7 @@ export const TCG_TEMPLATE: CardTemplate = {
         background-size: contain;
         background-position: center;
         background-repeat: no-repeat;
+        color: {{theme.colorB}};
         padding: 15px;
         text-align: center;
         font-size: 50px;
@@ -60,6 +61,7 @@ export const TCG_TEMPLATE: CardTemplate = {
         background-size: contain;
         background-position: center;
         background-repeat: no-repeat;
+        color: {{theme.colorB}};
         padding: 23px;
         text-align: center;
     }

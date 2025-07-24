@@ -322,9 +322,10 @@ export function generateDialogFrame(options: DialogFrameOptions): string {
       </g>
     `;
   }
-
+  // Removed width="${width}" height="${height}" and added preserveAspectRatio="none"
+  // in order to scale the image to the container
   return `
-<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
   <g ${transform}>
     ${frameElements}
     ${resketchElements}
@@ -337,7 +338,7 @@ export function generateRandomDialogFrame(baseOptions: Partial<DialogFrameOption
         // Generate a random, harmonious color palette if not provided
     const palette = baseOptions?.palette ? baseOptions?.palette 
       : ColorGenerator.generateHarmoniousPalette();
-    const isLightOnDark = Math.random() < 0.5;
+    const isLightOnDark = palette.isLightOnDark;
     const randomBackColor = isLightOnDark ? palette.medium : palette.light;
     const randomFrontColor = isLightOnDark ? palette.light : palette.medium;
     const finalWidth = baseOptions.width ?? Math.floor(Math.random() * 200 + 200);
