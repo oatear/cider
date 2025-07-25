@@ -26,7 +26,6 @@ export class SiteSidebarComponent implements OnInit {
   menuItems: MenuItem[] = [];
   updatingFiles: boolean = false;
   dialogVisible: boolean = false;
-  templateDialogVisible: boolean = false;
   dialogTitle: string = '';
   service: EntityService<any, any>;
   entity: any = {};
@@ -226,7 +225,7 @@ export class SiteSidebarComponent implements OnInit {
                     label: 'Add New Card Template',
                     icon: 'pi pi-plus',
                     command: () => {
-                      this.openTemplateDialog(deck.id);
+                      this.router.navigateByUrl(`/decks/${deck.id}/templates/generator`);
                     }
                   },
                   {
@@ -267,7 +266,7 @@ export class SiteSidebarComponent implements OnInit {
                 label: 'Add New Card Template',
                 icon: 'pi pi-plus',
                 command: () => {
-                  this.openTemplateDialog(deck.id);
+                  this.router.navigateByUrl(`/decks/${deck.id}/templates/generator`);
                 }
               },
               {
@@ -489,11 +488,6 @@ export class SiteSidebarComponent implements OnInit {
       }
     });
     this.dialogVisible = true;
-  }
-
-  public openTemplateDialog(deckId: number) {
-    this.deckId = deckId;
-    this.templateDialogVisible = true;
   }
 
 }

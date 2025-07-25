@@ -16,6 +16,7 @@ import { DocumentComponent } from './document/document.component';
 import { DocumentsComponent } from './documents/documents.component';
 import { ProjectComponent } from './project/project.component';
 import { GameSimulatorComponent } from './game-simulator/game-simulator.component';
+import { TemplateGeneratorComponent } from './template-generator/template-generator.component';
 
 const routes: Routes = [
   { path: 'decks', component: DecksComponent, canActivate: [ProjectGuard]},
@@ -29,6 +30,7 @@ const routes: Routes = [
   { path: 'decks/:deckId/cards/listing', component: CardsComponent, canActivate: [ProjectGuard, DeckGuard]},
   { path: 'decks/:deckId/cards/thumbnails', component: CardThumbnailsComponent, canActivate: [ProjectGuard, DeckGuard]},
   { path: 'decks/:deckId/cards/attributes', component: CardAttributesComponent, canActivate: [ProjectGuard, DeckGuard]},
+  { path: 'decks/:deckId/templates/generator', component: TemplateGeneratorComponent, canActivate: [ProjectGuard, DeckGuard]},
   { path: 'decks/:deckId/templates/:templateId', component: CardTemplatesComponent, canActivate: [ProjectGuard, DeckGuard]},
   { path: 'decks/:deckId/export-cards', component: ExportCardsComponent, canActivate: [ProjectGuard, DeckGuard]},
   { path: 'project', component: ProjectComponent, canActivate: [ProjectGuard]},

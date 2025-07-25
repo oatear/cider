@@ -2,18 +2,17 @@ import { Component, OnInit, EventEmitter, Input, Output } from '@angular/core';
 import { CardTemplate } from "../data-services/types/card-template.type";
 import { CardTemplatesService } from '../data-services/services/card-templates.service';
 import TemplateDefaults, { TemplateDesign } from '../shared/defaults/template-defaults';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
-  selector: 'app-template-dialog',
-  templateUrl: './template-dialog.component.html',
-  styleUrl: './template-dialog.component.scss'
+  selector: 'app-template-generator',
+  templateUrl: './template-generator.component.html',
+  styleUrl: './template-generator.component.scss'
 })
-export class TemplateDialogComponent implements OnInit {
-  @Input() visible: boolean = false;
-  @Input() deckId: number = 0;
-  @Output() visibleChange: EventEmitter<boolean> = new EventEmitter<boolean>();
-  zoomLevel: number = 0.10;
-  previewZoom: number = 0.30;
+export class TemplateGeneratorComponent implements OnInit {
+  deckId: number = 0;
+  zoomLevel: number = 0.15;
+  previewZoom: number = 0.40;
   sizeCards: any[] = [];
   layoutCards: any[] = [];
   themeCards: any[] = [];
@@ -23,20 +22,17 @@ export class TemplateDialogComponent implements OnInit {
   templateName: string = '';
 
   constructor(
+    private router: Router,
+    private route: ActivatedRoute,
     public templatesService: CardTemplatesService) {
+      this.route.paramMap.subscribe(params => {
+        const deckIdString = params.get('deckId') || '';
+        this.deckId = parseInt(deckIdString, 10);
+      })
   }
 
   ngOnInit() {
     this.sizeCards = TemplateDefaults.getSizeCards();
-  }
-
-  public hideDialog() {
-    this.selectedSize = undefined;
-    this.selectedLayout = undefined;
-    this.layoutCards = [];
-    this.zoomLevel = 0.1;
-    this.visible = false;
-    this.visibleChange.emit(false);
   }
 
   public selectedSizeChange(event: any) {
@@ -73,7 +69,7 @@ export class TemplateDialogComponent implements OnInit {
     cardTemplate.name = this.templateName || cardTemplate.name;
     cardTemplate.description = `Card template using ${this.selectedLayout.key} layout.`;
     this.templatesService.create(cardTemplate, true).then((template: CardTemplate) => {
-      this.hideDialog();
+      this.router.navigateByUrl(`/decks/${this.deckId}/templates/${template.id}`);
     });
   }
 

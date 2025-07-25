@@ -12,10 +12,15 @@
 .card-element {
     width: fit-content;
     height: fit-content;
+    position: relative;
+}
+
+.scale-wrapper {
+    display: block;
 }
 
 .tiltable {
-    display: inline-block;
+    // display: inline-block;
     transform-style: preserve-3d;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     transform: perspective(1000px) rotateX(0deg) rotateY(0deg);

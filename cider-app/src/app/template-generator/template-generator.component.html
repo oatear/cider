@@ -1,0 +1,95 @@
+<p-card styleClass="page-card template-generator-card">
+    <p-stepper [value]="1" [linear]="true">
+        <p-step-list>
+            <p-step [value]="1">Card Size</p-step>
+            <p-step [value]="2">Layout</p-step>
+            <p-step [value]="3">Design</p-step>
+            <p-step [value]="4">Preview</p-step>
+        </p-step-list>
+        <p-step-panels>
+            <p-step-panel [value]="1" [id]="'size-panel'">
+                <ng-template #content let-activateCallback="activateCallback">
+                    <div class="card-list">
+                        <p-selectbutton [options]="sizeCards" [(ngModel)]="selectedSize" 
+                            (onChange)="selectedSizeChange($event)"
+                            optionLabel="key" [style]="{width: '100%'}">
+                            <ng-template #item let-item>
+                                <app-card-preview [cache]="false" [card]="item" [scale]="zoomLevel" [tiltable]="true" 
+                                    [template]="item.frontCardTemplate"></app-card-preview>
+                                <span>{{item.key}}</span>
+                            </ng-template>
+                        </p-selectbutton>
+                    </div>
+                    <div class="step-controls p-justify-end">
+                        <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" 
+                            [disabled]="!selectedSize"
+                            (onClick)="activateCallback(2)" />
+                    </div>
+                </ng-template>
+            </p-step-panel>
+
+            <p-step-panel [value]="2" [id]="'layout-panel'">
+                <ng-template #content let-activateCallback="activateCallback">
+                    <div class="card-list">
+                        <p-selectbutton [options]="layoutCards" [(ngModel)]="selectedLayout" 
+                            (onChange)="selectedLayoutChange($event)"
+                            optionLabel="key" [style]="{width: '100%'}">
+                            <ng-template #item let-item>
+                                <app-card-preview [cache]="false" [card]="item" [scale]="zoomLevel" [tiltable]="true" 
+                                    [template]="item.frontCardTemplate"></app-card-preview>
+                                <span>{{item.key}}</span>
+                            </ng-template>
+                        </p-selectbutton>
+                    </div>
+                    <div class="step-controls p-justify-between">
+                        <p-button label="Back" severity="secondary" icon="pi pi-arrow-left" (onClick)="activateCallback(1)" />
+                        <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" 
+                            [disabled]="!selectedLayout"
+                            (onClick)="activateCallback(3)" />
+                    </div>
+                </ng-template>
+            </p-step-panel>
+
+            <p-step-panel [value]="3" [id]="'layout-panel'">
+                <ng-template #content let-activateCallback="activateCallback">
+                    <div class="card-list">
+                        <p-selectbutton [options]="themeCards" [(ngModel)]="selectedTheme" 
+                            (onChange)="selectedThemeChange($event)"
+                            optionLabel="key" [style]="{width: '100%'}">
+                            <ng-template #item let-item>
+                                <app-card-preview [cache]="false" [card]="item" [scale]="zoomLevel" [tiltable]="true" 
+                                    [template]="item.frontCardTemplate"></app-card-preview>
+                                <span>{{item.key}}</span>
+                            </ng-template>
+                        </p-selectbutton>
+                    </div>
+                    <div class="step-controls p-justify-between">
+                        <p-button label="Back" severity="secondary" icon="pi pi-arrow-left" (onClick)="activateCallback(2)" />
+                        <p-button label="Refresh" severity="help" icon="pi pi-refresh" (onClick)="refreshThemeCards()" />
+                        <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" 
+                            [disabled]="!selectedTheme"
+                            (onClick)="activateCallback(4)" />
+                    </div>
+                </ng-template>
+            </p-step-panel>
+
+            <p-step-panel [value]="4" [id]="'preview-panel'">
+                <ng-template #content let-activateCallback="activateCallback">
+                    <div class="card-preview">
+                        <app-card-preview [cache]="false" [card]="selectedTheme" [tiltable]="true"
+                            [scale]="previewZoom" [template]="selectedTheme.frontCardTemplate"></app-card-preview>
+                    </div>
+                    <div class="template-form">
+                        <label for="templateName">Template Name</label>
+                        <input pInputText id="templateName" aria-describedby="name-help" [(ngModel)]="templateName" />
+                        <small id="name-help">Enter a name for your template.</small>
+                    </div>
+                    <div class="step-controls p-justify-between">
+                        <p-button label="Back" severity="secondary" icon="pi pi-arrow-left" (onClick)="activateCallback(3)" />
+                        <p-button label="Create" severity="success" (onClick)="createTemplate()" />
+                    </div>
+                </ng-template>
+            </p-step-panel>
+        </p-step-panels>
+    </p-stepper>
+</p-card>

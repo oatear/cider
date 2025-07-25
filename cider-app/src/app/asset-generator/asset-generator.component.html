@@ -83,6 +83,11 @@
                         placeholder="Random" inputId="backMirror" class="p-mr-2" />
                     <label for="backMirror" class="p-mr-2">Back Mirror</label>
                 </div>
+                <div>
+                    <p-inputnumber [(ngModel)]="turbulence" placeholder="Default" inputId="turbulence" 
+                    [min]="0.0" [max]="1.0" [minFractionDigits]="1" class="p-mr-2"/>
+                    <label for="turbulence" class="p-mr-2">Turbulence</label>
+                </div>
             </div>
         </p-panel>
      </div>

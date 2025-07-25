@@ -348,21 +348,20 @@ export function generateRandomDialogFrame(baseOptions: Partial<DialogFrameOption
     const edgeOptions: EdgeOption[] = ['straight', 'ripped', 'zigzag'];
 
     const randomizedDefaults = {
-        backColor: randomBackColor,
-        frontColor: randomFrontColor,
-        outlineColor: palette.dark,
-        outlineWidth: Math.random() * 2 + 1, // 1-3px
-        frameOption: frameOptions[Math.floor(Math.random() * frameOptions.length)],
-        edgeOption: edgeOptions[Math.floor(Math.random() * edgeOptions.length)],
-        frameWidth: Math.random() < 0.4 ? 0 : Math.random() * 20 + 5, // 40% chance of no frame
-        turbulence: Math.random() * 0.8,
-        resketch: Math.random() < 0.5,
+        backColor: baseOptions?.backColor ?? randomBackColor,
+        frontColor: baseOptions?.frontColor ?? randomFrontColor,
+        outlineColor: baseOptions?.outlineColor ?? palette.dark,
+        outlineWidth: baseOptions?.outlineWidth ?? Math.random() * 2 + 1, // 1-3px
+        frameOption: baseOptions?.frameOption ?? frameOptions[Math.floor(Math.random() * frameOptions.length)],
+        edgeOption: baseOptions?.edgeOption ?? edgeOptions[Math.floor(Math.random() * edgeOptions.length)],
+        frameWidth: baseOptions?.frameWidth ?? (Math.random() < 0.4 ? 0 : Math.random() * 20 + 5), // 40% chance of no frame
+        turbulence: baseOptions?.turbulence ?? Math.random() * 0.8,
+        resketch: baseOptions?.resketch ?? Math.random() < 0.5,
     };
 
     const finalOptions: DialogFrameOptions = {
         width: finalWidth, height: finalHeight,
         ...randomizedDefaults,
-        ...baseOptions,
     };
 
     return generateDialogFrame(finalOptions);

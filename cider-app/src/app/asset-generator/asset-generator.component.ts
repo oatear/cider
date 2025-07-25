@@ -81,6 +81,7 @@ export class AssetGeneratorComponent {
   imageWidth: number | undefined = undefined;
   imageHeight: number | undefined = undefined;
   frontScale: number | undefined = undefined;
+  turbulence: number | undefined = undefined;
   saveSvg: string = "";
   saveName: string = "";
 
@@ -127,8 +128,8 @@ export class AssetGeneratorComponent {
   }
 
   public generateRandomBackground() {
-    const width: number = this.imageWidth || 500;
-    const height: number = this.imageHeight || 700;
+    const width: number = this.imageWidth ?? 500;
+    const height: number = this.imageHeight ?? 700;
     const svgString: string = generateRandomCardBackground({
       width: width, 
       height: height,
@@ -143,23 +144,23 @@ export class AssetGeneratorComponent {
   }
 
   public generateRandomSymbol() {
-    const width: number = this.imageWidth || 64;
-    const height: number = this.imageHeight || 64;
+    const width: number = this.imageWidth ?? 64;
+    const height: number = this.imageHeight ?? 64;
     const svgString: string = generateRandomCardSymbol({
       width: width, 
       height: height, 
       frontShape: {
-        type: this.frontShape?.value || 'blob',
-        fillColor: this.frontColor || undefined,
-        outlineColor: this.outlineColor || undefined,
-        outlineWidth: this.outlineWidth || 2, 
+        type: this.frontShape?.value ?? 'blob',
+        fillColor: this.frontColor,
+        outlineColor: this.outlineColor,
+        outlineWidth: this.outlineWidth ?? 2, 
         mirror: this.frontMirror?.value
       },
       backShape: {
         type: this.backShape?.value,
-        fillColor: this.backColor || undefined,
-        outlineColor: this.outlineColor || undefined,
-        outlineWidth: this.outlineWidth || 2, 
+        fillColor: this.backColor,
+        outlineColor: this.outlineColor,
+        outlineWidth: this.outlineWidth ?? 2, 
         mirror: this.backMirror?.value
       },
       backgroundType: this.backgroundType?.value,
@@ -181,17 +182,17 @@ export class AssetGeneratorComponent {
       width: width, 
       height: height, 
       frontShape: {
-        type: this.frontShape?.value || 'convex',
-        fillColor: this.frontColor || undefined,
-        outlineColor: this.outlineColor || undefined,
-        outlineWidth: this.outlineWidth || 2, 
-        mirror: this.frontMirror?.value || 'none',
+        type: this.frontShape?.value ?? 'convex',
+        fillColor: this.frontColor,
+        outlineColor: this.outlineColor,
+        outlineWidth: this.outlineWidth ?? 2, 
+        mirror: this.frontMirror?.value ?? 'none',
       },
       backShape: {
         type: this.backShape?.value,
-        fillColor: this.backColor || undefined,
-        outlineColor: this.outlineColor || undefined,
-        outlineWidth: this.outlineWidth || 2, 
+        fillColor: this.backColor,
+        outlineColor: this.outlineColor,
+        outlineWidth: this.outlineWidth ?? 2, 
         mirror: this.backMirror?.value,
       },
       backgroundType: this.backgroundType?.value,
@@ -207,26 +208,26 @@ export class AssetGeneratorComponent {
   }
 
   public generateRandomArt() {
-    const width: number = this.imageWidth || 640;
-    const height: number = this.imageHeight || 480;
+    const width: number = this.imageWidth ?? 640;
+    const height: number = this.imageHeight ?? 480;
     const svgString: string = generateRandomCardSymbol({
       width: width, 
       height: height, 
       frontShape: {
-        type: this.frontShape?.value || 'blob',
-        fillColor: this.frontColor || undefined,
-        outlineColor: this.outlineColor || undefined,
-        outlineWidth: this.outlineWidth || 2, 
+        type: this.frontShape?.value ?? 'blob',
+        fillColor: this.frontColor,
+        outlineColor: this.outlineColor,
+        outlineWidth: this.outlineWidth ?? 2, 
         mirror: this.frontMirror?.value
       },
       backShape: {
         type: this.backShape?.value,
-        fillColor: this.backColor || undefined,
-        outlineColor: this.outlineColor || undefined,
-        outlineWidth: this.outlineWidth || 2, 
+        fillColor: this.backColor,
+        outlineColor: this.outlineColor,
+        outlineWidth: this.outlineWidth ?? 2, 
         mirror: this.backMirror?.value
       },
-      backgroundType: this.backgroundType?.value || 'solid',
+      backgroundType: this.backgroundType?.value ?? 'solid',
       backgroundColor: this.backgroundColor,
     });
     this.generatedSvgs.push({
@@ -244,6 +245,11 @@ export class AssetGeneratorComponent {
     const svgString: string = generateRandomDialogFrame({
       width: width, 
       height: height, 
+      turbulence: this.turbulence ?? 0.2,
+      frontColor: this.frontColor,
+      backColor: this.backColor,
+      outlineColor: this.outlineColor,
+      outlineWidth: this.outlineWidth,
     });
     this.generatedSvgs.push({
       safeHtml: this.sanitizer.bypassSecurityTrustHtml(svgString),
@@ -255,17 +261,20 @@ export class AssetGeneratorComponent {
   }
 
   public generateRandomTextbox() {
-    const width: number = this.imageWidth || 640;
-    const height: number = this.imageHeight || 200;
+    const width: number = this.imageWidth ?? 640;
+    const height: number = this.imageHeight ?? 240;
     const svgString: string = generateRandomDialogFrame({
       width: width, 
       height: height, 
-      outlineWidth: 2,
-      turbulence: 0.2,
+      turbulence: this.turbulence ?? 0.2,
       frameOption: 'rounded',
       edgeOption: 'ripped',
       frameWidth: 0,
       resketch: true,
+      frontColor: this.frontColor,
+      backColor: this.backColor,
+      outlineColor: this.outlineColor,
+      outlineWidth: this.outlineWidth ?? 2,
     });
     this.generatedSvgs.push({
       safeHtml: this.sanitizer.bypassSecurityTrustHtml(svgString),
