@@ -75,7 +75,7 @@
 
             <p-step-panel [value]="4" [id]="'preview-panel'">
                 <ng-template #content let-activateCallback="activateCallback">
-                    <div class="card-preview">
+                    <div class="card-final-preview">
                         <app-card-preview [cache]="false" [card]="selectedTheme" [tiltable]="true"
                             [scale]="previewZoom" [template]="selectedTheme.frontCardTemplate"></app-card-preview>
                     </div>
