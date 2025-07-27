@@ -1,15 +1,18 @@
 import { CardTemplate } from "src/app/data-services/types/card-template.type";
 import { Card } from "src/app/data-services/types/card.type";
-import { TCG_TEMPLATE } from "./templates/tcg-template";
-import { TRICK_TAKING_TEMPLATE } from "./templates/trick-taking-template";
+import { CORE_TEMPLATE } from "./templates/core-template";
+import { TRICK_TEMPLATE } from "./templates/trick-template";
 import { CARD_BACK_TEMPLATE } from "./templates/card-back-template";
-import { RESOURCE_TEMPLATE } from "./templates/resource-template";
 import { Asset } from "src/app/data-services/types/asset.type";
 import { ColorGenerator, ColorPalette } from "../generators/color-generator";
-import { generateRandomArt, generateRandomBadge } from "../generators/card-symbol-generator";
+import { generateRandomArt, generateRandomBadge, generateRandomCardSymbol, generateRandomSymbol } from "../generators/card-symbol-generator";
 import { generateRandomBanner, generateRandomTextbox } from "../generators/card-textbox-generator";
 import MathUtils from "../utils/math-utils";
 import FileUtils from "../utils/file-utils";
+import { MIRE_TEMPLATE } from "./templates/mire-template";
+import { ARCANE_TEMPLATE } from "./templates/arcane-template";
+import { MYSTIC_TEMPLATE } from "./templates/mystic-template";
+import { KEEP_TEMPLATE } from "./templates/keep-template";
 interface CardSize {
     width: number;
     height: number;
@@ -21,18 +24,20 @@ interface CardLayout {
     css: string;
 }
 
-interface CardTheme {
+export interface CardTheme {
     background: string;
-    border: string;
+    outline: string;
+    front: string;
+    back: string;
     color: string;
-    colorB: string;
     art: string;
     banner: string;
-    bannerB: string;
+    smallBanner: string;
     badge: string;
     textbox: string;
+    symbol: string;
     palette: ColorPalette;
-    paletteB: ColorPalette;
+    secondaryPalette: ColorPalette;
     assets: GeneratedSvg[];
 }
 
@@ -80,13 +85,14 @@ export default class TemplateDefaults {
             height: {{size.height}}px;
             padding: {{size.padding}}px;
             border-radius: 45px;
-            background-color: hsl(0, 0%, 70%);
+            background: {{theme.front}};
         }
         .inner {
             width: 100%;
             height: 100%;
-            border-radius: 25px;
-            background-color: hsl(0, 0%, 50%);
+            background: {{theme.background}};
+            // border: 4px solid {{theme.outline}};
+            border-radius: 30px;
         }`
     } as CardTemplate;
 
@@ -102,39 +108,17 @@ export default class TemplateDefaults {
 
     public static readonly CARD_LAYOUTS: Record<string, CardLayout> = {
         'blank': this.BLANK_TEMPLATE,
-        'card-back': CARD_BACK_TEMPLATE,
+        'back': CARD_BACK_TEMPLATE,
         // 'size-card-layout': this.SIZE_CARD_TEMPLATE,
-        'tcg': TCG_TEMPLATE,
-        'trick-taking': TRICK_TAKING_TEMPLATE,
-        'resource': RESOURCE_TEMPLATE,
+        'core': CORE_TEMPLATE,
+        'mire': MIRE_TEMPLATE,
+        'mystic': MYSTIC_TEMPLATE,
+        'arcane': ARCANE_TEMPLATE,
+        'keep': KEEP_TEMPLATE,
+        'trick': TRICK_TEMPLATE,
     };
 
-    public static readonly DEFAULT_THEME: CardTheme = {
-        background: 'hsl(0, 0%, 60%)',
-        border: 'hsl(0, 0%, 10%)',
-        color: 'hsl(0, 0%, 10%)',
-        colorB: 'hsl(0, 0%, 10%)',
-        art: 'hsl(0, 0%, 30%)',
-        banner: 'hsl(0, 0%, 50%)',
-        bannerB: 'hsl(0, 0%, 50%)',
-        badge: 'hsl(0, 0%, 50%)',
-        textbox: 'hsl(0, 0%, 50%)',
-        palette: {
-            hue: 0,
-            isLightOnDark: true,
-            dark: 'hsl(0, 0%, 10%)',
-            medium: 'hsl(0, 0%, 30%)',
-            light: 'hsl(0, 0%, 60%)'
-        },
-        paletteB: {
-            hue: 0,
-            isLightOnDark: true,
-            dark: 'hsl(0, 0%, 20%)',
-            medium: 'hsl(0, 0%, 40%)',
-            light: 'hsl(0, 0%, 70%)'
-        },
-        assets: []
-    }
+    public static readonly DEFAULT_THEME: CardTheme = this.generatePlainTheme();
 
     public static generateCardTemplate(design: TemplateDesign): CardTemplate {
         const html = design.layout.html;
@@ -143,14 +127,16 @@ export default class TemplateDefaults {
             ['size.height', design.size.height.toString()],
             ['size.padding', design.size.padding.toString()],
             ['theme.background', design.theme.background],
-            ['theme.border', design.theme.border],
+            ['theme.outline', design.theme.outline],
             ['theme.color', design.theme.color],
-            ['theme.colorB', design.theme.colorB],
+            ['theme.front', design.theme.front],
+            ['theme.back', design.theme.back],
             ['theme.art', design.theme.art],
             ['theme.banner', design.theme.banner],
-            ['theme.bannerB', design.theme.bannerB],
+            ['theme.smallBanner', design.theme.smallBanner],
             ['theme.badge', design.theme.badge],
             ['theme.textbox', design.theme.textbox],
+            ['theme.symbol', design.theme.symbol],
         ]);
         const css = Array.from(attributeMap.entries())
         .reduce((currentCss, [key, value]) => {
@@ -179,67 +165,97 @@ export default class TemplateDefaults {
         } as any as Card;
     }
 
-    public static getSizeCards(): Card[] {
+    public static getSizeCards(theme?: CardTheme): Card[] {
         return Object.keys(TemplateDefaults.CARD_SIZES).map((key) => {
             const design: TemplateDesign = {
                 size: TemplateDefaults.CARD_SIZES[key],
                 layout: this.SIZE_CARD_TEMPLATE,
-                theme: this.DEFAULT_THEME
+                theme: theme ?? this.DEFAULT_THEME
             };
             return this.createCard(design, key);
         });
     }
 
-    public static getLayoutCards(size: string): Card[] {
+    public static getLayoutCards(size: string, theme?: CardTheme): Card[] {
         const cardSize = TemplateDefaults.CARD_SIZES[size];
         return Object.keys(TemplateDefaults.CARD_LAYOUTS).map((key) => {
             const design: TemplateDesign = {
                 size: TemplateDefaults.CARD_SIZES[size],
                 layout: TemplateDefaults.CARD_LAYOUTS[key],
-                theme: this.DEFAULT_THEME
+                theme: theme ?? this.DEFAULT_THEME
             };
             return this.createCard(design, key);
         });
     }
 
-    public static getThemeCards(size: string, layout: string): Card[] {
+    public static getThemeCards(size: string, layout: string, theme?: CardTheme): Card[] {
         return MathUtils.range(0, 5).map((index) => {
             const design: TemplateDesign = {
                 size: TemplateDefaults.CARD_SIZES[size],
                 layout: TemplateDefaults.CARD_LAYOUTS[layout],
-                theme: index == 0 ? this.DEFAULT_THEME : this.generateCardTheme(),
+                theme: index == 0 ? (theme ?? this.DEFAULT_THEME) : this.generateCardTheme(),
             };
             return this.createCard(design, '' + index);
         });
     }
 
-    public static generateCardTheme(): CardTheme {
-        const palette = ColorGenerator.generateHarmoniousPalette();
-        const hueB = (360 + palette.hue + Math.random() * 30)  % 360;
-        const paletteB = ColorGenerator.generateHarmoniousPalette(hueB);
+    public static generatePlainTheme(): CardTheme {
+        const palette: ColorPalette = {
+            hue: 33,
+            saturation: 23,
+            isLightOnDark: false,
+            front: '#ccbdab',
+            back: '#a69179',
+            outline: '#000000',
+            background: '#ae997e',
+            color: '#000000',
+        };
+        const secondaryPalette: ColorPalette = {
+            hue: 33,
+            saturation: 23,
+            isLightOnDark: false,
+            front: '#ccbdab',
+            back: '#baa791',
+            outline: '#000000',
+            background: '#ae997e',
+            color: '#000000',
+        };
+        return this.generateCardTheme(palette, secondaryPalette);
+    }
+
+    public static generateCardTheme(paletteIn?: ColorPalette, 
+            secondaryPaletteIn?: ColorPalette): CardTheme {
+        const palette = paletteIn ?? ColorGenerator.generateHarmoniousPalette();
+        const hueB = (360 + palette.hue + Math.random() * 20)  % 360;
+        const secondaryPalette = secondaryPaletteIn ?? ColorGenerator.generateHarmoniousPalette({ hue: hueB });
         const art = generateRandomArt(palette);
-        const banner = generateRandomBanner(paletteB);
-        const bannerB = generateRandomBanner(paletteB);
+        // const banner = generateRandomBanner(paletteB);
+        const banner = generateRandomBanner({ palette: secondaryPalette });
+        const smallBanner = generateRandomBanner({ palette: secondaryPalette, width: 100, height: 100 });
         const badge = generateRandomBadge(palette);
-        const textbox = generateRandomTextbox(palette);
+        const textbox = generateRandomTextbox({ palette: palette });
+        const symbol = generateRandomSymbol(palette);
         const artUri = URL.createObjectURL(FileUtils.svgStringToBlob(art));
         const bannerUri = URL.createObjectURL(FileUtils.svgStringToBlob(banner));
-        const bannerBUri = URL.createObjectURL(FileUtils.svgStringToBlob(bannerB));
+        const smallBannerUri = URL.createObjectURL(FileUtils.svgStringToBlob(smallBanner));
         const badgeUri = URL.createObjectURL(FileUtils.svgStringToBlob(badge));
         const textboxUri = URL.createObjectURL(FileUtils.svgStringToBlob(textbox));
+        const symbolUri = URL.createObjectURL(FileUtils.svgStringToBlob(symbol));
 
         return {
-            background: palette.medium,
-            border: palette.dark,
-            color: palette.isLightOnDark ? '#ffffff' : '#000000',
-            colorB: paletteB.isLightOnDark ? '#ffffff' : '#000000',
+            background: palette.background,
+            outline: palette.outline,
+            color: palette.color,
+            front: palette.front,
+            back: palette.back,
             art: `url(${artUri})`,
             banner: `url(${bannerUri})`,
-            bannerB: `url(${bannerBUri})`,
+            smallBanner: `url(${smallBannerUri})`,
             badge: `url(${badgeUri})`,
             textbox: `url(${textboxUri})`,
+            symbol: `url(${symbolUri})`,
             palette: palette,
-            paletteB: paletteB,
+            secondaryPalette: secondaryPalette,
             assets: [
                 { type: 'art', svg: art, uri: artUri },
                 { type: 'banner', svg: banner, uri: bannerUri },

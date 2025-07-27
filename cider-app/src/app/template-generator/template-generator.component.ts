@@ -1,7 +1,7 @@
 import { Component, OnInit, EventEmitter, Input, Output } from '@angular/core';
 import { CardTemplate } from "../data-services/types/card-template.type";
 import { CardTemplatesService } from '../data-services/services/card-templates.service';
-import TemplateDefaults, { TemplateDesign } from '../shared/defaults/template-defaults';
+import TemplateDefaults, { CardTheme, TemplateDesign } from '../shared/defaults/template-defaults';
 import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
@@ -11,7 +11,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 export class TemplateGeneratorComponent implements OnInit {
   deckId: number = 0;
-  zoomLevel: number = 0.20;
+  zoomLevel: number = 0.30;
   previewZoom: number = 0.40;
   sizeCards: any[] = [];
   layoutCards: any[] = [];
@@ -32,11 +32,11 @@ export class TemplateGeneratorComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.sizeCards = TemplateDefaults.getSizeCards();
+    this.sizeCards = TemplateDefaults.getSizeCards(TemplateDefaults.DEFAULT_THEME);
   }
 
   public selectedSizeChange(event: any) {
-    this.layoutCards = TemplateDefaults.getLayoutCards(event.value.key);
+    this.layoutCards = TemplateDefaults.getLayoutCards(event.value.key, TemplateDefaults.DEFAULT_THEME);
     this.selectedLayout = undefined;
     this.selectedTheme = undefined;
   }
@@ -77,9 +77,10 @@ export class TemplateGeneratorComponent implements OnInit {
     this.selectedTheme = undefined;
     // clean up existing theme card attributes from memory
     if (this.themeCards) {
-      this.themeCards.forEach(themeCard => TemplateDefaults.cleanUp(themeCard.design.theme));
+      this.themeCards.filter(themeCard => themeCard.design.theme != TemplateDefaults.DEFAULT_THEME)
+        .forEach(themeCard => TemplateDefaults.cleanUp(themeCard.design.theme));
     }
-    this.themeCards = TemplateDefaults.getThemeCards(this.selectedSize.key, this.selectedLayout.key);
+    this.themeCards = TemplateDefaults.getThemeCards(this.selectedSize.key, this.selectedLayout.key, TemplateDefaults.DEFAULT_THEME);
   }
 
 }

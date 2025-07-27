@@ -44,7 +44,7 @@ export class AssetGeneratorComponent {
     { label: 'Symbol', value: 'symbol' }, 
     { label: 'Badge', value: 'badge' }, 
     { label: 'Art', value: 'art' },
-    { label: 'Background', value: 'background' },
+    // { label: 'Background', value: 'background' },
     { label: 'Banner', value: 'banner' },
     { label: 'Textbox', value: 'textbox' },
   ];
@@ -262,7 +262,7 @@ export class AssetGeneratorComponent {
 
   public generateRandomTextbox() {
     const width: number = this.imageWidth ?? 640;
-    const height: number = this.imageHeight ?? 240;
+    const height: number = this.imageHeight ?? 320;
     const svgString: string = generateRandomDialogFrame({
       width: width, 
       height: height, 

@@ -1,18 +1,14 @@
 import { CardTemplate } from "src/app/data-services/types/card-template.type";
 import StringUtils from "../../utils/string-utils";
 
-export const TCG_TEMPLATE: CardTemplate = {
+export const KEEP_TEMPLATE: CardTemplate = {
     html: StringUtils.dedent(`
     <div class="card">
         <div class="inner">
-            <div class="tcg-header">{{card.name}}</div>
-            <div class="tcg-art"></div>
-            <div class="tcg-type">Ancient Brewer</div>
-            <div class="tcg-description">
-                The brewer is a very important card in the game. 
-                It allows you to brew potions and create powerful effects.
-            </div>
-            <div class="tcg-footer">
+            <div class="header">{{card.name}}</div>
+            <div class="badge">5</div>
+            <div class="art"></div>
+            <div class="footer">
                 <span>Ciderians</span>
                 <span>{{#padZeros card.id 3}}{{/padZeros}}</span>
             </div>
@@ -24,57 +20,51 @@ export const TCG_TEMPLATE: CardTemplate = {
         width: {{size.width}}px;
         height: {{size.height}}px;
         padding: {{size.padding}}px;
-        background: {{theme.border}};
-        color: {{theme.color}};
+        padding-bottom: 25px;
         font-size: 40px;
-        // background: hsl(0, 0%, 10%);
         background: {{theme.background}};
+        color: {{theme.color}};
     }
     .inner {
         width: 100%;
         height: 100%;
-        // background: {{theme.background}};
         display: flex;
         flex-direction: column;
         background-size: cover;
         background-position: center;
     }
-    .tcg-header {
+    .header {
         background: {{theme.banner}};
         background-size: contain;
         background-position: center;
         background-repeat: no-repeat;
-        color: {{theme.colorB}};
+        color: {{theme.color}};
         padding: 15px;
         text-align: center;
         font-size: 50px;
     }
-    .tcg-art {
+    .badge {
+        position: absolute;
+        background: {{theme.badge}};
+        background-size: contain;
+        background-position: center;
+        background-repeat: no-repeat;
+        width: 128px;
+        height: 128px;
+        top: 20px;
+        left: 25px;
+        text-align: center;
+        line-height: 128px;
+        font-size: 60px;
+    }
+    .art {
         background: {{theme.art}};
         background-size: contain;
         background-position: center;
         background-repeat: no-repeat;
         flex: 1;
     }
-    .tcg-type {
-        background: {{theme.bannerB}};
-        background-size: contain;
-        background-position: center;
-        background-repeat: no-repeat;
-        color: {{theme.colorB}};
-        padding: 23px;
-        text-align: center;
-    }
-    .tcg-description {
-        background: {{theme.textbox}};
-        background-size: contain;
-        background-position: center;
-        background-repeat: no-repeat;
-        font-size: 35px;
-        padding: 40px 50px;
-        height: 230px;
-    }
-    .tcg-footer {
+    .footer {
         padding: 15px 25px;
         padding-bottom: 0;
         display: flex;

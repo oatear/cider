@@ -401,16 +401,10 @@ export function generateCardSymbol(options?: CardSymbolOptions): string {
  */
 export function generateRandomCardSymbol(baseOptions: Partial<CardSymbolOptions> = {}): string {
     // Generate a random, harmonious color palette if not provided
-    const palette = baseOptions?.palette ? baseOptions?.palette 
-      : ColorGenerator.generateHarmoniousPalette();
-    
-    // Randomize the assignment of colors. 50% chance for light-on-dark, 50% for dark-on-light.
-    const isLightOnDark = Math.random() < 0.5;
-    const randomBackgroundColor = isLightOnDark ? palette.medium : palette.light;
-    const randomForegroundColor = isLightOnDark ? palette.light : palette.medium;
+    const palette = baseOptions?.palette ?? ColorGenerator.generateHarmoniousPalette();
     
     // The outline should almost always be the darkest color for good definition.
-    const randomOutlineColor = palette.dark;
+    const randomOutlineColor = palette.outline;
     
     // Randomize the mirror option
     // const mirrorOptions: MirrorOption[] = ['none', 'vertical', 'horizontal', 'both'];
@@ -434,14 +428,14 @@ export function generateRandomCardSymbol(baseOptions: Partial<CardSymbolOptions>
     const backShapeType = shapeOptions[Math.floor(Math.random() * shapeOptions.length)];
     
     // Randomize the background
-    const backgroundColor = palette.medium;
+    const backgroundColor = palette.background;
 
     // Create an object with all our randomized defaults
     const randomizedDefaults: Omit<CardSymbolOptions, 'width' | 'height'> = {
       ...baseOptions,
       frontShape: {
         type: baseOptions?.frontShape?.type ?? frontShapeType,
-        fillColor: baseOptions?.frontShape?.fillColor ?? randomForegroundColor,
+        fillColor: baseOptions?.frontShape?.fillColor ?? palette.front,
         outlineColor: baseOptions?.frontShape?.outlineColor ?? randomOutlineColor,
         outlineWidth: baseOptions?.frontShape?.outlineWidth ?? randomOutlineWidth,
         mirror: baseOptions?.frontShape?.mirror ?? randomMirror,
@@ -451,7 +445,7 @@ export function generateRandomCardSymbol(baseOptions: Partial<CardSymbolOptions>
       },
       backShape: {
         type: baseOptions?.backShape?.type ?? backShapeType,
-        fillColor: baseOptions?.backShape?.fillColor ?? randomBackgroundColor,
+        fillColor: baseOptions?.backShape?.fillColor ?? palette.back,
         outlineColor: baseOptions?.backShape?.outlineColor ?? randomOutlineColor,
         outlineWidth: baseOptions?.backShape?.outlineWidth ?? randomOutlineWidth,
         mirror: baseOptions?.backShape?.mirror ?? randomMirror,
@@ -494,6 +488,21 @@ export function generateRandomBadge(palette: ColorPalette): string {
       type: 'convex',
       outlineWidth: 2, 
       mirror: 'none',
+    },
+    backShape: {
+      outlineWidth: 2, 
+    },
+    palette: palette,
+  });
+}
+
+export function generateRandomSymbol(palette: ColorPalette): string {
+  return generateRandomCardSymbol({
+    width: 64, 
+    height: 64, 
+    frontShape: {
+      type: 'blob',
+      outlineWidth: 2, 
     },
     backShape: {
       outlineWidth: 2, 

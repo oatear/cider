@@ -10,7 +10,7 @@ export const CARD_BACK_TEMPLATE: CardTemplate = {
         width: {{size.width}}px;
         height: {{size.height}}px;
         padding: {{size.padding}}px;
-        background: {{theme.border}};
+        background: {{theme.front}};
     }
     .inner {
         width: 100%;
@@ -20,5 +20,7 @@ export const CARD_BACK_TEMPLATE: CardTemplate = {
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
+        border: 4px solid {{theme.outline}};
+        border-radius: 30px;
     }`)
 } as CardTemplate;
