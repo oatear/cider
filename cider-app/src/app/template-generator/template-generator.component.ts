@@ -11,7 +11,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 export class TemplateGeneratorComponent implements OnInit {
   deckId: number = 0;
-  zoomLevel: number = 0.15;
+  zoomLevel: number = 0.20;
   previewZoom: number = 0.40;
   sizeCards: any[] = [];
   layoutCards: any[] = [];

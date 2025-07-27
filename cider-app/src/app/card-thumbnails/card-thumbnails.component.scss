@@ -1,3 +1,39 @@
+:host {
+    height: 100%;
+}
+:host ::ng-deep p-card {
+    height: 100%;
+    .p-card {
+        height: 100%;
+        .p-card-body {
+            height: 100%;
+            .p-card-content {
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                min-height: 0;
+                .card-thumbnails {
+                    flex: 1;
+                    min-height: 0;
+                }
+            }
+        }
+    }
+}
+:host ::ng-deep p-dataview {
+    display: block;
+    height: 100%;
+    .p-dataview {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        .p-dataview-content {
+            flex: 1;
+            overflow: auto;
+        }
+    }
+}
+
 :host ::ng-deep .page-card {
     &.tabbed-card {
         margin-top: 0px;

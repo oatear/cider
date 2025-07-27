@@ -13,7 +13,7 @@
         </p-iconfield>
     </div>
     <div class="card-thumbnails">
-        <p-dataview #dv [value]="thumbnailCards" [rows]="25" [paginator]="true" paginatorPosition="both" 
+        <p-dataview #dv [value]="thumbnailCards" [rows]="25" [paginator]="true" paginatorPosition="bottom" 
             [filterBy]="filterFields" [alwaysShowPaginator]="false" [showCurrentPageReport]="true">
             <ng-template let-cards #list>
                 <div class="card-list">

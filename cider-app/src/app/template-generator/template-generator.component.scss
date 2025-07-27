@@ -5,6 +5,7 @@
 }
 :host ::ng-deep p-card {
     flex: 1;
+    min-height: 0;
     .template-generator-card {
         height: 100%;
         .p-card-body {
@@ -73,6 +74,7 @@
         display: block;
         padding-bottom: 0;
         flex: 1;
+        min-height: 0;
         p-step-panel.p-steppanel-active {
             height: 100%;
             display: block;
@@ -82,6 +84,7 @@
                 flex-direction: column;
                 .card-list {
                     flex: 1;
+                    overflow: auto;
                 }
             }
         }
@@ -95,6 +98,7 @@
     flex-direction: column;
     align-items: center;
     flex: 1;
+    overflow: auto;
 }
 
 :host ::ng-deep .step-controls {
