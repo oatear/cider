@@ -15,12 +15,15 @@ export default class MonacoThemes {
             ],
             colors: {
                 // 'editor.foreground': '#ff0000',
-                // 'editor.background': '#00ff00',
+                'editor.background': '#181c21',
                 // 'editor.inactiveSelectionBackground': '#3A3D41',
                 // 'editorCursor.foreground': '#FFFFFF',
                 // 'editor.lineHighlightBackground': '#2B2B2B',
                 // 'editorLineNumber.foreground': '#858585',
                 // 'editor.selectionBackground': '#264F78',
+                // 'scrollbarSlider.background': '#005555',
+                // 'scrollbarSlider.hoverBackground': '#008888',
+                // 'scrollbarSlider.activeBackground': '#00AAAA',
             }
         });
         console.log('monaco: ', monaco);

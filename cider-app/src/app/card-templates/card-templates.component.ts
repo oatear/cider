@@ -6,7 +6,8 @@ import { CardsService } from '../data-services/services/cards.service';
 import { CardTemplate } from '../data-services/types/card-template.type';
 import { Card } from '../data-services/types/card.type';
 import { Subject, debounceTime } from 'rxjs';
-import { Splitter } from 'primeng/splitter';
+import { ActivatedRoute } from '@angular/router';
+import { LocalStorageService } from '../data-services/local-storage/local-storage.service';
 
 const templateCssFront  = 
 `.card {
@@ -57,9 +58,14 @@ const templateHtmlFront =
 export class CardTemplatesComponent implements OnInit {
   static readonly DEFAULT_HTML: string = templateHtmlFront;
   static readonly DEFAULT_CSS: string = templateCssFront;
+  // have to be non-static
+  readonly ZOOM_UP: number = 1.5;
+  readonly ZOOM_DOWN: number = 1/1.5;
 
-  htmlEditorOptions: any = {theme: 'vs-dark', language: 'handlebars', automaticLayout: true};
-  cssEditorOptions: any = {theme: 'vs-dark-extended', language: 'css-handlebars', automaticLayout: true};
+  htmlEditorOptions: any = { theme: 'vs-dark-extended', language: 'handlebars', 
+    automaticLayout: true, minimap: { enabled: false } };
+  cssEditorOptions: any = { heme: 'vs-dark-extended', language: 'css-handlebars', 
+    automaticLayout: true, minimap: { enabled: false } };
   templates: CardTemplate[] = [];
   cards: Card[] = [];
   selectedCard: Card = {} as Card;
@@ -68,7 +74,7 @@ export class CardTemplatesComponent implements OnInit {
   dialogVisible: boolean = false;
   infoVisible: boolean = false;
   infoText: string = '';
-  zoom: number = 0.3;
+  zoom: number = Math.pow(this.ZOOM_DOWN, 2);
   previewPanelWidth = 40;
   disablePanels: boolean = false;
   templateChanges: Subject<boolean>;
@@ -79,20 +85,38 @@ export class CardTemplatesComponent implements OnInit {
     public service: CardTemplatesService,
     private cardsService: CardsService,
     private messageService: MessageService, 
-    private confirmationService: ConfirmationService) {
+    private confirmationService: ConfirmationService,
+    private localStorage: LocalStorageService,
+    private route: ActivatedRoute) {
+      this.route.paramMap.subscribe(params => {
+        const templateIdString = params.get('templateId') || '';
+        const templateId = parseInt(templateIdString, 10);
+        if (!isNaN(templateId)) {
+          this.service.get(templateId).then((template) => {
+            this.selectedTemplate = template;
+            // this.selectedCard = this.cards.find(card => card.templateId === template.id) || {} as Card;
+          }).catch(error => {
+            console.error(`Error fetching template with ID ${templateId}:`, error);
+          });
+        }
+      });
       this.templateChanges = new Subject();
       this.windowResizing$ = new Subject();
       this.windowResizing$.pipe(debounceTime(200)).subscribe(() => {
         this.disablePanels = false;
       });
+      if (!this.localStorage.getDarkMode()) {
+        this.htmlEditorOptions.theme = 'vs';
+        this.cssEditorOptions.theme = 'vs';
+      }
     }
 
   ngOnInit(): void {
     this.service.getAll().then(templates => {
       this.templates = templates;
-      if (this.templates.length > 0) {
-        this.selectedTemplate = this.templates[0];
-      }
+      // if (this.templates.length > 0) {
+      //   this.selectedTemplate = this.templates[0];
+      // }
     });
     this.cardsService.getAll().then(cards => {
       this.cards = cards;
@@ -115,9 +139,11 @@ export class CardTemplatesComponent implements OnInit {
   }
 
   public changeZoom(change: number) {
-    this.zoom += change;
-    if (this.zoom < 0.1) {
-      this.zoom = 0.1;
+    this.zoom *= change;
+    if (this.zoom < Math.pow(this.ZOOM_DOWN, 5)) {
+      this.zoom = Math.pow(this.ZOOM_DOWN, 5);
+    } else if (this.zoom > Math.pow(this.ZOOM_UP, 5)) {
+      this.zoom = Math.pow(this.ZOOM_UP, 5);
     }
   }
 
@@ -133,7 +159,7 @@ export class CardTemplatesComponent implements OnInit {
   }
 
   public updateExisting(id: number, entity: CardTemplate) {
-    this.service?.update(id, entity).then(result => {}).catch(error => {});
+    this.service?.update(id, entity, true).then(result => {}).catch(error => {});
   }
 
   public openCreateNew() {

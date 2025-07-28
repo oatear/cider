@@ -2,7 +2,7 @@
     [subheader]="isElectron ? 'Start a new project or open an existing one'
                     : 'Select a deck to get started'"></app-page-header>
 <p-card styleClass="artwork-card"></p-card>
-<p-card *ngIf="isElectron" styleClass="welcome-card">
+<p-card *ngIf="isElectron" styleClass="projects-card">
     <p-button label="+ Blank Project"
         (click)="newProject(true)"></p-button>
     <p-button label="Sample Card Game"
@@ -27,9 +27,11 @@
     <div class="p-field">
         Please wait for the process to complete.
     </div>
-    <p-progressBar [value]="loadingPercent" [showValue]="false" 
-        [mode]="loadingIndeterminate ? 'indeterminate' : 'determinate'"></p-progressBar>
+    <p-progressbar [value]="loadingPercent" [showValue]="false" 
+        [mode]="loadingIndeterminate ? 'indeterminate' : 'determinate'"></p-progressbar>
     <div class="p-field p-mt-2">
         {{loadingInfo}}
     </div>
 </p-dialog>
+
+<div style="height: 25px"></div>

@@ -1,0 +1,78 @@
+:host {
+    height: 100%;
+}
+
+:host ::ng-deep p-splitter {
+    height: 100%;
+}
+
+:host ::ng-deep .p-splitter {
+    height: 100%;
+    background-color: transparent;
+    min-height: 0;
+    margin-right: 10px;
+    .p-col {
+        padding: 0;
+    }
+
+    .p-splitter-gutter {
+        margin-right: 10px;
+        margin-left: 10px;
+    }
+
+    p-card {
+        width: 100%;
+        height: 100%;
+        .p-card {
+            height: 100%;
+            width: 100%;
+            .p-card-body {
+                height: 100%;
+                .p-card-content {
+                    height: 100%;
+                }
+            }
+        }
+        .preview-card {
+            .p-card-body {
+                overflow: scroll;
+            }
+        }
+        .code-editor {
+        }
+    }
+}
+
+:host ::ng-deep ngx-monaco-editor {
+    height: 100%;
+    .editor-container {
+        height: 100%;
+    }
+}
+
+:host ::ng-deep .markdown-body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  line-height: 1.6;
+//   padding: 2rem;
+//   border-radius: 6px;
+
+  h1, h2 {
+    border-bottom: 1px solid var(--p-content-hover-background);
+    padding-bottom: 0.3em;
+  }
+  pre {
+    background-color: var(--p-content-hover-background);
+    padding: 0.5em;
+    overflow: auto;
+    border-radius: 6px;
+    > code {
+        display: inline-block;
+    }
+  }
+  code {
+    background-color: var(--p-content-hover-background);
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-size: 85%;
+  }
+}

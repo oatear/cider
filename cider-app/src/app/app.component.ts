@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostBinding, OnInit } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 
-import { PrimeNGConfig } from 'primeng/api';
 import { filter } from 'rxjs';
+import { LocalStorageService } from './data-services/local-storage/local-storage.service';
 
 // setup in index.html
 declare const gtag: Function;
@@ -10,23 +10,22 @@ declare const gtag: Function;
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit{
 
-  constructor(private primengConfig: PrimeNGConfig, 
-    private router: Router) {
+  constructor(private router: Router,
+              private localStorageService: LocalStorageService) {
   }
 
   ngOnInit() {
-      this.primengConfig.ripple = true;
-
       this.updateViewWidthHeightVar();
       window.addEventListener('resize', () => {
         this.updateViewWidthHeightVar();
       });
 
       this.setUpAnalytics();
+      this.initDarkMode();
   }
 
   private setUpAnalytics() {
@@ -45,5 +44,10 @@ export class AppComponent implements OnInit{
     let vw = window.innerWidth * 0.01;
     document.documentElement.style.setProperty('--vh', `${vh}px`);
     document.documentElement.style.setProperty('--vw', `${vw}px`);
+  }
+
+  private initDarkMode() {
+    const darkMode = this.localStorageService.getDarkMode()
+    document.querySelector('html')?.classList.toggle(LocalStorageService.DARK_MODE, darkMode);
   }
 }

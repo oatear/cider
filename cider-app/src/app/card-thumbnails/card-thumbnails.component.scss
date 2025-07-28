@@ -1,3 +1,39 @@
+:host {
+    height: 100%;
+}
+:host ::ng-deep p-card {
+    height: 100%;
+    .p-card {
+        height: 100%;
+        .p-card-body {
+            height: 100%;
+            .p-card-content {
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                min-height: 0;
+                .card-thumbnails {
+                    flex: 1;
+                    min-height: 0;
+                }
+            }
+        }
+    }
+}
+:host ::ng-deep p-dataview {
+    display: block;
+    height: 100%;
+    .p-dataview {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        .p-dataview-content {
+            flex: 1;
+            overflow: auto;
+        }
+    }
+}
+
 :host ::ng-deep .page-card {
     &.tabbed-card {
         margin-top: 0px;
@@ -6,10 +42,11 @@
 :host ::ng-deep .card-controls {
     display: flex;
     margin-bottom: 14px;
-    margin-left: 10px;
-    margin-right: 10px;
+    .filler {
+        flex: 1;
+    }
 }
-:host ::ng-deep .card-thumbnails {
+:host ::ng-deep .card-thumbnails .p-dataview-content .card-list {
     display: flex;
     flex-wrap: wrap;
     app-card-preview {
@@ -26,36 +63,5 @@
     }
     .p-dataview.p-dataview-list .p-dataview-content > .p-grid > div {
         border: none;
-    }
-    .p-paginator {
-        .p-paginator-pages button.p-paginator-page,
-        button {
-            color: rgba(255, 255, 255, 0.6);
-            background-color: #262d36;
-            border-color: #262d36;
-            &:not(.p-disabled):not(.p-highlight):hover {
-                background: #343e4d;
-                border-color: #343e4d;
-                color: #ffffff;
-            }
-        }
-        .p-paginator-pages .p-paginator-page.p-highlight {
-            background: #3e4b5b;
-            border-color: #3e4b5b;
-        }
-        .p-paginator-current {
-            border-top-left-radius: 4px;
-            border-bottom-left-radius: 4px;
-            color: rgba(255, 255, 255, 0.6);
-            background-color: #262d36;
-            border-color: #262d36;
-        }
-        .p-paginator-last {
-            border-top-right-radius: 4px;
-            border-bottom-right-radius: 4px;
-        }
-        .p-link:focus {
-            box-shadow: none;
-        }
     }
 }

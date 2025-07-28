@@ -1,0 +1,104 @@
+<!-- Game Simulator -->
+<div class="game-simulator" cdkDropListGroup>
+    <!-- <div class="field game-boundary"
+        cdkDropListSortingDisabled="true"
+        [cdkDropListData]="field.cards"
+        (cdkDropListDropped)="onCardDropped($event)"
+        cdkDropList> -->
+    <div class="field game-boundary" 
+            (contextmenu)="onFieldContextMenu($event, cm)">
+            <!-- cdkDropList
+            [cdkDropListData]="stack.cards"
+            (cdkDropListDropped)="onCardDropped($event)" -->
+        <!-- Stacks -->
+        @for (stack of stacks; track stack.uniqueId) {
+        <div *ngIf="stack.cards" class="card-stack game-card"
+            [class.empty]="stack.cards.length === 0"
+            (click)="drawCard(stack)" 
+            (contextmenu)="onStackContextMenu($event, cm, stack)"
+            (cdkDragStarted)="onDragStarted($event, stacks, stack)"
+            (cdkDragEnded)="onDragEnded($event, stacks, stack)"
+            [cdkDragFreeDragPosition]="stack.pos"
+            cdkDragBoundary=".game-boundary" cdkDrag>
+            <div class="card-wrapper"
+                [class.shuffling]="stack.shuffling" >
+                <app-card-preview [cache]="false" [tiltable]="true"
+                    *ngIf="stack.cards.length > 0 && stack.cards[stack.cards.length - 1].card.backCardTemplateId"
+                    [template]="(stack.faceUp ? stack.cards[stack.cards.length - 1].card.frontCardTemplateId 
+                        : stack.cards[stack.cards.length - 1].card.backCardTemplateId)
+                        | entity: cardTemplatesService | async"
+                    [card]="stack.cards[stack.cards.length - 1].card" [scale]="zoomLevel" ></app-card-preview>
+            </div>
+            <div class="stack-placeholder" *ngIf="stack.cards.length === 0">
+                <span class="placeholder-text">{{ stack.name }}</span>
+            </div>
+            <div class="dropzone" *ngIf="draggingCard"
+                (mouseover)="onMouseEntered($event, stack)"
+                (mouseout)="onMouseExited($event, stack)"></div>
+            <div class="count">{{ stack.name }} {{ stack.cards.length }}</div>
+        </div>
+        }
+
+                <!-- (click)="discardCard(field.cards, card)"  -->
+                <!-- (cdkDragDropped)="changePosition($event, card)" -->
+                <!-- (cdkDragEntered)="onDragEntered($event, card)" -->
+        <ng-container *ngFor="let card of field.cards">
+            <div class="field-card game-card" *ngIf="card.card.frontCardTemplateId"
+                [class.magnified]="card.magnified" 
+                (contextmenu)="onCardContextMenu($event, cm, card)"
+                (mousedown)="onCardMouseDown($event, card)"
+                (mouseup)="onCardMouseUp($event, card)"
+                [cdkDragData]="card"
+                (cdkDragStarted)="onCardDragStarted($event, field.cards, card)"
+                (cdkDragEnded)="onCardDragEnded($event, field.cards, card)"
+                [cdkDragFreeDragPosition]="card.pos"
+                cdkDragBoundary=".game-boundary" cdkDrag>
+                <app-card-preview [cache]="false" [tiltable]="true"
+                    [template]="(card.faceUp ? card.card.frontCardTemplateId 
+                        : card.card.backCardTemplateId) 
+                        | entity: cardTemplatesService | async"
+                    [card]="card.card" [scale]="card.magnified ? zoomMagnifiedLevel : zoomLevel" ></app-card-preview>
+                <!-- <div class="drop-zone"
+                style="width: 100px; height: 100px; background-color: red;"
+                cdkDropList
+                [cdkDropListData]="field.cards"></div> -->
+            </div>
+        </ng-container>
+
+        <ng-container *ngFor="let component of components">
+            <div class="game-component" 
+                (contextmenu)="onComponentContextMenu($event, cm, component)"
+                [cdkDragData]="component"
+                (cdkDragStarted)="onDragStarted($event, components, component)"
+                (cdkDragEnded)="onDragEnded($event, components, component)"
+                [cdkDragFreeDragPosition]="component.pos"
+                cdkDragBoundary=".game-boundary" cdkDrag>
+                <div class="tiltable">
+                    @if (component.type == 'd6') {
+                    <div [class]="'component ' + component.className 
+                        + ' face-' + component.face"
+                        [class.rolling]="component.rolling" >
+                        <div class="pip"></div>
+                        <div class="pip"></div>
+                        <div class="pip"></div>
+                        <div class="pip"></div>
+                        <div class="pip"></div>
+                        <div class="pip"></div>
+                        <div class="pip"></div>
+                        <div class="pip"></div>
+                        <div class="pip"></div>
+                        <div class="depth"></div>
+                    </div>
+                    } @else {
+                    <div [class]="'component ' + component.className"
+                        [class.rolling]="component.rolling" 
+                        [class.back]="!component.faceUp" >
+                        <div class="depth"></div>
+                    </div>
+                    }
+                </div>
+            </div>
+        </ng-container>
+    </div>
+</div>
+<p-contextmenu #cm [model]="contextMenuItems" />

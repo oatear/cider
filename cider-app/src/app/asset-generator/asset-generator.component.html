@@ -1,0 +1,116 @@
+<p-card styleClass="page-card asset-generator-card">
+     <div class="generator-controls">
+        <div class="controls-bar">
+            <span class="left">
+                <button pButton type="button" icon="pi pi-sparkles" label="Generate (x5)" 
+                    (click)="generateAsset()" class="p-mr-2" severity="help"></button>
+                <p-select [options]="assetOptions" [(ngModel)]="selectedAssetOption" optionLabel="label" 
+                    placeholder="Select an asset type" class="p-mr-2" />
+            </span>
+            <span class="right">
+                <button pButton type="button" label="Reset" 
+                    (click)="resetAssets()" class="p-mr-2"></button>
+            </span>
+        </div>
+        <p-panel header="Advanced Settings" [toggleable]="true">
+            <div class="column">
+                <div>
+                    <input pInputText [(ngModel)]="frontColor" type="text" 
+                        placeholder="Random" class="p-mr-2"/>
+                    <p-colorpicker [(ngModel)]="frontColor" [class.rainbow]="!frontColor" inputId="frontColor" class="p-mr-2"/>
+                    <label for="frontColor" class="p-mr-2">Front Color</label>
+                </div>
+                <div>
+                    <input pInputText [(ngModel)]="backColor" type="text" 
+                        placeholder="Random" class="p-mr-2"/>
+                    <p-colorpicker [(ngModel)]="backColor" [class.rainbow]="!backColor" inputId="backColor" class="p-mr-2"/>
+                    <label for="backColor" class="p-mr-2">Back Color</label>
+                </div>
+                <div>
+                    <input pInputText [(ngModel)]="outlineColor" type="text" 
+                        placeholder="Random" class="p-mr-2"/>
+                    <p-colorpicker [(ngModel)]="outlineColor" [class.rainbow]="!outlineColor" inputId="outlineColor" class="p-mr-2"/>
+                    <label for="outlineColor" class="p-mr-2">Outline Color</label>
+                </div>
+                <div>
+                    <input pInputText [(ngModel)]="backgroundColor" type="text" 
+                        placeholder="Random" class="p-mr-2"/>
+                    <p-colorpicker [(ngModel)]="backgroundColor" [class.rainbow]="!backgroundColor" inputId="backgroundColor" class="p-mr-2"/>
+                    <label for="backgroundColor" class="p-mr-2">Background Color</label>
+                </div>
+                <div>
+                    <p-select [options]="shapeOptions" [(ngModel)]="frontShape" optionLabel="label" 
+                        placeholder="Random" inputId="frontShape" class="p-mr-2" />
+                    <label for="frontShape" class="p-mr-2">Front Shape</label>
+                </div>
+                <div>
+                    <p-select [options]="shapeOptions" [(ngModel)]="backShape" optionLabel="label" 
+                        placeholder="Random" inputId="backShape" class="p-mr-2" />
+                    <label for="backShape" class="p-mr-2">Back Shape</label>
+                </div>
+                <div>
+                    <p-select [options]="backgroundOptions" [(ngModel)]="backgroundType" optionLabel="label" 
+                        placeholder="Default" inputId="backgroundType" class="p-mr-2" />
+                    <label for="backgroundType" class="p-mr-2">Background Type</label>
+                </div>
+            </div>
+            <div class="column">
+                <div>
+                    <p-inputnumber [(ngModel)]="imageWidth" placeholder="Default" inputId="imageWidth" suffix=" px" class="p-mr-2"/>
+                    <label for="imageWidth" class="p-mr-2">Width</label>
+                </div>
+                <div>
+                    <p-inputnumber [(ngModel)]="imageHeight" placeholder="Default" inputId="imageHeight" suffix=" px" class="p-mr-2"/>
+                    <label for="imageHeight" class="p-mr-2">Height</label>
+                </div>
+                <div>
+                    <p-inputnumber [(ngModel)]="outlineWidth" placeholder="Default" inputId="outlineWidth" suffix=" px" 
+                    [min]="0" [max]="10" class="p-mr-2"/>
+                    <label for="outlineWidth" class="p-mr-2">Outline Thickness</label>
+                </div>
+                <div>
+                    <p-inputnumber [(ngModel)]="frontScale" placeholder="Default" inputId="frontScale" 
+                    [min]="0.1" [max]="1.0" [minFractionDigits]="1" class="p-mr-2"/>
+                    <label for="frontScale" class="p-mr-2">Front Scale</label>
+                </div>
+                <div>
+                    <p-select [options]="mirrorOptions" [(ngModel)]="frontMirror" optionLabel="label" 
+                        placeholder="Random" inputId="frontMirror" class="p-mr-2" />
+                    <label for="frontMirror" class="p-mr-2">Front Mirror</label>
+                </div>
+                <div>
+                    <p-select [options]="mirrorOptions" [(ngModel)]="backMirror" optionLabel="label" 
+                        placeholder="Random" inputId="backMirror" class="p-mr-2" />
+                    <label for="backMirror" class="p-mr-2">Back Mirror</label>
+                </div>
+                <div>
+                    <p-inputnumber [(ngModel)]="turbulence" placeholder="Default" inputId="turbulence" 
+                    [min]="0.0" [max]="1.0" [minFractionDigits]="1" class="p-mr-2"/>
+                    <label for="turbulence" class="p-mr-2">Turbulence</label>
+                </div>
+            </div>
+        </p-panel>
+     </div>
+     <div class="generator-output">
+        @for (asset of generatedSvgs; track asset) {
+            <p-button variant="text" size="small" styleClass="asset-button tiltable"
+                (click)="showSavePopover($event, popover, asset)">
+                <div class="symbol-item" [innerHTML]="asset.safeHtml" 
+                    [style.width]="asset.width + 'px'" [style.height]="asset.height + 'px'"></div>
+            </p-button>
+        }
+     </div>
+</p-card>
+<p-popover #popover>
+    <div class="popover-body">
+        <div>
+            <label for="saveName" class="p-mr-2">Asset Name</label>
+            <input pInputText [(ngModel)]="saveName" type="text" inputId="saveName" 
+                placeholder="Enter a unique name" class="p-mr-2"/>
+        </div>
+        <div>
+            <button pButton type="button" label="Save" [disabled]="!saveName"
+                (click)="saveAsset($event, popover)" class=""></button>
+        </div>
+    </div>
+</p-popover>

@@ -13,7 +13,10 @@ export class FileUrlPipe implements PipeTransform {
 
   }
 
-  transform(file: File): SafeResourceUrl {
+  transform(file: Blob): SafeResourceUrl {
+    if (!(file instanceof Blob)) {
+      return "";
+    }
     return this.domSanitizer.bypassSecurityTrustResourceUrl(URL.createObjectURL(file));
   }
 

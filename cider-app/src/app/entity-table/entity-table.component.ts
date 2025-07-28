@@ -8,6 +8,7 @@ import { SortDirection } from '../data-services/types/search-sort.type';
 import XlsxUtils from '../shared/utils/xlsx-utils';
 import { Subject, debounceTime } from 'rxjs';
 import { TableStat, TokenStat } from './table-stat.type';
+import StringUtils from '../shared/utils/string-utils';
 
 @Component({
   selector: 'app-entity-table',
@@ -207,6 +208,14 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
 
   public openCreateNew() {
     this.entity = {} as Entity;
+    // determine if this.columns has a name field
+    const nameField = this.columns.find(field => field.field === 'name' || field.field === 'Name');
+    if (nameField && nameField.type === FieldType.text) {
+      // determine entity type based on the table name in the service (remove the last 's' if it exists)
+      const entityType = StringUtils.kebabToTitleCase(this.service?.getTableName().replace(/s$/, '') || 'Entity');
+      // set the name field to a random value
+      (<any>this.entity)[nameField.field] = `${entityType}-${Math.random().toString(36).substr(2, 9)}`;
+    }
     this.dialogVisible = true;
   }
 

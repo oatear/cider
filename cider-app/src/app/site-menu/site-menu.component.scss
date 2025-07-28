@@ -7,6 +7,12 @@
     .deck-name {
         font-weight: 500;
     }
+    p-tag {
+        background: none;
+        color: var(--p-text-muted-color);
+        color: var(--p-menubar-color);
+    }
+    display: flex;
 }
 .logo-image {
     margin-right: 15px;
@@ -15,10 +21,15 @@
 /**
  * Menubar overrides
  */
-:host ::ng-deep .p-menubar {
-    height: 58px;
+:host ::ng-deep .site-menu .p-menubar {
+    height: 45px;
     border-radius: 0px;
     border: 0;
+
+    p-menubarsub {
+        --webkit-app-region: no-drag;
+        app-region: no-drag;
+    }
 
     .p-menubar-root-list > .p-menuitem > .p-menuitem-link:focus {
         box-shadow: none;
@@ -48,23 +59,23 @@
     .p-menuitem.p-menuitem-active > .p-menuitem-link {
         background: var(--surface-d);
     }
+}
 
-    // .p-menuitem:hover {
-    //     &.selected-deck > .p-menuitem-link:not(.p-disabled) .p-menuitem-text,
-    //     &.selected-deck > .p-menuitem-link:not(.p-disabled) .p-menuitem-icon {
-    //         color: hsl(220, 100%, 80%);
-    //     }
-    //     &.cards > .p-menuitem-link:not(.p-disabled) .p-menuitem-text,
-    //     &.cards > .p-menuitem-link:not(.p-disabled) .p-menuitem-icon {
-    //         color: hsl(255, 100%, 80%);
-    //     }
-    //     &.templates > .p-menuitem-link:not(.p-disabled) .p-menuitem-text,
-    //     &.templates > .p-menuitem-link:not(.p-disabled) .p-menuitem-icon {
-    //         color: hsl(128, 100%, 80%);
-    //     }
-    //     &.assets > .p-menuitem-link:not(.p-disabled) .p-menuitem-text,
-    //     &.assets > .p-menuitem-link:not(.p-disabled) .p-menuitem-icon {
-    //         color: hsl(26, 100%, 80%);
-    //     }
-    // }
+:host ::ng-deep p-breadcrumb {
+    --webkit-app-region: no-drag;
+    app-region: no-drag;
+    .p-breadcrumb-list {
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-app-region: none;
+    }
+}
+
+:host ::ng-deep .p-breadcrumb {
+    background: none;
+    .p-breadcrumb-item-link {
+        .p-breadcrumb-item-icon {
+            line-height: 17px;
+        }
+    }
 }

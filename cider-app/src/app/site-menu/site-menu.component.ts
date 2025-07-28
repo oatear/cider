@@ -1,9 +1,9 @@
 import { Component, NgZone, OnInit } from '@angular/core';
 import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { ExportProgress } from 'dexie-export-import/dist/export';
 import { ImportProgress } from 'dexie-export-import/dist/import';
-import { Observable, combineLatest, firstValueFrom } from 'rxjs';
+import { Observable, combineLatest, filter, firstValueFrom, lastValueFrom } from 'rxjs';
 import { ElectronService } from '../data-services/electron/electron.service';
 import { AppDB } from '../data-services/indexed-db/db';
 import { LocalStorageService } from '../data-services/local-storage/local-storage.service';
@@ -15,6 +15,7 @@ import { DecksService } from '../data-services/services/decks.service';
 import { Deck } from '../data-services/types/deck.type';
 import StringUtils from '../shared/utils/string-utils';
 import XlsxUtils from '../shared/utils/xlsx-utils';
+import { DocumentsService } from '../data-services/services/documents.service';
 
 @Component({
   selector: 'app-site-menu',
@@ -38,6 +39,9 @@ export class SiteMenuComponent implements OnInit {
   public loadingPercent: number = 0;
   public loadingInfo: string = '';
   public loadingHeader: string = '';
+  public currentRoute: string = '';
+  public breadcrumbs: MenuItem[] = [];
+  public home: MenuItem | undefined;
 
   constructor(private decksService : DecksService,
     private confirmationService: ConfirmationService,
@@ -47,6 +51,7 @@ export class SiteMenuComponent implements OnInit {
     private cardsService: CardsService,
     private cardAttributesService: CardAttributesService,
     private cardTemplatesService: CardTemplatesService,
+    private documentsService: DocumentsService,
     private ngZone: NgZone,
     private router: Router,
     private db: AppDB) {
@@ -54,9 +59,12 @@ export class SiteMenuComponent implements OnInit {
     this.router.routeReuseStrategy.shouldReuseRoute = () => {
       return false;
     };
-    // set unsaved whenever db changes are detected
+    // set unsaved whenever db changes are detected on a project with a url
     this.db.onChange().subscribe(() => {
-      this.electronService.setProjectUnsaved(true);
+      const isProjectOpen = this.electronService.getIsProjectOpen().getValue();
+      if (isProjectOpen) {
+        this.electronService.setProjectUnsaved(true);
+      }
     });
     this.electronService.getIsAppClosed().subscribe(() => {
       this.ngZone.run(() => {
@@ -174,33 +182,69 @@ export class SiteMenuComponent implements OnInit {
                 command: () => this.exitCider()
               }
             ]
-          }, {
-            label: selectedDeck ? selectedDeck.name : 'Select Deck',
-            icon: 'pi pi-pw pi-book',
-            styleClass: 'selected-deck',
-            disabled: this.electronService.isElectron() && !projectHomeUrl && !projectUnsaved,
-            routerLink: ['/decks']
-          }, {
-            label: 'Cards',
-            icon: 'pi pi-pw pi-table',
-            styleClass: 'cards',
-            disabled: !selectedDeck,
-            routerLink: [`/decks/${selectedDeck?.id}/cards/listing`]
-          }, {
-            label: 'Templates',
-            icon: 'pi pi-pw pi-id-card',
-            styleClass: 'templates',
-            disabled: !selectedDeck,
-            routerLink: [`/decks/${selectedDeck?.id}/card-templates`]
-          }, {
-            label: 'Assets',
-            icon: 'pi pi-pw pi-image',
-            styleClass: 'assets',
-            disabled: this.electronService.isElectron() && !projectHomeUrl && !projectUnsaved,
-            routerLink: [`/assets`]
-          }
+          }, 
+          // {
+          //   label: selectedDeck ? selectedDeck.name : 'Select Deck',
+          //   icon: 'pi pi-pw pi-book',
+          //   styleClass: 'selected-deck',
+          //   disabled: this.electronService.isElectron() && !projectHomeUrl && !projectUnsaved,
+          //   routerLink: ['/decks']
+          // }, {
+          //   label: 'Cards',
+          //   icon: 'pi pi-pw pi-table',
+          //   styleClass: 'cards',
+          //   disabled: !selectedDeck,
+          //   routerLink: [`/decks/${selectedDeck?.id}/cards/listing`]
+          // }, {
+          //   label: 'Templates',
+          //   icon: 'pi pi-pw pi-id-card',
+          //   styleClass: 'templates',
+          //   disabled: !selectedDeck,
+          //   routerLink: [`/decks/${selectedDeck?.id}/card-templates`]
+          // }, {
+          //   label: 'Assets',
+          //   icon: 'pi pi-pw pi-image',
+          //   styleClass: 'assets',
+          //   disabled: this.electronService.isElectron() && !projectHomeUrl && !projectUnsaved,
+          //   routerLink: [`/assets`]
+          // }
         ];
     }});
+
+    // use the router to update the current route
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: any) => {
+      this.ngZone.run(() => {
+        const routeUrl = event.urlAfterRedirects;
+        this.currentRoute = routeUrl;
+        this.updateBreadcrumbs(routeUrl);
+      }
+      );
+    });
+
+  }
+
+  private updateBreadcrumbs(routeUrl: string) {
+    this.home = { icon: 'pi pi-home', routerLink: '/project' };
+    const breadcrumbs: MenuItem[] = [];
+    const urlSegments = routeUrl.split('/').filter((segment) => segment);
+    let currentPath = '';
+
+    for (let i = 0; i < urlSegments.length; i++) {
+      const segment = urlSegments[i];
+      let pathSegment = `/${segment}`;
+      currentPath += pathSegment;
+      const label = StringUtils.kebabToTitleCase(segment);
+
+      breadcrumbs.push({
+        label: label,
+        routerLink: currentPath,
+        disabled: i == urlSegments.length - 1
+      });
+    }
+
+    this.breadcrumbs = breadcrumbs;
   }
   
   public uploadFile(event: any) {
@@ -292,10 +336,11 @@ export class SiteMenuComponent implements OnInit {
   }
 
   private exitProjectProcedure() {
-    this.db.resetDatabase().then(() => {
+    this.db.resetDatabase(true).then(() => {
       this.assetsService.updateAssetUrls();
       this.electronService.selectDirectory(undefined);
       this.electronService.setProjectUnsaved(false);
+      this.electronService.setProjectOpen(false);
       this.decksService.selectDeck(undefined);
       this.router.navigateByUrl(`/`);
     });
@@ -341,6 +386,7 @@ export class SiteMenuComponent implements OnInit {
       this.electronService.setProjectUnsaved(true);
       this.assetsService.updateAssetUrls();
       this.router.navigateByUrl(`/decks`);
+      this.electronService.setProjectOpen(true);
     });
   }
 
@@ -438,12 +484,14 @@ export class SiteMenuComponent implements OnInit {
     this.loadingInfo = 'Reading project data...';
     this.displayLoading = true;
     this.electronService.openProject(url, this.assetsService, this.decksService,
-      this.cardTemplatesService, this.cardAttributesService, this.cardsService).then(() => {
+      this.cardTemplatesService, this.cardAttributesService, this.cardsService, 
+      this.documentsService).then(() => {
       this.assetsService.updateAssetUrls();
       this.decksService.selectDeck(undefined);
-      this.router.navigateByUrl(`/decks`);
-      this.displayLoading = false;
       this.electronService.setProjectUnsaved(false);
+      this.electronService.setProjectOpen(true);
+      this.router.navigateByUrl(`/project`);
+      this.displayLoading = false;
     });
   }
 

@@ -11,6 +11,7 @@ import { CardsService } from '../data-services/services/cards.service';
 import { Router } from '@angular/router';
 import StringUtils from '../shared/utils/string-utils';
 import { AppDB } from '../data-services/indexed-db/db';
+import { DocumentsService } from '../data-services/services/documents.service';
 
 @Component({
   selector: 'app-welcome',
@@ -38,6 +39,7 @@ export class WelcomeComponent implements OnInit {
     private cardTemplatesService: CardTemplatesService,
     private cardAttributesService: CardAttributesService,
     private cardsService: CardsService,
+    private documentsService: DocumentsService,
     private router: Router,
     private db: AppDB) {
       this.isElectron = electronService.isElectron();
@@ -47,19 +49,31 @@ export class WelcomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.localStorageService.getRecentProjectUrls().subscribe(urls => {
-      this.recentProjectUrls = urls.map(url => {
-        let name = StringUtils.lastDirectoryFromUrl(url);
-        let hue = this.calculateHue(name);
-        let hue2diff = 120;
-        return {
-          url: url,
-          name: name,
-          hue: hue,
-          hue2: (hue + hue2diff) % 360,
-          hover: false
-        }
-      });
+      this.recentProjectUrls = urls.map(url => this.urlToProjectInfo(url));
     });
+    // uncomment to test recent projects
+    // this.isElectron = true;
+    // const urls = [
+    //   'usr/samurai-saga',
+    //   'usr/tribulating-troubles',
+    //   'usr/mystical-mountain-adventure',
+    //   'usr/epic-quest-of-heroes',
+    //   'usr/ancient-ruins-exploration',
+    // ];
+    // this.recentProjectUrls = urls.map(url => this.urlToProjectInfo(url));
+  }
+
+  private urlToProjectInfo(url: string) {
+      let name = StringUtils.lastDirectoryFromUrl(url);
+      let hue = this.calculateHue(name);
+      let hue2diff = 120;
+      return {
+        url: url,
+        name: name,
+        hue: hue,
+        hue2: (hue + hue2diff) % 360,
+        hover: false
+      }
   }
 
   public async newProject(keepEmpty: boolean) {
@@ -82,7 +96,8 @@ export class WelcomeComponent implements OnInit {
     this.db.resetDatabase(keepEmpty).then(() => {
       this.assetsService.updateAssetUrls();
       this.electronService.setProjectUnsaved(true);
-      this.router.navigateByUrl(`/decks`);
+      this.electronService.setProjectOpen(true);
+      this.router.navigateByUrl(`/project`);
     });
   }
 
@@ -110,10 +125,13 @@ export class WelcomeComponent implements OnInit {
     this.loadingInfo = 'Reading project data...';
     this.displayLoading = true;
     this.electronService.openProject(url, this.assetsService, this.decksService,
-      this.cardTemplatesService, this.cardAttributesService, this.cardsService).then(() => {
+      this.cardTemplatesService, this.cardAttributesService, this.cardsService, 
+      this.documentsService).then(() => {
       this.assetsService.updateAssetUrls();
+      this.electronService.setProjectUnsaved(false);
+      this.electronService.setProjectOpen(true);
       this.decksService.selectDeck(undefined);
-      this.router.navigateByUrl(`/decks`);
+      this.router.navigateByUrl(`/project`);
       this.displayLoading = false;
     });
   }

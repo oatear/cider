@@ -7,6 +7,8 @@ import { CardTemplatesService } from './card-templates.service';
 import { EntityField } from '../types/entity-field.type';
 import { DecksChildService as DecksChildService } from '../indexed-db/decks-child.service';
 import { DecksService } from './decks.service';
+import { CardAttribute } from '../types/card-attribute.type';
+import StringUtils from 'src/app/shared/utils/string-utils';
 
 @Injectable({
   providedIn: 'root'
@@ -30,15 +32,22 @@ export class CardsService extends DecksChildService<Card, number> {
   
   override async getFields(equalityCriterias?: {[key: string]: any;}) {
     const attributes = await this.attributesService.getAll(equalityCriterias);
-    return this.fields.concat(attributes.map(attribute => {
-      return {
-        field: ('' + attribute.name).trim().replace(/ /g, '-').toLowerCase(),
-        header: attribute.name,
-        type: attribute.type,
-        description: attribute.description,
-        options: attribute.options
-      } as EntityField<Card>;
-    }));
+    return this.fields.concat(attributes.map(attribute => this.cardAttributeToEntityField(attribute)));
+  }
+
+  async getFieldsUnfiltered(equalityCriterias?: {[key: string]: any;}) {
+    const attributes = await this.attributesService.getAllUnfiltered(equalityCriterias);
+    return this.fields.concat(attributes.map(attribute => this.cardAttributeToEntityField(attribute)));
+  }
+
+  private cardAttributeToEntityField(attribute: CardAttribute) {
+    return {
+      field: StringUtils.toKebabCase(attribute.name),
+      header: attribute.name,
+      type: attribute.type,
+      description: attribute.description,
+      options: attribute.options
+    } as EntityField<Card>;
   }
 
   override getEntityName(entity: Card) {

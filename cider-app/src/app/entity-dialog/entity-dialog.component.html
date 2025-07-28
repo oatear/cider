@@ -1,6 +1,6 @@
 <p-toast></p-toast>
 <p-dialog [(visible)]="visible" (visibleChange)="visibleChange.emit($event)" (onHide)="hideDialog()"
-    [style]="{width: '450px'}" header="Create/Edit" [modal]="true" styleClass="p-fluid">
+    [style]="{width: '450px'}" [header]="title || 'Create/Edit'" [modal]="true" styleClass="p-fluid">
     <ng-template pTemplate="content">
         <ng-container *ngFor="let col of columns">
             <ng-container [ngSwitch]="true">
@@ -28,8 +28,8 @@
                     && $any(entity).type && $any(entity).type === FieldType.option">
                     <div class="p-field">
                         <label [for]="col.field">{{col.header}}</label>
-                        <p-message severity="info" text="Press enter to create new options"></p-message>
-                        <p-chips [(ngModel)]="entity[col.field]" [id]="col.field"></p-chips>
+                        <p-message severity="info" text="Press [Enter] to create new options"></p-message>
+                        <p-autocomplete [(ngModel)]="entity[col.field]" [inputId]="col.field.toString()" [typeahead]="false" multiple fluid></p-autocomplete>
                     </div>
                 </ng-container>
                 <ng-container *ngSwitchCase="!col.hidden && col.type === FieldType.file">
@@ -43,7 +43,7 @@
                 <ng-container *ngSwitchCase="!col.hidden && col.type === FieldType.textArea">
                     <div class="p-field">
                         <label [for]="col.field">{{col.header}}</label>
-                        <textarea [rows]="5" [cols]="30" pInputTextarea [autoResize]="true" 
+                        <textarea [rows]="5" [cols]="30" pTextarea [autoResize]="true" 
                             [id]="col.field" [(ngModel)]="entity[col.field]" ></textarea>
                     </div>
                 </ng-container>

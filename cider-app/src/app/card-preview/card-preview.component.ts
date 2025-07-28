@@ -23,6 +23,7 @@ export class CardPreviewComponent implements OnInit, AfterViewChecked, OnChanges
   @Input() scale: number = 1.0;
   @Input() lowInk: boolean = false;
   @Input() cache: boolean = false;
+  @Input() tiltable: boolean = false;
   initialWidth: number = 0;
   initialHeight: number = 0;
   assetUrls: any;

@@ -38,4 +38,15 @@ export default class FileUtils {
       //window.URL.revokeObjectURL(url);
       a.remove();
     }
+
+    /**
+     * Converts a raw SVG string into a Blob object.
+     *
+     * @param svgString The raw SVG content (e.g., '<svg>...</svg>').
+     * @returns A Blob object with the MIME type 'image/svg+xml'.
+     */
+    public static svgStringToBlob(svgString: string): Blob {
+        const blob = new Blob([svgString], { type: 'image/svg+xml' });
+        return blob;
+    }
 }

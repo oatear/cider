@@ -1,0 +1,7 @@
+<app-page-header header="Documents" subheader="Select an existing document to edit, or create a new one"></app-page-header>
+<p-card styleClass="documents-card">
+    <div class="documents-table">
+        <app-entity-table [service]="documentsService"
+            [showColumnFilters]="false" [showInlineEditor]="false"></app-entity-table>
+    </div>
+</p-card>

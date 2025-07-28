@@ -1,0 +1,70 @@
+:host {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+:host ::ng-deep p-card {
+    flex: 1;
+    .asset-generator-card {
+        height: 100%;
+
+        .generator-controls {
+            margin-bottom: 10px;
+            .controls-bar {
+                display: flex;
+                justify-content: space-between;
+            }
+            .p-panel {
+                margin-top: 15px;
+                border-radius: var(--p-card-border-radius);
+                background: var(--p-button-secondary-background);
+                border: none;
+                .p-panel-content {
+                    display: flex;
+                    flex-direction: row;
+                    .column {
+                        flex: 1;
+                    }
+                }
+            }
+            p-colorpicker {
+                &.rainbow {
+                    .p-colorpicker-preview {
+                        background: conic-gradient(
+                            red, orange, yellow, lime, cyan, royalblue, violet, red
+                        );
+                    }
+                }
+            }
+        }
+
+        .generator-output {
+            display: flex;
+            flex-wrap: wrap;
+        }
+    }
+}
+
+:host ::ng-deep p-button {
+    .tiltable {
+        display: inline-block;
+        transform-style: preserve-3d;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        transform: perspective(1000px) rotateX(0deg) rotateY(0deg);
+        // box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        backface-visibility: hidden;
+        will-change: transform;
+        // background: none !important;
+
+        &:hover {
+            transform: perspective(1000px) rotateX(5deg) rotateY(-5deg);
+            // transform: perspective(1000px) rotateX(15deg) rotateY(-15deg);
+            // box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        &:active {
+            transform: perspective(1000px) rotateX(2deg) rotateY(-2deg) scale(0.98);
+            // transform: perspective(1000px) rotateX(10deg) rotateY(-10deg) scale(0.98);
+            // box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+    }
+}

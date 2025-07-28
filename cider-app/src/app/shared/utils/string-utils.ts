@@ -87,4 +87,43 @@ export default class StringUtils {
         }
         return mimeTypes.getType(ext);
     }
+
+    /**
+     * Dedent multi-line strings to remove the leading tabs and first carriage return
+     * 
+     * @param input 
+     */
+    public static dedent(str: string): string {
+        // Remove the first carriage return or newline
+        str = str.replace(/^[ \t]*[\r\n]/, '');
+
+        const lines = str.split('\n');
+
+        // Filter out empty lines and get minimum indent
+        const indents = lines
+            .filter(line => line.trim().length > 0)
+            .map(line => line.match(/^[ \t]*/)?.[0].length ?? 0);
+
+        const minIndent = Math.min(...indents, Infinity);
+
+        // Remove the minimum indent from all lines
+        return lines
+            .map(line => line.startsWith('\t') || line.startsWith(' ') ? line.slice(minIndent) : line)
+            .join('\n');
+    }
+
+    /**
+     * Generate a random string of the specified length
+     * 
+     * @param length 
+     * @returns 
+     */
+    public static generateRandomString(length: number = 10): string {
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let result = '';
+        for (let i = 0; i < length; i++) {
+            result += characters.charAt(Math.floor(Math.random() * characters.length));
+        }
+        return result;
+    }
 }

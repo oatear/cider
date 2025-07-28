@@ -1,8 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
 @import "primeicons/primeicons.css";
-@import "primeng/resources/primeng.min.css";
+// @import "primeng/resources/primeng.min.css";
 // @import "primeng/resources/themes/vela-blue/theme.css";
-@import "primeng/resources/themes/bootstrap4-dark-blue/theme.css";
+// @import "primeng/resources/themes/bootstrap4-dark-blue/theme.css";
 // @import "primeng/resources/themes/bootstrap4-light-blue/theme.css";
 // @import "primeng/resources/themes/mdc-dark-indigo/theme.css";
 // @import "primeng/resources/themes/arya-orange/theme.css";
@@ -10,7 +10,7 @@
 @import "primeflex/primeflex.css";
 
 html {
-    background-color: var(--surface-b);
+    background-color: var(--p-menubar-background);
     color: var(--text-color);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     //font-size: 1rem;
@@ -19,13 +19,59 @@ html {
     height: 100%;
     min-height: 100%;
     min-width: 800px;
+    overflow: hidden;
+
+
     body {
         margin: 0;
         height: 100vh;
     }
 
     // polka-dot background
-    background-color: var(--surface-b);
-    background-image: radial-gradient(var(--surface-d) 0.5px, var(--surface-b) 0.8px);
-    background-size: 10px 10px;
+    // background-color: var(--surface-b);
+    // background-image: radial-gradient(var(--surface-d) 0.5px, var(--surface-b) 0.8px);
+    // background-size: 10px 10px;
+
+    /**
+     Style override: scrollbar
+    **/
+    /* width */
+    ::-webkit-scrollbar {
+        width: 15px;
+        height: 15px;
+    }
+    /* Track */
+    ::-webkit-scrollbar-track {
+        background: transparent;
+        //border-radius: 10px;
+    }
+    /* Handle */
+    ::-webkit-scrollbar-thumb {
+        background: var(--p-surface-200);
+        border-radius: 10px;
+        border: 4px solid transparent;
+        background-clip: content-box;
+        &:hover {
+            background: var(--p-surface-300);
+            border: 4px solid transparent;
+            background-clip: content-box;
+        }
+    }
+    &.dark-mode {
+        ::-webkit-scrollbar-thumb {
+            background: var(--p-surface-800);
+            border-radius: 10px;
+            border: 4px solid transparent;
+            background-clip: content-box;
+            &:hover {
+                background: var(--p-surface-700);
+                border: 4px solid transparent;
+                background-clip: content-box;
+            }
+        }
+    }
+    /* scrollbar corner */
+    ::-webkit-scrollbar-corner {
+        background: rgba(0,0,0,0);
+    }
 }

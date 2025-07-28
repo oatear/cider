@@ -2,7 +2,8 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { CdkDrag, DragDropModule } from '@angular/cdk/drag-drop';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -20,7 +21,7 @@ import { MenubarModule } from 'primeng/menubar';
 import { ToolbarModule } from 'primeng/toolbar';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
+import { TextareaModule } from 'primeng/textarea';
 import { SplitterModule } from 'primeng/splitter';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
@@ -33,10 +34,31 @@ import { SelectButtonModule } from 'primeng/selectbutton';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { CheckboxModule } from 'primeng/checkbox';
 import { TabMenuModule } from 'primeng/tabmenu';
-import { ChipsModule } from 'primeng/chips';
+import { ChipModule } from 'primeng/chip';
 import { DividerModule } from 'primeng/divider';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { SelectModule } from 'primeng/select';
 import { DataViewModule } from 'primeng/dataview';
+import { TreeModule } from 'primeng/tree';
+import { TooltipModule } from 'primeng/tooltip';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { TagModule } from 'primeng/tag';
+import { InputGroup } from 'primeng/inputgroup';
+import { ButtonGroup } from 'primeng/buttongroup';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { ContextMenuModule } from 'primeng/contextmenu';
+import { StepperModule } from 'primeng/stepper';
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { ColorPickerModule } from 'primeng/colorpicker';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { PopoverModule } from 'primeng/popover';
+import { MeterGroupModule } from 'primeng/metergroup';
+import { AutoCompleteModule } from 'primeng/autocomplete';
+
+
+
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 
@@ -60,68 +82,120 @@ import { ExportSelectionDialogComponent } from './export-selection-dialog/export
 import { CardToHtmlPipe } from './shared/pipes/template-to-html.pipe';
 import MonacoExtension from './shared/extensions/monaco-extension';
 import { SiteMenuComponent } from './site-menu/site-menu.component';
+import { SiteSidebarComponent } from './site-sidebar/site-sidebar.component';
+import { providePrimeNG } from 'primeng/config';
+import { CiderTheme } from './cider-theme';
+import { SiteActivitybarComponent } from './site-activitybar/site-activitybar.component';
+import { LocalStorageService } from './data-services/local-storage/local-storage.service';
+import { SettingsDialogComponent } from './settings-dialog/settings-dialog.component';
+import { AssetComponent } from './asset/asset.component';
+import { TemplateGeneratorComponent } from './template-generator/template-generator.component';
+import { AssetGeneratorComponent } from './asset-generator/asset-generator.component';
+import { DocumentComponent } from './document/document.component';
+import { MarkdownModule } from 'ngx-markdown';
+import { DocumentsComponent } from './documents/documents.component';
+import { ProjectComponent } from './project/project.component';
+import { GameSimulatorComponent } from './game-simulator/game-simulator.component';
 
-@NgModule({
-  declarations: [
-    AppComponent,
-    DecksComponent,
-    CardTemplatesComponent,
-    CardsComponent,
-    SiteHeaderComponent,
-    SiteFooterComponent,
-    SiteContentComponent,
-    SiteTemplateComponent,
-    AssetsComponent,
-    EntityTableComponent,
-    EntityDialogComponent,
-    CardPreviewComponent,
-    ExportCardsComponent,
-    CardsTabMenuComponent,
-    CardAttributesComponent,
-    CardThumbnailsComponent,
-    PageHeaderComponent,
-    WelcomeComponent,
-    ExportSelectionDialogComponent,
-    SiteMenuComponent
-  ],
-  imports: [
-    BrowserModule,
-    BrowserAnimationsModule,
-    AppRoutingModule,
-    HttpClientModule,
-    MonacoEditorModule.forRoot(MonacoExtension.monacoConfig),
-    ButtonModule,
-    RippleModule,
-    CardModule,
-    TableModule,
-    PanelModule,
-    PanelMenuModule,
-    MenubarModule,
-    ToolbarModule,
-    DialogModule,
-    FormsModule,
-    InputTextModule,
-    InputTextareaModule,
-    SplitterModule,
-    ConfirmDialogModule,
-    ToastModule,
-    DropdownModule,
-    TabViewModule,
-    DataServicesModule,
-    SharedModule,
-    ScrollPanelModule,
-    FileUploadModule,
-    MessageModule,
-    SelectButtonModule,
-    ProgressBarModule,
-    CheckboxModule,
-    TabMenuModule,
-    ChipsModule,
-    DividerModule,
-    MultiSelectModule,
-    DataViewModule
-  ],
-  providers: [CardToHtmlPipe],
-  bootstrap: [AppComponent]
-})
+@NgModule({ declarations: [
+        AppComponent,
+        DecksComponent,
+        CardTemplatesComponent,
+        CardsComponent,
+        SiteHeaderComponent,
+        SiteFooterComponent,
+        SiteContentComponent,
+        SiteTemplateComponent,
+        AssetsComponent,
+        AssetComponent,
+        EntityTableComponent,
+        EntityDialogComponent,
+        CardPreviewComponent,
+        ExportCardsComponent,
+        CardsTabMenuComponent,
+        CardAttributesComponent,
+        CardThumbnailsComponent,
+        PageHeaderComponent,
+        WelcomeComponent,
+        ExportSelectionDialogComponent,
+        SiteMenuComponent,
+        SiteSidebarComponent,
+        SiteActivitybarComponent,
+        SettingsDialogComponent,
+        TemplateGeneratorComponent,
+        AssetGeneratorComponent,
+        DocumentComponent,
+        DocumentsComponent,
+        ProjectComponent,
+        GameSimulatorComponent,
+    ],
+    bootstrap: [AppComponent], 
+    imports: [BrowserModule,
+        BrowserAnimationsModule,
+        AppRoutingModule,
+        MonacoEditorModule.forRoot(MonacoExtension.monacoConfig),
+        MarkdownModule.forRoot(),
+        ButtonModule,
+        ButtonGroup,
+        RippleModule,
+        CardModule,
+        TableModule,
+        PanelModule,
+        PanelMenuModule,
+        MenubarModule,
+        ToolbarModule,
+        DialogModule,
+        FormsModule,
+        InputTextModule,
+        InputGroup,
+        TextareaModule,
+        SplitterModule,
+        ConfirmDialogModule,
+        ToastModule,
+        DropdownModule,
+        TabViewModule,
+        DataServicesModule,
+        SharedModule,
+        ScrollPanelModule,
+        FileUploadModule,
+        MessageModule,
+        SelectButtonModule,
+        ProgressBarModule,
+        CheckboxModule,
+        TabMenuModule,
+        ChipModule,
+        DividerModule,
+        MultiSelectModule,
+        SelectModule,
+        DataViewModule,
+        TreeModule,
+        TooltipModule,
+        IconFieldModule,
+        InputIconModule,
+        TagModule,
+        ToggleSwitchModule,
+        ContextMenuModule,
+        StepperModule,
+        BreadcrumbModule,
+        ColorPickerModule,
+        InputNumberModule,
+        PopoverModule,
+        MeterGroupModule,
+        CdkDrag,
+        DragDropModule,
+        AutoCompleteModule,
+    ], 
+    providers: [
+        CardToHtmlPipe, provideHttpClient(withInterceptorsFromDi()),
+        provideAnimationsAsync(),
+        providePrimeNG({
+            theme: {
+                preset: CiderTheme,
+                options: {
+                    darkModeSelector: "." + LocalStorageService.DARK_MODE,
+                }
+            }
+        })
+    ]})
 export class AppModule { }
+

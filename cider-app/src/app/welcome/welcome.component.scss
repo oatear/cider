@@ -1,10 +1,18 @@
-:host ::ng-deep .welcome-card {
-    margin: 25px;
+:host ::ng-deep .projects-card {
+    margin-top: 25px;
+
+    .p-card-content {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+    }
 
     .p-button {
         width: 100px;
         height: 100px;
-        margin-right: 21px;
+        // margin-right: 21px;
         color: #e4e4e6;
         background: #343e4d;
         border-radius: 10px;
@@ -65,10 +73,14 @@
     }
 }
 
+:host ::ng-deep app-page-header .p-card {
+    margin-left: 0;
+}
+
 :host ::ng-deep .artwork-card {
-    margin: 25px;
+    // margin: 25px;
     height: 300px;
-    background: url(^assets/crystal-cave.png);
+    background: url(../../assets/crystal-cave.png);
     background-size: auto 300px;
 }
 

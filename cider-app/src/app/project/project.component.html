@@ -1,0 +1,42 @@
+<p-card styleClass="project-card">
+    <h2>{{projectName}}</h2>
+
+    <div class="project-info">
+        <p-metergroup [value]="projectMeters" [max]="500">
+            <ng-template #label let-items>
+                <ol class="p-metergroup-label-list p-component p-metergroup-label-list-horizontal">
+                @for (item of items; track item.label) {
+                    <li class="p-metergroup-label ng-star-inserted" >
+                        <i [class]="item.icon + ' p-metergroup-label-icon'" [style]="{ 'color': item.color }"></i>
+                        <span class="p-metergroup-label-text">{{item.label}} ({{item.value}})</span>
+                    </li>
+                }
+                </ol>
+            </ng-template>
+        </p-metergroup>
+    </div>
+
+    <h3>Decks</h3>
+    <div class="decks">
+    @for (deck of deckInfos; track deck.id) {
+        <p-button styleClass="deck-button" [outlined]="true" (click)="openDeck(deck.id)">
+
+            <h4><i class="pi pi-folder" ></i> {{deck.name}}</h4>
+            <p-metergroup [value]="deck.meters" orientation="vertical" labelOrientation="vertical" [max]="60">
+                <ng-template #label let-items>
+                    <ol class="p-metergroup-label-list p-component p-metergroup-label-list-vertical">
+                    @for (item of items; track item.label) {
+                        <li class="p-metergroup-label ng-star-inserted" >
+                            <i [class]="item.icon + ' p-metergroup-label-icon'" [style]="{ 'color': item.color }"></i>
+                            <span class="p-metergroup-label-text">{{item.label}} ({{item.value}})</span>
+                        </li>
+                    }
+                    </ol>
+                </ng-template>
+            </p-metergroup>
+
+        </p-button>
+    }
+    </div>
+
+</p-card>

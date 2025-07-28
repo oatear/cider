@@ -1,7 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CardTemplatesService } from '../data-services/services/card-templates.service';
 import { CardsService } from '../data-services/services/cards.service';
-import { CardTemplate } from '../data-services/types/card-template.type';
 import { Card } from '../data-services/types/card.type';
 
 @Component({

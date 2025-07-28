@@ -4,7 +4,7 @@ import { CardTemplatesService } from '../data-services/services/card-templates.s
 import { CardsService } from '../data-services/services/cards.service';
 import { Card } from '../data-services/types/card.type';
 import * as htmlToImage from 'html-to-image';
-import * as JSZip from 'jszip'
+import JSZip from 'jszip';
 import * as pdfMake from 'pdfmake/build/pdfmake';
 import pLimit from 'p-limit';
 import FileUtils from '../shared/utils/file-utils';

@@ -1,11 +1,7 @@
 <div class="site-menu" (dblclick)="titlebarDoubleClick()">
     <p-menubar [model]="items">
-        <ng-template pTemplate="start">
-            <img class="logo-image" height="40"
-            [src]="isSaving ? 'assets/cider-logo.gif' : 'assets/cider-logo-128.png'" 
-            (click)="logoClicked()">
-        </ng-template>
     </p-menubar>
+    <p-breadcrumb class="max-w-full" [model]="breadcrumbs" [home]="home" />
 </div>
 <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
 <p-dialog header="Import Database" [(visible)]="importVisible" [style]="{width: '450px'}" [modal]="true">
@@ -29,8 +25,8 @@
     <div class="p-field">
         Please wait for the process to complete.
     </div>
-    <p-progressBar [value]="loadingPercent" [showValue]="false" 
-        [mode]="loadingIndeterminate ? 'indeterminate' : 'determinate'"></p-progressBar>
+    <p-progressbar [value]="loadingPercent" [showValue]="false" 
+        [mode]="loadingIndeterminate ? 'indeterminate' : 'determinate'"></p-progressbar>
     <div class="p-field p-mt-2">
         {{loadingInfo}}
     </div>

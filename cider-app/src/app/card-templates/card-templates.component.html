@@ -1,59 +1,50 @@
 <p-toast></p-toast>
 <div class="template-editor">
-    <div class="template-header">
-        <p-toolbar styleClass="mb-4">
-            <ng-template pTemplate="left">
-                <p-dropdown [options]="templates" [(ngModel)]="selectedTemplate" 
-                    optionLabel="name"  styleClass="template-dropdown" class="p-mr-2"></p-dropdown>
-                <button pButton pRipple label="Edit" icon="pi pi-pencil" class="p-button p-mr-2" (click)="openEditDialog(selectedTemplate)"></button>
-                <button pButton pRipple label="New" icon="pi pi-plus" class="p-button" (click)="openCreateNew()"></button>
-            </ng-template>
-            <ng-template pTemplate="right">
-                <button pButton pRipple label="Delete" icon="pi pi-trash" class="p-button-danger" (click)="openDeleteDialog(selectedTemplate)"></button>
-            </ng-template>
-        </p-toolbar>
-    </div>
     <p-splitter class="template-panel" [panelSizes]="[40, 60]" [minSizes]="[25, 25]" 
         (onResizeStart)="onResizeStart($event)"
         (onResizeEnd)="onResizeEnd($event)">
         <ng-template pTemplate>
             <div class="left-panel p-col p-flex p-align-items-center p-justify-content-center">
-                <p-panel header="Preview" >
+                <p-card styleClass="page-card">
                     <div class="preview-controls" *ngIf="!disablePanels">
                         <p-dropdown [options]="cards" [(ngModel)]="selectedCard" [filter]="true" filterby="name"
                             optionLabel="name" styleClass="card-dropdown"></p-dropdown>
-                        <span class="p-buttonset">
-                            <button pButton type="button" icon="pi pi-search-minus" (click)="changeZoom(-0.1)"></button>
-                            <button pButton type="button" icon="pi pi-search-plus" (click)="changeZoom(0.1)"></button>
-                        </span>
+                        <p-buttongroup>
+                            <button pButton type="button" icon="pi pi-search-minus" 
+                                (click)="changeZoom(ZOOM_DOWN)"></button>
+                            <button pButton type="button" icon="pi pi-search-plus" 
+                                (click)="changeZoom(ZOOM_UP)"></button>
+                        </p-buttongroup>
                     </div>
-                    <div class="preview-space" [style]="{ width: 'calc(var(--vw, 1vw) * ' + previewPanelWidth + ')' }" *ngIf="!disablePanels">
-                        <app-card-preview [card]="selectedCard" [template]="selectedTemplate" *ngIf="selectedCard" [scale]="zoom"
-                            [cache]="false"></app-card-preview>
+                    <div class="preview-space" *ngIf="!disablePanels">
+                        <app-card-preview [card]="selectedCard" [template]="selectedTemplate" *ngIf="selectedCard"
+                            [scale]="zoom" [cache]="false" [tiltable]="true"></app-card-preview>
                     </div>
-                </p-panel>
+                </p-card>
             </div>
         </ng-template>
         <ng-template pTemplate>
             <div class="right-panel p-col p-flex p-align-items-center p-justify-content-center">
-                <div class="top-panel">
-                    <p-panel [style]="{height: '100%', width: '100%'}" header="CSS">
-                        <ng-template pTemplate="icons">
-                            <!-- <button pButton pRipple icon="pi pi-info-circle" class="p-panel-header-icon p-link" (click)="openCssInfo()"></button> -->
-                        </ng-template>
-                        <ngx-monaco-editor class="code-editor" *ngIf="selectedTemplate && !disablePanels"
-                            [options]="cssEditorOptions" [(ngModel)]="selectedTemplate.css" (ngModelChange)="debounceSave()"></ngx-monaco-editor>
-                    </p-panel>
-                </div>
-                <div class="bottom-panel">
-                    <p-panel [style]="{height: '100%', width: '100%'}" header="HTML/Handlebars">
-                        <ng-template pTemplate="icons">
-                            <!-- <button pButton pRipple icon="pi pi-info-circle" class="p-panel-header-icon p-link" (click)="openHtmlInfo()"></button> -->
-                        </ng-template>
-                        <ngx-monaco-editor class="code-editor" *ngIf="selectedTemplate && !disablePanels"
-                            [options]="htmlEditorOptions" [(ngModel)]="selectedTemplate.html" (ngModelChange)="debounceSave()"></ngx-monaco-editor>
-                    </p-panel>
-                </div>
+                <p-splitter class="code-editor-panel" [panelSizes]="[50, 50]" [minSizes]="[25, 25]"
+                    (onResizeStart)="onResizeStart($event)" (onResizeEnd)="onResizeEnd($event)"
+                    layout="vertical">
+                    <ng-template pTemplate>
+                        <div class="css-editor-panel p-col p-flex p-align-items-center p-justify-content-center">
+                            <p-card styleClass="css-editor" header="CSS + Handlebars">
+                                <ngx-monaco-editor class="code-editor" *ngIf="selectedTemplate && !disablePanels"
+                                    [options]="cssEditorOptions" [(ngModel)]="selectedTemplate.css" (ngModelChange)="debounceSave()"></ngx-monaco-editor>
+                            </p-card>
+                        </div>
+                    </ng-template>
+                    <ng-template pTemplate>
+                        <div class="html-editor-panel p-col p-flex p-align-items-center p-justify-content-center">
+                            <p-card styleClass="html-editor" header="HTML + Handlebars">
+                                <ngx-monaco-editor class="code-editor" *ngIf="selectedTemplate && !disablePanels"
+                                    [options]="htmlEditorOptions" [(ngModel)]="selectedTemplate.html" (ngModelChange)="debounceSave()"></ngx-monaco-editor>
+                            </p-card>
+                        </div>
+                    </ng-template>
+                </p-splitter>
             </div>
         </ng-template>
     </p-splitter>

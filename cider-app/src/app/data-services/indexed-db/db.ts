@@ -1,4 +1,4 @@
-import Dexie, { IndexableType, Table } from "dexie";
+import Dexie, { Table } from "dexie";
 import { Card } from "primeng/card";
 import { Asset } from "../types/asset.type";
 import { CardTemplate } from "../types/card-template.type";
@@ -7,10 +7,10 @@ import { exportDB, importDB } from "dexie-export-import";
 import FileUtils from "src/app/shared/utils/file-utils";
 import { ExportProgress } from "dexie-export-import/dist/export";
 import { ImportProgress } from "dexie-export-import/dist/import";
-import { FieldType } from "../types/field-type.type";
 import { HttpClient } from "@angular/common/http";
-import { BehaviorSubject, Subject, firstValueFrom } from "rxjs";
+import { Subject, firstValueFrom } from "rxjs";
 import { Injectable } from "@angular/core";
+import { ElectronService } from "../electron/electron.service";
 
 @Injectable({
     providedIn: 'root'
@@ -25,9 +25,10 @@ export class AppDB extends Dexie {
     public static readonly CARD_TEMPLATES_TABLE: string = 'cardTemplates'
     public static readonly PRINT_TEMPLATES_TABLE: string = 'printTemplates';
     public static readonly CARD_ATTRIBUTES_TABLE: string = 'cardAttributes';
+    public static readonly DOCUMENTS_TABLE: string = 'documents';
     private static readonly ALL_TABLES = [
         AppDB.GAMES_TABLE, AppDB.DECKS_TABLE, AppDB.CARDS_TABLE, AppDB.ASSETS_TABLE, 
-        AppDB.CARD_TEMPLATES_TABLE, AppDB.CARD_ATTRIBUTES_TABLE];
+        AppDB.CARD_TEMPLATES_TABLE, AppDB.CARD_ATTRIBUTES_TABLE, AppDB.DOCUMENTS_TABLE];
 
     games!: Table<Deck, number>;
     cards!: Table<Card, number>;
@@ -35,26 +36,36 @@ export class AppDB extends Dexie {
     cardTemplates!: Table<CardTemplate, number>;
     private httpClient;
     private changeSubject: Subject<null>;
+    private loadSubject: Subject<null>;
 
-    constructor(httpClient: HttpClient) {
+    constructor(httpClient: HttpClient,
+        electronService: ElectronService,
+    ) {
         super(AppDB.DB_NAME);
         this.httpClient = httpClient;
         this.changeSubject = new Subject<null>();
+        this.loadSubject = new Subject<null>();
+        /**
+         * Dexie Versioning Documentation:
+         * 
+         * https://dexie.org/docs/Tutorial/Design#database-versioning
+         */
         this.version(1).stores({
             games: '++id, name',
             cards: '++id, gameId, count, frontCardTemplateId, backCardTemplateId',
             assets: '++id, gameId, name',
             cardTemplates: '++id, gameId, name, description, html, css',
             printTemplates: '++id, gameId, name, description, html, css',
-            cardAttributes: '++id, gameId, name, type, options, description'
+            cardAttributes: '++id, gameId, name, type, options, description',
         });
         this.version(2).stores({
+            games: null,
             decks: '++id, name',
             assets: '++id, name',
             cards: '++id, deckId, count, frontCardTemplateId, backCardTemplateId',
             cardTemplates: '++id, deckId, name, description, html, css',
             printTemplates: null,
-            cardAttributes: '++id, deckId, name, type, options, description'
+            cardAttributes: '++id, deckId, name, type, options, description',
         }).upgrade(transaction => {
             // upgrade to version 2
             return transaction.table(AppDB.GAMES_TABLE).toArray().then(games => {
@@ -80,15 +91,22 @@ export class AppDB extends Dexie {
                 });
             });
         });
+        this.version(3).stores({
+            // other tables are inherited from previous versions
+            documents: '++id, name, content',
+        });
         // populate in a non-traditional way since the 'on populate' will not allow ajax calls
         this.on('ready', () => this.table(AppDB.DECKS_TABLE).count()
         .then(count => {
-            if (count > 0) {
+            if (!electronService.isElectron() && count > 0) {
                 console.log('db already populated');
-                return true;
+            } else {
+                console.log('populate from file');
+                this.populateFromFile().then(() => {
+                    // cause asset urls to update
+                    this.loadSubject.next(null);
+                });
             }
-            console.log('populate from file');
-            return this.populateFromFile().then(() => true);
         }));
 
         // trigger changeSubject when change emitted to db
@@ -100,10 +118,9 @@ export class AppDB extends Dexie {
     async populateFromFile() {
         const blob = await firstValueFrom(this.httpClient.get(AppDB.SAMPLE_DB_FILE, {responseType: 'blob'}));
         const file = new File([blob], 'database.json', {type: 'application/json', lastModified: Date.now()});
-        await importDB(file, {
+        return importDB(file, {
             //noTransaction: true
         });
-        return true;
     }
 
     /**
@@ -122,7 +139,7 @@ export class AppDB extends Dexie {
             progressCallback: progressCallback
         }).then(tempDb => tempDb.close())
         .then(result => this.open())
-        .then(result => true);
+        .then(() => true);
     }
 
     /**
@@ -145,17 +162,23 @@ export class AppDB extends Dexie {
     /**
      * Delete all data in database and return to default data.
      */
-    public resetDatabase(keepEmpty?: boolean) {
+    public async resetDatabase(keepEmpty?: boolean) {
         this.close();
-        return this.delete().then(() => this.open()).then(() => {
-            if (!keepEmpty) {
-                return this.populateFromFile();
-            }
-            return true;
-        });
+        await this.delete();
+        if (!keepEmpty) {
+            const tempDb = await this.populateFromFile();
+            tempDb.close();
+        }
+        await this.open();
+        this.changeSubject.next(null);
+        return true;
     }
 
     public onChange() {
         return this.changeSubject.asObservable();
+    }
+
+    public onLoad() {
+        return this.loadSubject.asObservable();
     }
 }

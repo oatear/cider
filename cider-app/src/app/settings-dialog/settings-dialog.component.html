@@ -1,0 +1,15 @@
+<p-dialog header="Application Settings" [(visible)]="visible" (visibleChange)="visibleChange.emit($event)"
+    (onHide)="hideDialog()" [styleClass]="'settings-dialog'"
+    [modal]="true" [style]="{width: '400px'}" [closable]="true">
+    <ng-template pTemplate="content">
+
+        <div class="p-field p-d-flex p-flex-row">
+            <p-toggleswitch [(ngModel)]="darkMode" (onChange)="setDarkMode($event)" 
+                class="p-mr-2"/>
+            <label for="darkMode">Dark Mode</label>
+        </div>
+        <p-message severity="info" escape="false"
+            text="Enable dark mode for a better night-time experience"></p-message>
+            
+    </ng-template>
+</p-dialog>

@@ -1,0 +1,50 @@
+:host ::ng-deep .side-menu {
+    flex-direction: column;
+    border: none;
+    height: 100%;
+    p-menubarsub {
+        height: 100%;
+        .p-menubar-root-list {
+            flex-direction: column;
+            height: 100%;
+            transition: filter 0.3s ease-in-out;
+            .p-menubar-item {
+                &:hover {
+                    animation: hue-spin 3s linear infinite;
+                }
+                &.menu-item-bottom {
+                    margin-top: auto;
+                }
+                .p-menubar-item-content {
+                    display: flex;
+                    flex-direction: column;
+                    .p-menubar-item-icon {
+                        font-size: 20px;
+                    }
+                    .p-menubar-item-label {
+                        display: none;
+                    }
+                }
+            }
+        }
+    }
+    .p-menubar-end {
+        display: none;
+    }
+    .logo-image {
+        filter: brightness(1.4) hue-rotate(0deg);
+        transition: filter 1s ease-in-out;
+        &:hover {
+            filter: brightness(1.4) hue-rotate(360deg);
+        }
+    }
+}
+
+@keyframes hue-spin {
+    0% {
+        filter: hue-rotate(0deg);
+    }
+    100% {
+        filter: hue-rotate(360deg);
+    }
+}

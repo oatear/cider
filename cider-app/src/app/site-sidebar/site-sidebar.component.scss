@@ -1,0 +1,65 @@
+:host ::ng-deep p-tree {
+    flex: 1;
+    display: flex;
+    min-width: 0;
+    .file-tree {
+        flex: 1;
+        border: none;
+        border-radius: 0%;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        border-radius: 10px;
+        min-width: 0;
+
+        .p-iconfield {
+            margin: 10px;
+        }
+
+        .p-tree-empty-message {
+            margin-left: 25px;
+        }
+
+        .p-tree-root {
+            flex: 1 0 0;
+            overflow: scroll;
+            .p-tree-node {
+                width: 100%;
+                .p-tree-node-icon {
+                    &.pi-home {
+                        // color: #42a5f5;
+                    }
+                    &.pi-file {
+                        color: #42a5f5;
+                    }
+                    &.pi-file-pdf {
+                        color: #ff7043;
+                    }
+                    &.pi-id-card {
+                        color: #ae80ff;
+                    }
+                    &.pi-list {
+                        color: #7986cb;
+                    }
+                    &.pi-th-large {
+                        color: #64b5f6;
+                    }
+                    &.pi-tags {
+                        color: #ffb74d;
+                    }
+                    &.pi-image {
+                        color: #4db6ac;
+                    }
+                }
+                .p-tree-node-label {
+                    width: 100%;
+                    > span {
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                    }
+                }
+            }
+        }
+    }
+}

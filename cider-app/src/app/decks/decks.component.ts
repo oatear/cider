@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, Subject, take } from 'rxjs';
+import { Subject, take } from 'rxjs';
 import { DecksService } from '../data-services/services/decks.service';
 import { EntityField } from '../data-services/types/entity-field.type';
 import { Deck } from '../data-services/types/deck.type';
