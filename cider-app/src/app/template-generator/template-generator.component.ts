@@ -24,7 +24,8 @@ export class TemplateGeneratorComponent implements OnInit {
   constructor(
     private router: Router,
     private route: ActivatedRoute,
-    public templatesService: CardTemplatesService) {
+    public templatesService: CardTemplatesService,
+  ) {
       this.route.paramMap.subscribe(params => {
         const deckIdString = params.get('deckId') || '';
         this.deckId = parseInt(deckIdString, 10);
@@ -73,7 +74,7 @@ export class TemplateGeneratorComponent implements OnInit {
     });
   }
 
-  public refreshThemeCards() {
+  public refreshThemeCards(dummyElement?: any) {
     this.selectedTheme = undefined;
     // clean up existing theme card attributes from memory
     if (this.themeCards) {
@@ -81,6 +82,13 @@ export class TemplateGeneratorComponent implements OnInit {
         .forEach(themeCard => TemplateDefaults.cleanUp(themeCard.design.theme));
     }
     this.themeCards = TemplateDefaults.getThemeCards(this.selectedSize.key, this.selectedLayout.key, TemplateDefaults.DEFAULT_THEME);
+
+    if (dummyElement) {
+      // fixes an issue where clicking the refresh button will make it take focus,
+      // afterward, you need to click on the cards twice: 
+      // first click blurs/unfocuses the refresh button, second click selects the card
+      dummyElement.focus();
+    }
   }
 
 }

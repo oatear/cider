@@ -42,7 +42,8 @@
                         </p-selectbutton>
                     </div>
                     <div class="step-controls p-justify-between">
-                        <p-button label="Back" severity="secondary" icon="pi pi-arrow-left" (onClick)="activateCallback(1)" />
+                        <p-button label="Back" severity="secondary" icon="pi pi-arrow-left" 
+                            (onClick)="activateCallback(1)" />
                         <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" 
                             [disabled]="!selectedLayout"
                             (onClick)="activateCallback(3)" />
@@ -52,9 +53,9 @@
 
             <p-step-panel [value]="3" [id]="'layout-panel'">
                 <ng-template #content let-activateCallback="activateCallback">
-                    <div class="card-list">
+                    <div class="card-list" #dummyElement>
                         <p-selectbutton [options]="themeCards" [(ngModel)]="selectedTheme" 
-                            (onChange)="selectedThemeChange($event)"
+                            (onChange)="selectedThemeChange($event)" 
                             optionLabel="key" [style]="{width: '100%'}">
                             <ng-template #item let-item>
                                 <app-card-preview [cache]="false" [card]="item" [scale]="zoomLevel" [tiltable]="true" 
@@ -65,7 +66,8 @@
                     </div>
                     <div class="step-controls p-justify-between">
                         <p-button label="Back" severity="secondary" icon="pi pi-arrow-left" (onClick)="activateCallback(2)" />
-                        <p-button label="Refresh" severity="help" icon="pi pi-refresh" (onClick)="refreshThemeCards()" />
+                        <p-button label="Refresh" severity="help" icon="pi pi-refresh" 
+                            (onClick)="refreshThemeCards(dummyElement)" />
                         <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" 
                             [disabled]="!selectedTheme"
                             (onClick)="activateCallback(4)" />
