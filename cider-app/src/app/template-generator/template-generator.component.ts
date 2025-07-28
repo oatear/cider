@@ -3,6 +3,8 @@ import { CardTemplate } from "../data-services/types/card-template.type";
 import { CardTemplatesService } from '../data-services/services/card-templates.service';
 import TemplateDefaults, { CardTheme, TemplateDesign } from '../shared/defaults/template-defaults';
 import { ActivatedRoute, Router } from '@angular/router';
+import { AssetsService } from '../data-services/services/assets.service';
+import StringUtils from '../shared/utils/string-utils';
 
 @Component({
   selector: 'app-template-generator',
@@ -11,7 +13,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 export class TemplateGeneratorComponent implements OnInit {
   deckId: number = 0;
-  zoomLevel: number = 0.30;
+  zoomLevel: number = 0.25;
   previewZoom: number = 0.40;
   sizeCards: any[] = [];
   layoutCards: any[] = [];
@@ -25,6 +27,7 @@ export class TemplateGeneratorComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     public templatesService: CardTemplatesService,
+    private assetsService: AssetsService,
   ) {
       this.route.paramMap.subscribe(params => {
         const deckIdString = params.get('deckId') || '';
@@ -48,28 +51,30 @@ export class TemplateGeneratorComponent implements OnInit {
   }
 
   public selectedThemeChange(event: any) {
-    this.templateName = `${this.selectedSize.key}-${this.selectedLayout.key}-${Math.random().toString(36).substr(2, 9)}`;
+    this.templateName = StringUtils.toKebabCase(
+      `${this.selectedSize.key}-${this.selectedLayout.key}-${Math.random().toString(36).substr(2, 9)}`);
   }
 
-  public createTemplate() {
+  public async createTemplate() {
     console.log('Creating template with size:', this.selectedSize, 
       'and layout:', this.selectedLayout, 
       'and deckId:', this.deckId);
-    if (!this.selectedLayout) {
+    if (!this.selectedTheme) {
       return;
     }
-    const cardSize = TemplateDefaults.CARD_SIZES[this.selectedSize.key];
-    const layout = TemplateDefaults.CARD_LAYOUTS[this.selectedLayout.key];
-    const design: TemplateDesign = { 
-      size: cardSize,
-      layout: layout,
-      theme: TemplateDefaults.DEFAULT_THEME,
-    };
-    const cardTemplate: CardTemplate = TemplateDefaults.generateCardTemplate(design);
+
+    const key: string = this.selectedTheme.key;
+    const design: TemplateDesign = this.selectedTheme.design;
+    const templateExport = TemplateDefaults.generateTemplateExport(design, key);
+
+    // save assets
+    await Promise.all(templateExport.assets.map(asset => this.assetsService.create(asset)));
+
+    // save template
+    const cardTemplate: CardTemplate = templateExport.template;
     cardTemplate.deckId = this.deckId;
-    cardTemplate.name = this.templateName || cardTemplate.name;
-    cardTemplate.description = `Card template using ${this.selectedLayout.key} layout.`;
-    this.templatesService.create(cardTemplate, true).then((template: CardTemplate) => {
+    cardTemplate.name = this.templateName ?? cardTemplate.name;
+    await this.templatesService.create(cardTemplate, true).then((template: CardTemplate) => {
       this.router.navigateByUrl(`/decks/${this.deckId}/templates/${template.id}`);
     });
   }
