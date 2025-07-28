@@ -39,6 +39,16 @@ specific parts of the template.
 
 ![screen-2]
 
+## 1.1 Template Wizard
+Quickly jump into a template by going through the Template Wizard and selecting the card size, layout, design/theme.
+
+![screen-2a]
+
+## 1.2. Asset Generator
+Import or generate assets (images) to use within your template. The asset generator can create procedurally generated symbols, badges, art, banners, textboxes.
+
+![screen-2b]
+
 # 2. Tabulate
 Create attributes relevant to your game and fill out their values for each
 card. Choose the front and back templates for each card.
@@ -61,6 +71,8 @@ Export card sheets for use directly in Tabletop Simulator.
 # 5. Save
 There are various ways you can save your project files depending on the form of the application you are using.
 
+![screen-6]
+
 ## 5.1 Web Application
 In the web application your project remains in IndexedDB within the browser storage. You can export the database as a single `database.json` file. This file can be stored somewhere safe and also transfered and imported to other devices.
 
@@ -71,6 +83,11 @@ In the desktop application, the primary project structure is a directory that ho
 
 ### 5.2.1 Running on Mac
 [Download][releases-url] the .dmg file, double click, and drag into Applications. You will then need to open up the terminal and run `xattr -cr /Applications/cider.app` to get around the misleading signing error: `"{application} is damaged and can't be opened."`. Apple requires a yearly subscription fee in order to sign apps for their platform.
+
+# 6. Game Simulator
+Quickly test out your cards in the game simulator as if you had already printed them out in person. The game simulator lets you shuffle, draw, discard, flip coin, roll die, place tokens, etc.
+
+![screen-7]
 
 # Creative Ownership
 Anything you create using CIDEr is your own intellectual property.
@@ -92,9 +109,13 @@ The repository itself is protected by [AGPL-3.0][license-url] to ensure the proj
 [logo-url]: docs/assets/cider-logo-80.png
 [screen-1]: cider-app/src/assets/screen-1.png
 [screen-2]: cider-app/src/assets/screen-2.png
+[screen-2a]: cider-app/src/assets/screen-2a.png
+[screen-2b]: cider-app/src/assets/screen-2b.png
 [screen-3]: cider-app/src/assets/screen-3.png
 [screen-4]: cider-app/src/assets/screen-4.png
 [screen-5]: cider-app/src/assets/screen-5.png
+[screen-6]: cider-app/src/assets/screen-6.png
+[screen-7]: cider-app/src/assets/screen-7.png
 [image-file-tree]: cider-app/src/assets/image-file-tree.png
 [gh-url]: https://github.com/oatear/cider
 [releases-url]: https://github.com/oatear/cider/releases
