@@ -23,6 +23,11 @@ export class AssetsService extends IndexedDbService<Asset, number> {
     this.assetUrls = new BehaviorSubject<any>({});
     this.isLoadingSubject = new BehaviorSubject<boolean>(true);
     this.updateAssetUrls();
+
+    // update asset URLs whenever the database reloads
+    db.onLoad().subscribe(() => {
+      this.updateAssetUrls();
+    });
   }
 
   public updateAssetUrls() {

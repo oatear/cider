@@ -10,6 +10,7 @@ import { ImportProgress } from "dexie-export-import/dist/import";
 import { HttpClient } from "@angular/common/http";
 import { Subject, firstValueFrom } from "rxjs";
 import { Injectable } from "@angular/core";
+import { ElectronService } from "../electron/electron.service";
 
 @Injectable({
     providedIn: 'root'
@@ -35,11 +36,15 @@ export class AppDB extends Dexie {
     cardTemplates!: Table<CardTemplate, number>;
     private httpClient;
     private changeSubject: Subject<null>;
+    private loadSubject: Subject<null>;
 
-    constructor(httpClient: HttpClient) {
+    constructor(httpClient: HttpClient,
+        electronService: ElectronService,
+    ) {
         super(AppDB.DB_NAME);
         this.httpClient = httpClient;
         this.changeSubject = new Subject<null>();
+        this.loadSubject = new Subject<null>();
         /**
          * Dexie Versioning Documentation:
          * 
@@ -93,11 +98,14 @@ export class AppDB extends Dexie {
         // populate in a non-traditional way since the 'on populate' will not allow ajax calls
         this.on('ready', () => this.table(AppDB.DECKS_TABLE).count()
         .then(count => {
-            if (count > 0) {
+            if (!electronService.isElectron() && count > 0) {
                 console.log('db already populated');
             } else {
                 console.log('populate from file');
-                this.resetDatabase()
+                this.populateFromFile().then(() => {
+                    // cause asset urls to update
+                    this.loadSubject.next(null);
+                });
             }
         }));
 
@@ -168,5 +176,9 @@ export class AppDB extends Dexie {
 
     public onChange() {
         return this.changeSubject.asObservable();
+    }
+
+    public onLoad() {
+        return this.loadSubject.asObservable();
     }
 }
