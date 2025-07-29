@@ -40,14 +40,14 @@ jobs:
 
       - name: Create 404 page
         run: |
-          cp dist/cider/index.html dist/cider/404.html
+          cp dist/cider/browser/index.html dist/cider/browser/404.html
 
       - name: Archive build
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: deploy_dist
-          path: cider-app/dist
+          path: cider-app/dist/browser
 
   deploy:
     runs-on: ubuntu-latest
