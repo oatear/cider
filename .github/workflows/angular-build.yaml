@@ -67,6 +67,5 @@ jobs:
         - name: Deploy to GitHub Pages
           uses: oatear/github-pages-deploy-action@v4.7.3
           with:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            BRANCH: gh-pages
-            FOLDER: browser
+            branch: gh-pages
+            folder: browser
