@@ -16,17 +16,17 @@
     ],
 	"afterSign": "electron-builder-notarize",
     "mac": {
-        "icon": "dist/cider/assets/cider-logo.icns",
+        "icon": "dist/cider/browser/assets/cider-logo.icns",
         "target": ["dmg"],
 		"hardenedRuntime": true,
 		"entitlements": "build/entitlements.mac.plist"
     },
     "win": {
-        "icon": "dist/cider/favicon.ico",
+        "icon": "dist/cider/browser/favicon.ico",
         "target": ["msi"]
     },
     "linux": {
-        "icon": "dist/cider/assets/cider-logo.icns",
+        "icon": "dist/cider/browser/assets/cider-logo.icns",
         "target": ["deb"]
     }
 }
