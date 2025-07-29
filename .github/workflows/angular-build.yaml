@@ -47,7 +47,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: deploy_dist
-          path: cider-app/dist/browser
+          path: cider-app/dist/cider
 
   deploy:
     runs-on: ubuntu-latest
@@ -65,8 +65,8 @@ jobs:
           run: ls -R
 
         - name: Deploy to GitHub Pages
-          uses: JamesIves/github-pages-deploy-action@releases/v4
+          uses: oatear/github-pages-deploy-action@releases/v4
           with:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             BRANCH: gh-pages
-            FOLDER: cider
+            FOLDER: browser
