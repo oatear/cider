@@ -65,7 +65,7 @@ jobs:
           run: ls -R
 
         - name: Deploy to GitHub Pages
-          uses: oatear/github-pages-deploy-action@releases/v4
+          uses: oatear/github-pages-deploy-action@v4
           with:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             BRANCH: gh-pages
