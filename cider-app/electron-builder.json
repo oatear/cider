@@ -21,6 +21,15 @@
 		"hardenedRuntime": true,
 		"entitlements": "build/entitlements.mac.plist"
     },
+    "mas": {
+        "target": ["pkg"],
+        "icon": "dist/cider/browser/assets/cider-logo.icns",
+        "hardenedRuntime": true,
+        "entitlements": "build/entitlements.mas.plist",
+        "entitlementsInherit": "build/entitlements.mas.inherit.plist",
+        "provisioningProfile": "build/cider.provisionprofile",
+        "gatekeeperAssess": false
+    },
     "win": {
         "icon": "dist/cider/browser/favicon.ico",
         "target": ["msi"]

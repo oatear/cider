@@ -40,6 +40,17 @@ jobs:
           mkdir -p ~/private_keys/
           echo '${{ secrets.APPLE_API_KEY }}' > ~/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8
 
+      - name: Restore Provisioning Profile (macOS)
+        if: startsWith(matrix.os, 'macos')
+        # This step decodes the base64 secret into the provisioning profile file
+        # that electron-builder expects for the Mac App Store build.
+        run: |
+          # The working-directory is ./cider-app, so we need to create the build folder there
+          mkdir -p build/
+          echo "${{ secrets.MAS_PROVISIONING_PROFILE }}" | base64 --decode > build/cider.provisionprofile
+        # Make sure the output path 'build/cider.provisionprofile' matches what's
+        # in your electron-builder.json's "mas" -> "provisioningProfile" key.
+
       - name: Build/release Electron app
         uses: oatear/action-electron-builder@v1.0.1
         with:

@@ -86,3 +86,11 @@ cp Icon1024.png MyIcon.iconset/icon_512x512@2x.png
 iconutil -c icns MyIcon.iconset
 rm -R MyIcon.iconset
 ```
+
+## How to update the Mac App Store provision profile
+1. Download a new provisioningprofile on the Apple Developer site
+2. Encode the downloaded profile 
+    `base64 -i cider.provisioningprofile > base64-profile`
+3. Upload to GitHub Settings > Secrets and variables > Actions
+ - Name: MAS_PROVISIONING_PROFILE
+ - Secret: base64 from above
