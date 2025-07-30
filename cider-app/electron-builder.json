@@ -1,5 +1,6 @@
 {
     "appId": "com.oatear.cider",
+    "productName": "Cider",
     "directories": {
         "output": "release/"
     },
@@ -17,12 +18,11 @@
 	"afterSign": "electron-builder-notarize",
     "mac": {
         "icon": "dist/cider/browser/assets/cider-logo.icns",
-        "target": ["dmg"],
+        "target": ["dmg", "mas"],
 		"hardenedRuntime": true,
 		"entitlements": "build/entitlements.mac.plist"
     },
     "mas": {
-        "target": ["pkg"],
         "icon": "dist/cider/browser/assets/cider-logo.icns",
         "hardenedRuntime": true,
         "entitlements": "build/entitlements.mas.plist",
