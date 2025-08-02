@@ -87,6 +87,10 @@ iconutil -c icns MyIcon.iconset
 rm -R MyIcon.iconset
 ```
 
+## List available code signing certs
+`security find-identity -p codesigning -v`
+`security find-identity -v`
+
 ## How to update the Mac App Store provision profile
 1. Download a new provisioningprofile on the Apple Developer site
 2. Encode the downloaded profile 
