@@ -18,17 +18,26 @@
 	"afterSign": "electron-builder-notarize",
     "mac": {
         "icon": "dist/cider/browser/assets/cider-logo.icns",
-        "target": ["dmg", "mas"],
+        "target": ["dmg"],
 		"hardenedRuntime": true,
 		"entitlements": "build/entitlements.mac.plist",
         "minimumSystemVersion": "12.0"
     },
     "mas": {
         "icon": "dist/cider/browser/assets/cider-logo.icns",
-        "hardenedRuntime": true,
+        "hardenedRuntime": false,
         "entitlements": "build/entitlements.mas.plist",
         "entitlementsInherit": "build/entitlements.mas.inherit.plist",
         "provisioningProfile": "build/cider.provisionprofile",
+        "gatekeeperAssess": false,
+        "minimumSystemVersion": "12.0"
+    },
+    "masDev": {
+        "icon": "dist/cider/browser/assets/cider-logo.icns",
+        "hardenedRuntime": false,
+        "entitlements": "build/entitlements.mas.plist",
+        "entitlementsInherit": "build/entitlements.mas.inherit.plist",
+        "provisioningProfile": "build/cider-dev.provisionprofile",
         "gatekeeperAssess": false,
         "minimumSystemVersion": "12.0"
     },

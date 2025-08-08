@@ -6,7 +6,7 @@
     "email": "contact@oatear.com",
     "url": "https://oatear.com"
   },
-  "version": "0.5.1",
+  "version": "0.5.2",
   "repository": "https://github.com/oatear/cider",
   "main": "electron-app/dist/main.js",
   "scripts": {
@@ -20,7 +20,9 @@
     "electron:debug": "ng build --base-href ./ --configuration development && tsc --p electron-app && electron . --inspect-brk",
     "electron:compile": "ng build --base-href ./ && tsc --p electron-app",
     "electron:build": "ng build --base-href ./ && tsc --p electron-app && electron-builder build --publish=never",
-    "electron:build-mas": "ng build --base-href ./ && tsc --p electron-app && electron-builder --mac mas"
+    "electron:build-mas": "ng build --base-href ./ && tsc --p electron-app && electron-builder --mac mas",
+    "electron:build-mas-dev": "ng build --base-href ./ && tsc --p electron-app && electron-builder --mac mas-dev",
+    "electron:build-dmg": "ng build --base-href ./ && tsc --p electron-app && electron-builder --mac dmg"
   },
   "browser": {
     "fs": false,

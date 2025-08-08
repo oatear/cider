@@ -9,7 +9,7 @@ var shouldClose: Boolean = false;
 
 function createWindow(): BrowserWindow {
 
-  const defaultSize : {width: number, height: number} = {width: 1000, height: 800};
+  const defaultSize : {width: number, height: number} = {width: 1280, height: 800};
   const screenSize = screen.getPrimaryDisplay().workAreaSize;
 
   win = new BrowserWindow({

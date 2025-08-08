@@ -32,10 +32,10 @@
         display: none;
     }
     .logo-image {
-        filter: brightness(1.4) hue-rotate(0deg);
+        filter: hue-rotate(0deg);
         transition: filter 1s ease-in-out;
         &:hover {
-            filter: brightness(1.4) hue-rotate(360deg);
+            filter: hue-rotate(360deg);
         }
     }
 }
