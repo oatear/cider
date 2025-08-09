@@ -1,9 +1,12 @@
 <div align="center">
 
-<img src="cider-app/src/assets/cider-logo-512.png" width=150px>
+<img src="cider-app/src/assets/cider-logo-512.png" alt="Oatear Cider Logo" width="150">
 
 # Oatear Cider
-Card IDE (CIDEr) - Design game cards using `HTML/Handlebars`, `CSS`, and `tabular` data.
+
+### The Data-Driven Card Design Studio for Game Developers
+
+Design beautiful game cards with the power and familiarity of `HTML`, `CSS`, and `Handlebars`. Oatear Cider is a modern IDE for card game creation, bridging the gap between simple editors and complex professional software.
 
 [![][license]][license-url] 
 [![][stars]][gh-url]
@@ -13,99 +16,83 @@ Card IDE (CIDEr) - Design game cards using `HTML/Handlebars`, `CSS`, and `tabula
 [![][website]][pages-url]
 [![][discord]][discord-url]
 
-Website: [Start using Cider][pages-url]
+</div>
 
-Free Download: [Windows, Mac, Ubuntu][releases-url]
+---
 
-### Support Us With a Purchase
+## Get Started
 
-[![][mac-app-store-badge]][mac-app-store-url]
-  
-Sample Game Project: [Cosmic Apple][cosmic-apple]
+| Platform | Link | Description |
+| :--- | :--- | :--- |
+| **🌐 Web App** | **[Try it Now in Your Browser][pages-url]** | The full experience, running directly in your browser. No installation needed. |
+| **💻 Desktop Apps** | **[Free Download (Win, Mac, Linux)][releases-url]** | Get the installable desktop version for offline use and local file system projects. |
+| ** Mac App Store** | [![][mac-app-store-badge]][mac-app-store-url] | A convenient, sandboxed version for Mac users. Purchase to support the project! |
 
-[#Template language reference][handlebars-url]
+---
+
+## About Oatear Cider
+
+Cider was created for designers who want the ultimate creative freedom without a steep learning curve. Instead of a restrictive graphical editor, Cider uses the tools you already know:
+
+-   **Structure with HTML:** Define the layout of your cards with standard HTML.
+-   **Style with CSS:** Apply rich styling, from fonts and colors to complex layouts like CSS Grid.
+-   **Add Logic with Handlebars:** Use data from a spreadsheet to dynamically change names, stats, and abilities.
+-   **See a Sample Project:** Check out the **[Cosmic Apple][cosmic-apple]** sample project to see how it all comes together.
+
+![Cider App Screenshot][screen-1]
+
+## Core Features
+
+| Feature | Description | Screenshot |
+| :--- | :--- | :--- |
+| **1. Powerful Templates** | Create reusable card templates with HTML & CSS. The Template Wizard helps you quickly set up standard card sizes and layouts. | ![Template Editor][screen-2] |
+| **2. Data-Driven Design** | Separate your design from your content. Manage all card attributes in a simple, spreadsheet-like interface. Change data in one place, and update hundreds of cards instantly. | ![Tabular Data Editor][screen-3] |
+| **3. Live Preview** | See your cards update in real-time as you edit your templates or data. No more guessing how your changes will look. | ![Live Preview][screen-4] |
+| **4. Built-in Simulators** | Instantly playtest your game in the **Game Simulator**—shuffle, draw, and discard without printing a thing. The **Asset Generator** helps you create placeholder art and symbols. | ![Game Simulator][screen-7] |
+| **5. Pro-Grade Exports** | Export cards as PNGs or print-ready PDF sheets with crop marks and low-ink modes. You can also export for virtual tabletops like Tabletop Simulator. | ![Export Options][screen-5] |
+| **6. Your Project, Your Files** | The desktop app saves your project as a clean folder of `.html`, `.css`, and `.csv` files. Use Git, VS Code, or any other tool in your existing workflow. | ![File Tree][image-file-tree] |
+
+## Installation & Usage
+
+### Web Version
+Simply visit **[oatear.github.io/cider][pages-url]** to start. Your projects are stored locally in your browser's IndexedDB. You can import/export your entire project as a single `database.json` file.
+
+### Desktop Version
+1.  Go to the **[Releases Page][releases-url]**.
+2.  Download the appropriate file for your operating system (`.msi` for Windows, `.dmg` for macOS, `.deb` for Debian/Ubuntu).
+3.  **For macOS Users:** For a seamless, signed, and auto-updating experience, please consider purchasing the app from the [Mac App Store][mac-app-store-url].
+
+## Creative Ownership & Licensing
+Anything you create with Oatear Cider is your intellectual property. The app collects no data and all your work remains on your local device.
+
+The application source code is protected by the **[AGPL-3.0 License][license-url]** to ensure it remains open-source forever.
+
+## Contributing
+We welcome contributions from the community! Whether it's reporting a bug, suggesting a feature, or writing code, your help is appreciated.
+
+-   **Bug Reports & Feature Requests:** Please open an issue on the [GitHub Issues page](https://github.com/oatear/cider/issues).
+-   **Development:** Fork the repository, create a new branch, and submit a pull request. To run the project locally, you'll need Node.js and Angular CLI installed.
+    ```bash
+    # Clone the repository
+    git clone https://github.com/oatear/cider.git
+    cd cider/cider-app
+
+    # Install dependencies
+    npm install
+
+    # Run the app in development mode
+    npm start
+    ```
+
+---
+
+<div align="center">
+
+*Apple, the Apple Logo, and Mac App Store are trademarks of Apple Inc.*
 
 </div>
 
-# About CIDEr
-Cider was created to fill a niche between ease-of-use and versatility. The current market of board game/card creating applications seems to fit
-into two categories: 1) advanced software with a steep learning curve and hundreds of pages of documentation, and 2) user-friendly graphical interface, but limited versatility. Cider is absolutely closer to the first category in execution since it currently provides no graphical template editor, but it makes up for the learning curve by using a templating language that many are already familiar with (HTML/Handlebars and CSS).
-
-![screen-1]
-
-# 1. Template
-Create a template for each of the varying card fronts and card backs using
-HTML/Handlebars and CSS. Use variables to reference attributes that
-are unique to each card. Use control logic to conditionally display
-specific parts of the template.
-
-[#Template language reference][handlebars-url]
-
-![screen-2]
-
-## 1.1 Template Wizard
-Quickly jump into a template by going through the Template Wizard and selecting the card size, layout, design/theme.
-
-![screen-2a]
-
-## 1.2. Asset Generator
-Import or generate assets (images) to use within your template. The asset generator can create procedurally generated symbols, badges, art, banners, textboxes.
-
-![screen-2b]
-
-# 2. Tabulate
-Create attributes relevant to your game and fill out their values for each
-card. Choose the front and back templates for each card.
-
-![screen-3]
-
-# 3. Preview
-Preview the way the cards look with the tabular data applied to the templates.
-
-![screen-4]
-
-# 4. Export
-Export the cards as individual images (PNG), or as card sheets ready to print (PDF). Adjust the paper size, paper margins, and spacing between cards. You can also export in `low ink mode` for quick prototyping.
-
-![screen-5]
-
-Export card sheets for use directly in Tabletop Simulator.
-[#Tabletop Simulator export guide][ttsexport-url]
-
-# 5. Save
-There are various ways you can save your project files depending on the form of the application you are using.
-
-![screen-6]
-
-## 5.1 Web Application
-In the web application your project remains in IndexedDB within the browser storage. You can export the database as a single `database.json` file. This file can be stored somewhere safe and also transfered and imported to other devices.
-
-## 5.2 Desktop Application
-In the desktop application, the primary project structure is a directory that holds an exploded form of the project as `.csv`, `.html`, `.css`, and `image` files. These files can be edited in other applications for batch tasks or to align with an existing user workflow. You may also export or import the project as a single `database.json` file.
-
-![image-file-tree]
-
-### 5.2.1 Running on Mac
-[Download][releases-url] the .dmg file, double click, and drag into Applications. You will then need to open up the terminal and run `xattr -cr /Applications/cider.app` to get around the misleading signing error: `"{application} is damaged and can't be opened."`. Apple requires a yearly subscription fee in order to sign apps for their platform.
-
-# 6. Game Simulator
-Quickly test out your cards in the game simulator as if you had already printed them out in person. The game simulator lets you shuffle, draw, discard, flip coin, roll die, place tokens, etc.
-
-![screen-7]
-
-
-# Creative Ownership
-Anything you create using CIDEr is your own intellectual property.
-The website hosts nothing and all of your card data and assets sit
-in IndexedDB on your browser. You may export and import your entire
-database to a .json file to use between devices. You may host your own
-version of the CIDEr website by downloading the source code and running `npm install && ng serve`.
-
-The repository itself is protected by [AGPL-3.0][license-url] to ensure the project remains open-sourced.
-
-# Legal Credits
-Apple and the Apple Logo are registered trademarks of Apple Inc.
-
+<!-- BADGE & IMAGE DEFINITIONS -->
 [last-commit]: https://img.shields.io/github/last-commit/oatear/cider
 [license]: https://badgen.net/github/license/oatear/cider?cache=600
 [stars]: https://img.shields.io/github/stars/oatear/cider
@@ -114,17 +101,15 @@ Apple and the Apple Logo are registered trademarks of Apple Inc.
 [downloads]: https://img.shields.io/github/downloads/oatear/cider/total
 [website]: https://img.shields.io/website?down_color=red&down_message=offline&up_color=green&up_message=online&url=https%3A%2F%2Foatear.github.io%2Fcider
 [mac-app-store-badge]: cider-app/src/assets/mac-app-store-badge.svg
-[logo-url]: docs/assets/cider-logo-80.png
 [screen-1]: cider-app/src/assets/screen-1.png
 [screen-2]: cider-app/src/assets/screen-2.png
-[screen-2a]: cider-app/src/assets/screen-2a.png
-[screen-2b]: cider-app/src/assets/screen-2b.png
 [screen-3]: cider-app/src/assets/screen-3.png
 [screen-4]: cider-app/src/assets/screen-4.png
 [screen-5]: cider-app/src/assets/screen-5.png
-[screen-6]: cider-app/src/assets/screen-6.png
 [screen-7]: cider-app/src/assets/screen-7.png
 [image-file-tree]: cider-app/src/assets/image-file-tree.png
+
+<!-- URL DEFINITIONS -->
 [gh-url]: https://github.com/oatear/cider
 [releases-url]: https://github.com/oatear/cider/releases
 [cosmic-apple]: https://github.com/oatear/cosmic-apple-game
