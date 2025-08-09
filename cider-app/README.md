@@ -108,3 +108,18 @@ rm -R MyIcon.iconset
 3. Upload to GitHub Settings > Secrets and variables > Actions
  - Name: MAS_PROVISIONING_PROFILE
  - Secret: base64 from above
+
+ ## Start App from Terminal for Troubleshooting Logs
+ `open -a Cider.app`
+
+ ## Read the provisionprofile entitlements (look for <dic> and <key>Entitlements</key>)
+ `security cms -D -i build/cider-dev.provisionprofile `
+
+ ## Read the entitlements claimed by the app
+ `codesign --display --entitlements - --xml Cider.app | plutil -convert xml1 -o - -`
+
+ ## Search for app launch errors in your Console App
+ - Search bar: `message type:error`
+ - Start streaming logs
+ - Launch app
+ - Stop streaming logs

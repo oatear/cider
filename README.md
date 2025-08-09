@@ -2,7 +2,7 @@
 
 <img src="cider-app/src/assets/cider-logo-512.png" width=150px>
 
-# CIDEr
+# Oatear Cider
 Card IDE (CIDEr) - Design game cards using `HTML/Handlebars`, `CSS`, and `tabular` data.
 
 [![][license]][license-url] 
@@ -15,7 +15,11 @@ Card IDE (CIDEr) - Design game cards using `HTML/Handlebars`, `CSS`, and `tabula
 
 Website: [Start using Cider][pages-url]
 
-Download: [Windows, Mac, Ubuntu][releases-url]
+Free Download: [Windows, Mac, Ubuntu][releases-url]
+
+### Support Us With a Purchase
+
+[![][mac-app-store-badge]][mac-app-store-url]
   
 Sample Game Project: [Cosmic Apple][cosmic-apple]
 
@@ -89,6 +93,7 @@ Quickly test out your cards in the game simulator as if you had already printed 
 
 ![screen-7]
 
+
 # Creative Ownership
 Anything you create using CIDEr is your own intellectual property.
 The website hosts nothing and all of your card data and assets sit
@@ -98,6 +103,8 @@ version of the CIDEr website by downloading the source code and running `npm ins
 
 The repository itself is protected by [AGPL-3.0][license-url] to ensure the project remains open-sourced.
 
+# Legal Credits
+Apple and the Apple Logo are registered trademarks of Apple Inc.
 
 [last-commit]: https://img.shields.io/github/last-commit/oatear/cider
 [license]: https://badgen.net/github/license/oatear/cider?cache=600
@@ -106,6 +113,7 @@ The repository itself is protected by [AGPL-3.0][license-url] to ensure the proj
 [discord]: https://img.shields.io/discord/1129380421642240133?logo=discord&label=discord&color=%23515fe4&link=https%3A%2F%2Fdiscord.gg%2FS66xw9Wc9V
 [downloads]: https://img.shields.io/github/downloads/oatear/cider/total
 [website]: https://img.shields.io/website?down_color=red&down_message=offline&up_color=green&up_message=online&url=https%3A%2F%2Foatear.github.io%2Fcider
+[mac-app-store-badge]: cider-app/src/assets/mac-app-store-badge.svg
 [logo-url]: docs/assets/cider-logo-80.png
 [screen-1]: cider-app/src/assets/screen-1.png
 [screen-2]: cider-app/src/assets/screen-2.png
@@ -125,3 +133,4 @@ The repository itself is protected by [AGPL-3.0][license-url] to ensure the proj
 [license-url]: LICENSE.md
 [pages-url]: https://oatear.github.io/cider
 [discord-url]: https://discord.gg/S66xw9Wc9V
+[mac-app-store-url]: https://apps.apple.com/us/app/oatear-cider/id6749406996?mt=12
