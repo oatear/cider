@@ -48,7 +48,7 @@ Cider was created for designers who want the ultimate creative freedom without a
 | **1. Powerful Templates** | Create reusable card templates with HTML & CSS. The Template Wizard helps you quickly set up standard card sizes and layouts. | ![Template Editor][screen-2] |
 | **2. Data-Driven Design** | Separate your design from your content. Manage all card attributes in a simple, spreadsheet-like interface. Change data in one place, and update hundreds of cards instantly. | ![Tabular Data Editor][screen-3] |
 | **3. Live Preview** | See your cards update in real-time as you edit your templates or data. No more guessing how your changes will look. | ![Live Preview][screen-4] |
-| **4. Built-in Simulators** | Instantly playtest your game in the **Game Simulator**—shuffle, draw, and discard without printing a thing. The **Asset Generator** helps you create placeholder art and symbols. | ![Game Simulator][screen-7] |
+| **4. Built-in Simulator** | Instantly playtest your game in the **Game Simulator**—shuffle, draw, and discard without printing a thing. The **Asset Generator** helps you create placeholder art and symbols. | ![Game Simulator][screen-7] |
 | **5. Pro-Grade Exports** | Export cards as PNGs or print-ready PDF sheets with crop marks and low-ink modes. You can also export for virtual tabletops like Tabletop Simulator. | ![Export Options][screen-5] |
 | **6. Your Project, Your Files** | The desktop app saves your project as a clean folder of `.html`, `.css`, and `.csv` files. Use Git, VS Code, or any other tool in your existing workflow. | ![File Tree][image-file-tree] |
 
