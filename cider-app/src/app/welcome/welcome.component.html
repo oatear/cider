@@ -12,7 +12,7 @@
         [label]="projectUrl.name" 
         (mouseover)="projectUrl.hover = true"
         (mouseout)="projectUrl.hover = false"
-        (click)="openProject(projectUrl.url)"
+        (click)="openProject(projectUrl.persistentPath)"
         [style]="{
             'background': projectUrl.hover 
             ? 'linear-gradient(45deg, hsl(' + projectUrl.hue + ' 50% 50%), 

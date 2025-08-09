@@ -16,6 +16,7 @@ import { Deck } from '../data-services/types/deck.type';
 import StringUtils from '../shared/utils/string-utils';
 import XlsxUtils from '../shared/utils/xlsx-utils';
 import { DocumentsService } from '../data-services/services/documents.service';
+import { PersistentPath } from '../data-services/types/persistent-path.type';
 
 @Component({
   selector: 'app-site-menu',
@@ -26,8 +27,8 @@ import { DocumentsService } from '../data-services/services/documents.service';
 export class SiteMenuComponent implements OnInit {
 
   selectedDeck$: Observable<Deck | undefined>;
-  recentProjectUrls$: Observable<string[]>;
-  projectHomeUrl$: Observable<string | undefined>;
+  recentProjectUrls$: Observable<PersistentPath[]>;
+  projectHomeUrl$: Observable<PersistentPath | undefined>;
   projectUnsaved$: Observable<boolean>;
   recentProjectUrlItems: MenuItem[];
   isSaving: boolean = false;
@@ -83,16 +84,16 @@ export class SiteMenuComponent implements OnInit {
 
     combineLatest([this.selectedDeck$, this.recentProjectUrls$, 
       this.projectHomeUrl$, this.projectUnsaved$]).subscribe({
-      next: ([selectedDeck, urls, projectHomeUrl, projectUnsaved]) => {
+      next: ([selectedDeck, persistentPaths, projectHomeUrl, projectUnsaved]) => {
         // setup the recent project urls
-        this.recentProjectUrlItems = urls.map(url => {return {
-          label: StringUtils.lastDirectoryFromUrl(url),
-          title: url,
+        this.recentProjectUrlItems = persistentPaths.map(persistentPath => { return {
+          label: StringUtils.lastDirectoryFromUrl(persistentPath.path),
+          title: persistentPath.path,
           icon: 'pi pi-pw pi-folder',
           command: () => {
-            this.electronService.selectDirectory(url);
-            this.localStorageService.addRecentProjectUrl(url);
-            this.openProject(url);
+            this.electronService.selectDirectory(persistentPath);
+            this.localStorageService.addRecentProjectUrl(persistentPath);
+            this.openProject(persistentPath);
             this.electronService.setProjectUnsaved(false);
           }
         }});
@@ -359,7 +360,7 @@ export class SiteMenuComponent implements OnInit {
         this.localStorageService.addRecentProjectUrl(url);
       }
       return url;
-    }).then((url: string | null) => {
+    }).then((url: PersistentPath | null) => {
       if (url) {
         this.openProject(url);
       }
@@ -396,7 +397,7 @@ export class SiteMenuComponent implements OnInit {
         this.localStorageService.addRecentProjectUrl(url);
       }
       return url;
-    }).then((url: string | null) => {
+    }).then((url: PersistentPath | null) => {
       if (url) {
         this.saveProject();
       }
@@ -454,17 +455,18 @@ export class SiteMenuComponent implements OnInit {
     });
   }
 
-  public async openProject(url: string) {
+  public async openProject(persistentPath: PersistentPath) {
     let projectUnsaved = await firstValueFrom(this.projectUnsaved$);
     if (!projectUnsaved) {
-      this.openProjectProcedure(url);
+      this.openProjectProcedure(persistentPath);
+      return;
     }
     this.confirmationService.confirm({
       message: 'Are you sure that you wish to open another project?'
         + ' All unsaved data will be lost.',
       header: 'Open Project',
       icon: 'pi pi-exclamation-triangle',
-      accept: () => this.openProjectProcedure(url)
+      accept: () => this.openProjectProcedure(persistentPath)
     });
   }
 
@@ -478,20 +480,20 @@ export class SiteMenuComponent implements OnInit {
     this.openProjectProcedure(projectHomeUrl);
   }
 
-  private openProjectProcedure(url: string) {
+  private openProjectProcedure(persistentPath: PersistentPath) {
     this.loadingIndeterminate = true;
     this.loadingHeader = 'Opening Project';
     this.loadingInfo = 'Reading project data...';
     this.displayLoading = true;
-    this.electronService.openProject(url, this.assetsService, this.decksService,
+    this.electronService.openProject(persistentPath, this.assetsService, this.decksService,
       this.cardTemplatesService, this.cardAttributesService, this.cardsService, 
       this.documentsService).then(() => {
-      this.assetsService.updateAssetUrls();
-      this.decksService.selectDeck(undefined);
-      this.electronService.setProjectUnsaved(false);
-      this.electronService.setProjectOpen(true);
-      this.router.navigateByUrl(`/project`);
-      this.displayLoading = false;
+        this.assetsService.updateAssetUrls();
+        this.decksService.selectDeck(undefined);
+        this.electronService.setProjectUnsaved(false);
+        this.electronService.setProjectOpen(true);
+        this.router.navigateByUrl(`/project`);
+        this.displayLoading = false;
     });
   }
 

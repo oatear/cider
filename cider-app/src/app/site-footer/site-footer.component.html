@@ -1,9 +1,9 @@
 <div class="footer">
     <span>CIDEr {{appVersion}}</span>
     <span class="fill">{{
-        !(projectHomeUrl$ | async) && (projectUnsaved$ | async) ? 'Untitled' : ''
+        !(projectHomeUrl$ | async)?.path && (projectUnsaved$ | async) ? 'Untitled' : ''
     }}
-        {{projectHomeUrl$ | async}}
+        {{(projectHomeUrl$ | async)?.path}}
         {{(projectUnsaved$ | async) ? '*' : ''}}</span>
     <span class="p-mr-2">Copyright Ⓒ 2025 Oatear LLC</span>
     <p-button icon="pi pi-discord" [rounded]="true" [text]="true" (onClick)="navigateToDiscord()"/>

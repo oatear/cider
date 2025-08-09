@@ -81,7 +81,7 @@ export class SiteSidebarComponent implements OnInit {
     // Fetch the readme file
     // -----------------------------------------------
     await firstValueFrom(this.electronService.getProjectHomeUrl()).then(homeUrl => {
-      let projectName = StringUtils.lastDirectoryFromUrl(homeUrl || 'Project');
+      let projectName = StringUtils.lastDirectoryFromUrl(homeUrl?.path ?? 'Project');
       updatedFiles.push({
         label: projectName,
         data: {
