@@ -6,3 +6,4 @@ cider-app/release/
 cider-app/electron-app/dist/main.js
 cider-app/electron-app/dist/main.js.map
 cider-app/build/cider.provisionprofile
+cider-app/build/cider-dev.provisionprofile

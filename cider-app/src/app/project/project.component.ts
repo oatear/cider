@@ -116,7 +116,7 @@ export class ProjectComponent implements OnInit {
   private getProjectName(): Promise<string> {
     if (this.electronService.isElectron()) {
       return firstValueFrom(this.electronService.getProjectHomeUrl())
-        .then(homeUrl => homeUrl?.split('/').pop() || 'Cider Project');
+        .then(homeUrl => homeUrl?.path.split('/').pop() || 'Cider Project');
     }
     return new Promise((resolve, reject) => resolve('Cider Project'));
   }

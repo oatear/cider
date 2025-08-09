@@ -69,8 +69,8 @@ Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To u
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
 
-## How to create the ICNS Icon
-Make sure you create a flie called `Icon1024.png` in the directory you run these commands.
+## How to create the ICNS (Mac) and ICO (Windows) Icons
+Make sure you create a file called `Icon1024.png` in the directory you run these commands.
 ```
 mkdir MyIcon.iconset
 sips -z 16 16     Icon1024.png --out MyIcon.iconset/icon_16x16.png
@@ -84,6 +84,16 @@ sips -z 512 512   Icon1024.png --out MyIcon.iconset/icon_256x256@2x.png
 sips -z 512 512   Icon1024.png --out MyIcon.iconset/icon_512x512.png
 cp Icon1024.png MyIcon.iconset/icon_512x512@2x.png
 iconutil -c icns MyIcon.iconset
+convert MyIcon.iconset/icon_16x16.png \
+MyIcon.iconset/icon_16x16@2x.png \
+MyIcon.iconset/icon_32x32.png \
+MyIcon.iconset/icon_32x32@2x.png \
+MyIcon.iconset/icon_128x128.png \
+MyIcon.iconset/icon_128x128@2x.png \
+MyIcon.iconset/icon_256x256.png \
+MyIcon.iconset/icon_256x256@2x.png \
+MyIcon.iconset/icon_512x512.png \
+MyIcon.iconset/icon_512x512@2x.png favicon.ico
 rm -R MyIcon.iconset
 ```
 

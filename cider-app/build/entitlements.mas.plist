@@ -2,15 +2,31 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
   <dict>
+    <!-- Sandbox Rules -->
     <key>com.apple.security.app-sandbox</key>
     <true/>
     <key>com.apple.security.application-groups</key>
-    <string>2Q62C56YKS.com.oatear.cider</string>
+    <array>
+      <string>2Q62C56YKS.com.oatear.cider</string>
+    </array>
+
+    <!-- File Access Rules-->
     <key>com.apple.security.files.user-selected.read-write</key>
-    <true/>
-    <key>com.apple.security.files.downloads.read-write</key>
     <true/>
     <key>com.apple.security.files.bookmarks.app-scope</key>
     <true/>
+   	
+    <!-- Angular + Electron -->
+		<key>com.apple.security.cs.allow-jit</key>
+		<true/>
+		<key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+		<true/>
+		<key>com.apple.security.cs.allow-dyld-environment-variables</key>
+		<true/>
+
+    <!-- Internet Access -->
+    <key>com.apple.security.network.client</key>
+    <true/>
+
   </dict>
 </plist>

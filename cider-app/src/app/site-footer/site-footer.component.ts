@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
 import { ElectronService } from '../data-services/electron/electron.service';
 import PackageUtils from '../shared/utils/package-utils';
+import { PersistentPath } from '../data-services/types/persistent-path.type';
 
 @Component({
   selector: 'app-site-footer',
@@ -9,7 +10,7 @@ import PackageUtils from '../shared/utils/package-utils';
   styleUrls: ['./site-footer.component.scss']
 })
 export class SiteFooterComponent implements OnInit {
-  projectHomeUrl$: Observable<string | undefined>;
+  projectHomeUrl$: Observable<PersistentPath | undefined>;
   projectUnsaved$: Observable<boolean>;
   appVersion: string = '0.0.0';
 

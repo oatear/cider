@@ -13,6 +13,7 @@ import XlsxUtils from 'src/app/shared/utils/xlsx-utils';
 import { EntityService } from '../types/entity-service.type';
 import { Subject } from 'rxjs';
 import { DocumentsService } from '../services/documents.service';
+import { PersistentPath } from '../types/persistent-path.type';
 
 @Injectable({
   providedIn: 'root'
@@ -21,13 +22,13 @@ export class ElectronService {
   private static readonly ASSETS_DIR = "assets";
   private static readonly DECKS_DIR = "decks";
   private projectOpen: BehaviorSubject<boolean>;
-  private projectHomeUrl: BehaviorSubject<string | undefined>;
+  private projectHomeUrl: BehaviorSubject<PersistentPath | undefined>;
   private projectUnsaved: BehaviorSubject<boolean>;
   private appClosed: Subject<null>;
 
   constructor() {
     this.projectOpen = new BehaviorSubject<boolean>(false);
-    this.projectHomeUrl = new BehaviorSubject<string | undefined>(undefined);
+    this.projectHomeUrl = new BehaviorSubject<PersistentPath | undefined>(undefined);
     this.projectUnsaved = new BehaviorSubject<boolean>(false);
     this.appClosed = new Subject<null>();
 
@@ -77,64 +78,67 @@ export class ElectronService {
     return window.require('electron').ipcRenderer;
   }
 
-  public selectDirectory(url: string | undefined) {
-    this.projectHomeUrl.next(url);
+  public selectDirectory(persistentPath: PersistentPath | undefined) {
+    this.projectHomeUrl.next(persistentPath);
   }
 
-  public async openSelectDirectoryDialog(): Promise<string | null> {
+  public async openSelectDirectoryDialog(): Promise<PersistentPath | null> {
     if (!this.isElectron()) {
       return Promise.resolve(null);
     }
-    const result_2 = await this.getIpcRenderer().invoke("open-select-directory-dialog");
-    if (!result_2.canceled) {
-      this.projectHomeUrl.next(result_2.filePaths[0]);
-      console.log("projectHomeUrl: ", result_2.filePaths[0]);
-      return result_2.filePaths[0];
+    const result = await this.getIpcRenderer().invoke("open-select-directory-dialog");
+    if (!result.canceled) {
+      const path = result.filePaths[0];
+      const bookmark = result.bookmarks ? result.bookmarks[0] : undefined;
+      const persistentPath: PersistentPath = { path, bookmark: bookmark };
+      this.projectHomeUrl.next(persistentPath);
+      console.log("projectHomePath: ", persistentPath.path);
+      return persistentPath;
     }
     return null;
   }
 
-  public createDirectory(dirUrl: string): Promise<boolean> {
+  public createDirectory(persistentPath: PersistentPath): Promise<boolean> {
     if (!this.isElectron()) {
       return Promise.resolve(false);
     }
-    return this.getIpcRenderer().invoke("create-directory", dirUrl);
+    return this.getIpcRenderer().invoke("create-directory", persistentPath);
   }
 
-  public removeDirectory(dirUrl: string): Promise<boolean> {
+  public removeDirectory(persistentPath: PersistentPath): Promise<boolean> {
     if (!this.isElectron()) {
       return Promise.resolve(false);
     }
-    return this.getIpcRenderer().invoke("remove-directory", dirUrl);
+    return this.getIpcRenderer().invoke("remove-directory", persistentPath);
   }
 
-  public listDirectory(dirUrl: string): Promise<{ 
+  public listDirectory(persistentPath: PersistentPath): Promise<{ 
     name: string; isDirectory: boolean; isFile: boolean; }[]> {
     if (!this.isElectron()) {
       return Promise.resolve([]);
     }
-    return this.getIpcRenderer().invoke("list-directory", dirUrl);
+    return this.getIpcRenderer().invoke("list-directory", persistentPath);
   }
 
-  public readFile(fileUrl: string): Promise<Buffer | null> {
+  public readFile(persistentPath: PersistentPath): Promise<Buffer | null> {
     if (!this.isElectron()) {
       return Promise.resolve(null);
     }
-    return this.getIpcRenderer().invoke("read-file", fileUrl);
+    return this.getIpcRenderer().invoke("read-file", persistentPath);
   }
 
-  public readTextFile(fileUrl: string): Promise<string | null> {
+  public readTextFile(persistentPath: PersistentPath): Promise<string | null> {
     if (!this.isElectron()) {
       return Promise.resolve(null);
     }
-    return this.getIpcRenderer().invoke("read-text-file", fileUrl);
+    return this.getIpcRenderer().invoke("read-text-file", persistentPath);
   }
 
-  public writeFile(fileUrl: string, data: string | NodeJS.ArrayBufferView): Promise<boolean> {
+  public writeFile(persistentPath: PersistentPath, data: string | NodeJS.ArrayBufferView): Promise<boolean> {
     if (!this.isElectron()) {
       return Promise.resolve(false);
     }
-    return this.getIpcRenderer().invoke("write-file", fileUrl, data);
+    return this.getIpcRenderer().invoke("write-file", persistentPath, data);
   }
 
   public titlebarDoubleClick(): void {
@@ -157,30 +161,34 @@ export class ElectronService {
       return;
     }
     const homeUrl = this.projectHomeUrl.getValue();
-    const assetsUrl = homeUrl + "/" + ElectronService.ASSETS_DIR;
-    const decksUrl = homeUrl + "/" + ElectronService.DECKS_DIR;
+    if (!homeUrl) {
+      console.error("Project home URL is not set.");
+      return;
+    }
+    const assetsUrl = homeUrl.path + "/" + ElectronService.ASSETS_DIR;
+    const decksUrl = homeUrl.path + "/" + ElectronService.DECKS_DIR;
 
-    await this.removeDirectory(assetsUrl);
-    await this.createDirectory(assetsUrl);
+    await this.removeDirectory({ bookmark: homeUrl.bookmark, path: assetsUrl });
+    await this.createDirectory({ bookmark: homeUrl.bookmark, path: assetsUrl });
     const writeAllAssets: Promise<boolean[]> = Promise.all(assets.map(async asset => {
       const buffer = await asset.file.arrayBuffer();
-      return await this.writeFile(
-        assetsUrl + '/' + StringUtils.toKebabCase(asset.name)
-        + '.' + StringUtils.mimeToExtension(asset.file.type),
+      return await this.writeFile({ bookmark: homeUrl.bookmark, 
+        path: assetsUrl + '/' + StringUtils.toKebabCase(asset.name)
+          + '.' + StringUtils.mimeToExtension(asset.file.type) },
         Buffer.from(buffer));
     }));
 
-    await this.removeDirectory(decksUrl);
-    await this.createDirectory(decksUrl);
+    await this.removeDirectory({ bookmark: homeUrl.bookmark, path: decksUrl });
+    await this.createDirectory({ bookmark: homeUrl.bookmark, path: decksUrl });
     const writeAllDecks = await Promise.all(decks.map(async deck => {
       const deckUrl = decksUrl + '/' + StringUtils.toKebabCase(deck.name);
-      await this.createDirectory(deckUrl);
-      this.writeFile(deckUrl + '/cards.csv', deck.cardsCsv);
-      this.writeFile(deckUrl + '/attributes.csv', deck.attributesCsv)
+      await this.createDirectory({ bookmark: homeUrl.bookmark, path: deckUrl });
+      this.writeFile({ bookmark: homeUrl.bookmark, path: deckUrl + '/cards.csv' }, deck.cardsCsv);
+      this.writeFile({ bookmark: homeUrl.bookmark, path: deckUrl + '/attributes.csv' }, deck.attributesCsv);
       const writeTemplates = await Promise.all(deck.templates.map(template => {
         return Promise.all([
-          this.writeFile(deckUrl + '/' + StringUtils.toKebabCase(template.name) + '.css', template.css),
-          this.writeFile(deckUrl + '/' + StringUtils.toKebabCase(template.name) + '.html', template.html)
+          this.writeFile({ bookmark: homeUrl.bookmark, path: deckUrl + '/' + StringUtils.toKebabCase(template.name) + '.css' }, template.css),
+          this.writeFile({ bookmark: homeUrl.bookmark, path: deckUrl + '/' + StringUtils.toKebabCase(template.name) + '.html' }, template.html)
         ]);
       }));
       this.setProjectUnsaved(false);
@@ -188,15 +196,15 @@ export class ElectronService {
     }));
   }
 
-  public async openProject(homeUrl: string, assetsService: AssetsService, decksService: DecksService,
+  public async openProject(homeUrl: PersistentPath, assetsService: AssetsService, decksService: DecksService,
     cardTemplatesService: CardTemplatesService, cardAttributesService: CardAttributesService,
     cardsService: CardsService, documentsService: DocumentsService) {
     if (!this.isElectron()) {
       return;
     }
-    const documentsUrl = homeUrl + "/";
-    const assetsUrl = homeUrl + "/" + ElectronService.ASSETS_DIR;
-    const decksUrl = homeUrl + "/" + ElectronService.DECKS_DIR;
+    const documentsUrl = homeUrl.path + "/";
+    const assetsUrl = homeUrl.path + "/" + ElectronService.ASSETS_DIR;
+    const decksUrl = homeUrl.path + "/" + ElectronService.DECKS_DIR;
     // read assets
     // read decks
     //   read attributes
@@ -210,7 +218,7 @@ export class ElectronService {
     await decksService.emptyTable();
 
     // read document/markdown files
-    await this.listDirectory(documentsUrl).then(documentUrls => Promise.all(documentUrls
+    await this.listDirectory({ bookmark: homeUrl.bookmark, path: documentsUrl }).then(documentUrls => Promise.all(documentUrls
       .filter(documentUrl => documentUrl.isFile 
         && !documentUrl.name.includes('.DS_Store')
         && (documentUrl.name.includes('.md') || documentUrl.name.includes('.markdown') 
@@ -219,7 +227,7 @@ export class ElectronService {
       const documentNameSplit = StringUtils.splitNameAndExtension(documentUrl.name);
       const documentName = documentNameSplit.name;
       const documentExt = documentNameSplit.extension;
-      const documentBuffer = await this.readFile(documentsUrl + '/' + documentUrl.name);
+      const documentBuffer = await this.readFile({ bookmark: homeUrl.bookmark, path: documentsUrl + '/' + documentUrl.name });
       if (!documentBuffer) {
         return;
       }
@@ -234,12 +242,12 @@ export class ElectronService {
     })));
 
     // read assets
-    await this.listDirectory(assetsUrl).then(assetUrls => Promise.all(assetUrls
+    await this.listDirectory({ bookmark: homeUrl.bookmark, path: assetsUrl }).then(assetUrls => Promise.all(assetUrls
       .filter(assetUrl => assetUrl.isFile && !assetUrl.name.includes('.DS_Store')).map(async assetUrl => {
       const assetNameSplit = StringUtils.splitNameAndExtension(assetUrl.name);
       const assetName = assetNameSplit.name;
       const assetExt = assetNameSplit.extension;
-      const assetBuffer = await this.readFile(assetsUrl + '/' + assetUrl.name);
+      const assetBuffer = await this.readFile({ bookmark: homeUrl.bookmark, path: assetsUrl + '/' + assetUrl.name });
       if (!assetBuffer) {
         return;
       }
@@ -252,38 +260,38 @@ export class ElectronService {
       }, true);
       return asset;
     })));
-    const deckUrls = await this.listDirectory(decksUrl);
+    const deckUrls = await this.listDirectory({ bookmark: homeUrl.bookmark, path: decksUrl });
     deckUrls.filter(deckUrl => deckUrl.isDirectory).map(async deckUrl => {
       const deckName = deckUrl.name;
       const deck = await decksService.create(<any>{name: StringUtils.kebabToTitleCase(deckName)});
       const deckFullUrl = decksUrl + '/' + deckUrl.name;
       // for each .html file, also read the accompanying .css file
-      const deckFileUrls = await this.listDirectory(deckFullUrl);
+      const deckFileUrls = await this.listDirectory({ bookmark: homeUrl.bookmark, path: deckFullUrl });
       await Promise.all(deckFileUrls.filter(deckFileUrl => deckFileUrl.isFile 
         && StringUtils.splitNameAndExtension(deckFileUrl.name).extension === 'html').map(async templateUrl => {
           const nameSplit = StringUtils.splitNameAndExtension(templateUrl.name);
           const prettyName = StringUtils.kebabToTitleCase(nameSplit.name);
           const htmlUrl = deckFullUrl + '/' + nameSplit.name + '.html';
           const cssUrl = deckFullUrl + '/' + nameSplit.name + '.css';
-          const html = await this.readTextFile(htmlUrl).then(text => text ? text: '');
-          const css = await this.readTextFile(cssUrl).then(text => text ? text : '');
+          const html = await this.readTextFile({ bookmark: homeUrl.bookmark, path: htmlUrl }).then(text => text ? text: '');
+          const css = await this.readTextFile({ bookmark: homeUrl.bookmark, path: cssUrl }).then(text => text ? text : '');
           return await cardTemplatesService.create(<any>{ deckId: deck.id, name: prettyName, html: html, css: css }, true);
       }));
       const attributesUrl = deckFullUrl + '/attributes.csv';
       const cardsUrl = deckFullUrl + '/cards.csv';
-      const attributes = await this.importCsv(attributesUrl, 'attributes.csv', cardAttributesService, deck.id);
-      const cards = await this.importCsv(cardsUrl, 'cards.csv', cardsService, deck.id);
+      const attributes = await this.importCsv({ bookmark: homeUrl.bookmark, path: attributesUrl }, 'attributes.csv', cardAttributesService, deck.id);
+      const cards = await this.importCsv({ bookmark: homeUrl.bookmark, path: cardsUrl }, 'cards.csv', cardsService, deck.id);
       this.setProjectUnsaved(false);
     });
   }
 
-  private async importCsv<Entity, Identity extends string | number>(fileUrl: string, fileName: string, 
+  private async importCsv<Entity, Identity extends string | number>(persistentPath: PersistentPath, fileName: string, 
     service: EntityService<Entity, Identity>, deckId: number) {
     const nameSplit = StringUtils.splitNameAndExtension(fileName);
     const fileType = StringUtils.extensionToMime(nameSplit.extension);
-    const buffer = await this.readFile(fileUrl);
+    const buffer = await this.readFile(persistentPath);
     if (!buffer) {
-      console.log('import csv failed', fileUrl);
+      console.log('import csv failed', persistentPath.path);
       return;
     }
     const blob: Blob = new Blob([buffer], {type: fileType});

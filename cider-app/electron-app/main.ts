@@ -7,9 +7,14 @@ const args = process.argv.slice(1);
 const serve = args.some(val => val === '--serve');
 var shouldClose: Boolean = false;
 
+export interface PersistentPath {
+    url: string;
+    bookmark: string;
+}
+
 function createWindow(): BrowserWindow {
 
-  const defaultSize : {width: number, height: number} = {width: 1000, height: 800};
+  const defaultSize : { width: number, height: number } = { width: 1280, height: 800 };
   const screenSize = screen.getPrimaryDisplay().workAreaSize;
 
   win = new BrowserWindow({
@@ -79,6 +84,13 @@ function createWindow(): BrowserWindow {
   return win;
 }
 
+function requestPathAccess(persistentPath: PersistentPath): () => void {
+  if (!persistentPath || !persistentPath.bookmark) {
+    return () => {};
+  }
+  return app.startAccessingSecurityScopedResource(persistentPath.bookmark) as () => void;
+}
+
 try {
   // This method will be called when Electron has finished
   // initialization and is ready to create browser windows.
@@ -134,7 +146,8 @@ try {
    */
   ipcMain.handle('open-select-directory-dialog', async (event, arg) => {
     const result = await dialog.showOpenDialog(win, {
-      properties: ['openDirectory', 'createDirectory']
+      properties: ['openDirectory', 'createDirectory'],
+      securityScopedBookmarks: true,
     });
     console.log('directory selected', result.filePaths);
     return result;
@@ -146,13 +159,16 @@ try {
    * params: dirUrl
    * return true
    */
-  ipcMain.handle('create-directory', async (event, dirUrl) => {
-    if (fs.existsSync(dirUrl)) {
-      console.log('directory already exists', dirUrl);
+  ipcMain.handle('create-directory', async (event, persistentPath) => {
+    const stopAccess = requestPathAccess(persistentPath);
+    if (fs.existsSync(persistentPath.path)) {
+      console.log('directory already exists', persistentPath.path);
+      stopAccess();
       return false;
     }
-    return fs.promises.mkdir(dirUrl).then(() => {
-      console.log('directory created', dirUrl);
+    return fs.promises.mkdir(persistentPath.path).then(() => {
+      console.log('directory created', persistentPath.path);
+      stopAccess();
       return true;
     });
   });
@@ -163,13 +179,16 @@ try {
    * params: dirUrl
    * return true
    */
-   ipcMain.handle('remove-directory', async (event, dirUrl) => {
-    if (!fs.existsSync(dirUrl)) {
-      console.log('directory does not exists', dirUrl);
+   ipcMain.handle('remove-directory', async (event, persistentPath) => {
+    const stopAccess = requestPathAccess(persistentPath);
+    if (!fs.existsSync(persistentPath.path)) {
+      console.log('directory does not exists', persistentPath.path);
+      stopAccess();
       return false;
     }
-    return fs.promises.rm(dirUrl, { recursive: true, force: true }).then(() => {
-      console.log('directory removed', dirUrl);
+    return fs.promises.rm(persistentPath.path, { recursive: true, force: true }).then(() => {
+      console.log('directory removed', persistentPath.path);
+      stopAccess();
       return true;
     });
   });
@@ -180,18 +199,21 @@ try {
    * params: dirUrl
    * return Dirent[]
    */
-  ipcMain.handle('list-directory', async (event, dirUrl) => {
-    if (!fs.existsSync(dirUrl)) {
-      console.log('directory does not exists', dirUrl);
+  ipcMain.handle('list-directory', async (event, persistentPath) => {
+    const stopAccess = requestPathAccess(persistentPath);
+    if (!fs.existsSync(persistentPath.path)) {
+      console.log('directory does not exists', persistentPath.path);
+      stopAccess();
       return [];
     }
-    const files = fs.readdirSync(dirUrl, { withFileTypes: true }).map(dirent => {
+    const files = fs.readdirSync(persistentPath.path, { withFileTypes: true }).map(dirent => {
       return {
         name: dirent.name,
         isDirectory: dirent.isDirectory(),
         isFile: dirent.isFile()
       }
     });
+    stopAccess();
     console.log('directory listed', files);
     return files;
   });
@@ -202,12 +224,15 @@ try {
    * params: fileUrl
    * return Buffer
    */
-  ipcMain.handle('read-file', async (event, fileUrl: string) => {
-    if (!fs.existsSync(fileUrl)) {
+  ipcMain.handle('read-file', async (event, persistentPath) => {
+    const stopAccess = requestPathAccess(persistentPath);
+    if (!fs.existsSync(persistentPath.path)) {
+      stopAccess();
       return null;
     }
-    const buffer = fs.readFileSync(fileUrl);
-    console.log('read file', fileUrl);
+    const buffer = fs.readFileSync(persistentPath.path);
+    console.log('read file', persistentPath.path);
+    stopAccess();
     return buffer;
   });
 
@@ -218,12 +243,15 @@ try {
    * params: fileUrl
    * return String
    */
-  ipcMain.handle('read-text-file', async (event, fileUrl: string) => {
-    if (!fs.existsSync(fileUrl)) {
+  ipcMain.handle('read-text-file', async (event, persistentPath) => {
+    const stopAccess = requestPathAccess(persistentPath);
+    if (!fs.existsSync(persistentPath.path)) {
+    stopAccess();
       return null;
     }
-    const buffer = fs.readFileSync(fileUrl, {encoding: 'utf8'});
-    console.log('read file', fileUrl);
+    const buffer = fs.readFileSync(persistentPath.path, {encoding: 'utf8'});
+    console.log('read file', persistentPath.path);
+    stopAccess();
     return buffer;
   });
 
@@ -233,9 +261,11 @@ try {
    * params: fileUrl, data
    * return true
    */
-  ipcMain.handle('write-file', async (event, fileUrl, data) => {
-    fs.writeFileSync(fileUrl, data);
-    console.log('wrote file', fileUrl);
+  ipcMain.handle('write-file', async (event, persistentPath, data) => {
+    const stopAccess = requestPathAccess(persistentPath);
+    fs.writeFileSync(persistentPath.path, data);
+    console.log('wrote file', persistentPath.path);
+    stopAccess();
     return true;
   });
 

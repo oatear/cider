@@ -12,6 +12,7 @@ import { Router } from '@angular/router';
 import StringUtils from '../shared/utils/string-utils';
 import { AppDB } from '../data-services/indexed-db/db';
 import { DocumentsService } from '../data-services/services/documents.service';
+import { PersistentPath } from '../data-services/types/persistent-path.type';
 
 @Component({
   selector: 'app-welcome',
@@ -26,10 +27,10 @@ export class WelcomeComponent implements OnInit {
   public loadingInfo: string = '';
   public loadingHeader: string = '';
   isElectron: boolean;
-  projectHomeUrl$: Observable<string | undefined>;
+  projectHomeUrl$: Observable<PersistentPath | undefined>;
   projectUnsaved$: Observable<boolean>;
 
-  recentProjectUrls: { url: string; name: string; hue: number; hue2: number; hover: boolean}[] = [];
+  recentProjectUrls: { persistentPath: PersistentPath; name: string; hue: number; hue2: number; hover: boolean}[] = [];
 
   constructor(private localStorageService: LocalStorageService,
     private confirmationService: ConfirmationService,
@@ -63,12 +64,12 @@ export class WelcomeComponent implements OnInit {
     // this.recentProjectUrls = urls.map(url => this.urlToProjectInfo(url));
   }
 
-  private urlToProjectInfo(url: string) {
-      let name = StringUtils.lastDirectoryFromUrl(url);
+  private urlToProjectInfo(persistentPath: PersistentPath) {
+      let name = StringUtils.lastDirectoryFromUrl(persistentPath.path);
       let hue = this.calculateHue(name);
       let hue2diff = 120;
       return {
-        url: url,
+        persistentPath: persistentPath,
         name: name,
         hue: hue,
         hue2: (hue + hue2diff) % 360,
@@ -101,7 +102,7 @@ export class WelcomeComponent implements OnInit {
     });
   }
 
-  public async openProject(url: string) {
+  public async openProject(url: PersistentPath) {
     let [projectHomeUrl, projectUnsaved] = await Promise.all([firstValueFrom(this.projectHomeUrl$), 
       firstValueFrom(this.projectUnsaved$)]);
     if (!projectHomeUrl && !projectUnsaved) {
@@ -116,7 +117,7 @@ export class WelcomeComponent implements OnInit {
     });
   }
 
-  openProjectProcedure(url: string) {
+  openProjectProcedure(url: PersistentPath) {
     this.electronService.selectDirectory(url);
     this.localStorageService.addRecentProjectUrl(url);
     this.electronService.setProjectUnsaved(false);

@@ -2,6 +2,7 @@ import { AfterViewInit, Component, HostListener, OnInit, ViewChild } from '@angu
 import { Splitter } from 'primeng/splitter';
 import { debounceTime, Observable, Subject } from 'rxjs';
 import { ElectronService } from '../data-services/electron/electron.service';
+import { PersistentPath } from '../data-services/types/persistent-path.type';
 
 @Component({
   selector: 'app-site-template',
@@ -14,7 +15,7 @@ export class SiteTemplateComponent {
   disablePanels: boolean = false;
   windowResizing$: Subject<boolean>;
   isElectron: boolean;
-  projectHomeUrl$: Observable<string | undefined>;
+  projectHomeUrl$: Observable<PersistentPath | undefined>;
   projectUnsaved$: Observable<boolean>;
   projectOpen$: Observable<boolean>;
 

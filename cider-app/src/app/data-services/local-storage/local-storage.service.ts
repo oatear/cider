@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { ElectronService } from '../electron/electron.service';
+import { PersistentPath } from '../types/persistent-path.type';
 
 /**
  * Local storage is used for storing user preferences
@@ -13,11 +14,11 @@ export class LocalStorageService {
   static readonly MAX_RECENT_PROJECT_URLS = 5;
   static readonly DARK_MODE = "dark-mode";
 
-  public recentProjectUrls: BehaviorSubject<string[]>;
+  public recentProjectUrls: BehaviorSubject<PersistentPath[]>;
 
   constructor(
       private electronService: ElectronService) {
-    this.recentProjectUrls = new BehaviorSubject<string[]>(
+    this.recentProjectUrls = new BehaviorSubject<PersistentPath[]>(
       this.getRecentProjectUrlsFromLocalStorage());
      
     // clean up the recent project urls -- remove any that are empty or don't exist
@@ -27,23 +28,29 @@ export class LocalStorageService {
     });
   }
 
-  public addRecentProjectUrl(url : string) {
+  public addRecentProjectUrl(persistentUrl: PersistentPath) {
     let urls = this.getRecentProjectUrlsFromLocalStorage();
-    urls = urls.filter(item => item !== url);
+    urls = urls.filter(item => item.path !== persistentUrl.path);
     if (urls.length >= LocalStorageService.MAX_RECENT_PROJECT_URLS) {
       urls.pop();
     }
-    urls.unshift(url);
+    urls.unshift(persistentUrl);
     localStorage.setItem(LocalStorageService.RECENT_PROJECT_URLS, JSON.stringify(urls));
     this.recentProjectUrls.next(urls);
   }
 
-  private getRecentProjectUrlsFromLocalStorage() : string[] {
+  private getRecentProjectUrlsFromLocalStorage() : PersistentPath[] {
     const urlsString : string | null = localStorage.getItem(LocalStorageService.RECENT_PROJECT_URLS);
     if (urlsString === null) {
       return [];
     }
-    return JSON.parse(urlsString);
+    const urls = JSON.parse(urlsString);
+    // if urls is an array of strings, convert it to an array of PersistentUrl objects
+    if (urls.length > 0 && typeof urls[0] === 'string') {
+      return urls.map((url: any) => ({ url, bookmark: '' }));
+    }
+    // if urls is already an array of PersistentUrl objects, return it as is
+    return urls;
   }
 
   /**
@@ -51,12 +58,12 @@ export class LocalStorageService {
    * 
    * @returns 
    */
-  public cleanRecentProjectUrls() : Promise<string[]> {
+  public cleanRecentProjectUrls() : Promise<PersistentPath[]> {
     const urls = this.getRecentProjectUrlsFromLocalStorage();
     const promises = urls.map(url => this.electronService.listDirectory(url)
-      .then(files => files.length > 0 ? url : ""));
-    const validUrls = Promise.all(promises).then((urls) => urls.filter(url => url !== ""));
-    return validUrls;
+      .then(files => files.length > 0 ? url : undefined));
+    const validUrls = Promise.all(promises).then((urls) => urls.filter(url => url !== undefined));
+    return validUrls as Promise<PersistentPath[]>;
   }
 
   public getRecentProjectUrls() {
