@@ -22,11 +22,12 @@ Design beautiful game cards with the power and familiarity of `HTML`, `CSS`, and
 
 ## Get Started
 
-| Platform | Link | Description |
+| Platform / Action | Link | Description |
 | :--- | :--- | :--- |
 | **🌐 Web App** | **[Try it Now in Your Browser][pages-url]** | The full experience, running directly in your browser. No installation needed. |
 | **💻 Desktop Apps** | **[Free Download (Win, Mac, Linux)][releases-url]** | Get the installable desktop version for offline use and local file system projects. |
 | ** Mac App Store** | [![][mac-app-store-badge]][mac-app-store-url] | A convenient, sandboxed version for Mac users. Purchase to support the project! |
+| **❤️ Support Us** | <img src="cider-app/src/assets/kofi-badge.png" alt="Oatear Cider Logo" width="160"> | If you find Cider useful, consider a small donation to support its development! |
 
 ---
 
@@ -70,6 +71,10 @@ The application source code is protected by the **[AGPL-3.0 License][license-url
 ## Contributing
 We welcome contributions from the community! Whether it's reporting a bug, suggesting a feature, or writing code, your help is appreciated.
 
+Another great way to contribute is by supporting the project financially. Donations help cover costs like the Apple Developer Program fee and allow us to dedicate more time to development.
+
+**[➡️ Support the Project on Ko-fi][kofi-url]**
+
 -   **Bug Reports & Feature Requests:** Please open an issue on the [GitHub Issues page](https://github.com/oatear/cider/issues).
 -   **Development:** Fork the repository, create a new branch, and submit a pull request. To run the project locally, you'll need Node.js and Angular CLI installed.
     ```bash
@@ -101,6 +106,7 @@ We welcome contributions from the community! Whether it's reporting a bug, sugge
 [downloads]: https://img.shields.io/github/downloads/oatear/cider/total
 [website]: https://img.shields.io/website?down_color=red&down_message=offline&up_color=green&up_message=online&url=https%3A%2F%2Foatear.github.io%2Fcider
 [mac-app-store-badge]: cider-app/src/assets/mac-app-store-badge.svg
+[kofi-badge]: cider-app/src/assets/kofi-badge.png
 [screen-1]: cider-app/src/assets/screen-1.png
 [screen-2]: cider-app/src/assets/screen-2.png
 [screen-3]: cider-app/src/assets/screen-3.png
@@ -119,3 +125,4 @@ We welcome contributions from the community! Whether it's reporting a bug, sugge
 [pages-url]: https://oatear.github.io/cider
 [discord-url]: https://discord.gg/S66xw9Wc9V
 [mac-app-store-url]: https://apps.apple.com/us/app/oatear-cider/id6749406996?mt=12
+[kofi-url]: https://ko-fi.com/oatear
