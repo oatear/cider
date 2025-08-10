@@ -27,7 +27,7 @@ Design beautiful game cards with the power and familiarity of `HTML`, `CSS`, and
 | **🌐 Web App** | **[Try it Now in Your Browser][pages-url]** | The full experience, running directly in your browser. No installation needed. |
 | **💻 Desktop Apps** | **[Free Download (Win, Mac, Linux)][releases-url]** | Get the installable desktop version for offline use and local file system projects. |
 | ** Mac App Store** | [![][mac-app-store-badge]][mac-app-store-url] | A convenient, sandboxed version for Mac users. Purchase to support the project! |
-| **❤️ Support Us** | <img src="cider-app/src/assets/kofi-badge.png" alt="Oatear Cider Logo" width="160"> | If you find Cider useful, consider a small donation to support its development! |
+| **❤️ Support Us** | [<img src="cider-app/src/assets/kofi-badge.png" alt="Oatear Cider Logo" width="160">][kofi-url] | If you find Cider useful, consider a small donation to support its development! |
 
 ---
 
@@ -61,7 +61,7 @@ Simply visit **[oatear.github.io/cider][pages-url]** to start. Your projects are
 ### Desktop Version
 1.  Go to the **[Releases Page][releases-url]**.
 2.  Download the appropriate file for your operating system (`.msi` for Windows, `.dmg` for macOS, `.deb` for Debian/Ubuntu).
-3.  **For macOS Users:** For a seamless, signed, and auto-updating experience, please consider purchasing the app from the [Mac App Store][mac-app-store-url].
+3.  **For macOS Users:** For a seamless, signed, and auto-updating experience, please consider purchasing the app from the **[Mac App Store][mac-app-store-url]**.
 
 ## Creative Ownership & Licensing
 Anything you create with Oatear Cider is your intellectual property. The app collects no data and all your work remains on your local device.
@@ -71,11 +71,9 @@ The application source code is protected by the **[AGPL-3.0 License][license-url
 ## Contributing
 We welcome contributions from the community! Whether it's reporting a bug, suggesting a feature, or writing code, your help is appreciated.
 
-Another great way to contribute is by supporting the project financially. Donations help cover costs like the Apple Developer Program fee and allow us to dedicate more time to development.
+Another great way to contribute is by **[supporting the project financially][kofi-url]**. Donations help cover costs like the Apple Developer Program fee and allow us to dedicate more time to development.
 
-**[➡️ Support the Project on Ko-fi][kofi-url]**
-
--   **Bug Reports & Feature Requests:** Please open an issue on the [GitHub Issues page](https://github.com/oatear/cider/issues).
+-   **Bug Reports & Feature Requests:** Please open an issue on the **[GitHub Issues page](https://github.com/oatear/cider/issues)**.
 -   **Development:** Fork the repository, create a new branch, and submit a pull request. To run the project locally, you'll need Node.js and Angular CLI installed.
     ```bash
     # Clone the repository
