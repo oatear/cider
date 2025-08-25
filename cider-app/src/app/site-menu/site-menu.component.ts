@@ -114,7 +114,7 @@ export class SiteMenuComponent implements OnInit {
                 command: () => this.newProject()
               }, 
               {
-                label: this.translate.instant('menu.open'),
+                label: this.translate.instant('menu.open-project'),
                 icon: 'pi pi-pw pi-folder',
                 visible: this.electronService.isElectron(),
                 command: () => this.openSelectDirectoryDialog()

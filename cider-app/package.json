@@ -6,7 +6,7 @@
     "email": "contact@oatear.com",
     "url": "https://oatear.com"
   },
-  "version": "0.5.3",
+  "version": "0.5.4",
   "repository": "https://github.com/oatear/cider",
   "main": "electron-app/dist/main.js",
   "scripts": {

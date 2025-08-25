@@ -61,7 +61,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 
 import {provideTranslateService, provideTranslateLoader, TranslatePipe, TranslateDirective} from "@ngx-translate/core";
-import {provideTranslateHttpLoader} from "@ngx-translate/http-loader";
+import {provideTranslateHttpLoader, TranslateHttpLoader} from "@ngx-translate/http-loader";
 
 import { SiteHeaderComponent } from './site-header/site-header.component';
 import { SiteFooterComponent } from './site-footer/site-footer.component';
@@ -202,7 +202,7 @@ import { GameSimulatorComponent } from './game-simulator/game-simulator.componen
         provideHttpClient(),
         provideTranslateService({
             loader: provideTranslateHttpLoader({
-                prefix: '/assets/i18n/',
+                prefix: './assets/i18n/',
                 suffix: '.json'
             }),
             fallbackLang: 'en',
