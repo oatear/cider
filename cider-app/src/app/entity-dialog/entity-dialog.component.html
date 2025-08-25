@@ -1,6 +1,6 @@
 <p-toast></p-toast>
 <p-dialog [(visible)]="visible" (visibleChange)="visibleChange.emit($event)" (onHide)="hideDialog()"
-    [style]="{width: '450px'}" [header]="title || 'Create/Edit'" [modal]="true" styleClass="p-fluid">
+    [style]="{width: '450px'}" [header]="title || ('controls.create-edit' | translate)" [modal]="true" styleClass="p-fluid">
     <ng-template pTemplate="content">
         <ng-container *ngFor="let col of columns">
             <ng-container [ngSwitch]="true">
@@ -36,7 +36,7 @@
                     <div class="p-field">
                         <label [for]="col.field">{{col.header}}</label>
                         <p-fileUpload name="entity[col.field]" mode="basic" accept="image/*" [maxFileSize]="200000000" 
-                            label="Import" chooseLabel="Import" class="inline-block" 
+                            [chooseLabel]="'controls.import' | translate" class="inline-block" 
                             [customUpload]="true" (onSelect)="uploadFile(entity, col.field, $event)"></p-fileUpload>
                     </div>
                 </ng-container>
@@ -57,7 +57,7 @@
         </ng-container>
     </ng-template>
     <ng-template pTemplate="footer">
-        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
-        <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="save()"></button>
+        <button pButton pRipple [label]="'controls.cancel' | translate" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+        <button pButton pRipple [label]="'controls.save' | translate" icon="pi pi-check" class="p-button-text" (click)="save()"></button>
     </ng-template>
 </p-dialog>

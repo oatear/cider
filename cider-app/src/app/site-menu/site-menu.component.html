@@ -17,8 +17,8 @@
         </div>
     </ng-template>
     <ng-template pTemplate="footer">
-        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="closeImportDialog()"></button>
-        <button pButton pRipple label="Import" icon="pi pi-check" class="p-button-text" (click)="confirmDatabaseImport()"></button>
+        <button pButton pRipple [label]="'controls.cancel' | translate" icon="pi pi-times" class="p-button-text" (click)="closeImportDialog()"></button>
+        <button pButton pRipple [label]="'controls.import' | translate" icon="pi pi-check" class="p-button-text" (click)="confirmDatabaseImport()"></button>
     </ng-template>
 </p-dialog>
 <p-dialog [header]="loadingHeader" [(visible)]="displayLoading" [style]="{width: '450px'}" [modal]="true" >

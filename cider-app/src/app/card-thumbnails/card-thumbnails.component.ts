@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { CardTemplatesService } from '../data-services/services/card-templates.service';
 import { CardsService } from '../data-services/services/cards.service';
 import { Card } from '../data-services/types/card.type';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-card-thumbnails',
@@ -32,14 +33,24 @@ export class CardThumbnailsComponent implements OnInit {
   copySelected: string = 'copies';
 
 
-
   constructor(public cardsService: CardsService,
+    private translate: TranslateService,
     public templatesService: CardTemplatesService) { }
 
   ngOnInit(): void {
     this.refreshCards();
     this.cardsService.getFields().then(fields => {
       this.filterFields = fields.map(field => field.field).join(',');
+    });
+
+    // update side options labels and copy options labels
+    // whenever the language changes
+    this.translate.stream('welcome.title').subscribe(() => {
+      this.sideOptions[0].label = this.translate.instant('controls.fronts');
+      this.sideOptions[1].label = this.translate.instant('controls.backs');
+      this.sideOptions[2].label = this.translate.instant('controls.both');
+      this.copyOptions[0].label = this.translate.instant('controls.singles');
+      this.copyOptions[1].label = this.translate.instant('controls.copies');
     });
   }
 

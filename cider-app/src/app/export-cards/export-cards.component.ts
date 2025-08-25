@@ -12,6 +12,7 @@ import { lastValueFrom } from 'rxjs';
 import StringUtils from '../shared/utils/string-utils';
 import GeneralUtils from '../shared/utils/general-utils';
 import { ConfirmationService } from 'primeng/api';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-export-cards',
@@ -23,17 +24,11 @@ export class ExportCardsComponent implements OnInit {
   private static readonly SINGULAR_EXPORT = 'singular-export';
   private static readonly SHEET_EXPORT = 'sheet-export';
   private static readonly PDF_DPI = 72;
-  @ViewChildren('cardSheets') cardSheets: QueryList<any> = {} as QueryList<any>;
-  @ViewChildren('cardSheetCards') cardSheetCards: QueryList<CardPreviewComponent> = {} as QueryList<CardPreviewComponent>;
-  @ViewChildren('frontCards') frontCards: QueryList<CardPreviewComponent> = {} as QueryList<CardPreviewComponent>;
-  @ViewChildren('backCards') backCards: QueryList<CardPreviewComponent> = {} as QueryList<CardPreviewComponent>;
-
-  public exportType: string = ExportCardsComponent.SHEET_EXPORT;
-  public exportOptions: RadioOption[] = [
+  private static readonly EXPORT_OPTIONS: RadioOption[] = [
     { name: 'Card Sheet', value: ExportCardsComponent.SHEET_EXPORT},
     { name: 'Individual Images', value: ExportCardsComponent.SINGULAR_EXPORT}
   ];
-  public paperOptions: PaperType[] = [
+  private static readonly PAPER_OPTIONS: PaperType[] = [
     { name: 'US Letter (Landscape)', width: 8.5, height: 11, orientation: 'landscape', mirrorBacksX: false, mirrorBacksY: true}, 
     { name: 'US Letter (Portrait)', width: 8.5, height: 11, orientation: 'portrait', mirrorBacksX: true, mirrorBacksY: false}, 
     { name: 'A4 (Landscape)', width: 8.27, height: 11.69, orientation: 'landscape', mirrorBacksX: false, mirrorBacksY: true}, 
@@ -42,9 +37,17 @@ export class ExportCardsComponent implements OnInit {
     { name: 'Custom (Portrait)', width: 8.5, height: 11, orientation: 'portrait', mirrorBacksX: true, mirrorBacksY: false}, 
     { name: 'Tabletop Simulator', width: 8.5, height: 11, orientation: 'portrait', mirrorBacksX: false, mirrorBacksY: false}
   ];
-  public selectedPaper: PaperType = this.paperOptions[0];
-  public paperWidth: number = this.paperOptions[0].width;
-  public paperHeight: number = this.paperOptions[0].height;
+  @ViewChildren('cardSheets') cardSheets: QueryList<any> = {} as QueryList<any>;
+  @ViewChildren('cardSheetCards') cardSheetCards: QueryList<CardPreviewComponent> = {} as QueryList<CardPreviewComponent>;
+  @ViewChildren('frontCards') frontCards: QueryList<CardPreviewComponent> = {} as QueryList<CardPreviewComponent>;
+  @ViewChildren('backCards') backCards: QueryList<CardPreviewComponent> = {} as QueryList<CardPreviewComponent>;
+
+  public exportType: string = ExportCardsComponent.SHEET_EXPORT;
+  public exportOptions: RadioOption[] = [];
+  public paperOptions: PaperType[] = [];
+  public selectedPaper: PaperType;
+  public paperWidth: number;
+  public paperHeight: number;
   public paperMargins: number = 0.4;
   public paperDpi: number = 300;
   public cardMargins: number = 0.05;
@@ -60,8 +63,8 @@ export class ExportCardsComponent implements OnInit {
   public loadingPercent: number = 0;
   public loadingInfo: string = '';
   public lowInk: boolean = false;
-  public mirrorBacksX: boolean = this.paperOptions[0].mirrorBacksX;
-  public mirrorBacksY: boolean = this.paperOptions[0].mirrorBacksY;
+  public mirrorBacksX: boolean;
+  public mirrorBacksY: boolean;
   public pixelRatio: number = 1;
   public individualExportPixelRatio: number = 1;
   public individualExportUseCardName: boolean = false;
@@ -79,6 +82,7 @@ export class ExportCardsComponent implements OnInit {
 
   constructor(cardsService: CardsService, 
     public templatesService: CardTemplatesService,
+    private translate: TranslateService,
     private confirmationService: ConfirmationService) {
       cardsService.getAll().then(cards => {
         // check cards for front/back templates being defined
@@ -89,9 +93,43 @@ export class ExportCardsComponent implements OnInit {
         this.updateExpandedCards();
         this.updateSlices();
       });
+
+    this.exportOptions = ExportCardsComponent.EXPORT_OPTIONS;
+    this.paperOptions = ExportCardsComponent.PAPER_OPTIONS;
+    this.selectedPaper = this.paperOptions[0];
+    this.paperWidth = this.selectedPaper.width;
+    this.paperHeight = this.selectedPaper.height;
+    this.mirrorBacksX = this.selectedPaper.mirrorBacksX;
+    this.mirrorBacksY = this.selectedPaper.mirrorBacksY;
+    this.changePaperType();
   }
 
   ngOnInit(): void {
+    this.translate.stream('welcome.title').subscribe(() => {
+      this.updateOptions();
+    });
+  }
+
+  public updateOptions() {
+    const replacementList: { search: string, key: string }[] = [
+      { search: 'Portrait', key: 'export.portrait' },
+      { search: 'Landscape', key: 'export.landscape' },
+      { search: 'Custom', key: 'export.custom' },
+      { search: 'Tabletop Simulator', key: 'export.tabletop-simulator' }
+    ];
+    this.exportOptions = ExportCardsComponent.EXPORT_OPTIONS.map(option => {
+      return { name: this.translate.instant('export.' + option.value), value: option.value };
+    });
+    this.paperOptions = ExportCardsComponent.PAPER_OPTIONS.map(option => {
+      let name = option.name;
+      replacementList.forEach(replacement => {
+        name = name.replace(replacement.search, this.translate.instant(replacement.key));
+      });
+      return { name: name, width: option.width, height: option.height, orientation: option.orientation, 
+        mirrorBacksX: option.mirrorBacksX, mirrorBacksY: option.mirrorBacksY };
+    });
+    this.selectedPaper = this.paperOptions[0];
+    this.changePaperType();
   }
 
   public updateSelection(selection: Card | Card[] | undefined) {

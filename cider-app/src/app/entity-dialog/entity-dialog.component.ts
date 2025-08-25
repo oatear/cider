@@ -4,6 +4,8 @@ import { MessageService } from 'primeng/api';
 import { EntityField } from '../data-services/types/entity-field.type';
 import { EntityService } from '../data-services/types/entity-service.type';
 import { FieldType } from '../data-services/types/field-type.type';
+import { TranslateService } from '@ngx-translate/core';
+import TranslateUtils from '../shared/utils/translate-utils';
 
 @Component({
   selector: 'app-entity-dialog',
@@ -22,17 +24,21 @@ export class EntityDialogComponent<Entity, Identifier extends string | number> i
   loading: boolean = false;
   FieldType = FieldType;
 
-  constructor(private messageService: MessageService, private domSanitizer: DomSanitizer) { }
+  constructor(private messageService: MessageService, 
+    private translate: TranslateService,
+    private domSanitizer: DomSanitizer) { }
 
   ngOnInit(): void {
     if (this.service && this.service.getFields) {
-      this.service?.getFields().then(fields => this.columns = fields);
+      this.service?.getFields().then(fields => TranslateUtils.translateFields(fields, this.translate))
+        .then(fields => this.columns = fields);
     }
   }
   
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['service'] && this.service && this.service.getFields) {
-      this.service.getFields().then(fields => this.columns = fields);
+      this.service.getFields().then(fields => TranslateUtils.translateFields(fields, this.translate))
+        .then(fields => this.columns = fields);
     }
   }
 

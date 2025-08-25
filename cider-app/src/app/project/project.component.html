@@ -16,7 +16,7 @@
         </p-metergroup>
     </div>
 
-    <h3>Decks</h3>
+    <h3>{{'breadcrumbs.decks' | translate}}</h3>
     <div class="decks">
     @for (deck of deckInfos; track deck.id) {
         <p-button styleClass="deck-button" [outlined]="true" (click)="openDeck(deck.id)">

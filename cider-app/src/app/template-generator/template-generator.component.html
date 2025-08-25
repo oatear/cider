@@ -21,7 +21,7 @@
                         </p-selectbutton>
                     </div>
                     <div class="step-controls p-justify-end">
-                        <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" 
+                        <p-button [label]="'controls.next' | translate" icon="pi pi-arrow-right" iconPos="right" 
                             [disabled]="!selectedSize"
                             (onClick)="activateCallback(2)" />
                     </div>
@@ -42,9 +42,9 @@
                         </p-selectbutton>
                     </div>
                     <div class="step-controls p-justify-between">
-                        <p-button label="Back" severity="secondary" icon="pi pi-arrow-left" 
+                        <p-button [label]="'controls.back' | translate" severity="secondary" icon="pi pi-arrow-left" 
                             (onClick)="activateCallback(1)" />
-                        <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" 
+                        <p-button [label]="'controls.next' | translate"icon="pi pi-arrow-right" iconPos="right" 
                             [disabled]="!selectedLayout"
                             (onClick)="activateCallback(3)" />
                     </div>
@@ -65,10 +65,10 @@
                         </p-selectbutton>
                     </div>
                     <div class="step-controls p-justify-between">
-                        <p-button label="Back" severity="secondary" icon="pi pi-arrow-left" (onClick)="activateCallback(2)" />
-                        <p-button label="Refresh" severity="help" icon="pi pi-refresh" 
+                        <p-button [label]="'controls.back' | translate" severity="secondary" icon="pi pi-arrow-left" (onClick)="activateCallback(2)" />
+                        <p-button [label]="'controls.refresh' | translate" severity="help" icon="pi pi-refresh" 
                             (onClick)="refreshThemeCards(dummyElement)" />
-                        <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" 
+                        <p-button [label]="'controls.next' | translate" icon="pi pi-arrow-right" iconPos="right" 
                             [disabled]="!selectedTheme"
                             (onClick)="activateCallback(4)" />
                     </div>
@@ -87,8 +87,8 @@
                         <small id="name-help">Enter a name for your template.</small>
                     </div>
                     <div class="step-controls p-justify-between">
-                        <p-button label="Back" severity="secondary" icon="pi pi-arrow-left" (onClick)="activateCallback(3)" />
-                        <p-button label="Create" severity="success" (onClick)="createTemplate()" />
+                        <p-button [label]="'controls.back' | translate" severity="secondary" icon="pi pi-arrow-left" (onClick)="activateCallback(3)" />
+                        <p-button [label]="'controls.create' | translate" severity="success" (onClick)="createTemplate()" />
                     </div>
                 </ng-template>
             </p-step-panel>

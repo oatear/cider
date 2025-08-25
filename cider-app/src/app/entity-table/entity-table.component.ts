@@ -9,6 +9,8 @@ import XlsxUtils from '../shared/utils/xlsx-utils';
 import { Subject, debounceTime } from 'rxjs';
 import { TableStat, TokenStat } from './table-stat.type';
 import StringUtils from '../shared/utils/string-utils';
+import { TranslateService } from '@ngx-translate/core';
+import TranslateUtils from '../shared/utils/translate-utils';
 
 @Component({
   selector: 'app-entity-table',
@@ -48,14 +50,16 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
   optionsCache: Map<EntityService<any, string | number>, any[]>;
 
   constructor(private messageService: MessageService, 
-    private confirmationService: ConfirmationService) {
+    private confirmationService: ConfirmationService,
+    private translate: TranslateService) {
       this.saveSubject.asObservable().pipe(debounceTime(1000))
         .subscribe((entity) => this.save(entity));
       this.optionsCache = new Map<EntityService<any, string | number>, any[]>();
   }
 
   ngOnInit(): void {
-    this.service?.getFields().then(fields => this.columns = fields);
+    this.service?.getFields().then(fields => TranslateUtils.translateFields(fields, this.translate))
+      .then(fields => this.columns = fields);
     this.service?.getLookups().then(lookups => this.lookups = lookups);
     if (this.lazy) {
       this.service?.search({offset: 0, limit: 10}).then(result => {

@@ -1,5 +1,5 @@
 <p-tree [value]="files" styleClass="file-tree" 
-    [filter]="true" [filterPlaceholder]="'Search'" [selectionMode]="'single'"
+    [filter]="true" [filterPlaceholder]="'controls.search' | translate" [selectionMode]="'single'"
     [(selection)]="selectedFile" [contextMenu]="cm"
     (onNodeContextMenuSelect)="onNodeContextMenuSelect($event)"
     (onNodeSelect)="onNodeSelect($event)">

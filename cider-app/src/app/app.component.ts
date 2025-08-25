@@ -3,6 +3,7 @@ import { NavigationEnd, Router } from '@angular/router';
 
 import { filter } from 'rxjs';
 import { LocalStorageService } from './data-services/local-storage/local-storage.service';
+import { TranslateService } from '@ngx-translate/core';
 
 // setup in index.html
 declare const gtag: Function;
@@ -15,7 +16,8 @@ declare const gtag: Function;
 export class AppComponent implements OnInit{
 
   constructor(private router: Router,
-              private localStorageService: LocalStorageService) {
+              private localStorageService: LocalStorageService,
+              private translateService: TranslateService) {
   }
 
   ngOnInit() {
@@ -24,19 +26,30 @@ export class AppComponent implements OnInit{
         this.updateViewWidthHeightVar();
       });
 
-      this.setUpAnalytics();
+      // this.setUpAnalytics();
       this.initDarkMode();
+      this.initTranslateService();
   }
 
-  private setUpAnalytics() {
-    this.router.events.pipe(filter(event => event instanceof NavigationEnd))
-        .subscribe((event) => {
-            gtag('config', 'G-4B83EBZERL',
-                {
-                    page_path: (<NavigationEnd>event).urlAfterRedirects
-                }
-            );
-        });
+  // private setUpAnalytics() {
+  //   this.router.events.pipe(filter(event => event instanceof NavigationEnd))
+  //       .subscribe((event) => {
+  //           gtag('config', 'G-4B83EBZERL',
+  //               {
+  //                   page_path: (<NavigationEnd>event).urlAfterRedirects
+  //               }
+  //           );
+  //       });
+  // }
+
+  private initTranslateService() {
+    this.translateService.addLangs(['en', 'fr', 'es', 'bg', 'de', 'it', 
+      'pt', 'ru', 'pl', 'uk', 'ko', 'ja', 'zh', 'tr']);
+
+    const browserLang = this.translateService.getBrowserLang();
+    const savedLang = this.localStorageService.getLanguage();
+    const langToSet = savedLang ? savedLang : (browserLang && this.translateService.getLangs().includes(browserLang) ? browserLang : 'en');
+    this.translateService.use(langToSet);
   }
 
   private updateViewWidthHeightVar() {

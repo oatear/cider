@@ -4,7 +4,7 @@ import { DecksService } from '../data-services/services/decks.service';
 import { AssetsService } from '../data-services/services/assets.service';
 import { CardTemplatesService } from '../data-services/services/card-templates.service';
 import { ElectronService } from '../data-services/electron/electron.service';
-import { debounceTime, firstValueFrom, lastValueFrom } from 'rxjs';
+import { combineLatest, debounceTime, firstValueFrom, lastValueFrom, merge, timeout } from 'rxjs';
 import StringUtils from '../shared/utils/string-utils';
 import { TreeNodeContextMenuSelectEvent, TreeNodeSelectEvent } from 'primeng/tree';
 import { Router } from '@angular/router';
@@ -12,6 +12,7 @@ import { EntityService } from '../data-services/types/entity-service.type';
 import { DocumentsService } from '../data-services/services/documents.service';
 import { HttpClient } from '@angular/common/http';
 import { AppDB } from '../data-services/indexed-db/db';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-site-sidebar',
@@ -37,6 +38,7 @@ export class SiteSidebarComponent implements OnInit {
     private electronService: ElectronService,
     private confirmationService: ConfirmationService,
     private messageService: MessageService, 
+    private translate: TranslateService,
     private httpClient: HttpClient,
     private router: Router,
     private db: AppDB) {
@@ -48,18 +50,28 @@ export class SiteSidebarComponent implements OnInit {
 
   ngOnInit() {
     console.log('init sidebar');
-    if (!this.electronService.isElectron()) {
+    // if (!this.electronService.isElectron()) {
+    //   firstValueFrom(this.translate.onLangChange.pipe(timeout(1000))).then(() => {
+    //     this.updateFiles();
+    //   });
+    // }
+
+    // update menu on language change
+    this.translate.stream('welcome.title').subscribe(() => {
       this.updateFiles();
-    }
-    this.electronService.getIsProjectOpen().asObservable().pipe(debounceTime(500)).subscribe(isProjectOpen => {
-        if (isProjectOpen) {
-          console.log('project just opened, sidebar update');
-          this.updateFiles();
-        }
     });
-    // this.db.onChange()
-    // this.electronService.getProjectUnsaved()
-    this.db.onChange().pipe(debounceTime(500)).subscribe(() => {
+
+    // update menu on project open
+    this.electronService.getIsProjectOpen().asObservable().pipe(debounceTime(500)).subscribe(isProjectOpen => {
+      if (isProjectOpen) {
+        console.log('project just opened, sidebar update');
+        this.updateFiles();
+      }
+    });
+    
+    // update menu on db change, but only if project is open
+    combineLatest([this.db.onChange()])
+    .pipe(debounceTime(500)).subscribe(() => {
       const isProjectOpen: boolean = this.electronService.getIsProjectOpen().getValue();
       if (!this.electronService.isElectron() || isProjectOpen) {
         console.log('change detected, project is open, sidebar update');
@@ -81,26 +93,29 @@ export class SiteSidebarComponent implements OnInit {
     // Fetch the readme file
     // -----------------------------------------------
     await firstValueFrom(this.electronService.getProjectHomeUrl()).then(homeUrl => {
-      let projectName = StringUtils.lastDirectoryFromUrl(homeUrl?.path ?? 'Project');
+      let projectName = StringUtils.lastDirectoryFromUrl(homeUrl?.path 
+        ?? this.translate.instant('sidebar.unknown-project'));
       updatedFiles.push({
         label: projectName,
         data: {
           url: '/project',
           contextMenu: [
             {
-              label: 'Add New Deck',
+              label: this.translate.instant('sidebar.add-new-deck'),
               icon: 'pi pi-plus',
               command: () => {
-                this.openCreateDialog(this.decksService, 'Create New Deck', {
-                  name: `Deck-${Math.random().toString(36).substr(2, 9)}`
+                this.openCreateDialog(this.decksService, 
+                  this.translate.instant('sidebar.create-new-deck'), {
+                  name: `${this.translate.instant('sidebar.deck')}-${Math.random().toString(36).substr(2, 9)}`
                 });
               }
             },
             {
-              label: 'Add New Document',
+              label: this.translate.instant('sidebar.add-new-document'),
               icon: 'pi pi-file',
               command: () => {
-                this.openCreateDocumentDialog(this.documentsService, 'Create New Document');
+                this.openCreateDocumentDialog(this.documentsService, 
+                  this.translate.instant('sidebar.create-new-document'));
               }
             },
           ],
@@ -121,21 +136,23 @@ export class SiteSidebarComponent implements OnInit {
             url: '/documents/' + document.id,
             contextMenu: [
               {
-                label: 'Add New Document',
+                label: this.translate.instant('sidebar.add-new-document'),
                 icon: 'pi pi-file',
                 command: () => {
-                  this.openCreateDocumentDialog(this.documentsService, 'Create New Document');
+                  this.openCreateDocumentDialog(this.documentsService, 
+                    this.translate.instant('sidebar.create-new-document'));
                 }
               },
               {
-                label: 'Edit/Rename Document',
+                label: this.translate.instant('sidebar.edit-rename-document'),
                 icon: 'pi pi-pencil',
                 command: () => {
-                  this.openEditDialog(this.documentsService, document.id, 'Edit/Rename Document');
+                  this.openEditDialog(this.documentsService, document.id, 
+                    this.translate.instant('sidebar.edit-rename-document'));
                 }
               },
               {
-                label: 'Delete Document',
+                label: this.translate.instant('sidebar.delete-document'),
                 icon: 'pi pi-trash',
                 command: () => {
                   this.openDeleteDialog(document.id, this.documentsService);
@@ -158,12 +175,12 @@ export class SiteSidebarComponent implements OnInit {
         let deckChildren: TreeNode[] = [];
 
         deckChildren.push({
-          label: 'Cards',
+          label: this.translate.instant('sidebar.cards'),
           data: {
             url: '/decks/' + deck.id + '/cards/listing',
             contextMenu: [
               {
-                label: 'Export Cards',
+                label: this.translate.instant('sidebar.export-cards'),
                 icon: 'pi pi-file-pdf',
                 command: () => {
                   this.router.navigateByUrl(`/decks/${deck.id}/export-cards`);
@@ -176,12 +193,12 @@ export class SiteSidebarComponent implements OnInit {
         });
 
         deckChildren.push({
-          label: 'Thumbnails',
+          label: this.translate.instant('sidebar.thumbnails'),
           data: {
             url: '/decks/' + deck.id + '/cards/thumbnails',
             contextMenu: [
               {
-                label: 'Export Cards',
+                label: this.translate.instant('sidebar.export-cards'),
                 icon: 'pi pi-file-pdf',
                 command: () => {
                   this.router.navigateByUrl(`/decks/${deck.id}/export-cards`);
@@ -194,7 +211,7 @@ export class SiteSidebarComponent implements OnInit {
         })
 
         deckChildren.push({
-          label: 'Attributes',
+          label: this.translate.instant('sidebar.attributes'),
           data: {
             url: '/decks/' + deck.id + '/cards/attributes',
           },
@@ -203,7 +220,7 @@ export class SiteSidebarComponent implements OnInit {
         });
 
         deckChildren.push({
-          label: 'Export Cards',
+          label: this.translate.instant('sidebar.export-cards') ,
           data: {
             url: '/decks/' + deck.id + '/export-cards',
           },
@@ -222,28 +239,30 @@ export class SiteSidebarComponent implements OnInit {
                 url: '/decks/' + deck.id + '/templates/' + template.id,
                 contextMenu: [
                   {
-                    label: 'Add New Card Template',
+                    label: this.translate.instant('sidebar.add-new-card-template'),
                     icon: 'pi pi-plus',
                     command: () => {
                       this.router.navigateByUrl(`/decks/${deck.id}/templates/generator`);
                     }
                   },
                   {
-                    label: 'Edit/Rename Template',
+                    label: this.translate.instant('sidebar.edit-rename-card-template'),
                     icon: 'pi pi-pencil',
                     command: () => {
-                      this.openEditDialog(this.templatesService, template.id, 'Edit/Rename Template');
+                      this.openEditDialog(this.templatesService, template.id, 
+                        this.translate.instant('sidebar.edit-rename-card-template'));
                     }
                   },
                   {
-                    label: 'Duplicate Template',
+                    label: this.translate.instant('sidebar.duplicate-card-template'),
                     icon: 'pi pi-copy',
                     command: () => {
-                      this.openDuplicateDialog(this.templatesService, template.id, 'Duplicate Template');
+                      this.openDuplicateDialog(this.templatesService, template.id, 
+                        this.translate.instant('sidebar.duplicate-card-template'));
                     }
                   },
                   {
-                    label: 'Delete Template',
+                    label: this.translate.instant('sidebar.delete-card-template'),
                     icon: 'pi pi-trash',
                     command: () => {
                       this.openDeleteDialog(template.id, this.templatesService);
@@ -263,28 +282,29 @@ export class SiteSidebarComponent implements OnInit {
             url: '/decks/' + deck.id + '/cards',
             contextMenu: [
               {
-                label: 'Add New Card Template',
+                label: this.translate.instant('sidebar.add-new-card-template'),
                 icon: 'pi pi-plus',
                 command: () => {
                   this.router.navigateByUrl(`/decks/${deck.id}/templates/generator`);
                 }
               },
               {
-                label: 'Export Cards',
+                label: this.translate.instant('sidebar.export-cards'),
                 icon: 'pi pi-file-pdf',
                 command: () => {
                   this.router.navigateByUrl(`/decks/${deck.id}/export-cards`);
                 }
               },
               {
-                label: 'Edit/Rename Deck',
+                label: this.translate.instant('sidebar.edit-rename-deck'),
                 icon: 'pi pi-pencil',
                 command: () => {
-                  this.openEditDialog(this.decksService, deck.id, 'Edit/Rename Deck');
+                  this.openEditDialog(this.decksService, deck.id, 
+                    this.translate.instant('sidebar.edit-rename-deck'));
                 }
               },
               {
-                label: 'Delete Deck',
+                label: this.translate.instant('sidebar.delete-deck'),
                 icon: 'pi pi-trash',
                 command: () => {
                   this.openDeleteDialog(deck.id, this.decksService);
@@ -302,15 +322,16 @@ export class SiteSidebarComponent implements OnInit {
       });
 
       let decksFolder: TreeNode = {
-        label: 'Decks',
+        label: this.translate.instant('sidebar.decks'),
         data: {
           url: '/decks',
           contextMenu: [
             {
-              label: 'Add New Deck',
+              label: this.translate.instant('sidebar.add-new-deck'),
               icon: 'pi pi-plus',
               command: () => {
-                this.openCreateDialog(this.decksService, 'Create New Deck', {
+                this.openCreateDialog(this.decksService, 
+                  this.translate.instant('sidebar.create-new-deck'), {
                   name: `Deck-${Math.random().toString(36).substr(2, 9)}`
                 });
               }
@@ -331,21 +352,22 @@ export class SiteSidebarComponent implements OnInit {
     // -----------------------------------------------
     await this.assetsService.getAll().then(assets => {
       updatedFiles.push({
-        label: 'Assets',
+        label: this.translate.instant('sidebar.assets'),
         data: {
           url: '/assets',
           contextMenu: [
             {
-              label: 'Add New Asset',
+              label: this.translate.instant('sidebar.add-new-asset'),
               icon: 'pi pi-plus',
               command: () => {
-                this.openCreateDialog(this.assetsService, 'Create New Asset', {
+                this.openCreateDialog(this.assetsService, 
+                  this.translate.instant('sidebar.create-new-asset'), {
                   name: `asset-${Math.random().toString(36).substr(2, 9)}`
                 });
               }
             },
             {
-              label: 'Generate New Asset',
+              label: this.translate.instant('sidebar.generate-new-asset'),
               icon: 'pi pi-sparkles',
               command: () => {
                   this.router.navigateByUrl(`/assets/generator`);
@@ -361,30 +383,32 @@ export class SiteSidebarComponent implements OnInit {
             url: '/assets/' + asset.id,
             contextMenu: [
               {
-                label: 'Add New Asset',
+                label: this.translate.instant('sidebar.add-new-asset'),
                 icon: 'pi pi-plus',
                 command: () => {
-                  this.openCreateDialog(this.assetsService, 'Create New Asset', {
+                  this.openCreateDialog(this.assetsService, 
+                    this.translate.instant('sidebar.create-new-asset'), {
                     name: `asset-${Math.random().toString(36).substr(2, 9)}`
                   });
                 }
               },
               {
-                label: 'Generate New Asset',
+                label: this.translate.instant('sidebar.generate-new-asset'),
                 icon: 'pi pi-sparkles',
                 command: () => {
                     this.router.navigateByUrl(`/assets/generator`);
                 }
               },
               {
-                label: 'Edit/Rename Asset',
+                label: this.translate.instant('sidebar.edit-rename-asset'),
                 icon: 'pi pi-pencil',
                 command: () => {
-                  this.openEditDialog(this.assetsService, asset.id, 'Edit/Rename Asset');
+                  this.openEditDialog(this.assetsService, asset.id, 
+                    this.translate.instant('sidebar.edit-rename-asset'));
                 }
               },
               {
-                label: 'Delete Asset',
+                label: this.translate.instant('sidebar.delete-asset'),
                 icon: 'pi pi-trash',
                 command: () => {
                   this.openDeleteDialog(asset.id, this.assetsService);
@@ -410,7 +434,7 @@ export class SiteSidebarComponent implements OnInit {
       newMenuItems.push(...selectedNode.data.contextMenu);
     } else {
       newMenuItems.push({
-        label: 'No Actions Available',
+        label: this.translate.instant('sidebar.no-actions-available'),
         icon: 'pi pi-info-circle',
         disabled: true
       });
@@ -428,12 +452,13 @@ export class SiteSidebarComponent implements OnInit {
   
   public openDeleteDialog(entityId : any, service: EntityService<any, any>) {
     this.confirmationService.confirm({
-      message: 'Are you sure you want to delete this entity?',
-      header: 'Delete Entity',
+      message: this.translate.instant('sidebar.confirm-entity-delete-message'),
+      header: this.translate.instant('sidebar.delete-entity'),
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         service?.delete(entityId).then(deleted => {
-          this.messageService.add({severity:'success', summary: 'Successful', detail: 'Entity Deleted', life: 3000});
+          this.messageService.add({severity:'success', summary: 'Successful', 
+            detail: this.translate.instant('sidebar.entity-deleted'), life: 3000});
         });
       }
     });
