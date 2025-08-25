@@ -53,6 +53,14 @@ export class LocalStorageService {
     return urls;
   }
 
+  public getLanguage(): string | null {
+    return localStorage.getItem('language');
+  }
+
+  public setLanguage(lang: string) {
+    localStorage.setItem('language', lang);
+  }
+
   /**
    * Filter out any directories that are empty or don't exist from the recent project urls
    * 

@@ -1,15 +1,24 @@
-<p-dialog header="Application Settings" [(visible)]="visible" (visibleChange)="visibleChange.emit($event)"
+<p-dialog [header]="'settings.title' | translate" [(visible)]="visible" (visibleChange)="visibleChange.emit($event)"
     (onHide)="hideDialog()" [styleClass]="'settings-dialog'"
     [modal]="true" [style]="{width: '400px'}" [closable]="true">
     <ng-template pTemplate="content">
 
-        <div class="p-field p-d-flex p-flex-row">
+        <!-- add a dropdown for language selection -->
+        <div class="p-field p-d-flex p-flex-row p-ai-center ">
+            <p-select [options]="languages" appendTo="body" class="p-mr-2"
+                [filter]="true" [filterFields]="['label', 'value']"
+                [(ngModel)]="language" (onChange)="setLanguage($event.value)"
+                [placeholder]="'settings.select-language' | translate" />
+            <label for="language">{{'settings.language' | translate}}</label>
+        </div>
+        <p-message severity="info" escape="false" class="p-mb-4 p-d-flex"
+            [text]="(isElectron ? 'settings.language-info-electron' : 'settings.language-info') | translate"></p-message>
+
+        <div class="p-field p-d-flex p-flex-row p-ai-center ">
             <p-toggleswitch [(ngModel)]="darkMode" (onChange)="setDarkMode($event)" 
                 class="p-mr-2"/>
-            <label for="darkMode">Dark Mode</label>
+            <label for="darkMode">{{'settings.dark-mode' | translate}}</label>
         </div>
-        <p-message severity="info" escape="false"
-            text="Enable dark mode for a better night-time experience"></p-message>
             
     </ng-template>
 </p-dialog>

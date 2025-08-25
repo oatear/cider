@@ -1,6 +1,6 @@
-<app-page-header header="Welcome" 
-    [subheader]="isElectron ? 'Start a new project or open an existing one'
-                    : 'Select a deck to get started'"></app-page-header>
+<app-page-header [header]="'welcome.title' | translate" 
+    [subheader]="isElectron ? ('welcome.subtitle-electron' | translate)
+                    : ('welcome.subtitle' | translate)"></app-page-header>
 <p-card styleClass="artwork-card"></p-card>
 <p-card *ngIf="isElectron" styleClass="projects-card">
     <p-button label="+ Blank Project"

@@ -56,11 +56,12 @@ import { PopoverModule } from 'primeng/popover';
 import { MeterGroupModule } from 'primeng/metergroup';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 
-
-
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
+
+import {provideTranslateService, provideTranslateLoader, TranslatePipe, TranslateDirective} from "@ngx-translate/core";
+import {provideTranslateHttpLoader} from "@ngx-translate/http-loader";
 
 import { SiteHeaderComponent } from './site-header/site-header.component';
 import { SiteFooterComponent } from './site-footer/site-footer.component';
@@ -184,6 +185,8 @@ import { GameSimulatorComponent } from './game-simulator/game-simulator.componen
         CdkDrag,
         DragDropModule,
         AutoCompleteModule,
+        TranslatePipe,
+        TranslateDirective
     ], 
     providers: [
         CardToHtmlPipe, provideHttpClient(withInterceptorsFromDi()),
@@ -195,6 +198,15 @@ import { GameSimulatorComponent } from './game-simulator/game-simulator.componen
                     darkModeSelector: "." + LocalStorageService.DARK_MODE,
                 }
             }
+        }),
+        provideHttpClient(),
+        provideTranslateService({
+            loader: provideTranslateHttpLoader({
+                prefix: '/assets/i18n/',
+                suffix: '.json'
+            }),
+            fallbackLang: 'en',
+            lang: 'en'
         })
     ]})
 export class AppModule { }

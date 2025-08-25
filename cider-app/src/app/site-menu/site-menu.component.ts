@@ -3,7 +3,7 @@ import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
 import { NavigationEnd, Router } from '@angular/router';
 import { ExportProgress } from 'dexie-export-import/dist/export';
 import { ImportProgress } from 'dexie-export-import/dist/import';
-import { Observable, combineLatest, filter, firstValueFrom, lastValueFrom } from 'rxjs';
+import { Observable, combineLatest, filter, firstValueFrom, lastValueFrom, timeout } from 'rxjs';
 import { ElectronService } from '../data-services/electron/electron.service';
 import { AppDB } from '../data-services/indexed-db/db';
 import { LocalStorageService } from '../data-services/local-storage/local-storage.service';
@@ -17,6 +17,7 @@ import StringUtils from '../shared/utils/string-utils';
 import XlsxUtils from '../shared/utils/xlsx-utils';
 import { DocumentsService } from '../data-services/services/documents.service';
 import { PersistentPath } from '../data-services/types/persistent-path.type';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-site-menu',
@@ -53,6 +54,7 @@ export class SiteMenuComponent implements OnInit {
     private cardAttributesService: CardAttributesService,
     private cardTemplatesService: CardTemplatesService,
     private documentsService: DocumentsService,
+    private translate: TranslateService,
     private ngZone: NgZone,
     private router: Router,
     private db: AppDB) {
@@ -81,10 +83,11 @@ export class SiteMenuComponent implements OnInit {
   }
 
   ngOnInit(): void {
-
     combineLatest([this.selectedDeck$, this.recentProjectUrls$, 
-      this.projectHomeUrl$, this.projectUnsaved$]).subscribe({
-      next: ([selectedDeck, persistentPaths, projectHomeUrl, projectUnsaved]) => {
+      this.projectHomeUrl$, this.projectUnsaved$,
+      this.translate.onLangChange]).subscribe({
+      next: ([selectedDeck, persistentPaths, projectHomeUrl, 
+        projectUnsaved, langChange]) => {
         // setup the recent project urls
         this.recentProjectUrlItems = persistentPaths.map(persistentPath => { return {
           label: StringUtils.lastDirectoryFromUrl(persistentPath.path),
@@ -101,35 +104,35 @@ export class SiteMenuComponent implements OnInit {
         // setup the menu items
         this.items = [
           {
-            label: 'File',
+            label: this.translate.instant('menu.file'),
             icon: 'pi pi-pw pi-file',
             items: [
               {
-                label: 'New',
+                label: this.translate.instant('menu.new'),
                 icon: 'pi pi-pw pi-file',
                 visible: this.electronService.isElectron(),
                 command: () => this.newProject()
               }, 
               {
-                label: 'Open Project',
+                label: this.translate.instant('menu.open'),
                 icon: 'pi pi-pw pi-folder',
                 visible: this.electronService.isElectron(),
                 command: () => this.openSelectDirectoryDialog()
               }, {
-                label: 'Open Recent',
+                label: this.translate.instant('menu.open-recent'),
                 icon: 'pi pi-pw pi-folder',
                 visible: this.electronService.isElectron(),
                 disabled: !this.recentProjectUrlItems 
                   || this.recentProjectUrlItems.length <= 0,
                 items: this.recentProjectUrlItems
               }, {
-                label: 'Save',
+                label: this.translate.instant('menu.save'),
                 icon: 'pi pi-pw pi-save',
                 visible: this.electronService.isElectron(),
                 disabled: !projectHomeUrl && !projectUnsaved,
                 command: () => this.saveProject()
               }, {
-                label: 'Save As',
+                label: this.translate.instant('menu.save-as'),
                 icon: 'pi pi-pw pi-save',
                 disabled: !projectHomeUrl && !projectUnsaved,
                 visible: this.electronService.isElectron(),
@@ -138,24 +141,24 @@ export class SiteMenuComponent implements OnInit {
                   separator:true,
                   visible: this.electronService.isElectron(),
               }, {
-                label: 'Advanced',
+                label: this.translate.instant('menu.advanced'),
                 icon: 'pi pi-pw pi-database',
                 items: [
                   {
-                    label: 'Reload Project from Disk', 
+                    label: this.translate.instant('menu.reload-project'), 
                     icon: 'pi pi-pw pi-folder',
                     visible: this.electronService.isElectron(),
                     command: () => this.reloadProjectProcedure()
                   }, {
-                    label: 'Reset Database',
+                    label: this.translate.instant('menu.reset-database'),
                     icon: 'pi pi-pw pi-database',
                     command: () => this.openResetDialog()
                   }, {
-                    label: 'Import Database',
+                    label: this.translate.instant('menu.import-database'),
                     icon: 'pi pi-pw pi-database',
                     command: () => this.openImportDialog()
                   }, {
-                    label: 'Export Database',
+                    label: this.translate.instant('menu.export-database'),
                     icon: 'pi pi-pw pi-database',
                     command: () => this.openExportDialog()
                   }
@@ -163,7 +166,7 @@ export class SiteMenuComponent implements OnInit {
               }, {
                 separator:true
               }, {
-                label: 'Export Cards',
+                label: this.translate.instant("menu.export-cards"),
                 icon: 'pi pi-pw pi-file-pdf',
                 disabled: !selectedDeck,
                 routerLink: [`/decks/${selectedDeck?.id}/export-cards`]
@@ -171,44 +174,19 @@ export class SiteMenuComponent implements OnInit {
                 separator:true,
                 visible: this.electronService.isElectron(),
               }, {
-                label: 'Exit Project',
+                label: this.translate.instant('menu.exit-project'),
                 icon: 'pi pi-pw pi-file',
                 disabled: !projectHomeUrl && !projectUnsaved,
                 visible: this.electronService.isElectron(),
                 command: () => this.openExitProjectDialog()
               }, {
-                label: 'Exit Cider',
+                label: this.translate.instant('menu.exit-cider'),
                 icon: 'pi pi-pw pi-file',
                 visible: this.electronService.isElectron(),
                 command: () => this.exitCider()
               }
             ]
-          }, 
-          // {
-          //   label: selectedDeck ? selectedDeck.name : 'Select Deck',
-          //   icon: 'pi pi-pw pi-book',
-          //   styleClass: 'selected-deck',
-          //   disabled: this.electronService.isElectron() && !projectHomeUrl && !projectUnsaved,
-          //   routerLink: ['/decks']
-          // }, {
-          //   label: 'Cards',
-          //   icon: 'pi pi-pw pi-table',
-          //   styleClass: 'cards',
-          //   disabled: !selectedDeck,
-          //   routerLink: [`/decks/${selectedDeck?.id}/cards/listing`]
-          // }, {
-          //   label: 'Templates',
-          //   icon: 'pi pi-pw pi-id-card',
-          //   styleClass: 'templates',
-          //   disabled: !selectedDeck,
-          //   routerLink: [`/decks/${selectedDeck?.id}/card-templates`]
-          // }, {
-          //   label: 'Assets',
-          //   icon: 'pi pi-pw pi-image',
-          //   styleClass: 'assets',
-          //   disabled: this.electronService.isElectron() && !projectHomeUrl && !projectUnsaved,
-          //   routerLink: [`/assets`]
-          // }
+          }
         ];
     }});
 
@@ -216,17 +194,17 @@ export class SiteMenuComponent implements OnInit {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: any) => {
-      this.ngZone.run(() => {
+      this.ngZone.run(async () => {
         const routeUrl = event.urlAfterRedirects;
         this.currentRoute = routeUrl;
-        this.updateBreadcrumbs(routeUrl);
+        await this.updateBreadcrumbs(routeUrl);
       }
       );
     });
 
   }
 
-  private updateBreadcrumbs(routeUrl: string) {
+  private async updateBreadcrumbs(routeUrl: string) {
     this.home = { icon: 'pi pi-home', routerLink: '/project' };
     const breadcrumbs: MenuItem[] = [];
     const urlSegments = routeUrl.split('/').filter((segment) => segment);
@@ -236,7 +214,10 @@ export class SiteMenuComponent implements OnInit {
       const segment = urlSegments[i];
       let pathSegment = `/${segment}`;
       currentPath += pathSegment;
-      const label = StringUtils.kebabToTitleCase(segment);
+      const label = await lastValueFrom(
+        this.translate.get(`breadcrumbs.${segment}`).pipe(timeout(1000)))
+        .then(translation => translation !== `breadcrumbs.${segment}` ? translation 
+          : StringUtils.kebabToTitleCase(segment));
 
       breadcrumbs.push({
         label: label,

@@ -6,8 +6,10 @@
         [totalRecords]="total" [loading]="loading" styleClass="p-datatable-sm">
     <ng-template pTemplate="caption">
         <div class="p-d-flex">
-            <button pButton pRipple label="Clear" icon="pi pi-filter-slash" class="p-button p-mr-2" (click)="clear(dt)"></button>
-            <button *ngIf="allowEditing && showActions" pButton pRipple label="New" icon="pi pi-plus" class="p-button p-mr-2" (click)="openCreateNew()"></button>
+            <button pButton pRipple [label]="'controls.clear' | translate" icon="pi pi-filter-slash" 
+                class="p-button p-mr-2" (click)="clear(dt)"></button>
+            <button *ngIf="allowEditing && showActions" pButton pRipple [label]="'controls.new' | translate" 
+                icon="pi pi-plus" class="p-button p-mr-2" (click)="openCreateNew()"></button>
             <div class="p-ml-auto">
                 <ng-container *ngIf="showStats">
                     <button pButton pRipple label="" icon="pi pi-percentage" class="p-button-info p-mr-2" 
@@ -20,7 +22,8 @@
                         pTooltip="Export data" (click)="exportData()"></button>
                 </ng-container>
                 <p-iconfield>
-                    <input type="text" pInputText placeholder="Search" (input)="filterGlobal(dt, $event)" />
+                    <input type="text" pInputText [placeholder]="'controls.search' | translate" 
+                        (input)="filterGlobal(dt, $event)" />
                     <p-inputicon styleClass="pi pi-search" />
                 </p-iconfield>
             </div>
@@ -50,7 +53,8 @@
                         <th [class]="col.type">
                             <p-columnFilter [field]="col.field" matchMode="in" [showMenu]="false">
                                 <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-                                    <p-multiSelect [ngModel]="value" [options]="(col.service | entityListCached: optionsCache | async) || []" placeholder="Filter" 
+                                    <p-multiSelect [ngModel]="value" [options]="(col.service | entityListCached: optionsCache | async) || []" 
+                                        [placeholder]="'controls.filter' | translate"
                                         (onChange)="filter($event.value)" optionLabel="name" [optionValue]="col.service.getIdField()"
                                         appendTo="body">
                                     </p-multiSelect>
@@ -63,7 +67,8 @@
                         <th [class]="col.type">
                             <p-columnFilter [field]="col.field" matchMode="in" [showMenu]="false">
                                 <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-                                    <p-multiSelect [ngModel]="value" [options]="col.options || []" placeholder="Filter" 
+                                    <p-multiSelect [ngModel]="value" [options]="col.options || []" 
+                                        [placeholder]="'controls.filter' | translate"
                                         (onChange)="filter($event.value)" appendTo="body">
                                     </p-multiSelect>
                                 </ng-template>
@@ -75,7 +80,8 @@
                     </ng-container>
                     <ng-container *ngSwitchDefault>
                         <th [class]="col.type"><p-columnFilter type="text" [field]="col.field" matchMode="contains" [showMenu]="false"
-                            [showMatchModes]="false" [showOperator]="false" [showAddButton]="false" placeholder="Filter"></p-columnFilter></th>
+                            [showMatchModes]="false" [showOperator]="false" [showAddButton]="false" 
+                            [placeholder]="'controls.filter' | translate"></p-columnFilter></th>
                     </ng-container>
                 </ng-container>
             </ng-container>
@@ -185,13 +191,13 @@
         </div>
         <div class="p-field">
             <p-fileUpload name="csvFile" mode="basic" accept=".csv" [maxFileSize]="200000000" 
-                label="Import" chooseLabel="Import" class="inline-block" 
+                [chooseLabel]="'controls.import' | translate" chooseLabel="Import" class="inline-block" 
                 [customUpload]="true" (onSelect)="uploadFile($event)"></p-fileUpload>
         </div>
     </ng-template>
     <ng-template pTemplate="footer">
-        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="closeImportDialog()"></button>
-        <button pButton pRipple label="Import" icon="pi pi-check" class="p-button-text" (click)="confirmImport(dt)"></button>
+        <button pButton pRipple [label]="'controls.cancel' | translate" icon="pi pi-times" class="p-button-text" (click)="closeImportDialog()"></button>
+        <button pButton pRipple [label]="'controls.import' | translate" icon="pi pi-check" class="p-button-text" (click)="confirmImport(dt)"></button>
     </ng-template>
 </p-dialog>
 <p-dialog [header]="'Token Stats (Top ' + statsTopX + ')'" [(visible)]="statsVisible" [style]="{width: '50%'}" 
@@ -223,6 +229,6 @@
         </div>
     </ng-template>
     <ng-template pTemplate="footer">
-        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="closeStatsDialog()"></button>
+        <button pButton pRipple [label]="'controls.cancel' | translate" icon="pi pi-times" class="p-button-text" (click)="closeStatsDialog()"></button>
     </ng-template>
 </p-dialog>

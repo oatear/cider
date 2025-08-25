@@ -8,6 +8,7 @@ import { CardTemplatesService } from '../data-services/services/card-templates.s
 import { CardAttributesService } from '../data-services/services/card-attributes.service';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 
 interface ProjectInfo {
   name: string;
@@ -53,19 +54,22 @@ export class ProjectComponent implements OnInit {
     private cardsService: CardsService,
     private cardTemplatesService: CardTemplatesService,
     private attributesService: CardAttributesService,
+    private translate: TranslateService,
     private router: Router,
   ) {
     // do nothing here, we will load the project info in ngOnInit
   }
 
   ngOnInit(): void {
-    this.getProjectInfo().then(info => {
-      this.projectInfo = info;
-      this.projectName = info.name;
-      this.updateProjectMeters();
-    });
-    this.getDeckInfos().then(decks => {
-      this.deckInfos = decks;
+    this.translate.stream('welcome.title').subscribe(() => {
+      this.getProjectInfo().then(info => {
+        this.projectInfo = info;
+        this.projectName = info.name;
+        this.updateProjectMeters();
+      });
+      this.getDeckInfos().then(decks => {
+        this.deckInfos = decks;
+      });
     });
   }
 
@@ -75,37 +79,37 @@ export class ProjectComponent implements OnInit {
     }
     this.projectMeters = [
       {
-        label: 'Assets',
+        label: this.translate.instant('breadcrumbs.assets'),
         value: this.projectInfo.assetCount,
         icon: 'pi pi-image',
         color: '#4db6ac'
       },
       {
-        label: 'Documents',
+        label: this.translate.instant('breadcrumbs.documents'),
         value: this.projectInfo.documentCount,
         icon: 'pi pi-file',
         color: '#42a5f5'
       },
       {
-        label: 'Decks',
+        label: this.translate.instant('breadcrumbs.decks'),
         value: this.projectInfo.deckCount,
         icon: 'pi pi-folder',
         color: 'grey'
       },
       {
-        label: 'Cards',
+        label: this.translate.instant('breadcrumbs.cards'),
         value: this.projectInfo.cardCount,
         icon: 'pi pi-list',
         color: '#7986cb'
       },
       {
-        label: 'Templates',
+        label: this.translate.instant('breadcrumbs.templates'),
         value: this.projectInfo.templateCount,
         icon: 'pi pi-id-card',
         color: '#ae80ff'
       },
       {
-        label: 'Attributes',
+        label: this.translate.instant('breadcrumbs.attributes'),
         value: this.projectInfo.attributeCount,
         icon: 'pi pi-tags',
         color: '#ffb74d'
@@ -114,11 +118,12 @@ export class ProjectComponent implements OnInit {
   }
 
   private getProjectName(): Promise<string> {
+    const defaultProjectName = 'Cider ' + this.translate.instant('breadcrumbs.project');
     if (this.electronService.isElectron()) {
       return firstValueFrom(this.electronService.getProjectHomeUrl())
-        .then(homeUrl => homeUrl?.path.split('/').pop() || 'Cider Project');
+        .then(homeUrl => homeUrl?.path.split('/').pop() || defaultProjectName);
     }
-    return new Promise((resolve, reject) => resolve('Cider Project'));
+    return new Promise((resolve, reject) => resolve(defaultProjectName));
   }
 
   private async getProjectInfo(): Promise<ProjectInfo> {
@@ -151,19 +156,19 @@ export class ProjectComponent implements OnInit {
       const attributes = await this.attributesService.getAll({ deckId: deck.id });
       const meters: Meter[] = [
         {
-          label: 'Cards',
+          label: this.translate.instant('breadcrumbs.cards'),
           value: cards.length,
           icon: 'pi pi-list',
           color: '#7986cb'
         },
         {
-          label: 'Templates',
+          label: this.translate.instant('breadcrumbs.templates'),
           value: templates.length,
           icon: 'pi pi-id-card',
           color: '#ae80ff'
         },
         {
-          label: 'Attributes',
+          label: this.translate.instant('breadcrumbs.attributes'),
           value: attributes.length,
           icon: 'pi pi-tags',
           color: '#ffb74d'

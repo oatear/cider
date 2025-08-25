@@ -41,6 +41,8 @@
     "@angular/platform-browser-dynamic": "^18.2.13",
     "@angular/router": "^18.2.13",
     "@electron/notarize": "^2.5.0",
+    "@ngx-translate/core": "^17.0.0",
+    "@ngx-translate/http-loader": "^17.0.0",
     "@primeng/themes": "^18.0.2",
     "@types/dom-to-image": "^2.6.7",
     "@types/uuid": "^9.0.8",

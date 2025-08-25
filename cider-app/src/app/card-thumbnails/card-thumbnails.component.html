@@ -8,7 +8,7 @@
             optionLabel="label" optionValue="value" (onChange)="refreshCards()"></p-selectButton>
         <div class="filler"></div>
         <p-iconfield>
-            <input type="text" pInputText placeholder="Search" (input)="filter($event)" />
+            <input type="text" pInputText [placeholder]="'controls.search' | translate" (input)="filter($event)" />
             <p-inputicon styleClass="pi pi-search" />
         </p-iconfield>
     </div>
