@@ -44,7 +44,7 @@ export class AppComponent implements OnInit{
 
   private initTranslateService() {
     this.translateService.addLangs(['en', 'fr', 'es', 'bg', 'de', 'it', 
-      'pt', 'ru', 'pl', 'uk', 'ko', 'ja', 'zh', 'tr']);
+      'pt', 'ru', 'pl', 'uk', 'ko', 'ja', 'zh', 'tr', 'nl']);
 
     const browserLang = this.translateService.getBrowserLang();
     const savedLang = this.localStorageService.getLanguage();

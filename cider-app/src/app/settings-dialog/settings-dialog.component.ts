@@ -28,6 +28,7 @@ export class SettingsDialogComponent {
     {label: '日本語 (JA)', value: 'ja'},
     {label: '简体中文 (ZH)', value: 'zh'},
     {label: 'Türkçe (TR)', value: 'tr'},
+    {label: 'Nederlands (NL)', value: 'nl'},
   ];
   language: string;
   isElectron: boolean;
