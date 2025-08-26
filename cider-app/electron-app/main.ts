@@ -27,7 +27,7 @@ function createWindow(): BrowserWindow {
     titleBarStyle: 'hidden',
     //titleBarOverlay: true,
     titleBarOverlay: {
-      color: '#343e4d',
+      color: '#181c21',
       symbolColor: '#aeb2b8'
     },
     trafficLightPosition: { x: 20, y: 15 },
