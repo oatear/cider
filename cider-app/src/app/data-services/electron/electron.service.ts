@@ -14,6 +14,7 @@ import { EntityService } from '../types/entity-service.type';
 import { Subject } from 'rxjs';
 import { DocumentsService } from '../services/documents.service';
 import { PersistentPath } from '../types/persistent-path.type';
+import { Document } from '../types/document.type';
 
 @Injectable({
   providedIn: 'root'
@@ -155,7 +156,7 @@ export class ElectronService {
     this.getIpcRenderer().send("exit-application");
   }
 
-  public async saveProject(assets: Asset[], decks: { name: string; cardsCsv: string; 
+  public async saveProject(assets: Asset[], documents: Document[], decks: { name: string; cardsCsv: string; 
     attributesCsv: string; templates: CardTemplate[];}[]) {
     if (!this.isElectron()) {
       return;
@@ -167,6 +168,27 @@ export class ElectronService {
     }
     const assetsUrl = homeUrl.path + "/" + ElectronService.ASSETS_DIR;
     const decksUrl = homeUrl.path + "/" + ElectronService.DECKS_DIR;
+
+    // delete existing markdown files in project root
+    // write all markdown files in documents service to project root
+    await this.listDirectory({ bookmark: homeUrl.bookmark, path: homeUrl.path }).then(documentUrls => Promise.all(documentUrls
+      .filter(documentUrl => documentUrl.isFile 
+        && !documentUrl.name.includes('.DS_Store')
+        && (documentUrl.name.includes('.md') || documentUrl.name.includes('.markdown') 
+        || documentUrl.name.includes('.MD'))
+      ).map(async documentUrl => {
+        return await this.removeDirectory({ bookmark: homeUrl.bookmark, path: homeUrl.path + '/' + documentUrl.name });
+      })));
+    const writeAllDocuments: Promise<boolean[]> = Promise.all(documents.map(async document => {
+      const fileType = 'text/markdown';
+      const blob: Blob = new Blob([document.content], {type: fileType});
+      const file: File = new File([blob], document.name + '.md', {type: fileType});
+      const buffer = await file.arrayBuffer();
+      return await this.writeFile({ bookmark: homeUrl.bookmark, 
+        path: homeUrl.path + '/' + file.name }, 
+        Buffer.from(buffer));
+    }));
+    await writeAllDocuments;
 
     await this.removeDirectory({ bookmark: homeUrl.bookmark, path: assetsUrl });
     await this.createDirectory({ bookmark: homeUrl.bookmark, path: assetsUrl });

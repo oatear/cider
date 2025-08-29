@@ -402,6 +402,7 @@ export class SiteMenuComponent implements OnInit {
     
     // save to the filesystem
     const assetsPromised = this.assetsService.getAll();
+    const documentsPromised = this.documentsService.getAll();
     const decksPromised = this.decksService.getAll().then(decks => Promise.all(decks.map(async deck => {
       // cards
       const [cardFields, cardLookups, cardRecords] = await Promise.all([
@@ -427,8 +428,8 @@ export class SiteMenuComponent implements OnInit {
       };
     })));
     
-    Promise.all([assetsPromised, decksPromised]).then(([assets, decks]) => {
-      return this.electronService.saveProject(assets, decks);
+    Promise.all([assetsPromised, documentsPromised, decksPromised]).then(([assets, documents, decks]) => {
+      return this.electronService.saveProject(assets, documents, decks);
     }).then(() => {
       this.electronService.setProjectUnsaved(false);
       this.isSaving = false;
