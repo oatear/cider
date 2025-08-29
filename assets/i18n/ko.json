@@ -137,5 +137,27 @@
         "language-info": "새 언어를 완전히 적용하려면 페이지를 새로고침하세요.",
         "language-info-electron": "새 언어를 완전히 적용하려면 애플리케이션을 다시 시작하세요.",
         "dark-mode": "다크 모드"
+    },
+        "simulator": {
+        "draw-card": "카드 뽑기",
+        "draw-card-facedown": "카드 뒷면으로 뽑기",
+        "draw-specific-card": "특정 카드 뽑기",
+        "shuffle-stack": "덱 섞기",
+        "flip-stack": "덱 뒤집기",
+        "split-in-half": "반으로 나누기",
+        "split-by-attribute": "속성별로 나누기",
+        "delete": "삭제",
+        "flip-card": "카드 뒤집기",
+        "create-stack": "덱 만들기",
+        "discard-card": "카드 버리기",
+        "duplicate": "복제",
+        "add-coin": "동전 추가",
+        "flip-randomly": "무작위로 뒤집기",
+        "flip-over": "뒤집기",
+        "add-cube": "큐브 추가",
+        "add-die": "주사위 추가",
+        "roll-die": "주사위 굴리기",
+        "zoom": "확대/축소",
+        "reset-game": "게임 초기화"
     }
 }

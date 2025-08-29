@@ -137,5 +137,27 @@
         "language-info": "新しい言語を完全に適用するにはページを更新してください。",
         "language-info-electron": "新しい言語を完全に適用するにはアプリケーションを再起動してください。",
         "dark-mode": "ダークモード"
+    },
+    "simulator": {
+        "draw-card": "カードを引く",
+        "draw-card-facedown": "裏向きでカードを引く",
+        "draw-specific-card": "特定のカードを引く",
+        "shuffle-stack": "山札をシャッフル",
+        "flip-stack": "山札をひっくり返す",
+        "split-in-half": "半分に分ける",
+        "split-by-attribute": "属性ごとに分ける",
+        "delete": "削除",
+        "flip-card": "カードを裏返す",
+        "create-stack": "山札を作る",
+        "discard-card": "カードを捨てる",
+        "duplicate": "複製",
+        "add-coin": "コインを追加",
+        "flip-randomly": "ランダムに裏返す",
+        "flip-over": "ひっくり返す",
+        "add-cube": "キューブを追加",
+        "add-die": "サイコロを追加",
+        "roll-die": "サイコロを振る",
+        "zoom": "ズーム",
+        "reset-game": "ゲームをリセット"
     }
 }

@@ -137,5 +137,27 @@
         "language-info": "Actualiza la página para aplicar completamente el nuevo idioma.",
         "language-info-electron": "Reinicia la aplicación para aplicar completamente el nuevo idioma.",
         "dark-mode": "Modo Oscuro"
+    },
+    "simulator": {
+        "draw-card": "Robar carta",
+        "draw-card-facedown": "Robar carta boca abajo",
+        "draw-specific-card": "Robar carta específica",
+        "shuffle-stack": "Barajar mazo",
+        "flip-stack": "Voltear mazo",
+        "split-in-half": "Dividir a la mitad",
+        "split-by-attribute": "Dividir por atributo",
+        "delete": "Eliminar",
+        "flip-card": "Voltear carta",
+        "create-stack": "Crear mazo",
+        "discard-card": "Descartar carta",
+        "duplicate": "Duplicar",
+        "add-coin": "Agregar moneda",
+        "flip-randomly": "Voltear al azar",
+        "flip-over": "Dar la vuelta",
+        "add-cube": "Agregar cubo",
+        "add-die": "Agregar dado",
+        "roll-die": "Lanzar dado",
+        "zoom": "Ampliar",
+        "reset-game": "Reiniciar juego"
     }
 }

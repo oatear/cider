@@ -137,5 +137,27 @@
         "language-info": "Atualize a página para aplicar completamente o novo idioma.",
         "language-info-electron": "Reinicie o aplicativo para aplicar completamente o novo idioma.",
         "dark-mode": "Modo Escuro"
+    },
+        "simulator": {
+        "draw-card": "Comprar carta",
+        "draw-card-facedown": "Comprar carta virada para baixo",
+        "draw-specific-card": "Comprar carta específica",
+        "shuffle-stack": "Embaralhar pilha",
+        "flip-stack": "Virar pilha",
+        "split-in-half": "Dividir ao meio",
+        "split-by-attribute": "Dividir por atributo",
+        "delete": "Excluir",
+        "flip-card": "Virar carta",
+        "create-stack": "Criar pilha",
+        "discard-card": "Descartar carta",
+        "duplicate": "Duplicar",
+        "add-coin": "Adicionar moeda",
+        "flip-randomly": "Virar aleatoriamente",
+        "flip-over": "Virar",
+        "add-cube": "Adicionar cubo",
+        "add-die": "Adicionar dado",
+        "roll-die": "Rolar dado",
+        "zoom": "Ampliar",
+        "reset-game": "Reiniciar jogo"
     }
 }

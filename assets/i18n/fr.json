@@ -137,5 +137,27 @@
         "language-info": "Rafraîchissez la page pour appliquer complètement la nouvelle langue.",
         "language-info-electron": "Redémarrez l’application pour charger complètement la nouvelle langue.",
         "dark-mode": "Mode sombre"
+    },
+        "simulator": {
+        "draw-card": "Piocher une carte",
+        "draw-card-facedown": "Piocher une carte face cachée",
+        "draw-specific-card": "Piocher une carte spécifique",
+        "shuffle-stack": "Mélanger la pile",
+        "flip-stack": "Retourner la pile",
+        "split-in-half": "Diviser en deux",
+        "split-by-attribute": "Diviser par attribut",
+        "delete": "Supprimer",
+        "flip-card": "Retourner la carte",
+        "create-stack": "Créer une pile",
+        "discard-card": "Défausser une carte",
+        "duplicate": "Dupliquer",
+        "add-coin": "Ajouter une pièce",
+        "flip-randomly": "Retourner aléatoirement",
+        "flip-over": "Retourner",
+        "add-cube": "Ajouter un cube",
+        "add-die": "Ajouter un dé",
+        "roll-die": "Lancer le dé",
+        "zoom": "Zoomer",
+        "reset-game": "Réinitialiser le jeu"
     }
 }

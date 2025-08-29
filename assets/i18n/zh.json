@@ -137,5 +137,27 @@
         "language-info": "刷新页面以完全应用新的语言。",
         "language-info-electron": "重启应用程序以完全应用新的语言。",
         "dark-mode": "深色模式"
+    },
+        "simulator": {
+        "draw-card": "抽卡",
+        "draw-card-facedown": "抽背面卡",
+        "draw-specific-card": "抽特定卡",
+        "shuffle-stack": "洗牌堆",
+        "flip-stack": "翻转堆",
+        "split-in-half": "对半分",
+        "split-by-attribute": "按属性分",
+        "delete": "删除",
+        "flip-card": "翻转卡片",
+        "create-stack": "创建牌堆",
+        "discard-card": "弃牌",
+        "duplicate": "复制",
+        "add-coin": "添加硬币",
+        "flip-randomly": "随机翻转",
+        "flip-over": "翻过来",
+        "add-cube": "添加立方体",
+        "add-die": "添加骰子",
+        "roll-die": "掷骰子",
+        "zoom": "缩放",
+        "reset-game": "重置游戏"
     }
 }

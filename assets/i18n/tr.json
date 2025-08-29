@@ -137,5 +137,27 @@
         "language-info": "Yeni dili tamamen uygulamak için sayfayı yenileyin.",
         "language-info-electron": "Yeni dili tamamen uygulamak için uygulamayı yeniden başlatın.",
         "dark-mode": "Koyu Mod"
+    },
+        "simulator": {
+        "draw-card": "Kart Çek",
+        "draw-card-facedown": "Kapalı Kart Çek",
+        "draw-specific-card": "Belirli Kartı Çek",
+        "shuffle-stack": "Yığını Karıştır",
+        "flip-stack": "Yığını Ters Çevir",
+        "split-in-half": "Yarıya Böl",
+        "split-by-attribute": "Özelliğe Göre Böl",
+        "delete": "Sil",
+        "flip-card": "Kartı Ters Çevir",
+        "create-stack": "Yığın Oluştur",
+        "discard-card": "Kartı At",
+        "duplicate": "Kopyala",
+        "add-coin": "Para Ekle",
+        "flip-randomly": "Rastgele Ters Çevir",
+        "flip-over": "Ters Çevir",
+        "add-cube": "Küp Ekle",
+        "add-die": "Zar Ekle",
+        "roll-die": "Zarı At",
+        "zoom": "Yakınlaştır",
+        "reset-game": "Oyunu Sıfırla"
     }
 }

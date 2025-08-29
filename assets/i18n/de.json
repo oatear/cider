@@ -137,5 +137,27 @@
         "language-info": "Aktualisiere die Seite, um die neue Sprache vollständig anzuwenden.",
         "language-info-electron": "Starte die Anwendung neu, um die neue Sprache vollständig anzuwenden.",
         "dark-mode": "Dunkelmodus"
+    },
+    "simulator": {
+        "draw-card": "Karte ziehen",
+        "draw-card-facedown": "Karte verdeckt ziehen",
+        "draw-specific-card": "Bestimmte Karte ziehen",
+        "shuffle-stack": "Stapel mischen",
+        "flip-stack": "Stapel umdrehen",
+        "split-in-half": "Halbieren",
+        "split-by-attribute": "Nach Attribut teilen",
+        "delete": "Löschen",
+        "flip-card": "Karte umdrehen",
+        "create-stack": "Stapel erstellen",
+        "discard-card": "Karte abwerfen",
+        "duplicate": "Duplizieren",
+        "add-coin": "Münze hinzufügen",
+        "flip-randomly": "Zufällig umdrehen",
+        "flip-over": "Umdrehen",
+        "add-cube": "Würfel hinzufügen",
+        "add-die": "Spielwürfel hinzufügen",
+        "roll-die": "Würfel werfen",
+        "zoom": "Vergrößern",
+        "reset-game": "Spiel zurücksetzen"
     }
 }
