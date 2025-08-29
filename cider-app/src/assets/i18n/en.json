@@ -137,5 +137,27 @@
         "language-info": "Refresh the page to fully apply the new language.",
         "language-info-electron": "Restart the application to fully apply the new language.",
         "dark-mode": "Dark Mode"
+    },
+    "simulator": {
+        "draw-card": "Draw Card",
+        "draw-card-facedown": "Draw Card Facedown",
+        "draw-specific-card": "Draw Specific Card",
+        "shuffle-stack": "Shuffle Stack",
+        "flip-stack": "Flip Stack",
+        "split-in-half": "Split in Half",
+        "split-by-attribute": "Split by Attribute",
+        "delete": "Delete",
+        "flip-card": "Flip Card",
+        "create-stack": "Create Stack",
+        "discard-card": "Discard Card",
+        "duplicate": "Duplicate",
+        "add-coin": "Add Coin",
+        "flip-randomly": "Flip Randomly",
+        "flip-over": "Flip Over",
+        "add-cube": "Add Cube",
+        "add-die": "Add Die",
+        "roll-die": "Roll Die",
+        "zoom": "Zoom",
+        "reset-game": "Reset Game"
     }
 }

@@ -9,6 +9,7 @@ import { CdkDragDrop, CdkDragEnd, CdkDragEnter, moveItemInArray, transferArrayIt
 import StringUtils from '../shared/utils/string-utils';
 import MathUtils from '../shared/utils/math-utils';
 import { EntityField } from '../data-services/types/entity-field.type';
+import { TranslateService } from '@ngx-translate/core';
 
 interface CardZone {
   name: string;
@@ -77,6 +78,7 @@ export class GameSimulatorComponent {
   constructor(
     private decksService: DecksService,
     private cardsService: CardsService,
+    private translate: TranslateService,
     public cardTemplatesService: CardTemplatesService) {
     // Initialize the component, if needed
     this.resetGame();
@@ -208,19 +210,19 @@ export class GameSimulatorComponent {
 
     this.contextMenuItems = [
       {
-        label: 'Draw Card',
+        label: this.translate.instant('simulator.draw-card'),
         icon: 'pi pi-plus',
         command: () => this.drawCard(stack),
         disabled: stack.cards.length === 0
       },
       {
-        label: 'Draw Card Facedown',
+        label: this.translate.instant('simulator.draw-card-facedown'),
         icon: 'pi pi-eye-slash',
         command: () => this.drawCard(stack, false),
         disabled: stack.cards.length === 0
       },
       {
-        label: 'Draw Specific Card',
+        label: this.translate.instant('simulator.draw-specific-card'),
         icon: 'pi pi-id-card',
         disabled: stack.cards.length === 0,
         // Dynamically create a submenu for each card in the stack
@@ -230,7 +232,7 @@ export class GameSimulatorComponent {
         }))
       },
       {
-        label: 'Shuffle Stack',
+        label: this.translate.instant('simulator.shuffle-stack'),
         icon: 'pi pi-arrow-right-arrow-left',
         command: (event) => {
           stack.shuffling = true;
@@ -242,19 +244,19 @@ export class GameSimulatorComponent {
         disabled: stack.cards.length < 2
       },
       {
-        label: 'Flip Stack',
+        label: this.translate.instant('simulator.flip-stack'),
         icon: 'pi pi-refresh',
         command: () => this.flipStack(stack),
         disabled: stack.cards.length === 0
       },
       {
-        label: 'Split in Half',
+        label: this.translate.instant('simulator.split-in-half'),
         icon: 'pi pi-clone',
         command: () => this.splitInHalf(stack),
         disabled: stack.cards.length < 2
       },
       {
-        label: 'Split by Attribute',
+        label: this.translate.instant('simulator.split-by-attribute'),
         icon: 'pi pi-clone',
         disabled: stack.cards.length === 0 || optionAttributes.length < 1,
         // Dynamically create a submenu for each card in the stack
@@ -268,7 +270,7 @@ export class GameSimulatorComponent {
         }))
       },
       {
-        label: 'Delete',
+        label: this.translate.instant('simulator.delete'),
         icon: 'pi pi-trash',
         command: () => this.deleteItem(this.stacks, stack),
         disabled: !stack.deletable
@@ -281,7 +283,7 @@ export class GameSimulatorComponent {
     event.preventDefault();
     this.contextMenuItems = [
       {
-        label: 'Flip Card',
+        label: this.translate.instant('simulator.flip-card'),
         icon: 'pi pi-refresh',
         command: () => {
           // Logic to flip the card, if applicable
@@ -289,12 +291,12 @@ export class GameSimulatorComponent {
         }
       },
       {
-        label: 'Create Stack',
+        label: this.translate.instant('simulator.create-stack'),
         icon: 'pi pi-book',
         command: () => this.createStack(this.field.cards, card)
       },
       {
-        label: 'Discard Card',
+        label: this.translate.instant('simulator.discard-card'),
         icon: 'pi pi-trash',
         command: () => this.discardCard(this.field.cards, card)
       }
@@ -308,7 +310,7 @@ export class GameSimulatorComponent {
     this.contextMenuItems = [
       ...component.contextMenu,
       {
-        label: 'Duplicate',
+        label: this.translate.instant('simulator.duplicate'),
         icon: 'pi pi-clone',
         command: () => this.components.push({
           ...component,
@@ -320,7 +322,7 @@ export class GameSimulatorComponent {
         }),
       },
       {
-        label: 'Delete',
+        label: this.translate.instant('simulator.delete'),
         icon: 'pi pi-trash',
         command: () => this.deleteItem(this.components, component),
       },
@@ -335,7 +337,7 @@ export class GameSimulatorComponent {
     event.preventDefault();
     this.contextMenuItems = [
       {
-        label: 'Add Coin',
+        label: this.translate.instant('simulator.add-coin'),
         icon: 'pi pi-plus',
         items: GameSimulatorComponent.COLORS.map(color => ({
           label: color,
@@ -353,7 +355,7 @@ export class GameSimulatorComponent {
             };
             component.contextMenu = [
               {
-                label: 'Flip Randomly',
+                label: this.translate.instant('simulator.flip-randomly'),
                 icon: 'pi pi-percentage',
                 command: (event) => {
                   const componentState: GameComponent | undefined = 
@@ -366,7 +368,7 @@ export class GameSimulatorComponent {
                 }
               },
               {
-                label: 'Flip Over',
+                label: this.translate.instant('simulator.flip-over'),
                 icon: 'pi pi-refresh',
                 command: (event) => {
                   const componentState: GameComponent | undefined = 
@@ -380,7 +382,7 @@ export class GameSimulatorComponent {
         }))
       },
       {
-        label: 'Add Cube',
+        label: this.translate.instant('simulator.add-cube'),
         icon: 'pi pi-plus',
         items: GameSimulatorComponent.COLORS.map(color => ({
           label: color,
@@ -396,7 +398,7 @@ export class GameSimulatorComponent {
               },
               contextMenu: [
                 {
-                  label: 'Flip Over',
+                  label: this.translate.instant('simulator.flip-over'),
                   icon: 'pi pi-refresh',
                   command: (event) => {
                     const componentState: GameComponent | undefined = 
@@ -411,7 +413,7 @@ export class GameSimulatorComponent {
         }))
       },
       {
-        label: 'Add Die (D6)',
+        label: this.translate.instant('simulator.add-die') + ' (D6)',
         icon: 'pi pi-plus',
         items: GameSimulatorComponent.COLORS.map(color => ({
           label: color,
@@ -428,7 +430,7 @@ export class GameSimulatorComponent {
               },
               contextMenu: [
                 {
-                  label: 'Roll Die',
+                  label: this.translate.instant('simulator.roll-die'),
                   icon: 'pi pi-percentage',
                   command: (event) => {
                     const componentState: GameComponent | undefined = 
@@ -445,6 +447,37 @@ export class GameSimulatorComponent {
             this.components.push(component);
           }
         }))
+      },
+      {
+        label: this.translate.instant('simulator.zoom'),
+        icon: 'pi pi-search',
+        items: [
+          {
+            label: '0.15x',
+            command: () => this.zoomLevel = 0.15
+          },
+          {
+            label: '0.2x',
+            command: () => this.zoomLevel = 0.20
+          },
+          {
+            label: '0.25x',
+            command: () => this.zoomLevel = 0.25
+          },
+          {
+            label: '0.30x',
+            command: () => this.zoomLevel = 0.30
+          },
+          {
+            label: '0.35x',
+            command: () => this.zoomLevel = 0.35
+          }
+        ]
+      },
+      {
+        label: this.translate.instant('simulator.reset-game'),
+        icon: 'pi pi-refresh',
+        command: () => this.resetGame(),
       },
     ];
     cm.show(event);

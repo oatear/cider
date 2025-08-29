@@ -137,5 +137,27 @@
         "language-info": "Aggiorna la pagina per applicare completamente la nuova lingua.",
         "language-info-electron": "Riavvia l'applicazione per applicare completamente la nuova lingua.",
         "dark-mode": "Modalità Scura"
+    },
+        "simulator": {
+        "draw-card": "Pesca una carta",
+        "draw-card-facedown": "Pesca una carta coperta",
+        "draw-specific-card": "Pesca una carta specifica",
+        "shuffle-stack": "Mescola il mazzo",
+        "flip-stack": "Gira il mazzo",
+        "split-in-half": "Dividi a metà",
+        "split-by-attribute": "Dividi per attributo",
+        "delete": "Elimina",
+        "flip-card": "Gira la carta",
+        "create-stack": "Crea un mazzo",
+        "discard-card": "Scarta una carta",
+        "duplicate": "Duplica",
+        "add-coin": "Aggiungi una moneta",
+        "flip-randomly": "Gira casualmente",
+        "flip-over": "Ribalta",
+        "add-cube": "Aggiungi un cubo",
+        "add-die": "Aggiungi un dado",
+        "roll-die": "Lancia il dado",
+        "zoom": "Zoom",
+        "reset-game": "Resetta il gioco"
     }
 }

@@ -137,5 +137,27 @@
         "language-info": "Herlaad de pagina om de nieuwe taal volledig toe te passen.",
         "language-info-electron": "Herstart de applicatie om de nieuwe taal volledig toe te passen.",
         "dark-mode": "Donkere Modus"
+    },
+        "simulator": {
+        "draw-card": "Kaart trekken",
+        "draw-card-facedown": "Kaart gesloten trekken",
+        "draw-specific-card": "Specifieke kaart trekken",
+        "shuffle-stack": "Stapel schudden",
+        "flip-stack": "Stapel omdraaien",
+        "split-in-half": "In tweeën splitsen",
+        "split-by-attribute": "Splitsen op eigenschap",
+        "delete": "Verwijderen",
+        "flip-card": "Kaart omdraaien",
+        "create-stack": "Stapel maken",
+        "discard-card": "Kaart weggooien",
+        "duplicate": "Dupliceren",
+        "add-coin": "Munt toevoegen",
+        "flip-randomly": "Willekeurig omdraaien",
+        "flip-over": "Omdraaien",
+        "add-cube": "Kubus toevoegen",
+        "add-die": "Dobbelsteen toevoegen",
+        "roll-die": "Dobbelsteen gooien",
+        "zoom": "Zoomen",
+        "reset-game": "Spel resetten"
     }
 }

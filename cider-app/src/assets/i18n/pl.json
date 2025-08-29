@@ -137,5 +137,27 @@
         "language-info": "Odśwież stronę, aby w pełni zastosować nowy język.",
         "language-info-electron": "Uruchom ponownie aplikację, aby w pełni zastosować nowy język.",
         "dark-mode": "Tryb Ciemny"
+    },
+        "simulator": {
+        "draw-card": "Dobierz kartę",
+        "draw-card-facedown": "Dobierz kartę zakrytą",
+        "draw-specific-card": "Dobierz określoną kartę",
+        "shuffle-stack": "Przetasuj stos",
+        "flip-stack": "Odwróć stos",
+        "split-in-half": "Podziel na pół",
+        "split-by-attribute": "Podziel według atrybutu",
+        "delete": "Usuń",
+        "flip-card": "Odwróć kartę",
+        "create-stack": "Utwórz stos",
+        "discard-card": "Odrzuć kartę",
+        "duplicate": "Duplikuj",
+        "add-coin": "Dodaj monetę",
+        "flip-randomly": "Odwróć losowo",
+        "flip-over": "Odwróć",
+        "add-cube": "Dodaj kostkę",
+        "add-die": "Dodaj kość",
+        "roll-die": "Rzuć kością",
+        "zoom": "Powiększ",
+        "reset-game": "Zresetuj grę"
     }
 }
