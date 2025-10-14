@@ -3,6 +3,9 @@ import { AssetsService } from '../data-services/services/assets.service';
 import { ActivatedRoute } from '@angular/router';
 import { Asset } from '../data-services/types/asset.type';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import StringUtils from '../shared/utils/string-utils';
+import FileUtils from '../shared/utils/file-utils';
+import { combineLatest, forkJoin, take } from 'rxjs';
 
 @Component({
   selector: 'app-asset',
@@ -15,23 +18,50 @@ export class AssetComponent {
   public zoom: number = 1.0;
   public zoomStep: number = 0.1;
   dialogVisible: boolean = false;
+  public imageDimensions: { width: number, height: number } = { width: 0, height: 0 };
+  public fileSize: string = '';
+  public fileExtension: string = '';
+  assetUrls: any;
 
   constructor(
     private route: ActivatedRoute,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
     public assetsService: AssetsService) {
-      this.route.paramMap.subscribe(params => {
-        const assetIdString = params.get('assetId') || '';
-        const assetId = parseInt(assetIdString, 10);
-        if (!isNaN(assetId)) {
-          this.assetsService.get(assetId).then((asset) => {
-            this.asset = asset;
-          }).catch(error => {
-            console.error(`Error fetching asset with ID ${assetId}:`, error);
-          });
-        }
-      });
+
+    combineLatest({
+      assetUrls: this.assetsService.getAssetUrls(),
+      routeParams: this.route.paramMap
+    }).subscribe(({ assetUrls, routeParams }) => {
+      const assetIdString = routeParams.get('assetId') || '';
+      const assetId = parseInt(assetIdString, 10);
+      this.assetUrls = assetUrls;
+      
+      if (!isNaN(assetId)) {
+        this.assetsService.get(assetId).then((asset) => {
+          this.asset = asset;
+          this.updateFileDetails();
+        }).catch(error => {
+          console.error(`Error fetching asset with ID ${assetId}:`, error);
+        });
+      }
+
+    });
+  }
+
+  private updateFileDetails() {
+    if (this.asset && this.asset.name && this.assetUrls) {
+      const fileUrl = this.assetUrls[StringUtils.toKebabCase(this.asset.name)];
+      if (fileUrl) {
+        FileUtils.getImageDimensions(fileUrl).then(dimensions => {
+          this.imageDimensions = dimensions;
+        }).catch(error => {
+          console.error('Error getting image dimensions:', error);
+        });
+        this.fileSize = FileUtils.formatFileSize(this.asset.file.size);
+        this.fileExtension = StringUtils.mimeToExtension(this.asset.file.type);
+      }
+    }
   }
 
   public changeZoom(change: number) {
