@@ -49,4 +49,37 @@ export default class FileUtils {
         const blob = new Blob([svgString], { type: 'image/svg+xml' });
         return blob;
     }
+
+    /**
+     * Get image dimensions from the given file URL
+     * 
+     * @param fileUrl 
+     * @returns 
+     */
+    public static getImageDimensions(fileUrl: string): Promise<{ width: number, height: number }> {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => {
+                resolve({ width: img.width, height: img.height });
+            };
+            img.onerror = (err) => {
+                reject(err);
+            };
+            img.src = fileUrl;
+        });
+    }
+    
+    /**
+     * Format file size in bytes into human readable string
+     * 
+     * @param bytes 
+     * @returns 
+     */
+    public static formatFileSize(bytes: number): string {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
 }

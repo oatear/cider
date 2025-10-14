@@ -1,5 +1,10 @@
 <p-card styleClass="page-card controls-card">
     <span class="asset-name">{{ asset.name }}</span>
+    <span class="asset-details">
+        <p-tag class="p-mr-2">{{ imageDimensions.width }} x {{ imageDimensions.height }} </p-tag>
+        <p-tag class="p-mr-2">{{ fileSize }} </p-tag>
+        <p-tag class="p-mr-2">{{ fileExtension }} </p-tag>
+    </span>
     <!-- <p-buttongroup>
         <button pButton type="button" icon="pi pi-search-minus" (click)="changeZoom(-0.1)"></button>
         <button pButton type="button" icon="pi pi-search-plus" (click)="changeZoom(0.1)"></button>
