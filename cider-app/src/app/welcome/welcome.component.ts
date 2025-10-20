@@ -125,7 +125,7 @@ export class WelcomeComponent implements OnInit {
     this.loadingHeader = 'Opening Project';
     this.loadingInfo = 'Reading project data...';
     this.displayLoading = true;
-    this.electronService.openProject(url, this.assetsService, this.decksService,
+    this.electronService.openProject(url, this.db, this.assetsService, this.decksService,
       this.cardTemplatesService, this.cardAttributesService, this.cardsService, 
       this.documentsService).then(() => {
       this.assetsService.updateAssetUrls();

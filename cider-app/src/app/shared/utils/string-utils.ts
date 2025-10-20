@@ -89,6 +89,19 @@ export default class StringUtils {
     }
 
     /**
+     * Convert the given mime type into its type category
+     * 
+     * @param mime 
+     * @returns 
+     */
+    public static mimeToTypeCategory(mime: string): string {
+        if (!mime) {
+            return '';
+        }
+        return mime.split('/')[0];
+    }
+
+    /**
      * Dedent multi-line strings to remove the leading tabs and first carriage return
      * 
      * @param input 

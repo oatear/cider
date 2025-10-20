@@ -13,6 +13,7 @@ export class DocumentsService extends IndexedDbService<Document, number> {
     super(db, AppDB.DOCUMENTS_TABLE, [
       { field: 'id', header: 'ID', type: FieldType.number, hidden: true },
       { field: 'name', header: 'Name', type: FieldType.text },
+      { field: 'mime', header: 'Mime', type: FieldType.text },
       { field: 'content', header: 'Content', type: FieldType.text, hidden: true }
     ]);
   }

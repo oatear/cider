@@ -467,7 +467,7 @@ export class SiteMenuComponent implements OnInit {
     this.loadingHeader = 'Opening Project';
     this.loadingInfo = 'Reading project data...';
     this.displayLoading = true;
-    this.electronService.openProject(persistentPath, this.assetsService, this.decksService,
+    this.electronService.openProject(persistentPath, this.db, this.assetsService, this.decksService,
       this.cardTemplatesService, this.cardAttributesService, this.cardsService, 
       this.documentsService).then(() => {
         this.assetsService.updateAssetUrls();
