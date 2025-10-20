@@ -135,7 +135,6 @@ export class SiteSidebarComponent implements OnInit {
           label: document.name,
           data: {
             url: '/documents/' + document.id,
-            contextMenu: [],
           },
           icon: 'pi pi-receipt',
           styleClass: 'document-file',
@@ -509,6 +508,7 @@ export class SiteSidebarComponent implements OnInit {
     const defaultContent = await blob.text();
     this.entity = {
       name: randomName,
+      mime: 'text/markdown',
       content: defaultContent,
     } as any;
     this.openCreateDialog(service, dialogTitle, this.entity);

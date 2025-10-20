@@ -244,12 +244,13 @@ export class ElectronService {
     await cardsService.emptyTable();
     await decksService.emptyTable();
 
-    // read document/markdown files
+    // read document/markdown/css files
     await this.listDirectory({ bookmark: homeUrl.bookmark, path: documentsUrl }).then(documentUrls => Promise.all(documentUrls
       .filter(documentUrl => documentUrl.isFile 
         && !documentUrl.name.includes('.DS_Store')
         && (documentUrl.name.includes('.md') || documentUrl.name.includes('.markdown') 
-        || documentUrl.name.includes('.MD'))
+        || documentUrl.name.includes('.MD')
+        || documentUrl.name.includes('.css') || documentUrl.name.includes('.CSS'))
       ).map(async documentUrl => {
       const documentNameSplit = StringUtils.splitNameAndExtension(documentUrl.name);
       const documentName = documentNameSplit.name;
@@ -258,11 +259,12 @@ export class ElectronService {
       if (!documentBuffer) {
         return;
       }
-      const fileType = StringUtils.extensionToMime(documentExt);
-      const blob: Blob = new Blob([documentBuffer], {type: fileType});
+      const mime = StringUtils.extensionToMime(documentExt);
+      const blob: Blob = new Blob([documentBuffer], {type: mime});
       const content: string = await blob.text();
       const document = await documentsService.create(<any>{
         name: documentName,
+        mime: mime,
         content: content,
       }, true);
       return document;

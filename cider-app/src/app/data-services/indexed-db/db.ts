@@ -132,6 +132,9 @@ export class AppDB extends Dexie {
         const file = new File([blob], 'database.json', {type: 'application/json', lastModified: Date.now()});
         return importDB(file, {
             //noTransaction: true
+        }).then((db) => {
+            this.initializeData();
+            return db;
         });
     }
 
@@ -181,7 +184,7 @@ export class AppDB extends Dexie {
             const tempDb = await this.populateFromFile();
             tempDb.close();
         }
-        await this.open();
+        await this.open().then(() => this.initializeData());
         this.changeSubject.next(null);
         return true;
     }

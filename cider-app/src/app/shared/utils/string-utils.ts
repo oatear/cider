@@ -72,7 +72,11 @@ export default class StringUtils {
         if (!mime) {
             return '';
         }
-        return mimeTypes.getExtension(mime);
+        const extension = mimeTypes.getExtension(mime);
+        if (extension == 'markdown') {
+            return 'md';
+        }
+        return extension;
     }
 
     /**
