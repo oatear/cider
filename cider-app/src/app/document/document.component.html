@@ -3,12 +3,34 @@
         (onResizeEnd)="onResizeEnd($event)">
     <ng-template pTemplate>
         <p-card styleClass="preview-card markdown-body">
-            <markdown [data]="textDocument.content"></markdown>
+            @if (textDocument.mime === 'text/markdown') {
+                <markdown [data]="textDocument.content"></markdown>
+            } @else if (textDocument.mime === 'text/css') {
+                <h2>{{textDocument.name}}</h2>
+                Set global styles or import fonts for use in card templates.
+                <h3>Example Font Import</h3>
+                Import from Web
+                <pre><code class="language-css">{{ 
+                    "@import url('https://fonts.googleapis.com/css2?family=Tiny5&display=swap');" 
+                }}</code></pre>
+                Import from Font File
+                <pre><code class="language-css">{{ 
+                        "@font-face {\n" +
+                        "    font-family: 'Tiny5';\n" +
+                        "    src: url('{{assets.tiny5-regular}}') format('truetype');\n" +
+                        "}"
+                }}</code></pre>
+                Usage in card template
+                <pre><code class="language-css">{{ 
+                    ".card { font-family: 'Tiny5', monospace; }" 
+                }}</code></pre>
+            }
         </p-card>
     </ng-template>
     <ng-template pTemplate>
         <p-card styleClass="code-editor">
             <ngx-monaco-editor class="code-editor" *ngIf="!disablePanels"
+                (onInit)="editorInitialized($event)"
                 [options]="editorOptions" [(ngModel)]="textDocument.content" 
                 (ngModelChange)="debounceSave()"></ngx-monaco-editor>
         </p-card>

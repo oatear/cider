@@ -21,6 +21,8 @@ export class AssetComponent {
   public imageDimensions: { width: number, height: number } = { width: 0, height: 0 };
   public fileSize: string = '';
   public fileExtension: string = '';
+  public fileMime: string = '';
+  public fileType: string = '';
   assetUrls: any;
 
   constructor(
@@ -53,13 +55,19 @@ export class AssetComponent {
     if (this.asset && this.asset.name && this.assetUrls) {
       const fileUrl = this.assetUrls[StringUtils.toKebabCase(this.asset.name)];
       if (fileUrl) {
-        FileUtils.getImageDimensions(fileUrl).then(dimensions => {
-          this.imageDimensions = dimensions;
-        }).catch(error => {
-          console.error('Error getting image dimensions:', error);
-        });
         this.fileSize = FileUtils.formatFileSize(this.asset.file.size);
         this.fileExtension = StringUtils.mimeToExtension(this.asset.file.type);
+        this.fileMime = this.asset.file.type;
+        this.fileType = StringUtils.mimeToTypeCategory(this.asset.file.type);
+
+        // get image dimensions if the file is an image
+        if (this.fileType === 'image') {
+          FileUtils.getImageDimensions(fileUrl).then(dimensions => {
+            this.imageDimensions = dimensions;
+          }).catch(error => {
+            console.error('Error getting image dimensions:', error);
+          });
+        }
       }
     }
   }

@@ -95,6 +95,15 @@ export class AppDB extends Dexie {
             // other tables are inherited from previous versions
             documents: '++id, name, content',
         });
+        this.version(4).stores({
+            // other tables are inherited from previous versions
+            // add mime field to documents
+            documents: '++id, name, mime, content',
+        }).upgrade(transaction => {
+            return transaction.table(AppDB.DOCUMENTS_TABLE).toCollection().modify(document => {
+                document.mime = 'text/markdown'  ; // only markdown documents exist at this point
+            });
+        });
         // populate in a non-traditional way since the 'on populate' will not allow ajax calls
         this.on('ready', () => this.table(AppDB.DECKS_TABLE).count()
         .then(count => {
@@ -107,6 +116,9 @@ export class AppDB extends Dexie {
                     this.loadSubject.next(null);
                 });
             }
+        }).then(() => {
+            // initialize mandatory data;
+            return this.initializeData();
         }));
 
         // trigger changeSubject when change emitted to db
@@ -120,6 +132,9 @@ export class AppDB extends Dexie {
         const file = new File([blob], 'database.json', {type: 'application/json', lastModified: Date.now()});
         return importDB(file, {
             //noTransaction: true
+        }).then((db) => {
+            this.initializeData();
+            return db;
         });
     }
 
@@ -169,7 +184,7 @@ export class AppDB extends Dexie {
             const tempDb = await this.populateFromFile();
             tempDb.close();
         }
-        await this.open();
+        await this.open().then(() => this.initializeData());
         this.changeSubject.next(null);
         return true;
     }
@@ -180,5 +195,25 @@ export class AppDB extends Dexie {
 
     public onLoad() {
         return this.loadSubject.asObservable();
+    }
+
+    /**
+     * Initialize data in the database if there are missing
+     * mandatory entries. This is run on project open.
+     */
+    public async initializeData(): Promise<void> {
+        // make sure the global-styles css document exists
+        const documentsTable = this.table(AppDB.DOCUMENTS_TABLE);
+        const count = await documentsTable.where('name').equals('global-styles').count();
+        if (count === 0) {
+            await documentsTable.add({
+                name: 'global-styles',
+                mime: 'text/css',
+                content: `/* Global Styles and Font Declarations */\n`
+            });
+        }
+
+        // add other mandatory entries here as needed
+        return;
     }
 }

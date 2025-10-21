@@ -13,6 +13,7 @@ import { DocumentsService } from '../data-services/services/documents.service';
 import { HttpClient } from '@angular/common/http';
 import { AppDB } from '../data-services/indexed-db/db';
 import { TranslateService } from '@ngx-translate/core';
+import { Asset } from '../data-services/types/asset.type';
 
 @Component({
   selector: 'app-site-sidebar',
@@ -90,7 +91,7 @@ export class SiteSidebarComponent implements OnInit {
     this.updatingFiles = true;
     const updatedFiles: TreeNode[] = [];
     // -----------------------------------------------
-    // Fetch the readme file
+    // Setup project home node
     // -----------------------------------------------
     await firstValueFrom(this.electronService.getProjectHomeUrl()).then(homeUrl => {
       let projectName = StringUtils.lastDirectoryFromUrl(homeUrl?.path 
@@ -126,9 +127,25 @@ export class SiteSidebarComponent implements OnInit {
     });
 
     // -----------------------------------------------
-    // Fetch documents
+    // Fetch style documents
     // -----------------------------------------------
-    await this.documentsService.getAll().then(documents => {
+    await this.documentsService.getAll({ mime: 'text/css' }).then(documents => {
+      return documents.forEach(document => {
+        updatedFiles.push({
+          label: document.name,
+          data: {
+            url: '/documents/' + document.id,
+          },
+          icon: 'pi pi-receipt',
+          styleClass: 'document-file',
+        });
+      });
+    });
+
+    // -----------------------------------------------
+    // Fetch markdown documents
+    // -----------------------------------------------
+    await this.documentsService.getAll({ mime: 'text/markdown' }).then(documents => {
       return documents.forEach(document => {
         updatedFiles.push({
           label: document.name,
@@ -416,7 +433,7 @@ export class SiteSidebarComponent implements OnInit {
               }
             ],
           },
-          icon: 'pi pi-image',
+          icon:  this.getAssetIcon(asset),
           styleClass: 'asset-file',
         }))
       });
@@ -424,6 +441,26 @@ export class SiteSidebarComponent implements OnInit {
 
     this.files = updatedFiles;
     this.updatingFiles = false;
+  }
+
+  getAssetIcon(asset: Asset): string {
+    const fileType = StringUtils.mimeToTypeCategory(asset.file.type);
+    switch (fileType) {
+      case 'image':
+        return 'pi pi-image';
+      case 'font':
+        return 'pi pi-language';
+      case 'audio':
+        return 'pi pi-volume-up';
+      case 'video':
+        return 'pi pi-video';
+      case 'document':
+        return 'pi pi-file';
+      case 'archive':
+        return 'pi pi-folder';
+      default:
+        return 'pi pi-file';
+    }
   }
 
   onNodeContextMenuSelect(event: TreeNodeContextMenuSelectEvent) {
@@ -471,6 +508,7 @@ export class SiteSidebarComponent implements OnInit {
     const defaultContent = await blob.text();
     this.entity = {
       name: randomName,
+      mime: 'text/markdown',
       content: defaultContent,
     } as any;
     this.openCreateDialog(service, dialogTitle, this.entity);

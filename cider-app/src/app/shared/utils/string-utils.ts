@@ -72,7 +72,11 @@ export default class StringUtils {
         if (!mime) {
             return '';
         }
-        return mimeTypes.getExtension(mime);
+        const extension = mimeTypes.getExtension(mime);
+        if (extension == 'markdown') {
+            return 'md';
+        }
+        return extension;
     }
 
     /**
@@ -86,6 +90,19 @@ export default class StringUtils {
             return '';
         }
         return mimeTypes.getType(ext);
+    }
+
+    /**
+     * Convert the given mime type into its type category
+     * 
+     * @param mime 
+     * @returns 
+     */
+    public static mimeToTypeCategory(mime: string): string {
+        if (!mime) {
+            return '';
+        }
+        return mime.split('/')[0];
     }
 
     /**

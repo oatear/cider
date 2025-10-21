@@ -34,6 +34,7 @@
             }
         }
         .preview-card {
+            display: grid;
             .p-card-body {
                 overflow: scroll;
             }

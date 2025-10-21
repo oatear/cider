@@ -15,6 +15,7 @@ import { Subject } from 'rxjs';
 import { DocumentsService } from '../services/documents.service';
 import { PersistentPath } from '../types/persistent-path.type';
 import { Document } from '../types/document.type';
+import { AppDB } from '../indexed-db/db';
 
 @Injectable({
   providedIn: 'root'
@@ -169,20 +170,24 @@ export class ElectronService {
     const assetsUrl = homeUrl.path + "/" + ElectronService.ASSETS_DIR;
     const decksUrl = homeUrl.path + "/" + ElectronService.DECKS_DIR;
 
-    // delete existing markdown files in project root
-    // write all markdown files in documents service to project root
+    // delete existing markdown or css files in project root
     await this.listDirectory({ bookmark: homeUrl.bookmark, path: homeUrl.path }).then(documentUrls => Promise.all(documentUrls
       .filter(documentUrl => documentUrl.isFile 
         && !documentUrl.name.includes('.DS_Store')
         && (documentUrl.name.includes('.md') || documentUrl.name.includes('.markdown') 
-        || documentUrl.name.includes('.MD'))
+        || documentUrl.name.includes('.MD')
+        || documentUrl.name.includes('.css') || documentUrl.name.includes('.CSS'))
       ).map(async documentUrl => {
         return await this.removeDirectory({ bookmark: homeUrl.bookmark, path: homeUrl.path + '/' + documentUrl.name });
       })));
+
+    // write all markdown files in documents service to project root
     const writeAllDocuments: Promise<boolean[]> = Promise.all(documents.map(async document => {
-      const fileType = 'text/markdown';
-      const blob: Blob = new Blob([document.content], {type: fileType});
-      const file: File = new File([blob], document.name + '.md', {type: fileType});
+      const mimeType = document.mime ?? 'text/markdown'; // Fallback for older documents without mime type
+      StringUtils.mimeToExtension
+      const blob: Blob = new Blob([document.content], {type: mimeType});
+      const file: File = new File([blob], 
+        document.name + '.' + StringUtils.mimeToExtension(mimeType), {type: mimeType});
       const buffer = await file.arrayBuffer();
       return await this.writeFile({ bookmark: homeUrl.bookmark, 
         path: homeUrl.path + '/' + file.name }, 
@@ -218,7 +223,7 @@ export class ElectronService {
     }));
   }
 
-  public async openProject(homeUrl: PersistentPath, assetsService: AssetsService, decksService: DecksService,
+  public async openProject(homeUrl: PersistentPath, db: AppDB, assetsService: AssetsService, decksService: DecksService,
     cardTemplatesService: CardTemplatesService, cardAttributesService: CardAttributesService,
     cardsService: CardsService, documentsService: DocumentsService) {
     if (!this.isElectron()) {
@@ -239,12 +244,13 @@ export class ElectronService {
     await cardsService.emptyTable();
     await decksService.emptyTable();
 
-    // read document/markdown files
+    // read document/markdown/css files
     await this.listDirectory({ bookmark: homeUrl.bookmark, path: documentsUrl }).then(documentUrls => Promise.all(documentUrls
       .filter(documentUrl => documentUrl.isFile 
         && !documentUrl.name.includes('.DS_Store')
         && (documentUrl.name.includes('.md') || documentUrl.name.includes('.markdown') 
-        || documentUrl.name.includes('.MD'))
+        || documentUrl.name.includes('.MD')
+        || documentUrl.name.includes('.css') || documentUrl.name.includes('.CSS'))
       ).map(async documentUrl => {
       const documentNameSplit = StringUtils.splitNameAndExtension(documentUrl.name);
       const documentName = documentNameSplit.name;
@@ -253,11 +259,12 @@ export class ElectronService {
       if (!documentBuffer) {
         return;
       }
-      const fileType = StringUtils.extensionToMime(documentExt);
-      const blob: Blob = new Blob([documentBuffer], {type: fileType});
+      const mime = StringUtils.extensionToMime(documentExt);
+      const blob: Blob = new Blob([documentBuffer], {type: mime});
       const content: string = await blob.text();
       const document = await documentsService.create(<any>{
         name: documentName,
+        mime: mime,
         content: content,
       }, true);
       return document;
@@ -283,7 +290,7 @@ export class ElectronService {
       return asset;
     })));
     const deckUrls = await this.listDirectory({ bookmark: homeUrl.bookmark, path: decksUrl });
-    deckUrls.filter(deckUrl => deckUrl.isDirectory).map(async deckUrl => {
+    await Promise.all(deckUrls.filter(deckUrl => deckUrl.isDirectory).map(async deckUrl => {
       const deckName = deckUrl.name;
       const deck = await decksService.create(<any>{name: StringUtils.kebabToTitleCase(deckName)});
       const deckFullUrl = decksUrl + '/' + deckUrl.name;
@@ -303,8 +310,10 @@ export class ElectronService {
       const cardsUrl = deckFullUrl + '/cards.csv';
       const attributes = await this.importCsv({ bookmark: homeUrl.bookmark, path: attributesUrl }, 'attributes.csv', cardAttributesService, deck.id);
       const cards = await this.importCsv({ bookmark: homeUrl.bookmark, path: cardsUrl }, 'cards.csv', cardsService, deck.id);
-      this.setProjectUnsaved(false);
-    });
+    }));
+
+    await db.initializeData();
+    this.setProjectUnsaved(false);
   }
 
   private async importCsv<Entity, Identity extends string | number>(persistentPath: PersistentPath, fileName: string, 
