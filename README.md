@@ -118,7 +118,7 @@ Another great way to contribute is by **[supporting the project financially][kof
 [gh-url]: https://github.com/oatear/cider
 [releases-url]: https://github.com/oatear/cider/releases
 [cosmic-apple]: https://github.com/oatear/cosmic-apple-game
-[cider-docs-url]: https://oatear.github.io/cider-docs/docs/
+[cider-docs-url]: https://oatear.github.io/cider-docs/docs/overview/
 [license-url]: LICENSE.md
 [pages-url]: https://oatear.github.io/cider
 [discord-url]: https://discord.gg/S66xw9Wc9V
