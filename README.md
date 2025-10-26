@@ -24,10 +24,11 @@ Design beautiful game cards with the power and familiarity of `HTML`, `CSS`, and
 
 | Platform / Action | Link | Description |
 | :--- | :--- | :--- |
-| **🌐 Web App** | **[Try it Now in Your Browser][pages-url]** | The full experience, running directly in your browser. No installation needed. |
-| **💻 Desktop Apps** | **[Free Download (Win, Mac, Linux)][releases-url]** | Get the installable desktop version for offline use and local file system projects. |
-| ** Mac App Store** | [![][mac-app-store-badge]][mac-app-store-url] | A convenient, sandboxed version for Mac users. Purchase to support the project! |
-| **❤️ Support Us** | [<img src="cider-app/src/assets/kofi-badge.png" alt="Oatear Cider Logo" width="160">][kofi-url] | If you find Cider useful, consider a small donation to support its development! |
+| **Web App** | **[Try it Now in Your Browser][pages-url]** | The full experience, running directly in your browser. No installation needed. |
+| **Desktop Apps** | **[Free Download (Win, Mac, Linux)][releases-url]** | Get the installable desktop version for offline use and local file system projects. |
+| **Mac App Store** | [![][mac-app-store-badge]][mac-app-store-url] | A convenient, sandboxed version for Mac users. Purchase to support the project! |
+| **Documentation** | **[Cider Docs][cider-docs-url]** | Detailed documentation for all aspects of Cider with a quick start guide. |
+| **Support Us** | [<img src="cider-app/src/assets/kofi-badge.png" alt="Oatear Cider Logo" width="160">][kofi-url] | If you find Cider useful, consider a small donation to support its development! |
 
 ---
 
@@ -117,8 +118,7 @@ Another great way to contribute is by **[supporting the project financially][kof
 [gh-url]: https://github.com/oatear/cider
 [releases-url]: https://github.com/oatear/cider/releases
 [cosmic-apple]: https://github.com/oatear/cosmic-apple-game
-[handlebars-url]: HANDLEBARS.md
-[ttsexport-url]: TTS_EXPORT.md
+[cider-docs-url]: https://oatear.github.io/cider-docs/docs/
 [license-url]: LICENSE.md
 [pages-url]: https://oatear.github.io/cider
 [discord-url]: https://discord.gg/S66xw9Wc9V
