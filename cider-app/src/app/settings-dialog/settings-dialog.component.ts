@@ -26,7 +26,8 @@ export class SettingsDialogComponent {
     {label: 'Ukrainian (UK)', value: 'uk'},
     {label: '한국어 (KO)', value: 'ko'},
     {label: '日本語 (JA)', value: 'ja'},
-    {label: '简体中文 (ZH)', value: 'zh'},
+    {label: '简体中文 (ZH)', value: 'zh-Hans'},
+    {label: '繁體中文 (ZH)', value: 'zh-Hant'},
     {label: 'Türkçe (TR)', value: 'tr'},
     {label: 'Nederlands (NL)', value: 'nl'},
   ];

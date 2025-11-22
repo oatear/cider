@@ -44,11 +44,15 @@ export class AppComponent implements OnInit{
 
   private initTranslateService() {
     this.translateService.addLangs(['en', 'fr', 'es', 'bg', 'de', 'it', 
-      'pt', 'ru', 'pl', 'uk', 'ko', 'ja', 'zh', 'tr', 'nl']);
+      'pt', 'ru', 'pl', 'uk', 'ko', 'ja', 'zh-Hans', 'zh-Hant', 'tr', 'nl']);
 
-    const browserLang = this.translateService.getBrowserLang();
+    const browserLang = this.translateService.getBrowserCultureLang?.() || this.translateService.getBrowserLang();
+    const lowerBrowserLang = browserLang?.toLowerCase();
+    const normalizedBrowserLang = lowerBrowserLang?.startsWith('zh')
+      ? (lowerBrowserLang.includes('hant') || lowerBrowserLang.includes('tw') || lowerBrowserLang.includes('hk') || lowerBrowserLang.includes('mo') ? 'zh-Hant' : 'zh-Hans')
+      : browserLang;
     const savedLang = this.localStorageService.getLanguage();
-    const langToSet = savedLang ? savedLang : (browserLang && this.translateService.getLangs().includes(browserLang) ? browserLang : 'en');
+    const langToSet = savedLang ? savedLang : (normalizedBrowserLang && this.translateService.getLangs().includes(normalizedBrowserLang) ? normalizedBrowserLang : 'en');
     this.translateService.use(langToSet);
   }
 
