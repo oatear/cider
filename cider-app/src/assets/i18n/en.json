@@ -136,7 +136,9 @@
         "language": "Language",
         "language-info": "Refresh the page to fully apply the new language.",
         "language-info-electron": "Restart the application to fully apply the new language.",
-        "dark-mode": "Dark Mode"
+        "dark-mode": "Dark Mode",
+        "auto-save": "Auto Save",
+        "auto-save-info": "Automatically saves cards, templates and documents when edited, and full project every 10 minutes."
     },
     "simulator": {
         "draw-card": "Draw Card",

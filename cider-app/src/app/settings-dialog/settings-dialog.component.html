@@ -19,6 +19,14 @@
                 class="p-mr-2"/>
             <label for="darkMode">{{'settings.dark-mode' | translate}}</label>
         </div>
+
+        <div class="p-field p-d-flex p-flex-row p-ai-center ">
+            <p-toggleswitch [(ngModel)]="autoSave" (onChange)="setAutoSave($event)"
+                class="p-mr-2"/>
+            <label for="autoSave">{{'settings.auto-save' | translate}}</label>
+        </div>
+        <p-message severity="info" escape="false" class="p-mb-4 p-d-flex"
+            [text]="'settings.auto-save-info' | translate"></p-message>
             
     </ng-template>
 </p-dialog>

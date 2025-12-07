@@ -136,7 +136,9 @@
         "language": "Idioma",
         "language-info": "Actualiza la página para aplicar completamente el nuevo idioma.",
         "language-info-electron": "Reinicia la aplicación para aplicar completamente el nuevo idioma.",
-        "dark-mode": "Modo Oscuro"
+        "dark-mode": "Modo Oscuro",
+        "auto-save": "Guardar Automáticamente",
+        "auto-save-info": "Guarda automáticamente las cartas, plantillas y documentos al editar, y el proyecto completo cada 10 minutos."
     },
     "simulator": {
         "draw-card": "Robar carta",

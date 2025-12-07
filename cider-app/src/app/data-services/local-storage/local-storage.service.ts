@@ -13,6 +13,7 @@ export class LocalStorageService {
   static readonly RECENT_PROJECT_URLS = "recent-project-urls";
   static readonly MAX_RECENT_PROJECT_URLS = 5;
   static readonly DARK_MODE = "dark-mode";
+  static readonly AUTO_SAVE = "auto-save";
 
   public recentProjectUrls: BehaviorSubject<PersistentPath[]>;
 
@@ -87,4 +88,12 @@ export class LocalStorageService {
     localStorage.setItem(LocalStorageService.DARK_MODE, darkMode.toString());
   }
 
+  public getAutoSave() : boolean {
+    const autoSave = localStorage.getItem(LocalStorageService.AUTO_SAVE);
+    return autoSave !== 'false' && autoSave !== null; // Default to true if not set
+  }
+
+  public setAutoSave(autoSave: boolean) {
+    localStorage.setItem(LocalStorageService.AUTO_SAVE, autoSave.toString());
+  }
 }
