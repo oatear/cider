@@ -157,7 +157,7 @@ export class ElectronService {
     this.getIpcRenderer().send("exit-application");
   }
 
-  public async saveProject(assets: Asset[], documents: Document[], decks: { name: string; cardsCsv: string; 
+  public async saveProject(assets: Asset[] | null, documents: Document[], decks: { name: string; cardsCsv: string;
     attributesCsv: string; templates: CardTemplate[];}[]) {
     if (!this.isElectron()) {
       return;
@@ -195,15 +195,18 @@ export class ElectronService {
     }));
     await writeAllDocuments;
 
-    await this.removeDirectory({ bookmark: homeUrl.bookmark, path: assetsUrl });
-    await this.createDirectory({ bookmark: homeUrl.bookmark, path: assetsUrl });
-    const writeAllAssets: Promise<boolean[]> = Promise.all(assets.map(async asset => {
-      const buffer = await asset.file.arrayBuffer();
-      return await this.writeFile({ bookmark: homeUrl.bookmark, 
-        path: assetsUrl + '/' + StringUtils.toKebabCase(asset.name)
-          + '.' + StringUtils.mimeToExtension(asset.file.type) },
-        Buffer.from(buffer));
-    }));
+    // Skip assets if null (for minimal saves)
+    if (assets !== null) {
+      await this.removeDirectory({ bookmark: homeUrl.bookmark, path: assetsUrl });
+      await this.createDirectory({ bookmark: homeUrl.bookmark, path: assetsUrl });
+      const writeAllAssets: Promise<boolean[]> = Promise.all(assets.map(async asset => {
+        const buffer = await asset.file.arrayBuffer();
+        return await this.writeFile({ bookmark: homeUrl.bookmark,
+          path: assetsUrl + '/' + StringUtils.toKebabCase(asset.name)
+            + '.' + StringUtils.mimeToExtension(asset.file.type) },
+          Buffer.from(buffer));
+      }));
+    }
 
     await this.removeDirectory({ bookmark: homeUrl.bookmark, path: decksUrl });
     await this.createDirectory({ bookmark: homeUrl.bookmark, path: decksUrl });

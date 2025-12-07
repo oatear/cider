@@ -9,6 +9,7 @@ import { DecksChildService as DecksChildService } from '../indexed-db/decks-chil
 import { DecksService } from './decks.service';
 import { CardAttribute } from '../types/card-attribute.type';
 import StringUtils from 'src/app/shared/utils/string-utils';
+import { SaveService } from './save.service';
 
 @Injectable({
   providedIn: 'root'
@@ -16,8 +17,8 @@ import StringUtils from 'src/app/shared/utils/string-utils';
 export class CardsService extends DecksChildService<Card, number> {
 
   constructor(private attributesService: CardAttributesService,
-    private cardTemplatesService: CardTemplatesService, 
-    decksService: DecksService, db: AppDB) {
+    private cardTemplatesService: CardTemplatesService,
+    decksService: DecksService, db: AppDB, private saveService: SaveService) {
     super(decksService, db, AppDB.CARDS_TABLE, [
       {field: 'id', header: 'ID', type: FieldType.number, hidden: true},
       {field: 'deckId', header: 'Deck ID', type: FieldType.number, hidden: true},
@@ -52,5 +53,28 @@ export class CardsService extends DecksChildService<Card, number> {
 
   override getEntityName(entity: Card) {
     return entity.name;
+  }
+
+  override async create(entity: Card, overrideParent?: boolean) {
+    const result = await super.create(entity, overrideParent);
+    // Trigger minimal save for card creation
+    await this.saveService.minimalSave();
+    return result;
+  }
+
+  override async update(id: number, entity: Card, overrideParent?: boolean) {
+    const result = await super.update(id, entity, overrideParent);
+    // Trigger minimal save for card update
+    await this.saveService.minimalSave();
+    return result;
+  }
+
+  override async delete(id: number) {
+    const result = await super.delete(id);
+    // Trigger minimal save for card deletion
+    if (result) {
+      await this.saveService.minimalSave();
+    }
+    return result;
   }
 }

@@ -18,6 +18,7 @@ import XlsxUtils from '../shared/utils/xlsx-utils';
 import { DocumentsService } from '../data-services/services/documents.service';
 import { PersistentPath } from '../data-services/types/persistent-path.type';
 import { TranslateService } from '@ngx-translate/core';
+import { SaveService } from '../data-services/services/save.service';
 
 @Component({
   selector: 'app-site-menu',
@@ -57,7 +58,8 @@ export class SiteMenuComponent implements OnInit {
     private translate: TranslateService,
     private ngZone: NgZone,
     private router: Router,
-    private db: AppDB) {
+    private db: AppDB,
+    private saveService: SaveService) {
     // allow reloading of the current page
     this.router.routeReuseStrategy.shouldReuseRoute = () => {
       return false;
@@ -393,48 +395,25 @@ export class SiteMenuComponent implements OnInit {
       return;
     }
 
-    // activate the gif
+    // activate the UI feedback
     this.isSaving = true;
     this.loadingIndeterminate = true;
     this.displayLoading = true;
     this.loadingHeader = 'Saving Project';
     this.loadingInfo = 'Exporting database rows...';
-    
-    // save to the filesystem
-    const assetsPromised = this.assetsService.getAll();
-    const documentsPromised = this.documentsService.getAll();
-    const decksPromised = this.decksService.getAll().then(decks => Promise.all(decks.map(async deck => {
-      // cards
-      const [cardFields, cardLookups, cardRecords] = await Promise.all([
-        this.cardsService.getFields({ deckId: deck.id }),
-        this.cardsService.getLookups({ deckId: deck.id }),
-        this.cardsService.getAll({ deckId: deck.id })
-      ]);
-      const cardsCsv = XlsxUtils.entityExport(cardFields, cardLookups, cardRecords);
-      // attributes
-      const [attributeFields, attributeLookups, attributeRecords] = await Promise.all([
-        this.cardAttributesService.getFields({ deckId: deck.id }),
-        this.cardAttributesService.getLookups({ deckId: deck.id }),
-        this.cardAttributesService.getAll({ deckId: deck.id })
-      ]);
-      const attributesCsv = XlsxUtils.entityExport(attributeFields, attributeLookups, attributeRecords);
-      // templates
-      const templates = await this.cardTemplatesService.getAll({ deckId: deck.id });
-      return {
-        name: StringUtils.toKebabCase(deck.name),
-        cardsCsv: cardsCsv,
-        attributesCsv: attributesCsv,
-        templates: templates
-      };
-    })));
-    
-    Promise.all([assetsPromised, documentsPromised, decksPromised]).then(([assets, documents, decks]) => {
-      return this.electronService.saveProject(assets, documents, decks);
-    }).then(() => {
-      this.electronService.setProjectUnsaved(false);
+
+    // use shared save logic
+    try {
+      const success = await this.saveService.manualSave();
+      if (success) {
+        console.log('Manual save completed successfully');
+      }
+    } catch (error) {
+      console.error('Manual save failed:', error);
+    } finally {
       this.isSaving = false;
       this.displayLoading = false;
-    });
+    }
   }
 
   public async openProject(persistentPath: PersistentPath) {

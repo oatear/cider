@@ -12,6 +12,7 @@ export class SettingsDialogComponent {
   @Input() visible: boolean = false;
   @Output() visibleChange: EventEmitter<boolean> = new EventEmitter<boolean>();
   darkMode: boolean = true;
+  autoSave: boolean = false;
   /* Make sure to also update app.component.ts addLangs() */
   languages: {label: string, value: string}[] = [
     {label: 'English (EN)', value: 'en'},
@@ -40,6 +41,7 @@ export class SettingsDialogComponent {
     this.isElectron = electronService.isElectron();
     this.darkMode = this.localStorageService.getDarkMode();
     this.language = this.localStorageService.getLanguage() || translate.getBrowserLang() || 'en';
+    this.autoSave = this.localStorageService.getAutoSave();
     // translate.onLangChange.subscribe(() => {
     //   this.languages = translate.getLangs().map(lang => ({label: lang.toUpperCase(), value: lang}));
     // });
@@ -53,6 +55,10 @@ export class SettingsDialogComponent {
   public setDarkMode(event: any) {
     this.localStorageService.setDarkMode(this.darkMode);
     document.querySelector('html')?.classList.toggle(LocalStorageService.DARK_MODE, this.darkMode);
+  }
+
+  public setAutoSave(event: any) {
+    this.localStorageService.setAutoSave(this.autoSave);
   }
 
   public hideDialog() {
