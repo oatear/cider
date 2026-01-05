@@ -5,9 +5,10 @@ import { Subject } from 'rxjs';
 import { Document } from '../data-services/types/document.type';
 
 @Component({
-  selector: 'app-documents',
-  templateUrl: './documents.component.html',
-  styleUrl: './documents.component.scss'
+    selector: 'app-documents',
+    templateUrl: './documents.component.html',
+    styleUrl: './documents.component.scss',
+    standalone: false
 })
 export class DocumentsComponent implements OnInit, OnDestroy {
   private destroyed$: Subject<boolean> = new Subject();

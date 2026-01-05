@@ -15,10 +15,11 @@ import { ConfirmationService } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
-  selector: 'app-export-cards',
-  templateUrl: './export-cards.component.html',
-  styleUrls: ['./export-cards.component.scss'],
-    providers: [ConfirmationService]
+    selector: 'app-export-cards',
+    templateUrl: './export-cards.component.html',
+    styleUrls: ['./export-cards.component.scss'],
+    providers: [ConfirmationService],
+    standalone: false
 })
 export class ExportCardsComponent implements OnInit {
   private static readonly SINGULAR_EXPORT = 'singular-export';

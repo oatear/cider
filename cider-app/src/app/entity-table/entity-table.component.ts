@@ -13,10 +13,11 @@ import { TranslateService } from '@ngx-translate/core';
 import TranslateUtils from '../shared/utils/translate-utils';
 
 @Component({
-  selector: 'app-entity-table',
-  templateUrl: './entity-table.component.html',
-  styleUrls: ['./entity-table.component.scss'],
-  providers: [MessageService, ConfirmationService]
+    selector: 'app-entity-table',
+    templateUrl: './entity-table.component.html',
+    styleUrls: ['./entity-table.component.scss'],
+    providers: [MessageService, ConfirmationService],
+    standalone: false
 })
 export class EntityTableComponent<Entity, Identifier extends string | number> implements OnInit {
 

@@ -9,8 +9,9 @@ import * as Handlebars from 'handlebars';
  * Convert a card template into html
  */
 @Pipe({
-  name: 'cardToHtml',
-  pure: false
+    name: 'cardToHtml',
+    pure: false,
+    standalone: false
 })
 export class CardToHtmlPipe implements PipeTransform {
   

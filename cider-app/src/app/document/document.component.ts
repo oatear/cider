@@ -6,9 +6,10 @@ import { debounceTime, Subject } from 'rxjs';
 import { LocalStorageService } from '../data-services/local-storage/local-storage.service';
 
 @Component({
-  selector: 'app-document',
-  templateUrl: './document.component.html',
-  styleUrl: './document.component.scss'
+    selector: 'app-document',
+    templateUrl: './document.component.html',
+    styleUrl: './document.component.scss',
+    standalone: false
 })
 export class DocumentComponent implements OnInit {
   editorOptions: any = { theme: 'vs-dark-extended', language: 'markdown', 

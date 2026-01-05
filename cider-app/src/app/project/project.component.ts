@@ -37,9 +37,10 @@ interface Meter {
 }
 
 @Component({
-  selector: 'app-project',
-  templateUrl: './project.component.html',
-  styleUrl: './project.component.scss'
+    selector: 'app-project',
+    templateUrl: './project.component.html',
+    styleUrl: './project.component.scss',
+    standalone: false
 })
 export class ProjectComponent implements OnInit {
   projectName: string = 'Cider Project';

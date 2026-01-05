@@ -15,10 +15,11 @@ import { DocumentsService } from '../data-services/services/documents.service';
 import { PersistentPath } from '../data-services/types/persistent-path.type';
 
 @Component({
-  selector: 'app-welcome',
-  templateUrl: './welcome.component.html',
-  styleUrls: ['./welcome.component.scss'],
-  providers: [ConfirmationService]
+    selector: 'app-welcome',
+    templateUrl: './welcome.component.html',
+    styleUrls: ['./welcome.component.scss'],
+    providers: [ConfirmationService],
+    standalone: false
 })
 export class WelcomeComponent implements OnInit {
   public displayLoading: boolean = false;

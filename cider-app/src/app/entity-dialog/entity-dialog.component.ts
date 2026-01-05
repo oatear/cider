@@ -8,10 +8,11 @@ import { TranslateService } from '@ngx-translate/core';
 import TranslateUtils from '../shared/utils/translate-utils';
 
 @Component({
-  selector: 'app-entity-dialog',
-  templateUrl: './entity-dialog.component.html',
-  styleUrls: ['./entity-dialog.component.scss'],
-  providers: [MessageService]
+    selector: 'app-entity-dialog',
+    templateUrl: './entity-dialog.component.html',
+    styleUrls: ['./entity-dialog.component.scss'],
+    providers: [MessageService],
+    standalone: false
 })
 export class EntityDialogComponent<Entity, Identifier extends string | number> implements OnInit, OnChanges {
   @Input() service: EntityService<Entity, Identifier> | undefined;

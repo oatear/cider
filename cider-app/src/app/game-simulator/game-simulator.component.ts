@@ -52,9 +52,10 @@ interface Position {
 }
 
 @Component({
-  selector: 'app-game-simulator',
-  templateUrl: './game-simulator.component.html',
-  styleUrl: './game-simulator.component.scss'
+    selector: 'app-game-simulator',
+    templateUrl: './game-simulator.component.html',
+    styleUrl: './game-simulator.component.scss',
+    standalone: false
 })
 export class GameSimulatorComponent {
   private static readonly COLORS = ['silver', 'gold', 'crimson', 

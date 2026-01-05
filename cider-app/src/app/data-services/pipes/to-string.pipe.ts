@@ -1,7 +1,8 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-  name: 'toString'
+    name: 'toString',
+    standalone: false
 })
 export class ToStringPipe implements PipeTransform {
 

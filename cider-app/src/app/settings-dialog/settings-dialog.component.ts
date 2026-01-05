@@ -4,9 +4,10 @@ import { TranslateService } from '@ngx-translate/core';
 import { ElectronService } from '../data-services/electron/electron.service';
 
 @Component({
-  selector: 'app-settings-dialog',
-  templateUrl: './settings-dialog.component.html',
-  styleUrl: './settings-dialog.component.scss'
+    selector: 'app-settings-dialog',
+    templateUrl: './settings-dialog.component.html',
+    styleUrl: './settings-dialog.component.scss',
+    standalone: false
 })
 export class SettingsDialogComponent {
   @Input() visible: boolean = false;

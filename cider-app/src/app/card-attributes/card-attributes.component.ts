@@ -3,9 +3,10 @@ import { CardAttributesService } from '../data-services/services/card-attributes
 import { DecksService } from '../data-services/services/decks.service';
 
 @Component({
-  selector: 'app-card-attributes',
-  templateUrl: './card-attributes.component.html',
-  styleUrls: ['./card-attributes.component.scss']
+    selector: 'app-card-attributes',
+    templateUrl: './card-attributes.component.html',
+    styleUrls: ['./card-attributes.component.scss'],
+    standalone: false
 })
 export class CardAttributesComponent implements OnInit {
 

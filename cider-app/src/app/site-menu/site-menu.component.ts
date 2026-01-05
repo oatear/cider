@@ -20,10 +20,11 @@ import { PersistentPath } from '../data-services/types/persistent-path.type';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
-  selector: 'app-site-menu',
-  templateUrl: './site-menu.component.html',
-  styleUrls: ['./site-menu.component.scss'], 
-  providers: [MessageService, ConfirmationService]
+    selector: 'app-site-menu',
+    templateUrl: './site-menu.component.html',
+    styleUrls: ['./site-menu.component.scss'],
+    providers: [MessageService, ConfirmationService],
+    standalone: false
 })
 export class SiteMenuComponent implements OnInit {
 
