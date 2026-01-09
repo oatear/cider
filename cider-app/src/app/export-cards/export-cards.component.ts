@@ -187,7 +187,7 @@ export class ExportCardsComponent implements OnInit {
       this.showBack = true;
       this.updateSlices();
     }
-    console.log('change paper type', this.selectedPaper.name, this.mirrorBacksX, this.mirrorBacksY);
+    // console.log('change paper type', this.selectedPaper.name, this.mirrorBacksX, this.mirrorBacksY);
   }
 
   /**

@@ -52,6 +52,7 @@ export class CardPreviewComponent implements OnInit, AfterViewChecked, OnChanges
   ngAfterViewChecked(): void {
     if (!this.initialWidth && !this.initialHeight
       && this.element?.nativeElement.offsetWidth
+      && this.element?.nativeElement.offsetWidth
       && this.element?.nativeElement.offsetHeight) {
       this.initialWidth = this.element?.nativeElement.offsetWidth;
       this.initialHeight = this.element?.nativeElement.offsetHeight;

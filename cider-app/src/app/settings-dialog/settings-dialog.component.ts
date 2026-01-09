@@ -71,6 +71,10 @@ export class SettingsDialogComponent {
     return this.localStorageService.getRenderer();
   }
 
+  public set selectedRenderer(value: string) {
+    this.setRenderer(value);
+  }
+
   public setRenderer(renderer: string) {
     this.localStorageService.setRenderer(renderer);
   }
