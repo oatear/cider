@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { SiteContentAndMenuComponent } from './site-template.component';
+import { SiteTemplateComponent } from './site-template.component';
 
-describe('SiteContentAndMenuComponent', () => {
-  let component: SiteContentAndMenuComponent;
-  let fixture: ComponentFixture<SiteContentAndMenuComponent>;
+describe('SiteTemplateComponent', () => {
+  let component: SiteTemplateComponent;
+  let fixture: ComponentFixture<SiteTemplateComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ SiteContentAndMenuComponent ]
+      declarations: [SiteTemplateComponent]
     })
-    .compileComponents();
+      .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(SiteContentAndMenuComponent);
+    fixture = TestBed.createComponent(SiteTemplateComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

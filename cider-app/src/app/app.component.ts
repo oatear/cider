@@ -9,27 +9,28 @@ import { TranslateService } from '@ngx-translate/core';
 declare const gtag: Function;
 
 @Component({
-    selector: 'app-root',
-    templateUrl: './app.component.html',
-    styleUrls: ['./app.component.scss'],
-    standalone: false
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.scss'],
+  standalone: false
 })
-export class AppComponent implements OnInit{
+export class AppComponent implements OnInit {
+  title = 'cider';
 
   constructor(private router: Router,
-              private localStorageService: LocalStorageService,
-              private translateService: TranslateService) {
+    private localStorageService: LocalStorageService,
+    private translateService: TranslateService) {
   }
 
   ngOnInit() {
+    this.updateViewWidthHeightVar();
+    window.addEventListener('resize', () => {
       this.updateViewWidthHeightVar();
-      window.addEventListener('resize', () => {
-        this.updateViewWidthHeightVar();
-      });
+    });
 
-      // this.setUpAnalytics();
-      this.initDarkMode();
-      this.initTranslateService();
+    // this.setUpAnalytics();
+    this.initDarkMode();
+    this.initTranslateService();
   }
 
   // private setUpAnalytics() {
@@ -44,7 +45,7 @@ export class AppComponent implements OnInit{
   // }
 
   private initTranslateService() {
-    this.translateService.addLangs(['en', 'fr', 'es', 'bg', 'de', 'it', 
+    this.translateService.addLangs(['en', 'fr', 'es', 'bg', 'de', 'it',
       'pt', 'ru', 'pl', 'uk', 'ko', 'ja', 'zh', 'tr', 'nl']);
 
     const browserLang = this.translateService.getBrowserLang();
