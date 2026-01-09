@@ -9,6 +9,7 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
+
     .asset-name {
         font-size: var(--p-card-title-font-size);
         font-weight: var(--p-card-title-font-weight);
@@ -18,17 +19,21 @@
 :host ::ng-deep p-card:nth-child(2) {
     flex: 1;
     min-height: 0;
-    .asset-card {
+
+    &.asset-card {
         height: 100%;
+
         .p-card-body {
             flex: 1;
             height: 100%;
+
             .p-card-content {
                 height: 100%;
                 overflow: hidden;
                 display: flex;
                 justify-content: center;
                 align-items: center;
+
                 img {
                     max-width: 100%;
                     max-height: 100%;

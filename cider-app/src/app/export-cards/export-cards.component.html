@@ -3,73 +3,70 @@
         <!-- <app-page-header header="Export Preview" subheader="Preview of the card printout"></app-page-header> -->
         <p-card styleClass="page-card">
             <div class="card-controls">
-                <p-selectButton [options]="zoomOptions" [(ngModel)]="scale" class="p-mr-3"
-                    optionLabel="label" optionValue="value" [allowEmpty]="false"></p-selectButton>
-                <button pButton pRipple [label]="('export.select-cards' | translate) + ' (' + (expandedCards ? expandedCards.length : 0) + ')'" icon="pi pi-check-square" 
-                    class="p-button-text" (click)="showExportSelectionDialog()"></button>
+                <p-selectButton [options]="zoomOptions" [(ngModel)]="scale" class="p-mr-3" optionLabel="label"
+                    optionValue="value" [allowEmpty]="false"></p-selectButton>
+                <button pButton pRipple
+                    [label]="('export.select-cards' | translate) + ' (' + (expandedCards ? expandedCards.length : 0) + ')'"
+                    icon="pi pi-check-square" class="p-button-text" (click)="showExportSelectionDialog()"></button>
             </div>
             <div class="preview-wrapper">
                 <ng-container *ngIf="exportType === 'sheet-export'">
                     <div class="preview-sheets">
                         <!-- <ng-container *ngFor="let sheet of slicedCards"> -->
-                            <div class="scale-wrapper" *ngIf="showFront"
-                            [style.width.px]="selectedPaper.orientation === 'portrait' ? paperWidth * paperDpi * scale: paperHeight * paperDpi * scale" 
+                        <div class="scale-wrapper" *ngIf="showFront"
+                            [style.width.px]="selectedPaper.orientation === 'portrait' ? paperWidth * paperDpi * scale: paperHeight * paperDpi * scale"
                             [style.height.px]="selectedPaper.orientation === 'portrait' ? paperHeight * paperDpi * scale: paperWidth * paperDpi * scale">
-                                <div class="preview-page" 
-                                    [style.width.px]="selectedPaper.orientation === 'portrait' ? paperWidth * paperDpi : paperHeight * paperDpi" 
-                                    [style.height.px]="selectedPaper.orientation === 'portrait' ? paperHeight * paperDpi : paperWidth * paperDpi"
-                                    [style.padding.px]="paperMargins * paperDpi"
-                                    [style.transform]="'scale(' + scale + ')'">
-                                    <div #cardSheets class="preview-sheet">
-                                        <ng-container *ngFor="let card of sheet;">
-                                            <div class="card-wrapper" [style.margin.px]="cardMargins * paperDpi">
-                                                <app-card-preview #cardSheetCards [card]="card" [lowInk]="lowInk" [cache]="renderCache"
-                                                    [template]="card.frontCardTemplateId | entity: templatesService | async"></app-card-preview>
-                                            </div>
-                                        </ng-container>
-                                    </div>
+                            <div class="preview-page"
+                                [style.width.px]="selectedPaper.orientation === 'portrait' ? paperWidth * paperDpi : paperHeight * paperDpi"
+                                [style.height.px]="selectedPaper.orientation === 'portrait' ? paperHeight * paperDpi : paperWidth * paperDpi"
+                                [style.padding.px]="paperMargins * paperDpi" [style.transform]="'scale(' + scale + ')'">
+                                <div #cardSheets class="preview-sheet">
+                                    <ng-container *ngFor="let card of sheet;">
+                                        <div class="card-wrapper" [style.margin.px]="cardMargins * paperDpi">
+                                            <app-card-preview #cardSheetCards [card]="card" [lowInk]="lowInk"
+                                                [cache]="renderCache"
+                                                [template]="card.frontCardTemplateId | entity: templatesService | async"></app-card-preview>
+                                        </div>
+                                    </ng-container>
                                 </div>
                             </div>
-                            <div class="scale-wrapper" *ngIf="showBack"
-                            [style.width.px]="selectedPaper.orientation === 'portrait' ? paperWidth * paperDpi * scale: paperHeight * paperDpi * scale" 
+                        </div>
+                        <div class="scale-wrapper" *ngIf="showBack"
+                            [style.width.px]="selectedPaper.orientation === 'portrait' ? paperWidth * paperDpi * scale: paperHeight * paperDpi * scale"
                             [style.height.px]="selectedPaper.orientation === 'portrait' ? paperHeight * paperDpi * scale: paperWidth * paperDpi * scale">
-                                <div class="preview-page" 
-                                    [style.width.px]="selectedPaper.orientation === 'portrait' ? paperWidth * paperDpi : paperHeight * paperDpi" 
-                                    [style.height.px]="selectedPaper.orientation === 'portrait' ? paperHeight * paperDpi : paperWidth * paperDpi"
-                                    [style.padding.px]="paperMargins * paperDpi"
-                                    [style.transform]="'scale(' + scale + ')'">
-                                    <div #cardSheets [class]="'preview-sheet ' + (mirrorBacksY ? 'mirror' : 'not-mirror') " 
-                                            [style.transform]="'scale(' + (mirrorBacksX ? -1 : 1) + ', ' + (mirrorBacksY ? -1 : 1) + ')'">
-                                        <ng-container *ngFor="let card of sheet;">
-                                            <div class="card-wrapper" [style.margin.px]="cardMargins * paperDpi" 
-                                                [style.transform]="mirrorBacksY || mirrorBacksX ? 'scaleX(-1) ' : ''">
-                                                <app-card-preview #cardSheetCards [card]="card" [lowInk]="lowInk" [cache]="renderCache"
-                                                    [template]="card.backCardTemplateId | entity: templatesService | async"></app-card-preview>
-                                            </div>
-                                        </ng-container>
-                                    </div>
+                            <div class="preview-page"
+                                [style.width.px]="selectedPaper.orientation === 'portrait' ? paperWidth * paperDpi : paperHeight * paperDpi"
+                                [style.height.px]="selectedPaper.orientation === 'portrait' ? paperHeight * paperDpi : paperWidth * paperDpi"
+                                [style.padding.px]="paperMargins * paperDpi" [style.transform]="'scale(' + scale + ')'">
+                                <div #cardSheets [class]="'preview-sheet ' + (mirrorBacksY ? 'mirror' : 'not-mirror') "
+                                    [style.transform]="'scale(' + (mirrorBacksX ? -1 : 1) + ', ' + (mirrorBacksY ? -1 : 1) + ')'">
+                                    <ng-container *ngFor="let card of sheet;">
+                                        <div class="card-wrapper" [style.margin.px]="cardMargins * paperDpi"
+                                            [style.transform]="mirrorBacksY || mirrorBacksX ? 'scaleX(-1) ' : ''">
+                                            <app-card-preview #cardSheetCards [card]="card" [lowInk]="lowInk"
+                                                [cache]="renderCache"
+                                                [template]="card.backCardTemplateId | entity: templatesService | async"></app-card-preview>
+                                        </div>
+                                    </ng-container>
                                 </div>
                             </div>
+                        </div>
                         <!-- </ng-container> -->
                     </div>
                 </ng-container>
                 <ng-container *ngIf="exportType === 'singular-export'">
                     <div class="preview-individuals">
                         <ng-container *ngFor="let card of cards; let i = index">
-                            <div class="card-scale-wrapper"
-                                [style.width.px]="frontCards.initialWidth * scale"
+                            <div class="card-scale-wrapper" [style.width.px]="frontCards.initialWidth * scale"
                                 [style.height.px]="frontCards.initialHeight * scale">
-                                <div class="card-wrapper"
-                                    [style.transform]="'scale(' + scale + ')'">
+                                <div class="card-wrapper" [style.transform]="'scale(' + scale + ')'">
                                     <app-card-preview #frontCards [card]="card" [cache]="renderCache"
                                         [template]="card.frontCardTemplateId | entity: templatesService | async"></app-card-preview>
                                 </div>
                             </div>
-                            <div class="card-scale-wrapper"
-                                [style.width.px]="backCards.initialWidth * scale"
+                            <div class="card-scale-wrapper" [style.width.px]="backCards.initialWidth * scale"
                                 [style.height.px]="backCards.initialHeight * scale">
-                                <div class="card-wrapper"
-                                    [style.transform]="'scale(' + scale + ')'">
+                                <div class="card-wrapper" [style.transform]="'scale(' + scale + ')'">
                                     <app-card-preview #backCards [card]="card" [cache]="renderCache"
                                         [template]="card.backCardTemplateId | entity: templatesService | async"></app-card-preview>
                                 </div>
@@ -85,56 +82,57 @@
         <p-card styleClass="page-card">
             <div class="settings-panel p-fluid">
                 <div class="p-field">
-                    <p-selectButton [options]="exportOptions" [(ngModel)]="exportType" optionLabel="name" 
+                    <p-selectButton [options]="exportOptions" [(ngModel)]="exportType" optionLabel="name"
                         optionValue="value" [allowEmpty]="false"></p-selectButton>
                 </div>
                 <ng-container *ngIf="exportType === 'sheet-export'">
                     <div class="p-field">
-                        <p-dropdown [options]="paperOptions" [(ngModel)]="selectedPaper" optionLabel="name"
-                            (onChange)="changePaperType()"></p-dropdown>
+                        <p-select [options]="paperOptions" [(ngModel)]="selectedPaper" optionLabel="name"
+                            (onChange)="changePaperType()"></p-select>
                     </div>
                     <div class="p-d-flex p-flex-row">
                         <div class="p-field p-mr-2">
                             <label [for]="paperWidth">{{'export.paper-width' | translate}}</label>
-                            <input type="number" pInputText [id]="paperWidth" [(ngModel)]="paperWidth" required autofocus 
-                                [disabled]="!selectedPaper.name.includes('Custom')"/>
+                            <input type="number" pInputText [id]="paperWidth" [(ngModel)]="paperWidth" required
+                                autofocus [disabled]="!selectedPaper.name.includes('Custom')" />
                         </div>
                         <div class="p-field">
                             <label [for]="paperHeight">{{'export.paper-height' | translate}}</label>
-                            <input type="number" pInputText [id]="paperHeight" [(ngModel)]="paperHeight" required autofocus 
-                                [disabled]="!selectedPaper.name.includes('Custom')"/>
+                            <input type="number" pInputText [id]="paperHeight" [(ngModel)]="paperHeight" required
+                                autofocus [disabled]="!selectedPaper.name.includes('Custom')" />
                         </div>
                     </div>
                     <div class="p-d-flex p-flex-row">
                         <div class="p-field p-mr-2">
                             <label [for]="paperMargins">{{'export.paper-margins' | translate}}</label>
-                            <input type="number" pInputText [id]="paperMargins" [(ngModel)]="paperMargins" required autofocus 
-                                [disabled]="selectedPaper.name.includes('Tabletop Simulator')"/>
+                            <input type="number" pInputText [id]="paperMargins" [(ngModel)]="paperMargins" required
+                                autofocus [disabled]="selectedPaper.name.includes('Tabletop Simulator')" />
                         </div>
                         <div class="p-field">
                             <label [for]="cardMargins">{{'export.card-margins' | translate}}</label>
-                            <input type="number" pInputText [id]="cardMargins" [(ngModel)]="cardMargins" required autofocus 
-                                [disabled]="selectedPaper.name.includes('Tabletop Simulator')"/>
+                            <input type="number" pInputText [id]="cardMargins" [(ngModel)]="cardMargins" required
+                                autofocus [disabled]="selectedPaper.name.includes('Tabletop Simulator')" />
                         </div>
                     </div>
                     <div class="p-field">
                         <label [for]="cardsPerPage">{{'export.cards-per-page' | translate}}</label>
-                        <input type="number" pInputText [id]="cardsPerPage" [(ngModel)]="cardsPerPage" required autofocus 
-                            (ngModelChange)="updateSlices()" 
-                            [disabled]="selectedPaper.name.includes('Tabletop Simulator')"/>
+                        <input type="number" pInputText [id]="cardsPerPage" [(ngModel)]="cardsPerPage" required
+                            autofocus (ngModelChange)="updateSlices()"
+                            [disabled]="selectedPaper.name.includes('Tabletop Simulator')" />
                     </div>
                     <div class="p-field p-d-flex p-flex-row">
                         <div class="p-field p-d-inline-flex p-flex-row p-mr-2">
-                            <p-checkbox name="lowInk" class="p-mr-2" [binary]="true" [(ngModel)]="lowInk" inputId="lowInk"></p-checkbox>
+                            <p-checkbox name="lowInk" class="p-mr-2" [binary]="true" [(ngModel)]="lowInk"
+                                inputId="lowInk"></p-checkbox>
                             <label for="lowInk" class="ml-2">{{'export.low-ink-mode' | translate}}</label>
                         </div>
                         <div class="p-field p-d-inline-flex p-flex-row p-mr-2">
-                            <p-checkbox name="mirrorBacksX" class="p-mr-2" [binary]="true" [(ngModel)]="mirrorBacksX" 
+                            <p-checkbox name="mirrorBacksX" class="p-mr-2" [binary]="true" [(ngModel)]="mirrorBacksX"
                                 inpudId="mirrorBacksX"></p-checkbox>
                             <label for="mirrorBacksX" class="ml-2">{{'export.mirror-backs-x' | translate}}</label>
                         </div>
                         <div class="p-field p-d-inline-flex p-flex-row p-mr-2">
-                            <p-checkbox name="mirrorBacksY" class="p-mr-2" [binary]="true" [(ngModel)]="mirrorBacksY" 
+                            <p-checkbox name="mirrorBacksY" class="p-mr-2" [binary]="true" [(ngModel)]="mirrorBacksY"
                                 inputId="mirrorBacksY"></p-checkbox>
                             <label for="mirrorBacksY" class="ml-2">{{'export.mirror-backs-y' | translate}}</label>
                         </div>
@@ -146,40 +144,42 @@
                         </div>
                         <div class="p-field">
                             <label [for]="paperDpi">{{'export.max-tts-pixels' | translate}}</label>
-                            <input type="number" pInputText [id]="paperDpi" [(ngModel)]="maxTtsPixels" required autofocus 
-                            (ngModelChange)="calculatePixelRatio()" 
-                            [disabled]="!selectedPaper.name.includes('Tabletop')"/>
+                            <input type="number" pInputText [id]="paperDpi" [(ngModel)]="maxTtsPixels" required
+                                autofocus (ngModelChange)="calculatePixelRatio()"
+                                [disabled]="!selectedPaper.name.includes('Tabletop')" />
                         </div>
                     </div>
                     <div class="p-field">
-                        <p-message severity="info"
-                            [text]="'export.export-information' | translate"></p-message>
-                        <p-message severity="error" class="p-ml-1" *ngIf="someCardsMissingTemplates"
-                            [text]="'export.missing-templates-warning' | translate"></p-message>
+                        <p-message severity="info">{{'export.export-information' | translate}}</p-message>
+                        <p-message severity="error" class="p-ml-1"
+                            *ngIf="someCardsMissingTemplates">{{'export.missing-templates-warning' |
+                            translate}}</p-message>
                     </div>
                 </ng-container>
                 <ng-container *ngIf="exportType === 'singular-export'">
                     <div class="p-field">
                         <label [for]="individualExportPixelRatio">Scale (larger/smaller images)</label>
-                        <input type="number" pInputText [id]="individualExportPixelRatio" [(ngModel)]="individualExportPixelRatio" required autofocus />
+                        <input type="number" pInputText [id]="individualExportPixelRatio"
+                            [(ngModel)]="individualExportPixelRatio" required autofocus />
                     </div>
                     <div class="p-field p-d-flex p-flex-row">
-                        <p-checkbox name="individualExportUseCardName" class="p-mr-2"
-                            [binary]="true" [(ngModel)]="individualExportUseCardName" 
+                        <p-checkbox name="individualExportUseCardName" class="p-mr-2" [binary]="true"
+                            [(ngModel)]="individualExportUseCardName"
                             inputId="individualExportUseCardName"></p-checkbox>
                         <label for="individualExportUseCardName" class="ml-2">Use Card name</label>
                     </div>
                 </ng-container>
-                
-                <button pButton pRipple [label]="'controls.export' | translate" icon="pi pi-file" class="p-button p-mr-2" (click)="export()"></button>
+
+                <button pButton pRipple [label]="'controls.export' | translate" icon="pi pi-file"
+                    class="p-button p-mr-2" (click)="export()"></button>
             </div>
         </p-card>
     </div>
 </div>
 <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
-<app-export-selection-dialog [(visible)]="exportSelectionDialogVisible"
-    (onApply)="updateSelection($event)" [records]="originalCards"></app-export-selection-dialog>
-<p-dialog header="Exporting Data" [(visible)]="displayLoading" [style]="{width: '450px'}" [modal]="true" >
+<app-export-selection-dialog [(visible)]="exportSelectionDialogVisible" (onApply)="updateSelection($event)"
+    [records]="originalCards"></app-export-selection-dialog>
+<p-dialog header="Exporting Data" [(visible)]="displayLoading" [style]="{width: '450px'}" [modal]="true">
     <div class="p-field">{{'export.wait-message' | translate}}</div>
     <p-progressbar [value]="loadingPercent" [showValue]="false"></p-progressbar>
     <div class="p-field p-mt-2">

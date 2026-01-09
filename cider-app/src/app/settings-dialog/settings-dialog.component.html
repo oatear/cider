@@ -1,24 +1,25 @@
 <p-dialog [header]="'settings.title' | translate" [(visible)]="visible" (visibleChange)="visibleChange.emit($event)"
-    (onHide)="hideDialog()" [styleClass]="'settings-dialog'"
-    [modal]="true" [style]="{width: '400px'}" [closable]="true">
+    (onHide)="hideDialog()" [styleClass]="'settings-dialog'" [modal]="true" [style]="{width: '400px'}"
+    [closable]="true">
     <ng-template pTemplate="content">
 
         <!-- add a dropdown for language selection -->
         <div class="p-field p-d-flex p-flex-row p-ai-center ">
-            <p-select [options]="languages" appendTo="body" class="p-mr-2"
-                [filter]="true" [filterFields]="['label', 'value']"
-                [(ngModel)]="language" (onChange)="setLanguage($event.value)"
+            <p-select [options]="languages" appendTo="body" class="p-mr-2" [filter]="true"
+                [filterFields]="['label', 'value']" [(ngModel)]="language" (onChange)="setLanguage($event.value)"
                 [placeholder]="'settings.select-language' | translate" />
             <label for="language">{{'settings.language' | translate}}</label>
         </div>
-        <p-message severity="info" escape="false" class="p-mb-4 p-d-flex"
-            [text]="(isElectron ? 'settings.language-info-electron' : 'settings.language-info') | translate"></p-message>
+        <p-message severity="info" escape="false" class="p-mb-4 p-d-flex">
+            {{(isElectron ? 'settings.language-info-electron' : 'settings.language-info') | translate}}
+        </p-message>
 
         <div class="p-field p-d-flex p-flex-row p-ai-center ">
-            <p-toggleswitch [(ngModel)]="darkMode" (onChange)="setDarkMode($event)" 
-                class="p-mr-2"/>
-            <label for="darkMode">{{'settings.dark-mode' | translate}}</label>
+            <p-select [options]="themes" optionLabel="name" optionValue="id" appendTo="body" class="p-mr-2"
+                [(ngModel)]="selectedTheme" (onChange)="setTheme($event.value)"
+                [placeholder]="'settings.select-theme' | translate" />
+            <label for="theme">{{'settings.theme' | translate}}</label>
         </div>
-            
+
     </ng-template>
 </p-dialog>

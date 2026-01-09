@@ -3,13 +3,17 @@
     display: flex;
     flex-direction: column;
 }
+
 :host ::ng-deep p-card {
     flex: 1;
     min-height: 0;
+
     .template-generator-card {
         height: 100%;
+
         .p-card-body {
             height: 100%;
+
             .p-card-content {
                 height: 100%;
             }
@@ -27,26 +31,31 @@
     p-selectbutton {
         align-items: stretch;
         flex-wrap: wrap;
+
         p-togglebutton {
             button.p-togglebutton {
                 height: 100%;
                 background: none;
                 border: none;
+
                 &:hover {
                     background: none;
                     // background: var(--p-button-primary-hover-background);
                     border-radius: var(--p-selectbutton-border-radius);
+
                     &::before {
-                        background: var(--p-button-outlined-contrast-hover-background);
+                        background: var(--cider-hover-background, var(--p-button-outlined-contrast-hover-background));
                     }
                 }
+
                 &.p-togglebutton-checked {
-                    // background: var(--primary-color);
-                    // color: var(--primary-text-color);
+                    color: var(--cider-text-color, #ffffff);
+
                     &::before {
-                        background: var(--p-button-outlined-contrast-active-background);
+                        background: var(--cider-primary-color, var(--p-button-outlined-contrast-active-background));
                     }
                 }
+
                 .p-togglebutton-content {
                     flex-direction: column;
                     text-align: left;
@@ -60,6 +69,7 @@
     display: flex;
     flex-direction: column;
     height: 100%;
+
     .p-steplist {
         .p-step {
             &.p-step-active {
@@ -70,18 +80,22 @@
             }
         }
     }
+
     p-step-panels {
         display: block;
         padding-bottom: 0;
         flex: 1;
         min-height: 0;
+
         p-step-panel.p-steppanel-active {
             height: 100%;
             display: block;
+
             .p-steppanel-content {
                 height: 100%;
                 display: flex;
                 flex-direction: column;
+
                 .card-list {
                     flex: 1;
                     overflow: auto;

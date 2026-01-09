@@ -1,36 +1,37 @@
 :host {
     height: 100%;
 }
+
 :host ::ng-deep p-card {
     height: 100%;
-    .p-card {
+
+    .p-card-body {
         height: 100%;
-        .p-card-body {
+
+        .p-card-content {
             height: 100%;
-            .p-card-content {
-                height: 100%;
-                display: flex;
-                flex-direction: column;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+
+            .card-thumbnails {
+                flex: 1;
                 min-height: 0;
-                .card-thumbnails {
-                    flex: 1;
-                    min-height: 0;
-                }
             }
         }
     }
 }
+
 :host ::ng-deep p-dataview {
-    display: block;
+    // display: block;
+    // height: 100%;
+    display: flex;
+    flex-direction: column;
     height: 100%;
-    .p-dataview {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        .p-dataview-content {
-            flex: 1;
-            overflow: auto;
-        }
+
+    .p-dataview-content {
+        flex: 1;
+        overflow: auto;
     }
 }
 
@@ -39,29 +40,37 @@
         margin-top: 0px;
     }
 }
+
 :host ::ng-deep .card-controls {
     display: flex;
     margin-bottom: 14px;
+
     .filler {
         flex: 1;
     }
 }
+
 :host ::ng-deep .card-thumbnails .p-dataview-content .card-list {
     display: flex;
     flex-wrap: wrap;
+
     app-card-preview {
         margin: 10px;
     }
 }
+
 :host ::ng-deep p-dataview {
     width: 100%;
+
     .p-dataview-emptymessage {
         text-align: center;
     }
+
     .p-dataview .p-paginator-bottom {
         border: none;
     }
-    .p-dataview.p-dataview-list .p-dataview-content > .p-grid > div {
+
+    .p-dataview.p-dataview-list .p-dataview-content>.p-grid>div {
         border: none;
     }
 }

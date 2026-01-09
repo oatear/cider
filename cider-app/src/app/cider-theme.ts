@@ -7,411 +7,8 @@ export const CiderTheme = definePreset(Aura, {
             none: "0",
             xs: "2px",
             sm: "4px",
-            md: "6px",
-            lg: "8px",
-            xl: "12px"
-        },
-        emerald: {
-            50: "#f5faf9",
-            100: "#cfe8e0",
-            200: "#a9d7c7",
-            300: "#82c5ae",
-            400: "#5cb396",
-            500: "#36a17d",
-            600: "#2e896a",
-            700: "#267158",
-            800: "#1e5945",
-            900: "#164032",
-            950: "#0e281f"
-        },
-        green: {
-            50: "#f5fbf7",
-            100: "#d0ecda",
-            200: "#acdcbd",
-            300: "#87cda0",
-            400: "#62bd83",
-            500: "#3dae66",
-            600: "#349457",
-            700: "#2b7a47",
-            800: "#226038",
-            900: "#184629",
-            950: "#0f2c1a"
-        },
-        lime: {
-            50: "#f9fbf6",
-            100: "#e3edd3",
-            200: "#cde0b1",
-            300: "#b6d28e",
-            400: "#a0c46c",
-            500: "#8ab649",
-            600: "#759b3e",
-            700: "#617f33",
-            800: "#4c6428",
-            900: "#37491d",
-            950: "#232e12"
-        },
-        red: {
-            50: "#fcf7f7",
-            100: "#f3d9d9",
-            200: "#e9bbbb",
-            300: "#df9d9d",
-            400: "#d67f7f",
-            500: "#cc6161",
-            600: "#ad5252",
-            700: "#8f4444",
-            800: "#703535",
-            900: "#522727",
-            950: "#331818"
-        },
-        orange: {
-            50: "#fdf8f5",
-            100: "#f4ddcd",
-            200: "#ebc2a5",
-            300: "#e2a87d",
-            400: "#da8d56",
-            500: "#d1722e",
-            600: "#b26127",
-            700: "#925020",
-            800: "#733f19",
-            900: "#542e12",
-            950: "#341d0c"
-        },
-        amber: {
-            50: "#fdfaf4",
-            100: "#f8e7c9",
-            200: "#f2d39f",
-            300: "#ecc074",
-            400: "#e6ac4a",
-            500: "#e0991f",
-            600: "#be821a",
-            700: "#9d6b16",
-            800: "#7b5411",
-            900: "#5a3d0c",
-            950: "#382608"
-        },
-        yellow: {
-            50: "#fdfbf4",
-            100: "#f5eac9",
-            200: "#eeda9e",
-            300: "#e6ca73",
-            400: "#dfb948",
-            500: "#d7a91d",
-            600: "#b79019",
-            700: "#977614",
-            800: "#765d10",
-            900: "#56440c",
-            950: "#362a07"
-        },
-        teal: {
-            50: "#f4fbfa",
-            100: "#caece7",
-            200: "#a1dcd5",
-            300: "#77cdc2",
-            400: "#4ebdb0",
-            500: "#24ae9d",
-            600: "#1f9485",
-            700: "#197a6e",
-            800: "#146056",
-            900: "#0e463f",
-            950: "#092c27"
-        },
-        cyan: {
-            50: "#f4fbfc",
-            100: "#c9ecf2",
-            200: "#9ddde8",
-            300: "#72cede",
-            400: "#47bfd4",
-            500: "#1cb0ca",
-            600: "#1896ac",
-            700: "#147b8d",
-            800: "#0f616f",
-            900: "#0b4651",
-            950: "#072c33"
-        },
-        sky: {
-            50: "#f4f9fc",
-            100: "#cae4ef",
-            200: "#a0cee3",
-            300: "#77b8d7",
-            400: "#4da3ca",
-            500: "#238dbe",
-            600: "#1e78a2",
-            700: "#196385",
-            800: "#134e69",
-            900: "#0e384c",
-            950: "#092330"
-        },
-        blue: {
-            50: "#f6f8fc",
-            100: "#d5dff0",
-            200: "#b3c6e4",
-            300: "#91add9",
-            400: "#7093cd",
-            500: "#4e7ac1",
-            600: "#4268a4",
-            700: "#375587",
-            800: "#2b436a",
-            900: "#1f314d",
-            950: "#141f30"
-        },
-        indigo: {
-            50: "#f8f8fc",
-            100: "#dddef2",
-            200: "#c2c3e8",
-            300: "#a8a9de",
-            400: "#8d8ed4",
-            500: "#7274ca",
-            600: "#6163ac",
-            700: "#50518d",
-            800: "#3f406f",
-            900: "#2e2e51",
-            950: "#1d1d33"
-        },
-        violet: {
-            50: "#f9f7fd",
-            100: "#e2daf4",
-            200: "#cbbdeb",
-            300: "#b4a0e2",
-            400: "#9d83da",
-            500: "#8666d1",
-            600: "#7257b2",
-            700: "#5e4792",
-            800: "#4a3873",
-            900: "#362954",
-            950: "#221a34"
-        },
-        purple: {
-            50: "#faf7fd",
-            100: "#e7daf4",
-            200: "#d5bdec",
-            300: "#c2a0e3",
-            400: "#b082db",
-            500: "#9d65d2",
-            600: "#8556b3",
-            700: "#6e4793",
-            800: "#563874",
-            900: "#3f2854",
-            950: "#271935"
-        },
-        fuchsia: {
-            50: "#fbf6fc",
-            100: "#edd6f1",
-            200: "#e0b5e6",
-            300: "#d294dc",
-            400: "#c474d1",
-            500: "#b653c6",
-            600: "#9b47a8",
-            700: "#7f3a8b",
-            800: "#642e6d",
-            900: "#49214f",
-            950: "#2e1532"
-        },
-        pink: {
-            50: "#fcf6f9",
-            100: "#f2d5e3",
-            200: "#e7b4ce",
-            300: "#dd93b8",
-            400: "#d272a2",
-            500: "#c8518c",
-            600: "#aa4577",
-            700: "#8c3962",
-            800: "#6e2d4d",
-            900: "#502038",
-            950: "#321423"
-        },
-        rose: {
-            50: "#fcf6f7",
-            100: "#f3d3d8",
-            200: "#e9b0ba",
-            300: "#df8e9b",
-            400: "#d56b7d",
-            500: "#cb485e",
-            600: "#ad3d50",
-            700: "#8e3242",
-            800: "#702834",
-            900: "#511d26",
-            950: "#331218"
-        },
-        slate: {
-            50: "#f8fafc",
-            100: "#f1f5f9",
-            200: "#e2e8f0",
-            300: "#cbd5e1",
-            400: "#94a3b8",
-            500: "#64748b",
-            600: "#475569",
-            700: "#334155",
-            800: "#1e293b",
-            900: "#0f172a",
-            950: "#020617"
-        },
-        gray: {
-            50: "#f9fafb",
-            100: "#f3f4f6",
-            200: "#e5e7eb",
-            300: "#d1d5db",
-            400: "#9ca3af",
-            500: "#6b7280",
-            600: "#4b5563",
-            700: "#374151",
-            800: "#1f2937",
-            900: "#111827",
-            950: "#030712"
-        },
-        zinc: {
-            50: "#fafafa",
-            100: "#f4f4f5",
-            200: "#e4e4e7",
-            300: "#d4d4d8",
-            400: "#a1a1aa",
-            500: "#71717a",
-            600: "#52525b",
-            700: "#3f3f46",
-            800: "#27272a",
-            900: "#18181b",
-            950: "#09090b"
-        },
-        neutral: {
-            50: "#fafafa",
-            100: "#f5f5f5",
-            200: "#e5e5e5",
-            300: "#d4d4d4",
-            400: "#a3a3a3",
-            500: "#737373",
-            600: "#525252",
-            700: "#404040",
-            800: "#262626",
-            900: "#171717",
-            950: "#0a0a0a"
-        },
-        stone: {
-            50: "#fafaf9",
-            100: "#f5f5f4",
-            200: "#e7e5e4",
-            300: "#d6d3d1",
-            400: "#a8a29e",
-            500: "#78716c",
-            600: "#57534e",
-            700: "#44403c",
-            800: "#292524",
-            900: "#1c1917",
-            950: "#0c0a09"
-        }
-    },
-    semantic: {
-        transitionDuration: "0.2s",
-        focusRing: {
-            width: "1px",
-            style: "solid",
-            color: "{primary.color}",
-            offset: "2px",
-            shadow: "none"
-        },
-        disabledOpacity: "0.6",
-        iconSize: "1rem",
-        anchorGutter: "2px",
-        primary: {
-            50: "#f6f8f9",
-            100: "#d5dce3",
-            200: "#b3c0ce",
-            300: "#92a4b8",
-            400: "#7089a2",
-            500: "#4f6d8c",
-            600: "#435d77",
-            700: "#374c62",
-            800: "#2b3c4d",
-            900: "#202c38",
-            950: "#141b23"
-        },
-        colorScheme: {
-            dark: {
-                surface: {
-                    0: "#ffffff",
-                    50: "#f7f8f9",
-                    100: "#d9dce2",
-                    200: "#bbc1cb",
-                    300: "#9ca5b3",
-                    400: "#7e8a9c",
-                    500: "#606e85",
-                    600: "#525e71",
-                    700: "#434d5d",
-                    800: "#353d49",
-                    900: "#262c35",
-                    950: "#181c21"
-                },
-                text: {
-                    color: "{surface.200}",
-                },
-                formField: {
-                    borderColor: "{content.background}",
-                    borderRadius: "10px",
-                    color: "{surface.200}",
-                },
-            },
-            light: {
-                surface: {
-                    0: "#ffffff",
-                    50: "#f7f8f9",
-                    100: "#d9dce2",
-                    200: "#bbc1cb",
-                    300: "#9ca5b3",
-                    400: "#7e8a9c",
-                    500: "#606e85",
-                    600: "#525e71",
-                    700: "#434d5d",
-                    800: "#353d49",
-                    900: "#262c35",
-                    950: "#181c21"
-                },
-                text: {
-                    color: "{surface.600}",
-                },
-                formField: {
-                    borderColor: "{surface.100}",
-                    background: "{surface.50}",
-                    borderRadius: "10px",
-                    color: "{surface.400}",
-                },
-            }
-        }
-    },
-    components: {
-        menubar: {
-            root: {
-                background: "{surface.950}",
-                // borderColor: "{content.border.color}",
-                // borderRadius: "{content.border.radius}",
-                // color: "{content.color}",
-                // gap: "0.5rem",
-                // padding: "0.5rem 0.75rem",
-                // transitionDuration: "{transition.duration}"
-            },
-            colorScheme: {
-                dark: {
-                    root: {
-                        background: "{surface.950}",
-                        color: "{text.color}",
-                    },
-                },
-                light: {
-                    root: {
-                        background: "{surface.100}",
-                        color: "{text.color}",
-                    },
-                }
-            }
-        },
-    }
-});
-
-const theme_preset = {
-    primitive: {
-        borderRadius: {
-            none: "0",
-            xs: "2px",
-            sm: "4px",
-            md: "6px",
-            lg: "8px",
+            md: "10px",
+            lg: "12px",
             xl: "12px"
         },
         emerald: {
@@ -810,8 +407,8 @@ const theme_preset = {
         colorScheme: {
             light: {
                 surface: {
-                    0: "#ffffff",
-                    50: "#f7f9fc",
+                    0: "#d9dce2", // app-background
+                    50: "#f7f9fc", // app-content
                     100: "#d8e0ee",
                     200: "#b8c8e1",
                     300: "#99b0d4",
@@ -845,11 +442,11 @@ const theme_preset = {
                     filledBackground: "{surface.50}",
                     filledHoverBackground: "{surface.50}",
                     filledFocusBackground: "{surface.50}",
-                    borderColor: "{surface.300}",
+                    borderColor: "transparent",
                     hoverBorderColor: "{surface.400}",
                     focusBorderColor: "{primary.color}",
                     invalidBorderColor: "{red.400}",
-                    color: "{surface.700}",
+                    color: "var(--cider-text-color, {surface.700})",
                     disabledColor: "{surface.500}",
                     placeholderColor: "{surface.500}",
                     invalidPlaceholderColor: "{red.600}",
@@ -861,13 +458,13 @@ const theme_preset = {
                     shadow: "0 0 #0000, 0 0 #0000, 0 1px 2px 0 rgba(18, 18, 23, 0.05)"
                 },
                 text: {
-                    color: "{surface.700}",
-                    hoverColor: "{surface.800}",
-                    mutedColor: "{surface.500}",
-                    hoverMutedColor: "{surface.600}"
+                    color: "var(--cider-text-color, {surface.700})",
+                    hoverColor: "var(--cider-text-color, {surface.800})",
+                    mutedColor: "var(--cider-text-muted-color, {surface.500})",
+                    hoverMutedColor: "var(--cider-text-muted-color, {surface.600})"
                 },
                 content: {
-                    background: "{surface.0}",
+                    background: "{surface.50}",
                     hoverBackground: "{surface.100}",
                     borderColor: "{surface.200}",
                     color: "{text.color}",
@@ -935,22 +532,22 @@ const theme_preset = {
             },
             dark: {
                 surface: {
-                    0: "#ffffff",
-                    50: "#f7f7f8",
-                    100: "#d9dade",
-                    200: "#babcc5",
-                    300: "#9c9fab",
-                    400: "#7d8191",
-                    500: "#5f6477",
-                    600: "#515565",
-                    700: "#434653",
-                    800: "#343741",
-                    900: "#262830",
-                    950: "#18191e"
+                    0: "#181c21", // app-background
+                    50: "#262c35", // content-background
+                    100: "#353d49",
+                    200: "#434d5d",
+                    300: "#525e71",
+                    400: "#5f6477",
+                    500: "#606e85",
+                    600: "#7e8a9c",
+                    700: "#bbc1cb",
+                    800: "#d9dce2",
+                    900: "#f7f8f9",
+                    950: "#ffffff",
                 },
                 primary: {
                     color: "{primary.400}",
-                    contrastColor: "{surface.900}",
+                    contrastColor: "{surface.0}",
                     hoverColor: "{primary.300}",
                     activeColor: "{primary.200}"
                 },
@@ -965,59 +562,59 @@ const theme_preset = {
                     color: "{surface.200}"
                 },
                 formField: {
-                    background: "{surface.950}",
-                    disabledBackground: "{surface.700}",
-                    filledBackground: "{surface.800}",
-                    filledHoverBackground: "{surface.800}",
-                    filledFocusBackground: "{surface.800}",
-                    borderColor: "{surface.600}",
-                    hoverBorderColor: "{surface.500}",
+                    background: "{surface.0}",
+                    disabledBackground: "{surface.200}",
+                    filledBackground: "{surface.100}",
+                    filledHoverBackground: "{surface.100}",
+                    filledFocusBackground: "{surface.100}",
+                    borderColor: "transparent",
+                    hoverBorderColor: "{surface.400}",
                     focusBorderColor: "{primary.color}",
-                    invalidBorderColor: "{red.300}",
-                    color: "{surface.0}",
-                    disabledColor: "{surface.400}",
-                    placeholderColor: "{surface.400}",
-                    invalidPlaceholderColor: "{red.400}",
-                    floatLabelColor: "{surface.400}",
+                    invalidBorderColor: "{red.400}",
+                    color: "var(--cider-text-color, {surface.950})",
+                    disabledColor: "{surface.500}",
+                    placeholderColor: "{surface.500}",
+                    invalidPlaceholderColor: "{red.600}",
+                    floatLabelColor: "{surface.500}",
                     floatLabelFocusColor: "{primary.color}",
-                    floatLabelActiveColor: "{surface.400}",
+                    floatLabelActiveColor: "{surface.500}",
                     floatLabelInvalidColor: "{form.field.invalid.placeholder.color}",
-                    iconColor: "{surface.400}",
+                    iconColor: "{surface.500}",
                     shadow: "0 0 #0000, 0 0 #0000, 0 1px 2px 0 rgba(18, 18, 23, 0.05)"
                 },
                 text: {
-                    color: "{surface.0}",
-                    hoverColor: "{surface.0}",
-                    mutedColor: "{surface.400}",
-                    hoverMutedColor: "{surface.300}"
+                    color: "var(--cider-text-color, {surface.950})",
+                    hoverColor: "var(--cider-text-color, {surface.950})",
+                    mutedColor: "var(--cider-text-muted-color, {surface.500})",
+                    hoverMutedColor: "var(--cider-text-muted-color, {surface.600})"
                 },
                 content: {
-                    background: "{surface.900}",
-                    hoverBackground: "{surface.800}",
-                    borderColor: "{surface.700}",
+                    background: "{surface.50}",
+                    hoverBackground: "{surface.100}",
+                    borderColor: "{surface.200}",
                     color: "{text.color}",
                     hoverColor: "{text.hover.color}"
                 },
                 overlay: {
                     select: {
-                        background: "{surface.900}",
-                        borderColor: "{surface.700}",
+                        background: "{surface.50}",
+                        borderColor: "{surface.200}",
                         color: "{text.color}"
                     },
                     popover: {
-                        background: "{surface.900}",
-                        borderColor: "{surface.700}",
+                        background: "{surface.50}",
+                        borderColor: "{surface.200}",
                         color: "{text.color}"
                     },
                     modal: {
-                        background: "{surface.900}",
-                        borderColor: "{surface.700}",
+                        background: "{surface.50}",
+                        borderColor: "{surface.200}",
                         color: "{text.color}"
                     }
                 },
                 list: {
                     option: {
-                        focusBackground: "{surface.800}",
+                        focusBackground: "{surface.100}",
                         selectedBackground: "{highlight.background}",
                         selectedFocusBackground: "{highlight.focus.background}",
                         color: "{text.color}",
@@ -1025,8 +622,8 @@ const theme_preset = {
                         selectedColor: "{highlight.color}",
                         selectedFocusColor: "{highlight.focus.color}",
                         icon: {
-                            color: "{surface.500}",
-                            focusColor: "{surface.400}"
+                            color: "{surface.400}",
+                            focusColor: "{surface.500}"
                         }
                     },
                     optionGroup: {
@@ -1036,15 +633,15 @@ const theme_preset = {
                 },
                 navigation: {
                     item: {
-                        focusBackground: "{surface.800}",
-                        activeBackground: "{surface.800}",
+                        focusBackground: "{surface.100}",
+                        activeBackground: "{surface.100}",
                         color: "{text.color}",
                         focusColor: "{text.hover.color}",
                         activeColor: "{text.hover.color}",
                         icon: {
-                            color: "{surface.500}",
-                            focusColor: "{surface.400}",
-                            activeColor: "{surface.400}"
+                            color: "{surface.400}",
+                            focusColor: "{surface.500}",
+                            activeColor: "{surface.500}"
                         }
                     },
                     submenuLabel: {
@@ -1052,9 +649,9 @@ const theme_preset = {
                         color: "{text.muted.color}"
                     },
                     submenuIcon: {
-                        color: "{surface.500}",
-                        focusColor: "{surface.400}",
-                        activeColor: "{surface.400}"
+                        color: "{surface.400}",
+                        focusColor: "{surface.500}",
+                        activeColor: "{surface.500}"
                     }
                 }
             }
@@ -1211,16 +808,16 @@ const theme_preset = {
                 },
                 dark: {
                     chip: {
-                        focusBackground: "{surface.700}",
-                        focusColor: "{surface.0}"
+                        focusBackground: "{surface.200}",
+                        focusColor: "{surface.950}"
                     },
                     dropdown: {
-                        background: "{surface.800}",
-                        hoverBackground: "{surface.700}",
-                        activeBackground: "{surface.600}",
-                        color: "{surface.300}",
-                        hoverColor: "{surface.200}",
-                        activeColor: "{surface.100}"
+                        background: "{surface.100}",
+                        hoverBackground: "{surface.200}",
+                        activeBackground: "{surface.300}",
+                        color: "{surface.600}",
+                        hoverColor: "{surface.700}",
+                        activeColor: "{surface.800}"
                     }
                 }
             }
@@ -1328,8 +925,8 @@ const theme_preset = {
                         color: "{primary.contrast.color}"
                     },
                     secondary: {
-                        background: "{surface.800}",
-                        color: "{surface.300}"
+                        background: "{surface.100}",
+                        color: "{surface.600}"
                     },
                     success: {
                         background: "{green.400}",
@@ -1348,8 +945,8 @@ const theme_preset = {
                         color: "{red.950}"
                     },
                     contrast: {
-                        background: "{surface.0}",
-                        color: "{surface.950}"
+                        background: "{surface.950}",
+                        color: "{surface.0}"
                     }
                 }
             }
@@ -1668,17 +1265,17 @@ const theme_preset = {
                             }
                         },
                         secondary: {
-                            background: "{surface.800}",
-                            hoverBackground: "{surface.700}",
-                            activeBackground: "{surface.600}",
-                            borderColor: "{surface.800}",
-                            hoverBorderColor: "{surface.700}",
-                            activeBorderColor: "{surface.600}",
-                            color: "{surface.300}",
-                            hoverColor: "{surface.200}",
-                            activeColor: "{surface.100}",
+                            background: "{surface.100}",
+                            hoverBackground: "{surface.200}",
+                            activeBackground: "{surface.300}",
+                            borderColor: "{surface.100}",
+                            hoverBorderColor: "{surface.200}",
+                            activeBorderColor: "{surface.300}",
+                            color: "{surface.600}",
+                            hoverColor: "{surface.700}",
+                            activeColor: "{surface.800}",
                             focusRing: {
-                                color: "{surface.300}",
+                                color: "{surface.600}",
                                 shadow: "none"
                             }
                         },
@@ -1758,17 +1355,17 @@ const theme_preset = {
                             }
                         },
                         contrast: {
-                            background: "{surface.0}",
-                            hoverBackground: "{surface.100}",
-                            activeBackground: "{surface.200}",
-                            borderColor: "{surface.0}",
-                            hoverBorderColor: "{surface.100}",
-                            activeBorderColor: "{surface.200}",
-                            color: "{surface.950}",
-                            hoverColor: "{surface.950}",
-                            activeColor: "{surface.950}",
+                            background: "{surface.950}",
+                            hoverBackground: "{surface.800}",
+                            activeBackground: "{surface.700}",
+                            borderColor: "{surface.950}",
+                            hoverBorderColor: "{surface.800}",
+                            activeBorderColor: "{surface.700}",
+                            color: "{surface.0}",
+                            hoverColor: "{surface.0}",
+                            activeColor: "{surface.0}",
                             focusRing: {
-                                color: "{surface.0}",
+                                color: "{surface.950}",
                                 shadow: "none"
                             }
                         }
@@ -1783,8 +1380,8 @@ const theme_preset = {
                         secondary: {
                             hoverBackground: "rgba(255,255,255,0.04)",
                             activeBackground: "rgba(255,255,255,0.16)",
-                            borderColor: "{surface.700}",
-                            color: "{surface.400}"
+                            borderColor: "{surface.200}",
+                            color: "{surface.500}"
                         },
                         success: {
                             hoverBackground: "color-mix(in srgb, {green.400}, transparent 96%)",
@@ -1817,16 +1414,16 @@ const theme_preset = {
                             color: "{red.400}"
                         },
                         contrast: {
-                            hoverBackground: "{surface.800}",
-                            activeBackground: "{surface.700}",
-                            borderColor: "{surface.500}",
-                            color: "{surface.0}"
+                            hoverBackground: "{surface.100}",
+                            activeBackground: "{surface.200}",
+                            borderColor: "{surface.400}",
+                            color: "{surface.950}"
                         },
                         plain: {
-                            hoverBackground: "{surface.800}",
-                            activeBackground: "{surface.700}",
-                            borderColor: "{surface.600}",
-                            color: "{surface.0}"
+                            hoverBackground: "{surface.100}",
+                            activeBackground: "{surface.200}",
+                            borderColor: "{surface.300}",
+                            color: "{surface.950}"
                         }
                     },
                     text: {
@@ -1836,9 +1433,9 @@ const theme_preset = {
                             color: "{primary.color}"
                         },
                         secondary: {
-                            hoverBackground: "{surface.800}",
-                            activeBackground: "{surface.700}",
-                            color: "{surface.400}"
+                            hoverBackground: "{surface.100}",
+                            activeBackground: "{surface.200}",
+                            color: "{surface.500}"
                         },
                         success: {
                             hoverBackground: "color-mix(in srgb, {green.400}, transparent 96%)",
@@ -1866,14 +1463,14 @@ const theme_preset = {
                             color: "{red.400}"
                         },
                         contrast: {
-                            hoverBackground: "{surface.800}",
-                            activeBackground: "{surface.700}",
-                            color: "{surface.0}"
+                            hoverBackground: "{surface.100}",
+                            activeBackground: "{surface.200}",
+                            color: "{surface.950}"
                         },
                         plain: {
-                            hoverBackground: "{surface.800}",
-                            activeBackground: "{surface.700}",
-                            color: "{surface.0}"
+                            hoverBackground: "{surface.100}",
+                            activeBackground: "{surface.200}",
+                            color: "{surface.950}"
                         }
                     },
                     link: {
@@ -2016,16 +1613,16 @@ const theme_preset = {
                 },
                 dark: {
                     dropdown: {
-                        background: "{surface.800}",
-                        hoverBackground: "{surface.700}",
-                        activeBackground: "{surface.600}",
-                        color: "{surface.300}",
-                        hoverColor: "{surface.200}",
-                        activeColor: "{surface.100}"
+                        background: "{surface.100}",
+                        hoverBackground: "{surface.200}",
+                        activeBackground: "{surface.300}",
+                        color: "{surface.600}",
+                        hoverColor: "{surface.700}",
+                        activeColor: "{surface.800}"
                     },
                     today: {
-                        background: "{surface.700}",
-                        color: "{surface.0}"
+                        background: "{surface.200}",
+                        color: "{surface.950}"
                     }
                 }
             }
@@ -2085,8 +1682,8 @@ const theme_preset = {
                 },
                 dark: {
                     indicator: {
-                        background: "{surface.700}",
-                        hoverBackground: "{surface.600}",
+                        background: "{surface.200}",
+                        hoverBackground: "{surface.300}",
                         activeBackground: "{primary.color}"
                     }
                 }
@@ -2256,14 +1853,14 @@ const theme_preset = {
                 },
                 dark: {
                     root: {
-                        background: "{surface.800}",
-                        color: "{surface.0}"
+                        background: "{surface.100}",
+                        color: "{surface.950}"
                     },
                     icon: {
-                        color: "{surface.0}"
+                        color: "{surface.950}"
                     },
                     removeIcon: {
-                        color: "{surface.0}"
+                        color: "{surface.950}"
                     }
                 }
             }
@@ -2300,11 +1897,11 @@ const theme_preset = {
                 },
                 dark: {
                     panel: {
-                        background: "{surface.900}",
-                        borderColor: "{surface.700}"
+                        background: "{surface.50}",
+                        borderColor: "{surface.200}"
                     },
                     handle: {
-                        color: "{surface.0}"
+                        color: "{surface.950}"
                     }
                 }
             }
@@ -2427,14 +2024,14 @@ const theme_preset = {
                 transitionDuration: "{transition.duration}"
             },
             header: {
-                background: "{content.background}",
+                background: "var(--cider-content-background, {content.background})",
                 borderColor: "{datatable.border.color}",
                 color: "{content.color}",
                 borderWidth: "0 0 1px 0",
                 padding: "0.75rem 1rem"
             },
             headerCell: {
-                background: "{content.background}",
+                background: "var(--cider-content-background, {content.background})",
                 hoverBackground: "{content.hover.background}",
                 selectedBackground: "{highlight.background}",
                 borderColor: "{datatable.border.color}",
@@ -2443,6 +2040,9 @@ const theme_preset = {
                 selectedColor: "{highlight.color}",
                 gap: "0.5rem",
                 padding: "0.75rem 1rem",
+                sm: {
+                    padding: "0.375rem 0.5rem"
+                },
                 focusRing: {
                     width: "{focus.ring.width}",
                     style: "{focus.ring.style}",
@@ -2455,7 +2055,7 @@ const theme_preset = {
                 fontWeight: "600"
             },
             row: {
-                background: "{content.background}",
+                background: "var(--cider-content-background, {content.background})",
                 hoverBackground: "{content.hover.background}",
                 selectedBackground: "{highlight.background}",
                 color: "{content.color}",
@@ -2474,7 +2074,7 @@ const theme_preset = {
                 padding: "0.75rem 1rem"
             },
             footerCell: {
-                background: "{content.background}",
+                background: "var(--cider-content-background, {content.background})",
                 borderColor: "{datatable.border.color}",
                 color: "{content.color}",
                 padding: "0.75rem 1rem"
@@ -2483,7 +2083,7 @@ const theme_preset = {
                 fontWeight: "600"
             },
             footer: {
-                background: "{content.background}",
+                background: "var(--cider-content-background, {content.background})",
                 borderColor: "{datatable.border.color}",
                 color: "{content.color}",
                 borderWidth: "0 0 1px 0",
@@ -2583,13 +2183,13 @@ const theme_preset = {
                 },
                 dark: {
                     root: {
-                        borderColor: "{surface.800}"
+                        borderColor: "{surface.100}"
                     },
                     row: {
-                        stripedBackground: "{surface.950}"
+                        stripedBackground: "{surface.50}"
                     },
                     bodyCell: {
-                        selectedBorderColor: "{primary.900}"
+                        selectedBorderColor: "{primary.100}"
                     }
                 }
             }
@@ -2957,13 +2557,13 @@ const theme_preset = {
                 },
                 dark: {
                     thumbnailNavButton: {
-                        hoverBackground: "{surface.700}",
-                        color: "{surface.400}",
-                        hoverColor: "{surface.0}"
+                        hoverBackground: "{surface.200}",
+                        color: "{surface.500}",
+                        hoverColor: "{surface.950}"
                     },
                     indicatorButton: {
-                        background: "{surface.700}",
-                        hoverBackground: "{surface.600}"
+                        background: "{surface.200}",
+                        hoverBackground: "{surface.300}"
                     }
                 }
             }
@@ -3114,15 +2714,15 @@ const theme_preset = {
                         shadow: "0px 4px 8px 0px color-mix(in srgb, {red.500}, transparent 96%)"
                     },
                     secondary: {
-                        background: "{surface.800}",
-                        borderColor: "{surface.700}",
-                        color: "{surface.300}",
+                        background: "{surface.100}",
+                        borderColor: "{surface.200}",
+                        color: "{surface.600}",
                         shadow: "0px 4px 8px 0px color-mix(in srgb, {surface.500}, transparent 96%)"
                     },
                     contrast: {
-                        background: "{surface.0}",
-                        borderColor: "{surface.100}",
-                        color: "{surface.950}",
+                        background: "{surface.950}",
+                        borderColor: "{surface.800}",
+                        color: "{surface.0}",
                         shadow: "0px 4px 8px 0px color-mix(in srgb, {surface.950}, transparent 96%)"
                     }
                 }
@@ -3184,8 +2784,8 @@ const theme_preset = {
                 },
                 dark: {
                     chip: {
-                        focusBackground: "{surface.700}",
-                        color: "{surface.0}"
+                        focusBackground: "{surface.200}",
+                        color: "{surface.950}"
                     }
                 }
             }
@@ -3226,14 +2826,14 @@ const theme_preset = {
                 dark: {
                     button: {
                         background: "transparent",
-                        hoverBackground: "{surface.800}",
-                        activeBackground: "{surface.700}",
+                        hoverBackground: "{surface.100}",
+                        activeBackground: "{surface.200}",
                         borderColor: "{form.field.border.color}",
                         hoverBorderColor: "{form.field.border.color}",
                         activeBorderColor: "{form.field.border.color}",
                         color: "{surface.400}",
-                        hoverColor: "{surface.300}",
-                        activeColor: "{surface.200}"
+                        hoverColor: "{surface.600}",
+                        activeColor: "{surface.700}"
                     }
                 }
             }
@@ -3364,7 +2964,7 @@ const theme_preset = {
                 },
                 dark: {
                     option: {
-                        stripedBackground: "{surface.900}"
+                        stripedBackground: "{surface.50}"
                     }
                 }
             }
@@ -3485,8 +3085,8 @@ const theme_preset = {
         },
         menubar: {
             root: {
-                background: "{content.background}",
-                borderColor: "{content.border.color}",
+                background: "transparent",
+                borderColor: "transparent",
                 borderRadius: "{content.border.radius}",
                 color: "{content.color}",
                 gap: "0.5rem",
@@ -3515,7 +3115,7 @@ const theme_preset = {
             submenu: {
                 padding: "{navigation.list.padding}",
                 gap: "{navigation.list.gap}",
-                background: "{content.background}",
+                background: "var(--cider-content-background, {content.background})",
                 borderColor: "{content.border.color}",
                 borderRadius: "{content.border.radius}",
                 shadow: "{overlay.navigation.shadow}",
@@ -3814,43 +3414,43 @@ const theme_preset = {
                         }
                     },
                     secondary: {
-                        background: "{surface.800}",
-                        borderColor: "{surface.700}",
-                        color: "{surface.300}",
+                        background: "{surface.100}",
+                        borderColor: "{surface.200}",
+                        color: "{surface.600}",
                         shadow: "0px 4px 8px 0px color-mix(in srgb, {surface.500}, transparent 96%)",
                         closeButton: {
-                            hoverBackground: "{surface.700}",
+                            hoverBackground: "{surface.200}",
                             focusRing: {
-                                color: "{surface.300}",
+                                color: "{surface.600}",
                                 shadow: "none"
                             }
                         },
                         outlined: {
-                            color: "{surface.400}",
-                            borderColor: "{surface.400}"
+                            color: "{surface.500}",
+                            borderColor: "{surface.500}"
                         },
                         simple: {
-                            color: "{surface.400}"
+                            color: "{surface.500}"
                         }
                     },
                     contrast: {
-                        background: "{surface.0}",
-                        borderColor: "{surface.100}",
-                        color: "{surface.950}",
+                        background: "{surface.950}",
+                        borderColor: "{surface.800}",
+                        color: "{surface.0}",
                         shadow: "0px 4px 8px 0px color-mix(in srgb, {surface.950}, transparent 96%)",
                         closeButton: {
-                            hoverBackground: "{surface.100}",
+                            hoverBackground: "{surface.800}",
                             focusRing: {
-                                color: "{surface.950}",
+                                color: "{surface.0}",
                                 shadow: "none"
                             }
                         },
                         outlined: {
-                            color: "{surface.0}",
-                            borderColor: "{surface.0}"
+                            color: "{surface.950}",
+                            borderColor: "{surface.950}"
                         },
                         simple: {
-                            color: "{surface.0}"
+                            color: "{surface.950}"
                         }
                     }
                 }
@@ -4305,7 +3905,7 @@ const theme_preset = {
                 },
                 dark: {
                     bar: {
-                        background: "{surface.800}"
+                        background: "{surface.200}"
                     }
                 }
             }
@@ -4887,8 +4487,8 @@ const theme_preset = {
                         color: "{primary.300}"
                     },
                     secondary: {
-                        background: "{surface.800}",
-                        color: "{surface.300}"
+                        background: "{surface.100}",
+                        color: "{surface.600}"
                     },
                     success: {
                         background: "color-mix(in srgb, {green.500}, transparent 84%)",
@@ -4907,8 +4507,8 @@ const theme_preset = {
                         color: "{red.300}"
                     },
                     contrast: {
-                        background: "{surface.0}",
-                        color: "{surface.950}"
+                        background: "{surface.950}",
+                        color: "{surface.0}"
                     }
                 }
             }
@@ -4963,7 +4563,7 @@ const theme_preset = {
         },
         togglebutton: {
             root: {
-                padding: "0.5rem 1rem",
+                padding: "0.25rem 0.25rem",
                 borderRadius: "{content.border.radius}",
                 gap: "0.5rem",
                 fontWeight: "500",
@@ -4994,6 +4594,8 @@ const theme_preset = {
             content: {
                 left: "0.25rem",
                 top: "0.25rem",
+                padding: "0.25rem 0.5rem",
+                borderRadius: "8px",
                 checkedShadow: "0px 1px 2px 0px rgba(0, 0, 0, 0.02), 0px 1px 2px 0px rgba(0, 0, 0, 0.04)"
             },
             colorScheme: {
@@ -5019,22 +4621,22 @@ const theme_preset = {
                 },
                 dark: {
                     root: {
-                        background: "{surface.950}",
-                        checkedBackground: "{surface.950}",
-                        hoverBackground: "{surface.950}",
-                        borderColor: "{surface.950}",
-                        color: "{surface.400}",
-                        hoverColor: "{surface.300}",
-                        checkedColor: "{surface.0}",
-                        checkedBorderColor: "{surface.950}"
+                        background: "{surface.0}",
+                        checkedBackground: "{surface.0}",
+                        hoverBackground: "{surface.0}",
+                        borderColor: "{surface.0}",
+                        color: "{surface.500}",
+                        hoverColor: "{surface.600}",
+                        checkedColor: "{surface.950}",
+                        checkedBorderColor: "{surface.0}"
                     },
                     content: {
-                        checkedBackground: "{surface.800}"
+                        checkedBackground: "{surface.100}"
                     },
                     icon: {
-                        color: "{surface.400}",
-                        hoverColor: "{surface.300}",
-                        checkedColor: "{surface.0}"
+                        color: "{surface.500}",
+                        hoverColor: "{surface.600}",
+                        checkedColor: "{surface.950}"
                     }
                 }
             }
@@ -5089,20 +4691,20 @@ const theme_preset = {
                 },
                 dark: {
                     root: {
-                        background: "{surface.700}",
-                        disabledBackground: "{surface.600}",
-                        hoverBackground: "{surface.600}",
+                        background: "{surface.200}",
+                        disabledBackground: "{surface.300}",
+                        hoverBackground: "{surface.300}",
                         checkedBackground: "{primary.color}",
                         checkedHoverBackground: "{primary.hover.color}"
                     },
                     handle: {
-                        background: "{surface.400}",
-                        disabledBackground: "{surface.900}",
-                        hoverBackground: "{surface.300}",
-                        checkedBackground: "{surface.900}",
-                        checkedHoverBackground: "{surface.900}",
-                        color: "{surface.900}",
-                        hoverColor: "{surface.800}",
+                        background: "{surface.500}",
+                        disabledBackground: "{surface.50}",
+                        hoverBackground: "{surface.600}",
+                        checkedBackground: "{surface.50}",
+                        checkedHoverBackground: "{surface.50}",
+                        color: "{surface.50}",
+                        hoverColor: "{surface.100}",
                         checkedColor: "{primary.color}",
                         checkedHoverColor: "{primary.hover.color}"
                     }
@@ -5341,10 +4943,10 @@ const theme_preset = {
                 },
                 dark: {
                     root: {
-                        borderColor: "{surface.800}"
+                        borderColor: "{surface.100}"
                     },
                     bodyCell: {
-                        selectedBorderColor: "{primary.900}"
+                        selectedBorderColor: "{primary.100}"
                     }
                 }
             }
@@ -5481,7 +5083,7 @@ const theme_preset = {
                         background: "color-mix(in srgb, {blue.500}, transparent 84%)",
                         borderColor: "color-mix(in srgb, {blue.700}, transparent 64%)",
                         color: "{blue.500}",
-                        detailColor: "{surface.0}",
+                        detailColor: "{surface.950}",
                         shadow: "0px 4px 8px 0px color-mix(in srgb, {blue.500}, transparent 96%)",
                         closeButton: {
                             hoverBackground: "rgba(255, 255, 255, 0.05)",
@@ -5495,7 +5097,7 @@ const theme_preset = {
                         background: "color-mix(in srgb, {green.500}, transparent 84%)",
                         borderColor: "color-mix(in srgb, {green.700}, transparent 64%)",
                         color: "{green.500}",
-                        detailColor: "{surface.0}",
+                        detailColor: "{surface.950}",
                         shadow: "0px 4px 8px 0px color-mix(in srgb, {green.500}, transparent 96%)",
                         closeButton: {
                             hoverBackground: "rgba(255, 255, 255, 0.05)",
@@ -5509,7 +5111,7 @@ const theme_preset = {
                         background: "color-mix(in srgb, {yellow.500}, transparent 84%)",
                         borderColor: "color-mix(in srgb, {yellow.700}, transparent 64%)",
                         color: "{yellow.500}",
-                        detailColor: "{surface.0}",
+                        detailColor: "{surface.950}",
                         shadow: "0px 4px 8px 0px color-mix(in srgb, {yellow.500}, transparent 96%)",
                         closeButton: {
                             hoverBackground: "rgba(255, 255, 255, 0.05)",
@@ -5523,7 +5125,7 @@ const theme_preset = {
                         background: "color-mix(in srgb, {red.500}, transparent 84%)",
                         borderColor: "color-mix(in srgb, {red.700}, transparent 64%)",
                         color: "{red.500}",
-                        detailColor: "{surface.0}",
+                        detailColor: "{surface.950}",
                         shadow: "0px 4px 8px 0px color-mix(in srgb, {red.500}, transparent 96%)",
                         closeButton: {
                             hoverBackground: "rgba(255, 255, 255, 0.05)",
@@ -5534,29 +5136,29 @@ const theme_preset = {
                         }
                     },
                     secondary: {
-                        background: "{surface.800}",
-                        borderColor: "{surface.700}",
-                        color: "{surface.300}",
-                        detailColor: "{surface.0}",
+                        background: "{surface.100}",
+                        borderColor: "{surface.200}",
+                        color: "{surface.600}",
+                        detailColor: "{surface.950}",
                         shadow: "0px 4px 8px 0px color-mix(in srgb, {surface.500}, transparent 96%)",
                         closeButton: {
-                            hoverBackground: "{surface.700}",
+                            hoverBackground: "{surface.200}",
                             focusRing: {
-                                color: "{surface.300}",
+                                color: "{surface.600}",
                                 shadow: "none"
                             }
                         }
                     },
                     contrast: {
-                        background: "{surface.0}",
-                        borderColor: "{surface.100}",
-                        color: "{surface.950}",
-                        detailColor: "{surface.950}",
+                        background: "{surface.950}",
+                        borderColor: "{surface.800}",
+                        color: "{surface.0}",
+                        detailColor: "{surface.0}",
                         shadow: "0px 4px 8px 0px color-mix(in srgb, {surface.950}, transparent 96%)",
                         closeButton: {
-                            hoverBackground: "{surface.100}",
+                            hoverBackground: "{surface.800}",
                             focusRing: {
-                                color: "{surface.950}",
+                                color: "{surface.0}",
                                 shadow: "none"
                             }
                         }
@@ -5602,8 +5204,8 @@ const theme_preset = {
                 },
                 dark: {
                     root: {
-                        background: "{surface.700}",
-                        color: "{surface.0}"
+                        background: "{surface.200}",
+                        color: "{surface.950}"
                     }
                 }
             }
@@ -5623,4 +5225,4 @@ const theme_preset = {
             }
         }
     }
-}
+});
