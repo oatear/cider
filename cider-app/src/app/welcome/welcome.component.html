@@ -1,15 +1,16 @@
-<app-page-header [header]="'welcome.title' | translate" 
+<app-page-header [header]="'welcome.title' | translate"
     [subheader]="isElectron ? ('welcome.subtitle-electron' | translate)
                     : ('welcome.subtitle' | translate)"></app-page-header>
 <p-card styleClass="artwork-card"></p-card>
-<p-card *ngIf="isElectron" styleClass="projects-card">
+@if (isElectron) {
+  <p-card styleClass="projects-card">
     <p-button label="+ Blank Project"
-        (click)="newProject(true)"></p-button>
+    (click)="newProject(true)"></p-button>
     <p-button label="Sample Card Game"
-        (click)="newProject(false)"></p-button>
-    <ng-container *ngFor="let projectUrl of recentProjectUrls">
-        <p-button styleClass="project-button"
-        [label]="projectUrl.name" 
+    (click)="newProject(false)"></p-button>
+    @for (projectUrl of recentProjectUrls; track projectUrl) {
+      <p-button styleClass="project-button"
+        [label]="projectUrl.name"
         (mouseover)="projectUrl.hover = true"
         (mouseout)="projectUrl.hover = false"
         (click)="openProject(projectUrl.persistentPath)"
@@ -20,18 +21,19 @@
             : 'linear-gradient(45deg, hsl(' + projectUrl.hue + ' 50% 45%), 
                 hsl(' + projectUrl.hue2 + ' 50% 30%)) 0% 0% / 250% 250%'
         }"></p-button>
-    </ng-container>
-</p-card>
+    }
+  </p-card>
+}
 <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
 <p-dialog [header]="loadingHeader" [(visible)]="displayLoading" [style]="{width: '450px'}" [modal]="true" >
-    <div class="p-field">
-        Please wait for the process to complete.
-    </div>
-    <p-progressbar [value]="loadingPercent" [showValue]="false" 
-        [mode]="loadingIndeterminate ? 'indeterminate' : 'determinate'"></p-progressbar>
-    <div class="p-field p-mt-2">
-        {{loadingInfo}}
-    </div>
+  <div class="p-field">
+    Please wait for the process to complete.
+  </div>
+  <p-progressbar [value]="loadingPercent" [showValue]="false"
+  [mode]="loadingIndeterminate ? 'indeterminate' : 'determinate'"></p-progressbar>
+  <div class="p-field p-mt-2">
+    {{loadingInfo}}
+  </div>
 </p-dialog>
 
 <div style="height: 25px"></div>

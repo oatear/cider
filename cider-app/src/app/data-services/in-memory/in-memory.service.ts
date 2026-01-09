@@ -3,7 +3,7 @@ import { EntityService } from '../types/entity-service.type';
 import { SearchParameters } from '../types/search-parameters.type';
 import { SearchResult } from '../types/search-result.type';
 
-export class InMemoryService<Entity, Identity extends string | number> implements EntityService<Entity, Identity>{
+export class InMemoryService<Entity, Identity extends string | number> implements EntityService<Entity, Identity> {
 
   protected fields: EntityField<Entity>[];
   protected records: Entity[];
@@ -13,11 +13,15 @@ export class InMemoryService<Entity, Identity extends string | number> implement
     this.records = records || [];
   }
 
+  getTableName() {
+    return 'in-memory';
+  }
+
   getEntityName(entity: Entity) {
     return '' + (<any>entity)[this.getIdField()];
   }
 
-  getIdField() : string {
+  getIdField(): string {
     return 'id';
   }
 
@@ -27,7 +31,19 @@ export class InMemoryService<Entity, Identity extends string | number> implement
     });
   }
 
-   search(searchParameters: SearchParameters) {
+  getIdToNameMap() {
+    return new Promise<Map<Identity, string>>((resolve, reject) => {
+      resolve(new Map());
+    });
+  }
+
+  getLookups() {
+    return new Promise<Map<EntityService<any, string | number>, Map<string | number, string>>>((resolve, reject) => {
+      resolve(new Map());
+    });
+  }
+
+  search(searchParameters: SearchParameters) {
     return new Promise<SearchResult<Entity>>((resolve, reject) => {
       resolve({
         records: this.records,
@@ -69,8 +85,13 @@ export class InMemoryService<Entity, Identity extends string | number> implement
 
   deleteAll() {
     return new Promise<boolean>((resolve, reject) => {
-      return true;
+      this.records = [];
+      resolve(true);
     });
+  }
+
+  emptyTable() {
+    return this.deleteAll();
   }
 
 }
