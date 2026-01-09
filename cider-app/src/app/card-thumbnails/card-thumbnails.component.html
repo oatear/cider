@@ -1,11 +1,11 @@
 <p-card styleClass="page-card tabbed-card">
   <div class="card-controls">
     <p-selectButton [options]="zoomOptions" [(ngModel)]="zoomLevel" class="p-mr-3" optionLabel="label"
-    optionValue="value" required="true" allowEmpty="false"></p-selectButton>
+      optionValue="value" required="true" allowEmpty="false"></p-selectButton>
     <p-selectButton [options]="sideOptions" [(ngModel)]="sideSelected" class="p-mr-3" optionLabel="label"
-    optionValue="value" required="true" allowEmpty="false"></p-selectButton>
+      optionValue="value" required="true" allowEmpty="false"></p-selectButton>
     <p-selectButton [options]="copyOptions" [(ngModel)]="copySelected" class="p-mr-3" optionLabel="label"
-    optionValue="value" required="true" (onChange)="refreshCards()" allowEmpty="false"></p-selectButton>
+      optionValue="value" required="true" (onChange)="refreshCards()" allowEmpty="false"></p-selectButton>
     <div class="filler"></div>
     <p-iconfield>
       <input type="text" pInputText [placeholder]="'controls.search' | translate" (input)="filter($event)" />
@@ -17,17 +17,15 @@
       [filterBy]="filterFields" [alwaysShowPaginator]="false" [showCurrentPageReport]="true">
       <ng-template let-cards #list>
         <div class="card-list">
-          @for (card of cards; track card) {
-            @if (sideSelected == 'fronts' || sideSelected == 'both') {
-              <app-card-preview [cache]="false"
-                [tiltable]="true" [card]="card" [scale]="zoomLevel"
-              [template]="card.frontCardTemplateId | entity: templatesService | async"></app-card-preview>
-            }
-            @if (sideSelected == 'backs' || sideSelected == 'both') {
-              <app-card-preview [cache]="false"
-                [tiltable]="true" [card]="card" [scale]="zoomLevel"
-              [template]="card.backCardTemplateId | entity: templatesService | async"></app-card-preview>
-            }
+          @for (card of cards; track $index) {
+          @if (sideSelected == 'fronts' || sideSelected == 'both') {
+          <app-card-preview [cache]="false" [tiltable]="true" [card]="card" [scale]="zoomLevel"
+            [template]="card.frontCardTemplateId | entity: templatesService | async"></app-card-preview>
+          }
+          @if (sideSelected == 'backs' || sideSelected == 'both') {
+          <app-card-preview [cache]="false" [tiltable]="true" [card]="card" [scale]="zoomLevel"
+            [template]="card.backCardTemplateId | entity: templatesService | async"></app-card-preview>
+          }
           }
         </div>
       </ng-template>

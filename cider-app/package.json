@@ -6,7 +6,7 @@
     "email": "contact@oatear.com",
     "url": "https://oatear.com"
   },
-  "version": "0.5.6",
+  "version": "0.5.7",
   "repository": "https://github.com/oatear/cider",
   "main": "electron-app/dist/main.js",
   "scripts": {
@@ -48,6 +48,7 @@
     "@types/uuid": "^9.0.8",
     "dexie": "^3.2.7",
     "dexie-export-import": "^4.1.4",
+    "dom-to-image-more": "^3.7.2",
     "electron-builder-notarize": "^1.5.2",
     "file-saver": "^2.0.5",
     "handlebars": "^4.7.8",

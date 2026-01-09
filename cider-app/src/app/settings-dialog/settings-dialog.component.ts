@@ -60,6 +60,25 @@ export class SettingsDialogComponent {
     this.translate.use(lang);
   }
 
+  public get renderers(): { label: string, value: string }[] {
+    return [
+      { label: 'html-to-image', value: 'html-to-image' },
+      { label: 'dom-to-image-more', value: 'dom-to-image-more' }
+    ];
+  }
+
+  public get selectedRenderer(): string {
+    return this.localStorageService.getRenderer();
+  }
+
+  public set selectedRenderer(value: string) {
+    this.setRenderer(value);
+  }
+
+  public setRenderer(renderer: string) {
+    this.localStorageService.setRenderer(renderer);
+  }
+
   public setTheme(themeId: string) {
     this.themeService.applyTheme(themeId);
   }

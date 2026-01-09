@@ -1,0 +1,36 @@
+.settings-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding-top: 1rem;
+}
+
+.setting-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.setting-label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--cider-text-color);
+}
+
+.setting-input {
+    width: 100%;
+
+    ::ng-deep .p-select {
+        width: 100%;
+    }
+}
+
+.setting-info {
+    font-size: 0.85rem;
+    margin-top: -0.75rem;
+    margin-bottom: 0.5rem;
+
+    ::ng-deep .p-message {
+        margin: 0;
+    }
+}

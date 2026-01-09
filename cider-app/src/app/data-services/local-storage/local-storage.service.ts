@@ -13,14 +13,15 @@ export class LocalStorageService {
   static readonly RECENT_PROJECT_URLS = "recent-project-urls";
   static readonly MAX_RECENT_PROJECT_URLS = 5;
   static readonly DARK_MODE = "dark-mode";
+  static readonly RENDERER_TYPE = "renderer-type";
 
   public recentProjectUrls: BehaviorSubject<PersistentPath[]>;
 
   constructor(
-      private electronService: ElectronService) {
+    private electronService: ElectronService) {
     this.recentProjectUrls = new BehaviorSubject<PersistentPath[]>(
       this.getRecentProjectUrlsFromLocalStorage());
-     
+
     // clean up the recent project urls -- remove any that are empty or don't exist
     this.cleanRecentProjectUrls().then(urls => {
       localStorage.setItem(LocalStorageService.RECENT_PROJECT_URLS, JSON.stringify(urls));
@@ -39,8 +40,8 @@ export class LocalStorageService {
     this.recentProjectUrls.next(urls);
   }
 
-  private getRecentProjectUrlsFromLocalStorage() : PersistentPath[] {
-    const urlsString : string | null = localStorage.getItem(LocalStorageService.RECENT_PROJECT_URLS);
+  private getRecentProjectUrlsFromLocalStorage(): PersistentPath[] {
+    const urlsString: string | null = localStorage.getItem(LocalStorageService.RECENT_PROJECT_URLS);
     if (urlsString === null) {
       return [];
     }
@@ -66,7 +67,7 @@ export class LocalStorageService {
    * 
    * @returns 
    */
-  public cleanRecentProjectUrls() : Promise<PersistentPath[]> {
+  public cleanRecentProjectUrls(): Promise<PersistentPath[]> {
     const urls = this.getRecentProjectUrlsFromLocalStorage();
     const promises = urls.map(url => this.electronService.listDirectory(url)
       .then(files => files.length > 0 ? url : undefined));
@@ -78,13 +79,21 @@ export class LocalStorageService {
     return this.recentProjectUrls.asObservable();
   }
 
-  public getDarkMode() : boolean {
+  public getDarkMode(): boolean {
     const darkMode = localStorage.getItem(LocalStorageService.DARK_MODE);
     return darkMode === 'true' || darkMode === null; // Default to true if not set
   }
 
   public setDarkMode(darkMode: boolean) {
     localStorage.setItem(LocalStorageService.DARK_MODE, darkMode.toString());
+  }
+
+  public getRenderer(): string {
+    return localStorage.getItem(LocalStorageService.RENDERER_TYPE) || 'html-to-image';
+  }
+
+  public setRenderer(renderer: string) {
+    localStorage.setItem(LocalStorageService.RENDERER_TYPE, renderer);
   }
 
 }

@@ -2,24 +2,34 @@
     (onHide)="hideDialog()" [styleClass]="'settings-dialog'" [modal]="true" [style]="{width: '400px'}"
     [closable]="true">
     <ng-template pTemplate="content">
+        <div class="settings-container">
+            <!-- Language -->
+            <div class="setting-item">
+                <label for="language" class="setting-label">{{'settings.language' | translate}}</label>
+                <p-select [options]="languages" appendTo="body" class="setting-input" [filter]="true"
+                    [filterFields]="['label', 'value']" [(ngModel)]="language" (onChange)="setLanguage($event.value)"
+                    [placeholder]="'settings.select-language' | translate" inputId="language" />
+            </div>
 
-        <!-- add a dropdown for language selection -->
-        <div class="p-field p-d-flex p-flex-row p-ai-center ">
-            <p-select [options]="languages" appendTo="body" class="p-mr-2" [filter]="true"
-                [filterFields]="['label', 'value']" [(ngModel)]="language" (onChange)="setLanguage($event.value)"
-                [placeholder]="'settings.select-language' | translate" />
-            <label for="language">{{'settings.language' | translate}}</label>
+            <p-message severity="info" escape="false" class="setting-info">
+                {{(isElectron ? 'settings.language-info-electron' : 'settings.language-info') | translate}}
+            </p-message>
+
+            <!-- Image Renderer -->
+            <div class="setting-item">
+                <label for="renderer" class="setting-label">Image Renderer</label>
+                <p-select [options]="renderers" optionLabel="label" optionValue="value" appendTo="body"
+                    class="setting-input" [(ngModel)]="selectedRenderer" (onChange)="setRenderer($event.value)"
+                    inputId="renderer" />
+            </div>
+
+            <!-- Theme -->
+            <div class="setting-item">
+                <label for="theme" class="setting-label">{{'settings.theme' | translate}}</label>
+                <p-select [options]="themes" optionLabel="name" optionValue="id" appendTo="body" class="setting-input"
+                    [(ngModel)]="selectedTheme" (onChange)="setTheme($event.value)"
+                    [placeholder]="'settings.select-theme' | translate" inputId="theme" />
+            </div>
         </div>
-        <p-message severity="info" escape="false" class="p-mb-4 p-d-flex">
-            {{(isElectron ? 'settings.language-info-electron' : 'settings.language-info') | translate}}
-        </p-message>
-
-        <div class="p-field p-d-flex p-flex-row p-ai-center ">
-            <p-select [options]="themes" optionLabel="name" optionValue="id" appendTo="body" class="p-mr-2"
-                [(ngModel)]="selectedTheme" (onChange)="setTheme($event.value)"
-                [placeholder]="'settings.select-theme' | translate" />
-            <label for="theme">{{'settings.theme' | translate}}</label>
-        </div>
-
     </ng-template>
 </p-dialog>

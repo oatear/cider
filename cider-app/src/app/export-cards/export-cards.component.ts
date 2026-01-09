@@ -3,7 +3,7 @@ import { CardPreviewComponent } from '../card-preview/card-preview.component';
 import { CardTemplatesService } from '../data-services/services/card-templates.service';
 import { CardsService } from '../data-services/services/cards.service';
 import { Card } from '../data-services/types/card.type';
-import * as htmlToImage from 'html-to-image';
+import { ImageRendererService } from '../data-services/services/image-renderer.service';
 import JSZip from 'jszip';
 import * as pdfMake from 'pdfmake/build/pdfmake';
 import pLimit from 'p-limit';
@@ -15,28 +15,28 @@ import { ConfirmationService } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
-    selector: 'app-export-cards',
-    templateUrl: './export-cards.component.html',
-    styleUrls: ['./export-cards.component.scss'],
-    providers: [ConfirmationService],
-    standalone: false
+  selector: 'app-export-cards',
+  templateUrl: './export-cards.component.html',
+  styleUrls: ['./export-cards.component.scss'],
+  providers: [ConfirmationService],
+  standalone: false
 })
 export class ExportCardsComponent implements OnInit {
   private static readonly SINGULAR_EXPORT = 'singular-export';
   private static readonly SHEET_EXPORT = 'sheet-export';
   private static readonly PDF_DPI = 72;
   private static readonly EXPORT_OPTIONS: RadioOption[] = [
-    { name: 'Card Sheet', value: ExportCardsComponent.SHEET_EXPORT},
-    { name: 'Individual Images', value: ExportCardsComponent.SINGULAR_EXPORT}
+    { name: 'Card Sheet', value: ExportCardsComponent.SHEET_EXPORT },
+    { name: 'Individual Images', value: ExportCardsComponent.SINGULAR_EXPORT }
   ];
   private static readonly PAPER_OPTIONS: PaperType[] = [
-    { name: 'US Letter (Landscape)', width: 8.5, height: 11, orientation: 'landscape', mirrorBacksX: false, mirrorBacksY: true}, 
-    { name: 'US Letter (Portrait)', width: 8.5, height: 11, orientation: 'portrait', mirrorBacksX: true, mirrorBacksY: false}, 
-    { name: 'A4 (Landscape)', width: 8.27, height: 11.69, orientation: 'landscape', mirrorBacksX: false, mirrorBacksY: true}, 
-    { name: 'A4 (Portrait)', width: 8.27, height: 11.69, orientation: 'portrait', mirrorBacksX: true, mirrorBacksY: false}, 
-    { name: 'Custom (Landscape)', width: 8.5, height: 11, orientation: 'landscape', mirrorBacksX: false, mirrorBacksY: true}, 
-    { name: 'Custom (Portrait)', width: 8.5, height: 11, orientation: 'portrait', mirrorBacksX: true, mirrorBacksY: false}, 
-    { name: 'Tabletop Simulator', width: 8.5, height: 11, orientation: 'portrait', mirrorBacksX: false, mirrorBacksY: false}
+    { name: 'US Letter (Landscape)', width: 8.5, height: 11, orientation: 'landscape', mirrorBacksX: false, mirrorBacksY: true },
+    { name: 'US Letter (Portrait)', width: 8.5, height: 11, orientation: 'portrait', mirrorBacksX: true, mirrorBacksY: false },
+    { name: 'A4 (Landscape)', width: 8.27, height: 11.69, orientation: 'landscape', mirrorBacksX: false, mirrorBacksY: true },
+    { name: 'A4 (Portrait)', width: 8.27, height: 11.69, orientation: 'portrait', mirrorBacksX: true, mirrorBacksY: false },
+    { name: 'Custom (Landscape)', width: 8.5, height: 11, orientation: 'landscape', mirrorBacksX: false, mirrorBacksY: true },
+    { name: 'Custom (Portrait)', width: 8.5, height: 11, orientation: 'portrait', mirrorBacksX: true, mirrorBacksY: false },
+    { name: 'Tabletop Simulator', width: 8.5, height: 11, orientation: 'portrait', mirrorBacksX: false, mirrorBacksY: false }
   ];
   @ViewChildren('cardSheets') cardSheets: QueryList<any> = {} as QueryList<any>;
   @ViewChildren('cardSheetCards') cardSheetCards: QueryList<CardPreviewComponent> = {} as QueryList<CardPreviewComponent>;
@@ -81,19 +81,20 @@ export class ExportCardsComponent implements OnInit {
     { label: 'xl', value: 0.4 }
   ];
 
-  constructor(cardsService: CardsService, 
+  constructor(cardsService: CardsService,
     public templatesService: CardTemplatesService,
+    private imageRendererService: ImageRendererService,
     private translate: TranslateService,
     private confirmationService: ConfirmationService) {
-      cardsService.getAll().then(cards => {
-        // check cards for front/back templates being defined
-        const cardsWithTemplatesDefined = cards.filter(card => card.backCardTemplateId && card.frontCardTemplateId);
-        this.someCardsMissingTemplates = cards.length != cardsWithTemplatesDefined.length;
-        this.originalCards = cardsWithTemplatesDefined;
-        this.cards = cardsWithTemplatesDefined;
-        this.updateExpandedCards();
-        this.updateSlices();
-      });
+    cardsService.getAll().then(cards => {
+      // check cards for front/back templates being defined
+      const cardsWithTemplatesDefined = cards.filter(card => card.backCardTemplateId && card.frontCardTemplateId);
+      this.someCardsMissingTemplates = cards.length != cardsWithTemplatesDefined.length;
+      this.originalCards = cardsWithTemplatesDefined;
+      this.cards = cardsWithTemplatesDefined;
+      this.updateExpandedCards();
+      this.updateSlices();
+    });
 
     this.exportOptions = ExportCardsComponent.EXPORT_OPTIONS;
     this.paperOptions = ExportCardsComponent.PAPER_OPTIONS;
@@ -126,8 +127,10 @@ export class ExportCardsComponent implements OnInit {
       replacementList.forEach(replacement => {
         name = name.replace(replacement.search, this.translate.instant(replacement.key));
       });
-      return { name: name, width: option.width, height: option.height, orientation: option.orientation, 
-        mirrorBacksX: option.mirrorBacksX, mirrorBacksY: option.mirrorBacksY };
+      return {
+        name: name, width: option.width, height: option.height, orientation: option.orientation,
+        mirrorBacksX: option.mirrorBacksX, mirrorBacksY: option.mirrorBacksY
+      };
     });
     this.selectedPaper = this.paperOptions[0];
     this.changePaperType();
@@ -184,7 +187,7 @@ export class ExportCardsComponent implements OnInit {
       this.showBack = true;
       this.updateSlices();
     }
-    console.log('change paper type', this.selectedPaper.name, this.mirrorBacksX, this.mirrorBacksY);
+    // console.log('change paper type', this.selectedPaper.name, this.mirrorBacksX, this.mirrorBacksY);
   }
 
   /**
@@ -200,7 +203,7 @@ export class ExportCardsComponent implements OnInit {
   }
 
   public export() {
-    if (this.exportType === ExportCardsComponent.SHEET_EXPORT 
+    if (this.exportType === ExportCardsComponent.SHEET_EXPORT
       && this.selectedPaper.name === 'Tabletop Simulator') {
       this.exportCardSheetsAsImages().catch(err => {
         this.displayErrorDialog(err);
@@ -223,7 +226,7 @@ export class ExportCardsComponent implements OnInit {
       acceptLabel: "OK",
       icon: 'pi pi-exclamation-triangle',
       rejectVisible: false,
-      accept: () => {return;},
+      accept: () => { return; },
     });
   }
 
@@ -238,7 +241,7 @@ export class ExportCardsComponent implements OnInit {
     const preRenders$ = renderSlices.map((slice, index) => {
       return hardLimit(async () => {
         this.sheet = slice;
-        this.loadingInfo = 'Pre-rendering cards ' + (sliceSize * index) 
+        this.loadingInfo = 'Pre-rendering cards ' + (sliceSize * index)
           + '-' + (sliceSize * index + slice.length - 1) + '/' + this.cards.length + '...';
         await GeneralUtils.delay(1000);
         const promisedCards$ = this.cardSheetCards.map(cardPreview => lastValueFrom(cardPreview.isCacheLoaded()).catch(() => {
@@ -249,11 +252,11 @@ export class ExportCardsComponent implements OnInit {
           return Promise.reject('Failed to render card "' + cardPreview.card.name + '" with template "' + cardPreview.template.name + '".');
         }));
         const completedPromises = await Promise.all(promisedCards$);
-        this.loadingPercent += 100.0/(renderSlices.length);
+        this.loadingPercent += 100.0 / (renderSlices.length);
         return completedPromises;
       });
     });
-    return (await Promise.all(preRenders$)).flatMap(renders  => renders);
+    return (await Promise.all(preRenders$)).flatMap(renders => renders);
   }
 
   private async exportCardSheetsAsImages() {
@@ -272,7 +275,7 @@ export class ExportCardsComponent implements OnInit {
           this.sheet = sheet;
           this.showFront = showFront;
           this.showBack = !showFront;
-          this.loadingInfo = 'Rendering sheet ' + sheetIndex + ' ' 
+          this.loadingInfo = 'Rendering sheet ' + sheetIndex + ' '
             + (showFront ? 'front' : 'back') + ' card images...';
           await GeneralUtils.delay(1000);
           const promisedCards$ = this.cardSheetCards.map(cardPreview => lastValueFrom(cardPreview.isCacheLoaded()).catch(() => {
@@ -283,21 +286,21 @@ export class ExportCardsComponent implements OnInit {
             return Promise.reject('Failed to render card "' + cardPreview.card.name + '" with template "' + cardPreview.template.name + '".');
           }));
           await Promise.all(promisedCards$);
-          
-          this.loadingInfo = 'Generating sheet ' + sheetIndex + ' ' 
+
+          this.loadingInfo = 'Generating sheet ' + sheetIndex + ' '
             + (showFront ? 'front' : 'back') + ' image...';
           const cardSheet = this.cardSheets.first;
-          const imgUri = await limit(() => htmlToImage.toPng((<any>cardSheet).nativeElement, 
-            {pixelRatio: this.pixelRatio}));
+          const imgUri = await limit(() => this.imageRendererService.toPng((<any>cardSheet).nativeElement,
+            { pixelRatio: this.pixelRatio }));
           const imgName = 'sheet-' + (showFront ? 'front-' : 'back-')
             + sheetIndex + '.png';
           const sheetImage = this.dataUrlToFile(imgUri, imgName);
-          this.loadingPercent += 80.0/(this.slicedCards.length * 2);
+          this.loadingPercent += 80.0 / (this.slicedCards.length * 2);
           return sheetImage;
         });
       }));
     });
-    const sheetImages = (await Promise.all(promisedSheetImages$)).flatMap(sheetImages  => sheetImages);
+    const sheetImages = (await Promise.all(promisedSheetImages$)).flatMap(sheetImages => sheetImages);
 
     this.loadingInfo = 'Zipping up files...';
     const zippedImages = await this.zipFiles(sheetImages);
@@ -334,23 +337,23 @@ export class ExportCardsComponent implements OnInit {
 
         this.loadingInfo = 'Generating sheet ' + sheetIndex + ' images...';
         const cardSheets = await Promise.all(this.cardSheets.map(cardSheet => limit(() => {
-          return htmlToImage.toPng((<any>cardSheet).nativeElement, {pixelRatio: 1.0, onImageErrorHandler: (error) => {console.log('error', error);}});
+          return this.imageRendererService.toPng((<any>cardSheet).nativeElement, { pixelRatio: 1.0, onImageErrorHandler: (error) => { console.log('error', error); } });
         })));
-        this.loadingPercent += 100.0/(this.slicedCards.length + 1);
+        this.loadingPercent += 100.0 / (this.slicedCards.length + 1);
         return cardSheets;
       });
     });
-    const sheetImages = (await Promise.all(promisedSheetImages$)).flatMap(sheetImages  => sheetImages);
+    const sheetImages = (await Promise.all(promisedSheetImages$)).flatMap(sheetImages => sheetImages);
 
     this.loadingPercent = 0;
     this.loadingInfo = 'Generating PDF file...';
     const docSheets = sheetImages.map(image => {
-      return { 
-        image: image, 
-        width: this.selectedPaper.orientation == 'portrait' 
+      return {
+        image: image,
+        width: this.selectedPaper.orientation == 'portrait'
           ? (this.paperWidth - this.paperMargins * 2) * ExportCardsComponent.PDF_DPI
-          : (this.paperHeight - this.paperMargins * 2) * ExportCardsComponent.PDF_DPI, 
-        height: this.selectedPaper.orientation == 'portrait' 
+          : (this.paperHeight - this.paperMargins * 2) * ExportCardsComponent.PDF_DPI,
+        height: this.selectedPaper.orientation == 'portrait'
           ? (this.paperHeight - this.paperMargins * 2) * ExportCardsComponent.PDF_DPI
           : (this.paperWidth - this.paperMargins * 2) * ExportCardsComponent.PDF_DPI
       };
@@ -358,7 +361,7 @@ export class ExportCardsComponent implements OnInit {
     const docDefinition = {
       content: docSheets,
       pageSize: {
-        width: this.paperWidth * ExportCardsComponent.PDF_DPI, 
+        width: this.paperWidth * ExportCardsComponent.PDF_DPI,
         height: this.paperHeight * ExportCardsComponent.PDF_DPI
       },
       pageOrientation: this.selectedPaper.orientation,
@@ -369,9 +372,11 @@ export class ExportCardsComponent implements OnInit {
       this.loadingPercent = 100;
       this.displayLoading = false
       this.renderCache = false;
-    }, {progressCallback: (progress) => {
-      this.loadingPercent = progress * 100;
-    }});
+    }, {
+      progressCallback: (progress) => {
+        this.loadingPercent = progress * 100;
+      }
+    });
   }
 
   private async exportIndividualImages() {
@@ -384,9 +389,9 @@ export class ExportCardsComponent implements OnInit {
       await lastValueFrom(cardPreview.isCacheLoaded()).catch(() => {
         return Promise.reject('Failed to render card "' + cardPreview.card.name + '" with template "' + cardPreview.template.name + '".');
       });
-      const imgUri = await limit(() => htmlToImage.toPng((<any>cardPreview).element.nativeElement, 
-      {pixelRatio: this.individualExportPixelRatio}));
-      const imgIdentifier = this.individualExportUseCardName 
+      const imgUri = await limit(() => this.imageRendererService.toPng((<any>cardPreview).element.nativeElement,
+        { pixelRatio: this.individualExportPixelRatio }));
+      const imgIdentifier = this.individualExportUseCardName
         ? StringUtils.toKebabCase(cardPreview.card?.name)
         : cardPreview.card?.id;
       const imgName = 'front-' + imgIdentifier + '.png';
@@ -396,16 +401,16 @@ export class ExportCardsComponent implements OnInit {
       await lastValueFrom(cardPreview.isCacheLoaded()).catch(() => {
         return Promise.reject('Failed to render card "' + cardPreview.card.name + '" with template "' + cardPreview.template.name + '".');
       });
-      const imgUri = await limit(() => htmlToImage.toPng((<any>cardPreview).element.nativeElement, 
-      {pixelRatio: this.individualExportPixelRatio}));
-      const imgIdentifier = this.individualExportUseCardName 
+      const imgUri = await limit(() => this.imageRendererService.toPng((<any>cardPreview).element.nativeElement,
+        { pixelRatio: this.individualExportPixelRatio }));
+      const imgIdentifier = this.individualExportUseCardName
         ? StringUtils.toKebabCase(cardPreview.card?.name)
         : cardPreview.card?.id;
       const imgName = 'back-' + imgIdentifier + '.png';
       return this.dataUrlToFile(imgUri, imgName);
     });
     const allCards$ = frontCards$.concat(backCards$);
-    return Promise.all(this.promisesProgress(allCards$, () => this.loadingPercent += 100.0/(allCards$.length + 1)))
+    return Promise.all(this.promisesProgress(allCards$, () => this.loadingPercent += 100.0 / (allCards$.length + 1)))
       .then(promisedImages => {
         this.loadingInfo = 'Zipping up files...';
         return this.zipFiles(promisedImages);
@@ -444,7 +449,7 @@ export class ExportCardsComponent implements OnInit {
       result.push(array.slice(i, i + chunkSize));
     }
     return result;
-}
+  }
 
   /**
    * Convert promises to promises with progress
@@ -490,7 +495,7 @@ export class ExportCardsComponent implements OnInit {
     for (var i = 0; i < byteString.length; i++) {
       blobArray[i] = byteString.charCodeAt(i);
     }
-    return new File([blobArray], fileName, {type: mime});
+    return new File([blobArray], fileName, { type: mime });
   }
 
 }
