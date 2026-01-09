@@ -2,7 +2,8 @@ import { Pipe, PipeTransform } from '@angular/core';
 import { EntityService } from '../types/entity-service.type';
 
 @Pipe({
-  name: 'entityListCached'
+    name: 'entityListCached',
+    standalone: false
 })
 export class EntityListCachedPipe implements PipeTransform {
 

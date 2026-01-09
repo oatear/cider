@@ -5,7 +5,8 @@ import { EntityService } from '../types/entity-service.type';
  * Pipe an entity ID into that entity given a service
  */
 @Pipe({
-  name: 'entity'
+    name: 'entity',
+    standalone: false
 })
 export class EntityPipe implements PipeTransform {
 

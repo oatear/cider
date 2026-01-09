@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'app-site-header',
-  templateUrl: './site-header.component.html',
-  styleUrls: ['./site-header.component.scss']
+    selector: 'app-site-header',
+    templateUrl: './site-header.component.html',
+    styleUrls: ['./site-header.component.scss'],
+    standalone: false
 })
 export class SiteHeaderComponent implements OnInit {
 

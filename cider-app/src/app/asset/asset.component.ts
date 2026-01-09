@@ -8,10 +8,11 @@ import FileUtils from '../shared/utils/file-utils';
 import { combineLatest, forkJoin, take } from 'rxjs';
 
 @Component({
-  selector: 'app-asset',
-  templateUrl: './asset.component.html',
-  styleUrl: './asset.component.scss',
-  providers: [MessageService, ConfirmationService]
+    selector: 'app-asset',
+    templateUrl: './asset.component.html',
+    styleUrl: './asset.component.scss',
+    providers: [MessageService, ConfirmationService],
+    standalone: false
 })
 export class AssetComponent {
   public asset: Asset = {} as Asset;

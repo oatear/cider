@@ -7,25 +7,27 @@
 <p-dialog header="Import Database" [(visible)]="importVisible" [style]="{width: '450px'}" [modal]="true">
     <ng-template pTemplate="content">
         <div class="p-field">
-            <p-message severity="warn" text="WARNING: Importing a database file will overwrite your existing database.
-                Export your existing database to a file before proceeding."></p-message>  
+            <p-message severity="warn">WARNING: Importing a database file will overwrite your existing database. Export
+                your existing database to a file before proceeding.</p-message>
         </div>
         <div class="p-field">
-            <p-fileUpload name="databaseFile" mode="basic" accept=".json" [maxFileSize]="2000000000" 
-                label="Import" chooseLabel="Import" class="inline-block" 
-                [customUpload]="true" (onSelect)="uploadFile($event)"></p-fileUpload>
+            <p-fileUpload name="databaseFile" mode="basic" accept=".json" [maxFileSize]="2000000000" label="Import"
+                chooseLabel="Import" class="inline-block" [customUpload]="true"
+                (onSelect)="uploadFile($event)"></p-fileUpload>
         </div>
     </ng-template>
     <ng-template pTemplate="footer">
-        <button pButton pRipple [label]="'controls.cancel' | translate" icon="pi pi-times" class="p-button-text" (click)="closeImportDialog()"></button>
-        <button pButton pRipple [label]="'controls.import' | translate" icon="pi pi-check" class="p-button-text" (click)="confirmDatabaseImport()"></button>
+        <button pButton pRipple [label]="'controls.cancel' | translate" icon="pi pi-times" class="p-button-text"
+            (click)="closeImportDialog()"></button>
+        <button pButton pRipple [label]="'controls.import' | translate" icon="pi pi-check" class="p-button-text"
+            (click)="confirmDatabaseImport()"></button>
     </ng-template>
 </p-dialog>
-<p-dialog [header]="loadingHeader" [(visible)]="displayLoading" [style]="{width: '450px'}" [modal]="true" >
+<p-dialog [header]="loadingHeader" [(visible)]="displayLoading" [style]="{width: '450px'}" [modal]="true">
     <div class="p-field">
         Please wait for the process to complete.
     </div>
-    <p-progressbar [value]="loadingPercent" [showValue]="false" 
+    <p-progressbar [value]="loadingPercent" [showValue]="false"
         [mode]="loadingIndeterminate ? 'indeterminate' : 'determinate'"></p-progressbar>
     <div class="p-field p-mt-2">
         {{loadingInfo}}

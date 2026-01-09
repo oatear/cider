@@ -4,9 +4,10 @@ import { MenuItem } from 'primeng/api';
 import { ElectronService } from '../data-services/electron/electron.service';
 
 @Component({
-  selector: 'app-site-activitybar',
-  templateUrl: './site-activitybar.component.html',
-  styleUrl: './site-activitybar.component.scss'
+    selector: 'app-site-activitybar',
+    templateUrl: './site-activitybar.component.html',
+    styleUrl: './site-activitybar.component.scss',
+    standalone: false
 })
 export class SiteActivitybarComponent {
   @Input() selectedActivity: string = 'explorer';

@@ -1,69 +1,91 @@
 :host ::ng-deep p-tree {
     flex: 1;
     display: flex;
+    flex-direction: column;
     min-width: 0;
-    .file-tree {
-        flex: 1;
-        border: none;
-        border-radius: 0%;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        border-radius: 10px;
-        min-width: 0;
+    border: none;
+    padding: 0;
+    border-radius: 10px;
+    background: var(--cider-content-background, var(--p-tree-background));
 
-        .p-iconfield {
-            margin: 10px;
+    .p-iconfield {
+        margin: 10px;
+
+        input {
+            width: 100%;
+            border-radius: 10px;
+            border: 1px solid transparent;
+
+            &:hover,
+            &:focus {
+                border: 1px solid var(--p-surface-300);
+            }
         }
+    }
 
-        .p-tree-empty-message {
-            margin-left: 25px;
-        }
+    .p-tree-empty-message {
+        margin-left: 25px;
+    }
 
-        .p-tree-root {
-            flex: 1 0 0;
-            overflow: scroll;
-            .p-tree-node {
-                width: 100%;
-                .p-tree-node-icon {
-                    &.pi-home {
-                        // color: #42a5f5;
-                    }
-                    &.pi-receipt {
-                        color: #ae80ff;
-                    }
-                    &.pi-file {
-                        color: #42a5f5;
-                    }
-                    &.pi-file-pdf {
-                        color: #ff7043;
-                    }
-                    &.pi-id-card {
-                        color: #ae80ff;
-                    }
-                    &.pi-list {
-                        color: #7986cb;
-                    }
-                    &.pi-th-large {
-                        color: #64b5f6;
-                    }
-                    &.pi-tags {
-                        color: #ffb74d;
-                    }
-                    &.pi-image {
-                        color: #4db6ac;
-                    }
-                    &.pi-language {
-                        color: #64b5f6;
-                    }
+    .p-tree-root {
+        flex: 1 1 0%;
+        min-height: 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+        margin-bottom: 15px;
+
+        .p-tree-node {
+            width: 100%;
+
+            .p-tree-node-icon {
+                &.pi-home {
+                    // color: #42a5f5;
                 }
-                .p-tree-node-label {
-                    width: 100%;
-                    > span {
-                        display: flex;
-                        align-items: center;
-                        justify-content: space-between;
-                    }
+
+                &.pi-receipt {
+                    color: #ae80ff;
+                }
+
+                &.pi-file {
+                    color: #42a5f5;
+                }
+
+                &.pi-file-pdf {
+                    color: #ff7043;
+                }
+
+                &.pi-id-card {
+                    color: #ae80ff;
+                }
+
+                &.pi-list {
+                    color: #7986cb;
+                }
+
+                &.pi-th-large {
+                    color: #64b5f6;
+                }
+
+                &.pi-tags {
+                    color: #ffb74d;
+                }
+
+                &.pi-image {
+                    color: #4db6ac;
+                }
+
+                &.pi-language {
+                    color: #64b5f6;
+                }
+            }
+
+            .p-tree-node-label {
+                width: 100%;
+
+                >span {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
                 }
             }
         }

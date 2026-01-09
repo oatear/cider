@@ -7,9 +7,10 @@ import { AssetsService } from '../data-services/services/assets.service';
 import StringUtils from '../shared/utils/string-utils';
 
 @Component({
-  selector: 'app-template-generator',
-  templateUrl: './template-generator.component.html',
-  styleUrl: './template-generator.component.scss'
+    selector: 'app-template-generator',
+    templateUrl: './template-generator.component.html',
+    styleUrl: './template-generator.component.scss',
+    standalone: false
 })
 export class TemplateGeneratorComponent implements OnInit {
   deckId: number = 0;

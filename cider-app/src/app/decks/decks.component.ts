@@ -6,9 +6,10 @@ import { EntityField } from '../data-services/types/entity-field.type';
 import { Deck } from '../data-services/types/deck.type';
 
 @Component({
-  selector: 'app-decks',
-  templateUrl: './decks.component.html',
-  styleUrls: ['./decks.component.scss']
+    selector: 'app-decks',
+    templateUrl: './decks.component.html',
+    styleUrls: ['./decks.component.scss'],
+    standalone: false
 })
 export class DecksComponent implements OnInit, OnDestroy {
   private destroyed$: Subject<boolean> = new Subject();

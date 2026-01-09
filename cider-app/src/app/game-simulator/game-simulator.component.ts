@@ -3,7 +3,7 @@ import { DecksService } from '../data-services/services/decks.service';
 import { CardsService } from '../data-services/services/cards.service';
 import { CardTemplatesService } from '../data-services/services/card-templates.service';
 import { Card } from '../data-services/types/card.type';
-import { MenuItem } from 'primeng/api/menuitem';
+import { MenuItem } from 'primeng/api';
 import { ContextMenu } from 'primeng/contextmenu';
 import { CdkDragDrop, CdkDragEnd, CdkDragEnter, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import StringUtils from '../shared/utils/string-utils';
@@ -54,20 +54,22 @@ interface Position {
 @Component({
   selector: 'app-game-simulator',
   templateUrl: './game-simulator.component.html',
-  styleUrl: './game-simulator.component.scss'
+  styleUrl: './game-simulator.component.scss',
+  standalone: false
 })
 export class GameSimulatorComponent {
-  private static readonly COLORS = ['silver', 'gold', 'crimson', 
+  private static readonly COLORS = ['silver', 'gold', 'crimson',
     'emerald', 'azure', 'lilac', 'ivory', 'charcoal'];
   stacks: CardStack[] = [];
   field: CardZone = { name: 'Field', cards: [] };
   components: GameComponent[] = [];
   // hand: CardZone = { name: 'Hand', cards: [] };
-  discard: CardStack = { 
+  discard: CardStack = {
     name: 'Discard', cards: [], faceUp: true,
     uniqueId: StringUtils.generateRandomString(),
     pos: { x: 0, y: 0 },
-    deletable: false};
+    deletable: false
+  };
   zoomLevel: number = 0.20;
   zoomMagnifiedLevel: number = 0.40;
   contextMenuItems: MenuItem[] = [];
@@ -106,7 +108,7 @@ export class GameSimulatorComponent {
             x: (index % 4) * 200,
             y: Math.floor(index / 4) * 300
           };
-          stacks.push({ 
+          stacks.push({
             uniqueId: StringUtils.generateRandomString(),
             name: deck.name,
             cards: expandedCards,
@@ -117,9 +119,9 @@ export class GameSimulatorComponent {
         });
       });
     }).then(result => {
-      this.discard = { 
-        name: 'Discard', 
-        cards: [], 
+      this.discard = {
+        name: 'Discard',
+        cards: [],
         uniqueId: StringUtils.generateRandomString(),
         faceUp: true,
         pos: { x: 800, y: 0 },
@@ -165,7 +167,7 @@ export class GameSimulatorComponent {
     if (cardIndex > -1) {
       // Remove the specific card from the stack array
       const [drawnCard] = stack.cards.splice(cardIndex, 1);
-      
+
       // Set its properties for being on the field
       drawnCard.faceUp = true;
       // Position it near the stack it came from for a better user experience
@@ -204,9 +206,9 @@ export class GameSimulatorComponent {
     event.preventDefault();
     const deckIds = stack.cards.map((card) => card.card.deckId)
       .filter((value, index, array) => array.indexOf(value) === index);
-    const optionAttributes = await Promise.all(deckIds.map((deckId) =>  this.cardsService.getFieldsUnfiltered({ deckId: deckId })))
+    const optionAttributes = await Promise.all(deckIds.map((deckId) => this.cardsService.getFieldsUnfiltered({ deckId: deckId })))
       .then((fieldArrays) => fieldArrays.flatMap((fieldArray) => fieldArray)
-      .filter((field) => field.type == 'option' && field.field !== 'frontCardTemplateId' && field.field !== 'backCardTemplateId'));
+        .filter((field) => field.type == 'option' && field.field !== 'frontCardTemplateId' && field.field !== 'backCardTemplateId'));
 
     this.contextMenuItems = [
       {
@@ -234,7 +236,7 @@ export class GameSimulatorComponent {
       {
         label: this.translate.instant('simulator.shuffle-stack'),
         icon: 'pi pi-arrow-right-arrow-left',
-        command: (event) => {
+        command: (event: any) => {
           stack.shuffling = true;
           setTimeout(() => {
             this.shuffleCards(stack.cards);
@@ -304,7 +306,7 @@ export class GameSimulatorComponent {
     cm.show(event);
   }
 
-  public onComponentContextMenu(event: MouseEvent, cm: ContextMenu, 
+  public onComponentContextMenu(event: MouseEvent, cm: ContextMenu,
     component: GameComponent) {
     event.preventDefault();
     this.contextMenuItems = [
@@ -315,8 +317,8 @@ export class GameSimulatorComponent {
         command: () => this.components.push({
           ...component,
           uniqueId: 'coin-' + StringUtils.generateRandomString(),
-          pos: { 
-            x: component.pos.x + 10 + (Math.random() * 10 - 5), 
+          pos: {
+            x: component.pos.x + 10 + (Math.random() * 10 - 5),
             y: component.pos.y + 10 + (Math.random() * 10 - 5)
           },
         }),
@@ -347,8 +349,8 @@ export class GameSimulatorComponent {
               type: 'coin',
               className: 'game-coin color-' + color,
               faceUp: true,
-              pos: { 
-                x: event.offsetX, 
+              pos: {
+                x: event.offsetX,
                 y: event.offsetY
               },
               contextMenu: [],
@@ -357,8 +359,8 @@ export class GameSimulatorComponent {
               {
                 label: this.translate.instant('simulator.flip-randomly'),
                 icon: 'pi pi-percentage',
-                command: (event) => {
-                  const componentState: GameComponent | undefined = 
+                command: (event: any) => {
+                  const componentState: GameComponent | undefined =
                     event.item?.state as GameComponent;
                   componentState.rolling = true;
                   setTimeout(() => {
@@ -370,8 +372,8 @@ export class GameSimulatorComponent {
               {
                 label: this.translate.instant('simulator.flip-over'),
                 icon: 'pi pi-refresh',
-                command: (event) => {
-                  const componentState: GameComponent | undefined = 
+                command: (event: any) => {
+                  const componentState: GameComponent | undefined =
                     event.item?.state as GameComponent;
                   componentState.faceUp = !componentState.faceUp;
                 }
@@ -392,16 +394,16 @@ export class GameSimulatorComponent {
               type: 'cube',
               className: `game-cube color-${color}`,
               faceUp: true,
-              pos: { 
-                x: event.offsetX, 
+              pos: {
+                x: event.offsetX,
                 y: event.offsetY
               },
               contextMenu: [
                 {
                   label: this.translate.instant('simulator.flip-over'),
                   icon: 'pi pi-refresh',
-                  command: (event) => {
-                    const componentState: GameComponent | undefined = 
+                  command: (event: any) => {
+                    const componentState: GameComponent | undefined =
                       event.item?.state as GameComponent;
                     componentState.faceUp = !componentState.faceUp;
                   }
@@ -424,16 +426,16 @@ export class GameSimulatorComponent {
               className: `game-d6 color-${color}`,
               faceUp: true,
               face: 6,
-              pos: { 
-                x: event.offsetX, 
+              pos: {
+                x: event.offsetX,
                 y: event.offsetY
               },
               contextMenu: [
                 {
                   label: this.translate.instant('simulator.roll-die'),
                   icon: 'pi pi-percentage',
-                  command: (event) => {
-                    const componentState: GameComponent | undefined = 
+                  command: (event: any) => {
+                    const componentState: GameComponent | undefined =
                       event.item?.state as GameComponent;
                     componentState.rolling = true;
                     setTimeout(() => {
@@ -506,15 +508,15 @@ export class GameSimulatorComponent {
     }
     // split the stack in half and push the new stack into the stacks array
     const cards = stack.cards.splice(
-      Math.floor(stack.cards.length / 2) - 1, 
+      Math.floor(stack.cards.length / 2) - 1,
       Math.floor(stack.cards.length / 2));
     this.stacks.push({
       uniqueId: StringUtils.generateRandomString(),
       name: stack.name + ' copy',
       cards: cards,
       faceUp: false,
-      pos: { 
-        x: stack.pos.x + 50 + (Math.random() * 20 - 10), 
+      pos: {
+        x: stack.pos.x + 50 + (Math.random() * 20 - 10),
         y: stack.pos.y + 50 + (Math.random() * 20 - 10)
       },
       deletable: true,
@@ -530,8 +532,8 @@ export class GameSimulatorComponent {
       name: stack.name + ' ' + option,
       cards: stack.cards.filter((card) => card.card[attribute.field] == option),
       faceUp: false,
-      pos: { 
-        x: stack.pos.x + (Math.random() * 100 - 50), 
+      pos: {
+        x: stack.pos.x + (Math.random() * 100 - 50),
         y: stack.pos.y + (Math.random() * 100 - 50)
       },
       deletable: true,

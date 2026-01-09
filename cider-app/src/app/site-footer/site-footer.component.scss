@@ -3,14 +3,14 @@
     padding: 2px 20px;
     font-size: 1rem;
     font-weight: 400;
-    background-color: var(--p-menubar-background);
+    background-color: none;
     color: var(--p-text-muted-color);
     display: flex;
     align-items: center;
     justify-content: flex-start;
 }
 
-.footer > * {
+.footer>* {
     &.fill {
         flex-grow: 1;
         text-align: center;

@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule } from '@angular/forms';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { HttpClient, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { CdkDrag, DragDropModule } from '@angular/cdk/drag-drop';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -25,19 +25,19 @@ import { TextareaModule } from 'primeng/textarea';
 import { SplitterModule } from 'primeng/splitter';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
-import { DropdownModule } from 'primeng/dropdown';
-import { TabViewModule } from 'primeng/tabview';
+import { SelectModule } from 'primeng/select';
+import { TabsModule } from 'primeng/tabs';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { FileUploadModule } from 'primeng/fileupload';
 import { MessageModule } from 'primeng/message';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { CheckboxModule } from 'primeng/checkbox';
-import { TabMenuModule } from 'primeng/tabmenu';
+// TabMenu is deprecated in favor of Tabs
 import { ChipModule } from 'primeng/chip';
 import { DividerModule } from 'primeng/divider';
 import { MultiSelectModule } from 'primeng/multiselect';
-import { SelectModule } from 'primeng/select';
+// select imported above
 import { DataViewModule } from 'primeng/dataview';
 import { TreeModule } from 'primeng/tree';
 import { TooltipModule } from 'primeng/tooltip';
@@ -60,8 +60,12 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 
-import {provideTranslateService, provideTranslateLoader, TranslatePipe, TranslateDirective} from "@ngx-translate/core";
-import {provideTranslateHttpLoader, TranslateHttpLoader} from "@ngx-translate/http-loader";
+import { provideTranslateService, TranslatePipe, TranslateDirective, TranslateLoader } from "@ngx-translate/core";
+import { TranslateHttpLoader } from "@ngx-translate/http-loader";
+
+export function HttpLoaderFactory(http: HttpClient) {
+    return new TranslateHttpLoader(http, './assets/i18n/', '.json');
+}
 
 import { SiteHeaderComponent } from './site-header/site-header.component';
 import { SiteFooterComponent } from './site-footer/site-footer.component';
@@ -99,7 +103,8 @@ import { ProjectComponent } from './project/project.component';
 import { GameSimulatorComponent } from './game-simulator/game-simulator.component';
 import { HandlebarsPipe } from './shared/pipes/handlebars.pipe';
 
-@NgModule({ declarations: [
+@NgModule({
+    declarations: [
         AppComponent,
         DecksComponent,
         CardTemplatesComponent,
@@ -131,7 +136,7 @@ import { HandlebarsPipe } from './shared/pipes/handlebars.pipe';
         ProjectComponent,
         GameSimulatorComponent,
     ],
-    bootstrap: [AppComponent], 
+    bootstrap: [AppComponent],
     imports: [BrowserModule,
         BrowserAnimationsModule,
         AppRoutingModule,
@@ -154,8 +159,8 @@ import { HandlebarsPipe } from './shared/pipes/handlebars.pipe';
         SplitterModule,
         ConfirmDialogModule,
         ToastModule,
-        DropdownModule,
-        TabViewModule,
+        SelectModule,
+        TabsModule,
         DataServicesModule,
         SharedModule,
         ScrollPanelModule,
@@ -164,11 +169,10 @@ import { HandlebarsPipe } from './shared/pipes/handlebars.pipe';
         SelectButtonModule,
         ProgressBarModule,
         CheckboxModule,
-        TabMenuModule,
         ChipModule,
         DividerModule,
         MultiSelectModule,
-        SelectModule,
+        // Select imported above
         DataViewModule,
         TreeModule,
         TooltipModule,
@@ -188,13 +192,14 @@ import { HandlebarsPipe } from './shared/pipes/handlebars.pipe';
         AutoCompleteModule,
         TranslatePipe,
         TranslateDirective
-    ], 
+    ],
     providers: [
-        CardToHtmlPipe, 
+        CardToHtmlPipe,
         HandlebarsPipe,
         provideHttpClient(withInterceptorsFromDi()),
         provideAnimationsAsync(),
         providePrimeNG({
+            ripple: true,
             theme: {
                 preset: CiderTheme,
                 options: {
@@ -204,13 +209,14 @@ import { HandlebarsPipe } from './shared/pipes/handlebars.pipe';
         }),
         provideHttpClient(),
         provideTranslateService({
-            loader: provideTranslateHttpLoader({
-                prefix: './assets/i18n/',
-                suffix: '.json'
-            }),
-            fallbackLang: 'en',
-            lang: 'en'
+            loader: {
+                provide: TranslateLoader,
+                useFactory: HttpLoaderFactory,
+                deps: [HttpClient]
+            },
+            defaultLanguage: 'en',
         })
-    ]})
+    ]
+})
 export class AppModule { }
 

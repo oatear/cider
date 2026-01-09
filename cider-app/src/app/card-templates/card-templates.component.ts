@@ -50,10 +50,11 @@ const templateHtmlFront =
 </div>`;
 
 @Component({
-  selector: 'app-card-templates',
-  templateUrl: './card-templates.component.html',
-  styleUrls: ['./card-templates.component.scss'],
-  providers: [MessageService, ConfirmationService]
+    selector: 'app-card-templates',
+    templateUrl: './card-templates.component.html',
+    styleUrls: ['./card-templates.component.scss'],
+    providers: [MessageService, ConfirmationService],
+    standalone: false
 })
 export class CardTemplatesComponent implements OnInit {
   static readonly DEFAULT_HTML: string = templateHtmlFront;

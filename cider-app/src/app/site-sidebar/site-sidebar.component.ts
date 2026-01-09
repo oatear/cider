@@ -16,10 +16,11 @@ import { TranslateService } from '@ngx-translate/core';
 import { Asset } from '../data-services/types/asset.type';
 
 @Component({
-  selector: 'app-site-sidebar',
-  templateUrl: './site-sidebar.component.html',
-  styleUrls: ['./site-sidebar.component.scss'],
-  providers: [MessageService, ConfirmationService]
+    selector: 'app-site-sidebar',
+    templateUrl: './site-sidebar.component.html',
+    styleUrls: ['./site-sidebar.component.scss'],
+    providers: [MessageService, ConfirmationService],
+    standalone: false
 })
 export class SiteSidebarComponent implements OnInit {
   deckId: number = 0;

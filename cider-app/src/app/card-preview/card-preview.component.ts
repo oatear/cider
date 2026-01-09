@@ -12,9 +12,10 @@ import GeneralUtils from '../shared/utils/general-utils';
 import { error } from 'console';
 
 @Component({
-  selector: 'app-card-preview',
-  templateUrl: './card-preview.component.html',
-  styleUrls: ['./card-preview.component.scss']
+    selector: 'app-card-preview',
+    templateUrl: './card-preview.component.html',
+    styleUrls: ['./card-preview.component.scss'],
+    standalone: false
 })
 export class CardPreviewComponent implements OnInit, AfterViewChecked, OnChanges {
   @ViewChildren('cardElement') cardElement: QueryList<any> = {} as QueryList<any>;

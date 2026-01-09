@@ -35,9 +35,10 @@ interface GeneratedSvg {
 }
 
 @Component({
-  selector: 'app-asset-generator',
-  templateUrl: './asset-generator.component.html',
-  styleUrl: './asset-generator.component.scss'
+    selector: 'app-asset-generator',
+    templateUrl: './asset-generator.component.html',
+    styleUrl: './asset-generator.component.scss',
+    standalone: false
 })
 export class AssetGeneratorComponent {
   assetOptions: AssetTypeOption[] = [

@@ -15,12 +15,14 @@ textarea {
     display: flex;
     flex-direction: column;
     height: 100%;
+
     .ng-trigger-panelContent {
         flex: 1;
+
         .p-panel-content {
             height: 100%;
             padding: 0;
-            border-top: 1px solid var(--surface-d);
+            border-top: 1px solid var(--p-surface-700);
             border-radius: 0;
         }
     }
@@ -28,6 +30,7 @@ textarea {
 
 :host ::ng-deep ngx-monaco-editor {
     height: 100%;
+
     .editor-container {
         height: 100%;
     }
@@ -56,15 +59,18 @@ textarea {
     height: 100%;
     display: flex;
     flex-direction: column;
+
     .template-header {
         .p-toolbar {
             border: none;
             padding: 0px;
         }
     }
+
     p-splitter {
         max-height: 100%;
     }
+
     .p-splitter {
         /* reconsider this */
         // width: calc(100% - 1px);
@@ -73,42 +79,53 @@ textarea {
         // border-right: none;
         background-color: transparent;
         min-height: 0;
+
         .p-col {
             padding: 0;
         }
     }
+
     .template-panel {
-        > .p-splitter {
+        >.p-splitter {
             height: 100%;
             width: 100%;
         }
+
         .left-panel {
             height: 100%;
             width: 100%;
+
             .page-card {
                 height: 100%;
+
                 .preview-controls {
                     width: 100%;
                     display: flex;
                     margin-bottom: 10px;
-                    p-dropdown {
+
+                    p-select {
                         flex: 1;
                         margin-right: 10px;
                     }
+
                     .p-buttonset {
                         margin: 15px;
                         margin-left: 0;
                     }
                 }
             }
+
             p-card {
                 height: 100%;
+
                 .p-card-body {
                     height: 100%;
+
                     .p-card-content {
                         height: 100%;
                         display: flex;
                         flex-direction: column;
+
                         .preview-space {
                             flex: 1;
                             display: flex;
@@ -120,22 +137,25 @@ textarea {
                 }
             }
         }
+
         .right-panel {
             display: flex;
             flex-direction: column;
             margin-right: 10px;
             margin-left: 10px;
+
             p-card {
-                .p-card {
+                height: 100%;
+
+                .p-card-body {
                     height: 100%;
-                    .p-card-body {
+
+                    .p-card-content {
                         height: 100%;
-                        .p-card-content {
-                            height: 100%;
-                        }
                     }
                 }
             }
+
             .p-splitter-gutter {
                 margin-right: 10px;
                 margin-left: 10px;
