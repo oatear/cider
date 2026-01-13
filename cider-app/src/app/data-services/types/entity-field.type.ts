@@ -1,3 +1,4 @@
+import { DropdownOption } from "./dropdown-option.type";
 import { EntityService } from "./entity-service.type";
 import { FieldType } from "./field-type.type";
 
@@ -13,5 +14,7 @@ export interface EntityField<Entity> {
     required?: boolean;
     service?: EntityService<any, string | number>;
     conversion?: (entity: Entity) => any;
-    options?: string[];
+    visible?: (entity: Entity) => boolean;
+    options?: DropdownOption[];
+    width?: number;
 }

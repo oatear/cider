@@ -5,22 +5,22 @@
   styleClass="p-datatable-sm">
   <ng-template pTemplate="caption">
     <div class="p-d-flex">
-      <button pButton pRipple [label]="'controls.clear' | translate" icon="pi pi-filter-slash"
-      class="p-button p-mr-2" (click)="clear(dt)"></button>
+      <button pButton pRipple [label]="'controls.clear' | translate" icon="pi pi-filter-slash" class="p-button p-mr-2"
+        (click)="clear(dt)"></button>
       @if (allowEditing && showActions) {
-        <button pButton pRipple [label]="'controls.new' | translate"
-        icon="pi pi-plus" class="p-button p-mr-2" (click)="openCreateNew()"></button>
+      <button pButton pRipple [label]="'controls.new' | translate" icon="pi pi-plus" class="p-button p-mr-2"
+        (click)="openCreateNew()"></button>
       }
       <div class="p-ml-auto">
         @if (showStats) {
-          <button pButton pRipple label="" icon="pi pi-percentage" class="p-button-info p-mr-2"
+        <button pButton pRipple label="" icon="pi pi-percentage" class="p-button-info p-mr-2"
           pTooltip="Show token stats" (click)="openStatsDialog()"></button>
         }
         @if (allowImportExport) {
-          <button pButton pRipple label="" icon="pi pi-upload" class="p-button-success p-mr-2"
-          pTooltip="Import data" (click)="openImportDialog()"></button>
-          <button pButton pRipple label="" icon="pi pi-file-excel" class="p-button-success p-mr-2"
-          pTooltip="Export data" (click)="exportData()"></button>
+        <button pButton pRipple label="" icon="pi pi-upload" class="p-button-success p-mr-2" pTooltip="Import data"
+          (click)="openImportDialog()"></button>
+        <button pButton pRipple label="" icon="pi pi-file-excel" class="p-button-success p-mr-2" pTooltip="Export data"
+          (click)="exportData()"></button>
         }
         <p-iconfield>
           <input type="text" pInputText [placeholder]="'controls.search' | translate"
@@ -33,226 +33,207 @@
   <ng-template pTemplate="header" let-columns>
     <tr>
       @if (selectionMode === 'multiple') {
-        <th class="selection-col" pFrozenColumn>
-          <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
-        </th>
+      <th class="selection-col" pFrozenColumn>
+        <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+      </th>
       }
       @if (selectionMode === 'single') {
-        <th class="selection-col" pFrozenColumn>
-        </th>
+      <th class="selection-col" pFrozenColumn>
+      </th>
       }
       @for (col of columns; track col) {
-        @if (!col.hidden) {
-          <th [pSortableColumn]="col.field" [pTooltip]="col.description" [class]="col.type">
-            {{col.header}} <p-sortIcon [field]="col.field"></p-sortIcon></th>
-          }
-        }
-        @if (allowEditing && showActions) {
-          <th class="action-col" alignFrozen="right" pFrozenColumn></th>
-        }
-      </tr>
-      @if (showColumnFilters) {
-        <tr>
-          @if (selectionMode) {
-            <th class="selection-col" pFrozenColumn>
-            </th>
-          }
-          @for (col of columns; track col) {
-            @switch (true) {
-              @case (col.hidden) {
-              }
-              @case (!col.hidden && col.service !== undefined) {
-                <th [class]="col.type">
-                  <p-columnFilter [field]="col.field" matchMode="in" [showMenu]="false">
-                    <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-                      <p-multiSelect [ngModel]="value"
-                        [options]="(col.service | entityListCached: optionsCache | async) || []"
-                        [placeholder]="'controls.filter' | translate" (onChange)="filter($event.value)"
-                        optionLabel="name" [optionValue]="col.service.getIdField()" appendTo="body">
-                      </p-multiSelect>
-                    </ng-template>
-                  </p-columnFilter>
-                </th>
-              }
-              @case (!col.hidden && col.type === FieldType.option
-                && col.service === undefined) {
-                <th [class]="col.type">
-                  <p-columnFilter [field]="col.field" matchMode="in" [showMenu]="false">
-                    <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-                      <p-multiSelect [ngModel]="value" [options]="col.options || []"
-                        [placeholder]="'controls.filter' | translate" (onChange)="filter($event.value)"
-                        appendTo="body">
-                      </p-multiSelect>
-                    </ng-template>
-                  </p-columnFilter>
-                </th>
-              }
-              @case (!col.hidden && col.type === FieldType.file) {
-                <th></th>
-              }
-              @default {
-                <th [class]="col.type"><p-columnFilter type="text" [field]="col.field" matchMode="contains"
-                  [showMenu]="false" [showMatchModes]="false" [showOperator]="false"
-                [showAddButton]="false" [placeholder]="'controls.filter' | translate"></p-columnFilter>
-              </th>
-            }
-          }
-        }
-        @if (allowEditing && showActions) {
-          <th class="action-col" alignFrozen="right" pFrozenColumn></th>
-        }
-      </tr>
+      @if (!col.hidden) {
+      <th [pSortableColumn]="col.field" [pTooltip]="col.description" [class]="col.type">
+        {{col.header}} <p-sortIcon [field]="col.field"></p-sortIcon></th>
+      }
+      }
+      @if (allowEditing && showActions) {
+      <th class="action-col" alignFrozen="right" pFrozenColumn></th>
+      }
+    </tr>
+    @if (showColumnFilters) {
+    <tr>
+      @if (selectionMode) {
+      <th class="selection-col" pFrozenColumn>
+      </th>
+      }
+      @for (col of columns; track col) {
+      @switch (true) {
+      @case (col.hidden) {
+      }
+      @case (!col.hidden && col.service !== undefined) {
+      <th [class]="col.type">
+        <p-columnFilter [field]="col.field" matchMode="in" [showMenu]="false">
+          <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+            <p-multiSelect [ngModel]="value" [options]="(col.service | entityListCached: optionsCache | async) || []"
+              [placeholder]="'controls.filter' | translate" (onChange)="filter($event.value)" optionLabel="name"
+              [optionValue]="col.service.getIdField()" appendTo="body">
+            </p-multiSelect>
+          </ng-template>
+        </p-columnFilter>
+      </th>
+      }
+      @case (!col.hidden && col.type === FieldType.dropdown
+      && col.service === undefined) {
+      <th [class]="col.type">
+        <p-columnFilter [field]="col.field" matchMode="in" [showMenu]="false">
+          <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+            <p-multiSelect [ngModel]="value" [options]="col.options || []" [placeholder]="'controls.filter' | translate"
+              (onChange)="filter($event.value)" appendTo="body" optionLabel="value" optionValue="value">
+            </p-multiSelect>
+          </ng-template>
+        </p-columnFilter>
+      </th>
+      }
+      @case (!col.hidden && col.type === FieldType.dropdownOptions) {
+      <th></th>
+      }
+      @case (!col.hidden && col.type === FieldType.file) {
+      <th></th>
+      }
+      @default {
+      <th [class]="col.type"><p-columnFilter type="text" [field]="col.field" matchMode="contains" [showMenu]="false"
+          [showMatchModes]="false" [showOperator]="false" [showAddButton]="false"
+          [placeholder]="'controls.filter' | translate"></p-columnFilter>
+      </th>
+      }
+      }
+      }
+      @if (allowEditing && showActions) {
+      <th class="action-col" alignFrozen="right" pFrozenColumn></th>
+      }
+    </tr>
     }
   </ng-template>
   <ng-template pTemplate="body" let-rowData let-columns="columns">
     <tr>
       @if (selectionMode === 'multiple') {
-        <td class="selection-col" pFrozenColumn>
-          <p-tableCheckbox [value]="rowData" class="p-mb-2 p-mt-2"></p-tableCheckbox>
-        </td>
+      <td class="selection-col" pFrozenColumn>
+        <p-tableCheckbox [value]="rowData" class="p-mb-2 p-mt-2"></p-tableCheckbox>
+      </td>
       }
       @if (selectionMode === 'single') {
-        <td class="selection-col" pFrozenColumn>
-          <p-tableRadioButton [value]="rowData" class="p-mb-2 p-mt-2"></p-tableRadioButton>
-        </td>
+      <td class="selection-col" pFrozenColumn>
+        <p-tableRadioButton [value]="rowData" class="p-mb-2 p-mt-2"></p-tableRadioButton>
+      </td>
       }
       @for (col of columns; track col) {
-        @switch (true) {
-          @case (col.hidden) {
-          }
-          @case (!col.hidden && col.service !== undefined) {
-            @if (!allowEditing || !showInlineEditor) {
-              <td [class]="col.type">
-                <div class="base">{{lookups.get(col.service)?.get(rowData[col.field])}}</div>
-              </td>
-            }
-            @if (allowEditing && showInlineEditor) {
-              <td [pEditableColumn]="rowData[col.field]"
-                [pEditableColumnField]="col.field" [class]="col.type">
-                <p-cellEditor>
-                  <ng-template pTemplate="input">
-                    <p-select [options]="(col.service | entityListCached: optionsCache | async) || []"
-                      [(ngModel)]="rowData[col.field]" [id]="col.field" optionLabel="name"
-                      [optionValue]="col.service.getIdField()" appendTo="body"
-                    (ngModelChange)="debounceSave(rowData)"></p-select>
-                  </ng-template>
-                  <ng-template pTemplate="output">
-                    <div class="base">{{lookups.get(col.service)?.get(rowData[col.field])}}</div>
-                  </ng-template>
-                </p-cellEditor>
-              </td>
-            }
-          }
-          @case (!col.hidden && col.type === FieldType.option
-            && col.service === undefined) {
-            @if (!allowEditing || !showInlineEditor) {
-              <td [class]="col.type">
-                <div class="base">{{rowData[col.field]}}</div>
-              </td>
-            }
-            @if (allowEditing && showInlineEditor) {
-              <td [pEditableColumn]="rowData[col.field]"
-                [pEditableColumnField]="col.field" [class]="col.type">
-                <p-cellEditor>
-                  <ng-template pTemplate="input">
-                    <p-select [options]="col.options || []" [(ngModel)]="rowData[col.field]"
-                      [id]="col.field" appendTo="body"
-                    (ngModelChange)="debounceSave(rowData)"></p-select>
-                  </ng-template>
-                  <ng-template pTemplate="output">
-                    <div class="base">{{rowData[col.field]}}</div>
-                  </ng-template>
-                </p-cellEditor>
-              </td>
-            }
-          }
-          @case (!col.hidden && col.type === FieldType.optionList
-            && (!$any(rowData).type || $any(rowData).type !== FieldType.option)) {
-            <td></td>
-          }
-          @case (!col.hidden && col.type === FieldType.optionList
-            && $any(rowData).type && $any(rowData).type === FieldType.option) {
-            @if (!allowEditing || !showInlineEditor) {
-              <td [class]="col.type">
-                <textarea pTextarea [(ngModel)]="rowData[col.field]" [rows]="1" [cols]="12"
-                [autoResize]="true" [disabled]="true"></textarea>
-              </td>
-            }
-            @if (allowEditing && showInlineEditor) {
-              <td [pEditableColumn]="rowData[col.field]"
-                [pEditableColumnField]="col.field" [class]="col.type">
-                <p-cellEditor>
-                  <ng-template pTemplate="input">
-                    <p-chips [(ngModel)]="rowData[col.field]" [id]="col.field"
-                    (ngModelChange)="debounceSave(rowData)"></p-chips>
-                  </ng-template>
-                  <ng-template pTemplate="output">
-                    <textarea pTextarea [(ngModel)]="rowData[col.field]" [rows]="1" [cols]="12"
-                    [autoResize]="true" [disabled]="true"></textarea>
-                  </ng-template>
-                </p-cellEditor>
-              </td>
-            }
-          }
-          @case (!col.hidden && col.type === FieldType.file) {
-            <td class="preview-image" [class]="col.type"><img [src]="rowData[col.field] | fileUrl" /></td>
-          }
-          @default {
-            @if (!allowEditing || !showInlineEditor) {
-              <td [class]="col.type">
-                <textarea pTextarea [(ngModel)]="rowData[col.field]" [rows]="1" [cols]="12"
-                [autoResize]="true" [disabled]="true"></textarea>
-              </td>
-            }
-            @if (allowEditing && showInlineEditor) {
-              <td [pEditableColumn]="rowData[col.field]"
-                [pEditableColumnField]="col.field" [class]="col.type">
-                <p-cellEditor>
-                  <ng-template pTemplate="input">
-                    <textarea pTextarea [(ngModel)]="rowData[col.field]" [rows]="1" [cols]="12"
-                    [autoResize]="true" (ngModelChange)="debounceSave(rowData)"></textarea>
-                  </ng-template>
-                  <ng-template pTemplate="output">
-                    <!-- <textarea pTextarea [(ngModel)]="rowData[col.field]" [rows]="1" [cols]="12" [autoResize]="true" [disabled]="true"></textarea> -->
-                    <div class="base textarea">{{rowData[col.field]}}</div>
-                  </ng-template>
-                </p-cellEditor>
-              </td>
-            }
-          }
-        }
+      @switch (true) {
+      @case (col.hidden) {
+      }
+      @case (!col.hidden && col.service !== undefined) {
+      @if (!allowEditing || !showInlineEditor) {
+      <td [class]="col.type">
+        <div class="base">{{lookups.get(col.service)?.get(rowData[col.field])}}</div>
+      </td>
+      }
+      @if (allowEditing && showInlineEditor) {
+      <td [pEditableColumn]="rowData[col.field]" [pEditableColumnField]="col.field" [class]="col.type">
+        <p-cellEditor>
+          <ng-template pTemplate="input">
+            <p-select [options]="(col.service | entityListCached: optionsCache | async) || []"
+              [(ngModel)]="rowData[col.field]" [id]="col.field" optionLabel="name"
+              [optionValue]="col.service.getIdField()" appendTo="body"
+              (ngModelChange)="debounceSave(rowData)"></p-select>
+          </ng-template>
+          <ng-template pTemplate="output">
+            <div class="base">{{lookups.get(col.service)?.get(rowData[col.field])}}</div>
+          </ng-template>
+        </p-cellEditor>
+      </td>
+      }
+      }
+      @case (!col.hidden && col.type === FieldType.dropdown
+      && col.service === undefined) {
+      @if (!allowEditing || !showInlineEditor || (rowData.isSystem && ['name', 'type', 'description',
+      'options'].includes(col.field))) {
+      <td [class]="col.type">
+        <div class="base" [class.disabled-look]="rowData.isSystem && col.field === 'type'">{{rowData[col.field]}}</div>
+      </td>
+      }
+      @if (allowEditing && showInlineEditor && (!rowData.isSystem || !['name', 'type', 'description',
+      'options'].includes(col.field))) {
+      <td [pEditableColumn]="rowData[col.field]" [pEditableColumnField]="col.field" [class]="col.type">
+        <p-cellEditor>
+          <ng-template pTemplate="input">
+            <p-select [options]="col.options || []" [(ngModel)]="rowData[col.field]" [id]="col.field" appendTo="body"
+              (ngModelChange)="debounceSave(rowData)" optionLabel="value" optionValue="value"></p-select>
+          </ng-template>
+          <ng-template pTemplate="output">
+            <div class="base">{{rowData[col.field]}}</div>
+          </ng-template>
+        </p-cellEditor>
+      </td>
+      }
+      }
+
+      @case (!col.hidden && col.type === FieldType.dropdownOptions) {
+      <td [class]="col.type">
+        <div class="base disabled-look">{{(rowData[col.field] || []).length}} Options</div>
+      </td>
+      }
+      @case (!col.hidden && col.type === FieldType.file) {
+      <td class="preview-image" [class]="col.type"><img [src]="rowData[col.field] | fileUrl" /></td>
+      }
+      @default {
+      @if (!allowEditing || !showInlineEditor || (rowData.isSystem && ['name', 'type', 'description',
+      'options'].includes(col.field))) {
+      <td [class]="col.type">
+        <textarea pTextarea [(ngModel)]="rowData[col.field]" [rows]="1" [cols]="12" [autoResize]="true"
+          [disabled]="true"></textarea>
+      </td>
+      }
+      @if (allowEditing && showInlineEditor && (!rowData.isSystem || !['name', 'type', 'description',
+      'options'].includes(col.field))) {
+      <td [pEditableColumn]="rowData[col.field]" [pEditableColumnField]="col.field" [class]="col.type">
+        <p-cellEditor>
+          <ng-template pTemplate="input">
+            <textarea pTextarea [(ngModel)]="rowData[col.field]" [rows]="1" [cols]="12" [autoResize]="true"
+              (ngModelChange)="debounceSave(rowData)"></textarea>
+          </ng-template>
+          <ng-template pTemplate="output">
+            <!-- <textarea pTextarea [(ngModel)]="rowData[col.field]" [rows]="1" [cols]="12" [autoResize]="true" [disabled]="true"></textarea> -->
+            <div class="base textarea">{{rowData[col.field]}}</div>
+          </ng-template>
+        </p-cellEditor>
+      </td>
+      }
+      }
+      }
       }
       @if (allowEditing && showActions) {
-        <td class="action-col" alignFrozen="right" pFrozenColumn>
-          <button pButton pRipple icon="pi pi-pencil" [text]="true"
-          class="p-button-rounded p-button p-mr-2 p-ml-2 p-mb-2" (click)="openEditDialog(rowData)"></button>
-          <button pButton pRipple icon="pi pi-trash" [text]="true" class="p-button-rounded p-button-danger p-mb-2"
+      <td class="action-col" alignFrozen="right" pFrozenColumn>
+        @if (!rowData.isSystem) {
+        <button pButton pRipple icon="pi pi-pencil" [text]="true" class="p-button-rounded p-button p-mr-2 p-ml-2 p-mb-2"
+          (click)="openEditDialog(rowData)"></button>
+        <button pButton pRipple icon="pi pi-trash" [text]="true" class="p-button-rounded p-button-danger p-mb-2"
           (click)="openDeleteDialog(rowData, dt)"></button>
-        </td>
+        }
+      </td>
       }
     </tr>
   </ng-template>
 </p-table>
 <app-entity-dialog [service]="service" [(visible)]="dialogVisible" [entity]="entity"
-(onCreate)="clear(dt)"></app-entity-dialog>
+  (onCreate)="clear(dt)"></app-entity-dialog>
 <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
 <p-dialog header="Import Data" [(visible)]="importVisible" [style]="{width: '450px'}" [modal]="true">
   <ng-template pTemplate="content">
     <div class="p-field">
       <p-message severity="warn">WARNING: Importing data into the table will overwrite your existing data. Make
-      sure to run an export first.</p-message>
+        sure to run an export first.</p-message>
     </div>
     <div class="p-field">
       <p-fileUpload name="csvFile" mode="basic" accept=".csv" [maxFileSize]="200000000"
-        [chooseLabel]="'controls.import' | translate" chooseLabel="Import" class="inline-block"
-      [customUpload]="true" (onSelect)="uploadFile($event)"></p-fileUpload>
+        [chooseLabel]="'controls.import' | translate" chooseLabel="Import" class="inline-block" [customUpload]="true"
+        (onSelect)="uploadFile($event)"></p-fileUpload>
     </div>
   </ng-template>
   <ng-template pTemplate="footer">
     <button pButton pRipple [label]="'controls.cancel' | translate" icon="pi pi-times" class="p-button-text"
-    (click)="closeImportDialog()"></button>
+      (click)="closeImportDialog()"></button>
     <button pButton pRipple [label]="'controls.import' | translate" icon="pi pi-check" class="p-button-text"
-    (click)="confirmImport(dt)"></button>
+      (click)="confirmImport(dt)"></button>
   </ng-template>
 </p-dialog>
 <p-dialog [header]="'Token Stats (Top ' + statsTopX + ')'" [(visible)]="statsVisible" [style]="{width: '50%'}"
@@ -266,27 +247,27 @@
         <div>Copy Count</div>
       </div>
       @for (stat of stats; track stat) {
-        <div class="token-row">
-          <div class="field">
-            <h3>{{stat.header}}</h3>
-          </div>
-          <div class="token"></div>
-          <div></div>
-          <div></div>
+      <div class="token-row">
+        <div class="field">
+          <h3>{{stat.header}}</h3>
         </div>
-        @for (token of stat.tokens; track token) {
-          <div class="token-row">
-            <div class="field"></div>
-            <div class="token"><span>{{token.token}}</span></div>
-            <div>{{token.count}}</div>
-            <div>{{token.copiesCount}}</div>
-          </div>
-        }
+        <div class="token"></div>
+        <div></div>
+        <div></div>
+      </div>
+      @for (token of stat.tokens; track token) {
+      <div class="token-row">
+        <div class="field"></div>
+        <div class="token"><span>{{token.token}}</span></div>
+        <div>{{token.count}}</div>
+        <div>{{token.copiesCount}}</div>
+      </div>
+      }
       }
     </div>
   </ng-template>
   <ng-template pTemplate="footer">
     <button pButton pRipple [label]="'controls.cancel' | translate" icon="pi pi-times" class="p-button-text"
-    (click)="closeStatsDialog()"></button>
+      (click)="closeStatsDialog()"></button>
   </ng-template>
 </p-dialog>

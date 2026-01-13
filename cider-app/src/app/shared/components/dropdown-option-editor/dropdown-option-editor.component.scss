@@ -1,0 +1,13 @@
+.dropdown-option-editor {
+    .option-row {
+        gap: 0.5rem;
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+
+        ::ng-deep .p-colorpicker-preview {
+            width: 32px;
+            height: 32px;
+        }
+    }
+}

@@ -39,7 +39,8 @@
               }
             ],
             "styles": [
-              "src/styles.scss"
+              "src/styles.scss",
+              "node_modules/oatear-longtable/prebuilt-styles.css"
             ],
             "scripts": [],
             "browser": "src/main.ts"
@@ -50,7 +51,7 @@
                 {
                   "type": "initial",
                   "maximumWarning": "4mb",
-                  "maximumError": "5mb"
+                  "maximumError": "6mb"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -108,7 +109,8 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.scss"
+              "src/styles.scss",
+              "node_modules/oatear-longtable/prebuilt-styles.css"
             ],
             "scripts": []
           }

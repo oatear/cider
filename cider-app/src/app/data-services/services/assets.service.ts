@@ -16,9 +16,9 @@ export class AssetsService extends IndexedDbService<Asset, number> {
 
   constructor(db: AppDB) {
     super(db, AppDB.ASSETS_TABLE, [
-      {field: 'id', header: 'ID', type: FieldType.number, hidden: true},
-      {field: 'name', header: 'Name', type: FieldType.text},
-      {field: 'file', header: 'File', type: FieldType.file}
+      { field: 'id', header: 'ID', type: FieldType.numeric, hidden: true },
+      { field: 'name', header: 'Name', type: FieldType.text },
+      { field: 'file', header: 'File', type: FieldType.file }
     ]);
     this.assetUrls = new BehaviorSubject<any>({});
     this.isLoadingSubject = new BehaviorSubject<boolean>(true);
@@ -46,7 +46,7 @@ export class AssetsService extends IndexedDbService<Asset, number> {
   public isLoading() {
     return this.isLoadingSubject.asObservable();
   }
-  
+
   override getEntityName(entity: Asset) {
     return entity.name;
   }
@@ -63,7 +63,7 @@ export class AssetsService extends IndexedDbService<Asset, number> {
   }
 
   private static arrayBufferToBlob(buffer: ArrayBuffer, type: string): Blob {
-    return new Blob([buffer], {type: type});
+    return new Blob([buffer], { type: type });
   }
 
   /**
@@ -88,7 +88,7 @@ export class AssetsService extends IndexedDbService<Asset, number> {
       return entity;
     }
     const blob: Blob = AssetsService.arrayBufferToBlob((<any>entity).buffer, (<any>entity).type);
-    entity.file = new File([blob], entity.name, {type: (<any>entity).type});
+    entity.file = new File([blob], entity.name, { type: (<any>entity).type });
     (<any>entity).buffer = undefined;
     (<any>entity).type = undefined;
     return entity;
@@ -124,7 +124,7 @@ export class AssetsService extends IndexedDbService<Asset, number> {
       return entity;
     });
   }
-  
+
   override delete(id: number) {
     return super.delete(id).then(response => {
       this.updateAssetUrls();

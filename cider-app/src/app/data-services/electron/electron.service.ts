@@ -316,6 +316,7 @@ export class ElectronService {
       const attributesUrl = deckFullUrl + '/attributes.csv';
       const cardsUrl = deckFullUrl + '/cards.csv';
       const attributes = await this.importCsv({ bookmark: homeUrl.bookmark, path: attributesUrl }, 'attributes.csv', cardAttributesService, deck.id);
+      await cardAttributesService.createSystemAttributes(deck.id);
       const cards = await this.importCsv({ bookmark: homeUrl.bookmark, path: cardsUrl }, 'cards.csv', cardsService, deck.id);
     }));
 

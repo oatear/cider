@@ -13,8 +13,8 @@ export class DecksService extends IndexedDbService<Deck, number> {
 
   constructor(db: AppDB) {
     super(db, AppDB.DECKS_TABLE, [
-      {field: 'id', header: 'ID', type: FieldType.number, hidden: true},
-      {field: 'name', header: 'Name', type: FieldType.text}
+      { field: 'id', header: 'ID', type: FieldType.numeric, hidden: true },
+      { field: 'name', header: 'Name', type: FieldType.text }
     ]);
     this.selectedDeck = new BehaviorSubject<Deck | undefined>(undefined);
   }

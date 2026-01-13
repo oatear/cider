@@ -1,4 +1,5 @@
 import { FieldType } from "./field-type.type";
+import { DropdownOption } from "./dropdown-option.type";
 
 export interface CardAttribute {
     id: number;
@@ -6,5 +7,8 @@ export interface CardAttribute {
     name: string;
     type: FieldType;
     description: string;
-    options: string[];
+    options: DropdownOption[] | string;
+    width?: number | 'auto';
+    order?: number;
+    isSystem?: boolean;
 }

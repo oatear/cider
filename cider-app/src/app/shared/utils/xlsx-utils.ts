@@ -14,7 +14,7 @@ export default class XlsxUtils {
      * @param records 
      * @param lookups 
      */
-    static entityExport<Entity>(columns: EntityField<Entity>[], 
+    static entityExport<Entity>(columns: EntityField<Entity>[],
         lookups: Map<EntityService<any, string | number>, Map<string | number, string>>, records: Entity[]) {
         const headers = columns.filter(column => !column.hidden);
         const headerNames = headers.map(column => column.header);
@@ -24,15 +24,16 @@ export default class XlsxUtils {
                 if (header.service) {
                     return lookups.get(header.service)?.get(<any>record[header.field]);
                 }
-                if (header.type === FieldType.optionList) {
-                    const list: string[] = (<any>record)[header.field];
-                    return list ? list.join('|') : '';
+
+                if (header.type === FieldType.dropdown) {
+                    return record[header.field];
                 }
+
                 return record[header.field];
             });
-            XLSX.utils.sheet_add_aoa(worksheet, [values], {origin: -1});
+            XLSX.utils.sheet_add_aoa(worksheet, [values], { origin: -1 });
         });
-        const csv = XLSX.utils.sheet_to_csv(worksheet, {forceQuotes: true});
+        const csv = XLSX.utils.sheet_to_csv(worksheet, { forceQuotes: true });
         return csv;
     }
 
@@ -43,10 +44,10 @@ export default class XlsxUtils {
      * @param records 
      * @param lookups 
      */
-     static entityExportToFile<Entity>(columns: EntityField<Entity>[], 
+    static entityExportToFile<Entity>(columns: EntityField<Entity>[],
         lookups: Map<EntityService<any, string | number>, Map<string | number, string>>, records: Entity[]) {
         const csv = XlsxUtils.entityExport(columns, lookups, records);
-        const blob = new Blob([csv], {type: 'text/csv;charset=utf-8'});
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
         FileUtils.saveAs(blob, 'data.csv');
     }
 
@@ -58,12 +59,12 @@ export default class XlsxUtils {
      * @param lookups 
      * @param file 
      */
-    static entityImport<Entity>(columns: EntityField<Entity>[], 
-        lookups: Map<EntityService<any, string | number>, Map<string | number, string>>, 
+    static entityImport<Entity>(columns: EntityField<Entity>[],
+        lookups: Map<EntityService<any, string | number>, Map<string | number, string>>,
         file: File): Promise<Entity[]> {
         const headers = columns.filter(column => !column.hidden);
         return file.arrayBuffer().then(buffer => {
-            const workbook: XLSX.WorkBook = XLSX.read(buffer, {type: "buffer", codepage: 65001, raw: true});
+            const workbook: XLSX.WorkBook = XLSX.read(buffer, { type: "buffer", codepage: 65001, raw: true });
             const worksheet: XLSX.WorkSheet = workbook.Sheets[workbook.SheetNames[0]];
             const parsedObjects = XLSX.utils.sheet_to_json(worksheet);
             const convertedObjects = parsedObjects.map(object => {
@@ -80,10 +81,16 @@ export default class XlsxUtils {
                         if (!foundValue) {
                             console.log(`Could not find value (${(<any>object)[header.header]}) for column: ${header.header}`);
                         }
-                    } else if(header.type === FieldType.optionList) {
-                        const value = (<any>object)[header.header];
-                        (<any>converted)[header.field] = typeof value === 'string' 
-                            ? value.split('|') : [];
+
+                    } else if (header.type === FieldType.dropdown) {
+                        const val = (<any>object)[header.header];
+                        if (header.options && header.options.length > 0) {
+                            const valid = header.options.some(o => o.value === val);
+                            if (!valid) {
+                                console.warn(`Value "${val}" for column "${header.header}" is not in the allowed options: ${header.options.map(o => o.value).join(', ')}`);
+                            }
+                        }
+                        (<any>converted)[header.field] = val;
                     } else {
                         (<any>converted)[header.field] = (<any>object)[header.header];
                     }
