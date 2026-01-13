@@ -64,11 +64,17 @@ export class EntitySpreadsheetComponent implements OnInit, OnDestroy {
             this.attributesService.getAll()
         ]);
 
+        // if cards are empty, create a default card
+        // this is necessary for new decks
         this.cards = cards;
+        if (this.cards.length === 0) {
+            this.cards.push({ name: 'New Card', count: 1 } as Card);
+        }
         this.attributes = attributes;
 
         await this.setupColumns();
         this.setupRows();
+        console.log('column config', this.columnConfig(), 'data', this.data());
     }
 
     private async setupColumns(): Promise<void> {
