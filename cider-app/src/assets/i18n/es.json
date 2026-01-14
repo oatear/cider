@@ -118,6 +118,7 @@
         "card-margins": "Márgenes de la Carta (pulgadas)",
         "cards-per-page": "Cartas por Página",
         "low-ink-mode": "Modo Ahorro de Tinta",
+        "include-backs": "Incluir el reverso de las Cartas",
         "mirror-backs-x": "Espejar Reversos X",
         "mirror-backs-y": "Espejar Reversos Y",
         "paper-dpi": "Papel DPI (puntos por pulgada)",

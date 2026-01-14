@@ -118,6 +118,7 @@
         "card-margins": "카드 여백 (인치)",
         "cards-per-page": "페이지 당 카드 수",
         "low-ink-mode": "잉크 절약 모드",
+        "include-backs": "카드 뒷면 포함",
         "mirror-backs-x": "뒷면 미러 X",
         "mirror-backs-y": "뒷면 미러 Y",
         "paper-dpi": "용지 DPI (인치당 점)",

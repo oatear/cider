@@ -118,6 +118,7 @@
         "card-margins": "卡片边距（英寸）",
         "cards-per-page": "每页卡片数量",
         "low-ink-mode": "省墨模式",
+        "include-backs": "包括卡片背面",
         "mirror-backs-x": "背面镜像 X",
         "mirror-backs-y": "背面镜像 Y",
         "paper-dpi": "纸张 DPI（每英寸点数）",

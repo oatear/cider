@@ -118,6 +118,7 @@
         "card-margins": "Marges des cartes (pouces)",
         "cards-per-page": "Cartes par page",
         "low-ink-mode": "Mode économie d’encre",
+        "include-backs": "Inclure le verso de la carte",
         "mirror-backs-x": "Inverser les versos X",
         "mirror-backs-y": "Inverser les versos Y",
         "paper-dpi": "DPI du papier (points par pouce)",

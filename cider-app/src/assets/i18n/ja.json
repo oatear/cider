@@ -118,6 +118,7 @@
         "card-margins": "カード余白（インチ）",
         "cards-per-page": "ページあたりのカード数",
         "low-ink-mode": "インク節約モード",
+        "include-backs": "カードの裏面を含める",
         "mirror-backs-x": "裏面ミラーX",
         "mirror-backs-y": "裏面ミラーY",
         "paper-dpi": "用紙DPI（1インチあたりのドット数）",
