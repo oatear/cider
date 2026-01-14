@@ -9,11 +9,11 @@ import { FieldType } from '../types/field-type.type';
 })
 export class DocumentsService extends IndexedDbService<Document, number> {
 
-  constructor(db: AppDB) { 
+  constructor(db: AppDB) {
     super(db, AppDB.DOCUMENTS_TABLE, [
-      { field: 'id', header: 'ID', type: FieldType.number, hidden: true },
+      { field: 'id', header: 'ID', type: FieldType.numeric, hidden: true },
       { field: 'name', header: 'Name', type: FieldType.text },
-      { field: 'mime', header: 'Mime', type: FieldType.text, hidden: true },
+      { field: 'mime', header: 'Mime', type: FieldType.text },
       { field: 'content', header: 'Content', type: FieldType.text, hidden: true }
     ]);
   }

@@ -1,0 +1,12 @@
+<div class="spreadsheet-wrapper">
+    @if (data().length > 0 && columnConfig().length > 0) {
+    <long-spreadsheet [data]="data" [columnConfig]="columnConfig" [theme]="theme()" [height]="'100%'"
+        [showLoading]="isLoading()" (onDataChange)="onDataChanged($event)" (onColumnChange)="onColumnChanged($event)">
+    </long-spreadsheet>
+    } @else {
+    <div class="loading-container">
+        <p-progressbar mode="indeterminate" [style]="{'height': '6px'}"></p-progressbar>
+        <p>{{ 'spreadsheet.loading' | translate }}</p>
+    </div>
+    }
+</div>

@@ -102,6 +102,9 @@ import { DocumentsComponent } from './documents/documents.component';
 import { ProjectComponent } from './project/project.component';
 import { GameSimulatorComponent } from './game-simulator/game-simulator.component';
 import { HandlebarsPipe } from './shared/pipes/handlebars.pipe';
+import { EntitySpreadsheetComponent } from './entity-spreadsheet/entity-spreadsheet.component';
+
+import { DropdownOptionEditorComponent } from './shared/components/dropdown-option-editor/dropdown-option-editor.component';
 
 @NgModule({
     declarations: [
@@ -138,6 +141,7 @@ import { HandlebarsPipe } from './shared/pipes/handlebars.pipe';
     ],
     bootstrap: [AppComponent],
     imports: [BrowserModule,
+        DropdownOptionEditorComponent,
         BrowserAnimationsModule,
         AppRoutingModule,
         MonacoEditorModule.forRoot(MonacoExtension.monacoConfig),
@@ -163,6 +167,7 @@ import { HandlebarsPipe } from './shared/pipes/handlebars.pipe';
         TabsModule,
         DataServicesModule,
         SharedModule,
+        EntitySpreadsheetComponent,
         ScrollPanelModule,
         FileUploadModule,
         MessageModule,

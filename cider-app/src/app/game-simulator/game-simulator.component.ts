@@ -3,6 +3,7 @@ import { DecksService } from '../data-services/services/decks.service';
 import { CardsService } from '../data-services/services/cards.service';
 import { CardTemplatesService } from '../data-services/services/card-templates.service';
 import { Card } from '../data-services/types/card.type';
+import { FieldType } from '../data-services/types/field-type.type';
 import { MenuItem } from 'primeng/api';
 import { ContextMenu } from 'primeng/contextmenu';
 import { CdkDragDrop, CdkDragEnd, CdkDragEnter, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
@@ -208,7 +209,9 @@ export class GameSimulatorComponent {
       .filter((value, index, array) => array.indexOf(value) === index);
     const optionAttributes = await Promise.all(deckIds.map((deckId) => this.cardsService.getFieldsUnfiltered({ deckId: deckId })))
       .then((fieldArrays) => fieldArrays.flatMap((fieldArray) => fieldArray)
-        .filter((field) => field.type == 'option' && field.field !== 'frontCardTemplateId' && field.field !== 'backCardTemplateId'));
+        .filter((field) => field.type == FieldType.dropdown && field.field !== 'frontCardTemplateId' && field.field !== 'backCardTemplateId'));
+    const fields = await this.cardsService.getFields();
+    const dropdownFields = fields.filter((field) => field.type == FieldType.dropdown && field.field !== 'frontCardTemplateId' && field.field !== 'backCardTemplateId');
 
     this.contextMenuItems = [
       {
@@ -529,8 +532,8 @@ export class GameSimulatorComponent {
     }
     const newStacks = attribute.options?.map((option) => ({
       uniqueId: StringUtils.generateRandomString(),
-      name: stack.name + ' ' + option,
-      cards: stack.cards.filter((card) => card.card[attribute.field] == option),
+      name: stack.name + ' ' + option.value,
+      cards: stack.cards.filter((card) => card.card[attribute.field] == option.value),
       faceUp: false,
       pos: {
         x: stack.pos.x + (Math.random() * 100 - 50),

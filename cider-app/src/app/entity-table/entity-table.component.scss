@@ -91,6 +91,11 @@
             padding-top: 7px;
             padding-bottom: calc(0.5rem - 2px);
         }
+
+        &.disabled-look {
+            color: var(--p-text-muted-color); // Muted text color
+            pointer-events: none; // Prevent interaction if needed, though view-only logic helps
+        }
     }
 }
 

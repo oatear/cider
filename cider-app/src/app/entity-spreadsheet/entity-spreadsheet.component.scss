@@ -1,0 +1,41 @@
+.spreadsheet-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 1rem;
+    color: var(--cider-text-color);
+}
+
+:host ::ng-deep {
+    height: 100%;
+
+    .spreadsheet-wrapper {
+        height: 100%;
+
+        .long-spreadsheet-table {
+            width: 100% !important;
+        }
+    }
+}
+
+:host ::ng-deep long-table-stats {
+    -webkit-app-region: no-drag;
+
+    >div {
+        -webkit-app-region: no-drag;
+
+        .stats-modal-panel {
+            -webkit-app-region: no-drag;
+        }
+    }
+}

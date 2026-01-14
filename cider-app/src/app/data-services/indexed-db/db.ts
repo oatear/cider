@@ -2,6 +2,7 @@ import Dexie, { Table } from "dexie";
 import { Card } from "primeng/card";
 import { Asset } from "../types/asset.type";
 import { CardTemplate } from "../types/card-template.type";
+import { FieldType } from "../types/field-type.type";
 import { Deck } from "../types/deck.type";
 import { exportDB, importDB } from "dexie-export-import";
 import FileUtils from "src/app/shared/utils/file-utils";
@@ -27,7 +28,7 @@ export class AppDB extends Dexie {
     public static readonly CARD_ATTRIBUTES_TABLE: string = 'cardAttributes';
     public static readonly DOCUMENTS_TABLE: string = 'documents';
     private static readonly ALL_TABLES = [
-        AppDB.GAMES_TABLE, AppDB.DECKS_TABLE, AppDB.CARDS_TABLE, AppDB.ASSETS_TABLE, 
+        AppDB.GAMES_TABLE, AppDB.DECKS_TABLE, AppDB.CARDS_TABLE, AppDB.ASSETS_TABLE,
         AppDB.CARD_TEMPLATES_TABLE, AppDB.CARD_ATTRIBUTES_TABLE, AppDB.DOCUMENTS_TABLE];
 
     games!: Table<Deck, number>;
@@ -101,25 +102,53 @@ export class AppDB extends Dexie {
             documents: '++id, name, mime, content',
         }).upgrade(transaction => {
             return transaction.table(AppDB.DOCUMENTS_TABLE).toCollection().modify(document => {
-                document.mime = 'text/markdown'  ; // only markdown documents exist at this point
+                document.mime = 'text/markdown'; // only markdown documents exist at this point
             });
         });
+        this.version(5).stores({
+            cardAttributes: '++id, deckId, name, type, options, description, width',
+        }).upgrade(transaction => {
+            return transaction.table(AppDB.CARD_ATTRIBUTES_TABLE).toCollection().modify(attribute => {
+                attribute.width = 'auto';
+            });
+        });
+        this.version(6).stores({
+            cardAttributes: '++id, deckId, name, type, options, description, width',
+        }).upgrade(transaction => {
+            return transaction.table(AppDB.CARD_ATTRIBUTES_TABLE).toCollection().modify(attribute => {
+                // Map old types to new types
+                if ((attribute.type as any) === 'number') attribute.type = 'numeric';
+                if ((attribute.type as any) === 'option') attribute.type = 'dropdown';
+                if ((attribute.type as any) === 'text-area') attribute.type = 'text';
+            });
+        });
+        this.version(7).stores({
+            cardAttributes: '++id, deckId, name, type, options, description, width, order',
+        }).upgrade(transaction => {
+            return transaction.table(AppDB.CARD_ATTRIBUTES_TABLE).toCollection().modify(attribute => {
+                attribute.order = attribute.id; // Default order to ID
+            });
+        });
+        this.version(8).stores({
+            cardAttributes: '++id, deckId, name, [deckId+name], type, options, description, width, order',
+        });
+
         // populate in a non-traditional way since the 'on populate' will not allow ajax calls
         this.on('ready', () => this.table(AppDB.DECKS_TABLE).count()
-        .then(count => {
-            if (!electronService.isElectron() && count > 0) {
-                console.log('db already populated');
-            } else {
-                console.log('populate from file');
-                this.populateFromFile().then(() => {
-                    // cause asset urls to update
-                    this.loadSubject.next(null);
-                });
-            }
-        }).then(() => {
-            // initialize mandatory data;
-            return this.initializeData();
-        }));
+            .then(count => {
+                if (!electronService.isElectron() && count > 0) {
+                    console.log('db already populated');
+                } else {
+                    console.log('populate from file');
+                    this.populateFromFile().then(() => {
+                        // cause asset urls to update
+                        this.loadSubject.next(null);
+                    });
+                }
+            }).then(() => {
+                // initialize mandatory data;
+                return this.initializeData();
+            }));
 
         // trigger changeSubject when change emitted to db
         Dexie.on('storagemutated', (event) => {
@@ -128,8 +157,8 @@ export class AppDB extends Dexie {
     }
 
     async populateFromFile() {
-        const blob = await firstValueFrom(this.httpClient.get(AppDB.SAMPLE_DB_FILE, {responseType: 'blob'}));
-        const file = new File([blob], 'database.json', {type: 'application/json', lastModified: Date.now()});
+        const blob = await firstValueFrom(this.httpClient.get(AppDB.SAMPLE_DB_FILE, { responseType: 'blob' }));
+        const file = new File([blob], 'database.json', { type: 'application/json', lastModified: Date.now() });
         return importDB(file, {
             //noTransaction: true
         }).then((db) => {
@@ -144,7 +173,7 @@ export class AppDB extends Dexie {
      * 
      * @param file 
      */
-    public async importDatabase(file: File, 
+    public async importDatabase(file: File,
         progressCallback?: (progress: ImportProgress) => boolean): Promise<boolean> {
         // unsolved dexie with typescript issue: https://github.com/dexie/Dexie.js/issues/1262
         // @ts-ignore
@@ -153,8 +182,8 @@ export class AppDB extends Dexie {
             noTransaction: true,
             progressCallback: progressCallback
         }).then(tempDb => tempDb.close())
-        .then(result => this.open())
-        .then(() => true);
+            .then(result => this.open())
+            .then(() => true);
     }
 
     /**
@@ -213,7 +242,105 @@ export class AppDB extends Dexie {
             });
         }
 
+        // Upgrade legacy dropdown options to DropdownOption json structure
+        const attributesTable = this.table(AppDB.CARD_ATTRIBUTES_TABLE);
+        await attributesTable.toCollection().modify(attribute => {
+            // Map old types to new types
+            if ((attribute.type as any) === 'number') attribute.type = FieldType.numeric;
+            if ((attribute.type as any) === 'option') attribute.type = FieldType.dropdown;
+            if ((attribute.type as any) === 'text-area') attribute.type = FieldType.text;
+
+            // Set default width
+            if (!attribute.width) {
+                attribute.width = 135;
+            }
+
+            // Set default order
+            if (attribute.order === undefined) {
+                attribute.order = attribute.id;
+            }
+
+            if (attribute.type === 'dropdown' && attribute.options) {
+                let options: any[] = [];
+                let changed = false;
+                const usedColors = new Set<string>();
+
+                const getRandomColor = () => {
+                    let color = '';
+                    let attempts = 0;
+                    do {
+                        color = '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+                        attempts++;
+                    } while (usedColors.has(color) && attempts < 100);
+                    usedColors.add(color);
+                    return color;
+                };
+
+                if (Array.isArray(attribute.options)) {
+                    // Check if it's string[] (Legacy format)
+                    if (attribute.options.length > 0 && typeof attribute.options[0] === 'string') {
+                        options = attribute.options.map((o: string) => ({ value: o, color: getRandomColor() }));
+                        changed = true;
+                    }
+                } else if (typeof attribute.options === 'string') {
+                    // Check if it's a JSON string or comma separated
+                    const optsStr = attribute.options.trim();
+                    if (optsStr.startsWith('[')) {
+                        try {
+                            const parsed = JSON.parse(optsStr);
+                            // If parsed is string[], migrate it.
+                            if (Array.isArray(parsed) && parsed.length > 0 && typeof parsed[0] === 'string') {
+                                options = parsed.map((o: string) => ({ value: o, color: getRandomColor() }));
+                                changed = true;
+                            }
+                        } catch (e) {
+                            // ignore
+                        }
+                    } else {
+                        // Comma separated string
+                        const parts = optsStr.split(',');
+                        if (parts.length > 0) {
+                            options = parts.map((o: string) => ({ value: o.trim(), color: getRandomColor() }));
+                            changed = true;
+                        }
+                    }
+                }
+
+                if (changed) {
+                    attribute.options = options;
+                }
+            }
+        });
+
         // add other mandatory entries here as needed
+        const decks = await this.table(AppDB.DECKS_TABLE).toArray();
+        for (const deck of decks) {
+            const inherent = [
+                { name: 'Name', type: 'text', description: 'The name of the card', isSystem: true, order: -4 },
+                { name: 'Count', type: 'numeric', description: 'How many of this card appear in the deck', isSystem: true, order: -3 },
+                { name: 'Front Template', type: 'dropdown', description: "The card's front template", isSystem: true, order: -2 },
+                { name: 'Back Template', type: 'dropdown', description: "The card's back template", isSystem: true, order: -1 }
+            ];
+
+            for (const attr of inherent) {
+                const count = await attributesTable.where({ deckId: deck.id, name: attr.name }).count();
+                if (count === 0) {
+                    await attributesTable.add({
+                        deckId: deck.id,
+                        name: attr.name,
+                        type: attr.type as any,
+                        description: attr.description,
+                        options: [],
+                        width: 135,
+                        order: attr.order,
+                        isSystem: true
+                    });
+                } else {
+                    await attributesTable.where({ deckId: deck.id, name: attr.name }).modify({ isSystem: true });
+                }
+            }
+        }
+
         return;
     }
 }
