@@ -27,3 +27,15 @@
         }
     }
 }
+
+:host ::ng-deep long-table-stats {
+    -webkit-app-region: no-drag;
+
+    >div {
+        -webkit-app-region: no-drag;
+
+        .stats-modal-panel {
+            -webkit-app-region: no-drag;
+        }
+    }
+}

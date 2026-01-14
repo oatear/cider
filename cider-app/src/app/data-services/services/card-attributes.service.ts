@@ -65,7 +65,7 @@ export class CardAttributesService extends DecksChildService<CardAttribute, numb
       } else {
         if (!existing.isSystem) {
           existing.isSystem = true;
-          await this.update(existing.id, existing);
+          await this.update(existing.id, existing, true);
         }
       }
     }

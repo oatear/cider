@@ -40,7 +40,7 @@
             ],
             "styles": [
               "src/styles.scss",
-              "node_modules/oatear-longtable/prebuilt-styles.css"
+              "node_modules/oatear-longtable/longtable-styles.css"
             ],
             "scripts": [],
             "browser": "src/main.ts"
@@ -110,7 +110,7 @@
             ],
             "styles": [
               "src/styles.scss",
-              "node_modules/oatear-longtable/prebuilt-styles.css"
+              "node_modules/oatear-longtable/longtable-styles.css"
             ],
             "scripts": []
           }
