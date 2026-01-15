@@ -118,6 +118,7 @@
         "card-margins": "Kartenränder (Zoll)",
         "cards-per-page": "Karten pro Seite",
         "low-ink-mode": "Tinten-Sparmodus",
+        "include-backs": "Kartenrückseiten einschließen",
         "mirror-backs-x": "Rückseiten spiegeln X",
         "mirror-backs-y": "Rückseiten spiegeln Y",
         "paper-dpi": "Papier DPI (Punkte pro Zoll)",

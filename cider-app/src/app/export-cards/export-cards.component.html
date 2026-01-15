@@ -127,12 +127,16 @@
             <label for="lowInk" class="ml-2">{{'export.low-ink-mode' | translate}}</label>
           </div>
           <div class="p-field p-d-inline-flex p-flex-row p-mr-2">
-            <p-checkbox name="mirrorBacksX" class="p-mr-2" [binary]="true" [(ngModel)]="mirrorBacksX"
-              inpudId="mirrorBacksX"></p-checkbox>
+              <p-checkbox name="includeBacks" class="p-mr-2" [binary]="true" [(ngModel)]="showBack" inputId="includeBacks"></p-checkbox>
+              <label for="includeBacks" class="ml-2">{{'export.include-backs' | translate}}</label>
+          </div>
+          <div class="p-field p-d-inline-flex p-flex-row p-mr-2">
+            <p-checkbox name="mirrorBacksX" class="p-mr-2" [binary]="true" [disabled]="!showBack" [(ngModel)]="mirrorBacksX"
+              inputId="mirrorBacksX"></p-checkbox>
             <label for="mirrorBacksX" class="ml-2">{{'export.mirror-backs-x' | translate}}</label>
           </div>
           <div class="p-field p-d-inline-flex p-flex-row p-mr-2">
-            <p-checkbox name="mirrorBacksY" class="p-mr-2" [binary]="true" [(ngModel)]="mirrorBacksY"
+            <p-checkbox name="mirrorBacksY" class="p-mr-2" [binary]="true" [disabled]="!showBack" [(ngModel)]="mirrorBacksY"
               inputId="mirrorBacksY"></p-checkbox>
             <label for="mirrorBacksY" class="ml-2">{{'export.mirror-backs-y' | translate}}</label>
           </div>

@@ -118,6 +118,7 @@
         "card-margins": "Kart Kenar Boşlukları (inç)",
         "cards-per-page": "Sayfa Başına Kart",
         "low-ink-mode": "Düşük Mürekkep Modu",
+        "include-backs": "Kart Arkalarını Dahil Et",
         "mirror-backs-x": "Arka Yüzü X Ekseninde Aynala",
         "mirror-backs-y": "Arka Yüzü Y Ekseninde Aynala",
         "paper-dpi": "Kağıt DPI (inch başına nokta)",

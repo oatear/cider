@@ -118,6 +118,7 @@
         "card-margins": "Поля картки (дюйми)",
         "cards-per-page": "Карток на сторінку",
         "low-ink-mode": "Економія чорнил",
+        "include-backs": "Включити звороти карт",
         "mirror-backs-x": "Дзеркальні звороти X",
         "mirror-backs-y": "Дзеркальні звороти Y",
         "paper-dpi": "DPI паперу (точок на дюйм)",
