@@ -210,8 +210,6 @@ export class GameSimulatorComponent {
     const optionAttributes = await Promise.all(deckIds.map((deckId) => this.cardsService.getFieldsUnfiltered({ deckId: deckId })))
       .then((fieldArrays) => fieldArrays.flatMap((fieldArray) => fieldArray)
         .filter((field) => field.type == FieldType.dropdown && field.field !== 'frontCardTemplateId' && field.field !== 'backCardTemplateId'));
-    const fields = await this.cardsService.getFields();
-    const dropdownFields = fields.filter((field) => field.type == FieldType.dropdown && field.field !== 'frontCardTemplateId' && field.field !== 'backCardTemplateId');
 
     this.contextMenuItems = [
       {

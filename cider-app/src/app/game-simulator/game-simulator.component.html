@@ -5,109 +5,90 @@
   [cdkDropListData]="field.cards"
   (cdkDropListDropped)="onCardDropped($event)"
   cdkDropList> -->
-  <div class="field game-boundary"
-    (contextmenu)="onFieldContextMenu($event, cm)">
+  <div class="field game-boundary" (contextmenu)="onFieldContextMenu($event, cm)">
     <!-- cdkDropList
     [cdkDropListData]="stack.cards"
     (cdkDropListDropped)="onCardDropped($event)" -->
     <!-- Stacks -->
     @for (stack of stacks; track stack.uniqueId) {
-      @if (stack.cards) {
-        <div class="card-stack game-card"
-          [class.empty]="stack.cards.length === 0"
-          (click)="drawCard(stack)"
-          (contextmenu)="onStackContextMenu($event, cm, stack)"
-          (cdkDragStarted)="onDragStarted($event, stacks, stack)"
-          (cdkDragEnded)="onDragEnded($event, stacks, stack)"
-          [cdkDragFreeDragPosition]="stack.pos"
-          cdkDragBoundary=".game-boundary" cdkDrag>
-          <div class="card-wrapper"
-            [class.shuffling]="stack.shuffling" >
-            @if (stack.cards.length > 0 && stack.cards[stack.cards.length - 1].card.backCardTemplateId) {
-              <app-card-preview [cache]="false" [tiltable]="true"
-                    [template]="(stack.faceUp ? stack.cards[stack.cards.length - 1].card.frontCardTemplateId 
+    @if (stack.cards) {
+    <div class="card-stack game-card" [class.empty]="stack.cards.length === 0" (click)="drawCard(stack)"
+      (contextmenu)="onStackContextMenu($event, cm, stack)" (cdkDragStarted)="onDragStarted($event, stacks, stack)"
+      (cdkDragEnded)="onDragEnded($event, stacks, stack)" [cdkDragFreeDragPosition]="stack.pos"
+      cdkDragBoundary=".game-boundary" cdkDrag>
+      <div class="card-wrapper" [class.shuffling]="stack.shuffling">
+        @if (stack.cards.length > 0 && stack.cards[stack.cards.length - 1].card.backCardTemplateId) {
+        <app-card-preview [cache]="false" [tiltable]="true" [template]="(stack.faceUp ? stack.cards[stack.cards.length - 1].card.frontCardTemplateId 
                         : stack.cards[stack.cards.length - 1].card.backCardTemplateId)
-                        | entity: cardTemplatesService | async"
-              [card]="stack.cards[stack.cards.length - 1].card" [scale]="zoomLevel" ></app-card-preview>
-            }
-          </div>
-          @if (stack.cards.length === 0) {
-            <div class="stack-placeholder">
-              <span class="placeholder-text">{{ stack.name }}</span>
-            </div>
-          }
-          @if (draggingCard) {
-            <div class="dropzone"
-              (mouseover)="onMouseEntered($event, stack)"
-            (mouseout)="onMouseExited($event, stack)"></div>
-          }
-          <div class="count">{{ stack.name }} {{ stack.cards.length }}</div>
-        </div>
+                        | entity: cardTemplatesService | async" [card]="stack.cards[stack.cards.length - 1].card"
+          [scale]="zoomLevel"></app-card-preview>
+        }
+      </div>
+      @if (stack.cards.length === 0) {
+      <div class="stack-placeholder">
+        <span class="placeholder-text">{{ stack.name }}</span>
+      </div>
       }
+      @if (draggingCard) {
+      <div class="dropzone" (mouseover)="onMouseEntered($event, stack)" (mouseout)="onMouseExited($event, stack)"></div>
+      }
+      <div class="count">{{ stack.name }} {{ stack.cards.length }}</div>
+    </div>
+    }
     }
 
     <!-- (click)="discardCard(field.cards, card)"  -->
     <!-- (cdkDragDropped)="changePosition($event, card)" -->
     <!-- (cdkDragEntered)="onDragEntered($event, card)" -->
     @for (card of field.cards; track card) {
-      @if (card.card.frontCardTemplateId) {
-        <div class="field-card game-card"
-          [class.magnified]="card.magnified"
-          (contextmenu)="onCardContextMenu($event, cm, card)"
-          (mousedown)="onCardMouseDown($event, card)"
-          (mouseup)="onCardMouseUp($event, card)"
-          [cdkDragData]="card"
-          (cdkDragStarted)="onCardDragStarted($event, field.cards, card)"
-          (cdkDragEnded)="onCardDragEnded($event, field.cards, card)"
-          [cdkDragFreeDragPosition]="card.pos"
-          cdkDragBoundary=".game-boundary" cdkDrag>
-          <app-card-preview [cache]="false" [tiltable]="true"
-                    [template]="(card.faceUp ? card.card.frontCardTemplateId 
+    @if (card.card.frontCardTemplateId) {
+    <div class="field-card game-card" [class.magnified]="card.magnified"
+      (contextmenu)="onCardContextMenu($event, cm, card)" (mousedown)="onCardMouseDown($event, card)"
+      (mouseup)="onCardMouseUp($event, card)" [cdkDragData]="card"
+      (cdkDragStarted)="onCardDragStarted($event, field.cards, card)"
+      (cdkDragEnded)="onCardDragEnded($event, field.cards, card)" [cdkDragFreeDragPosition]="card.pos"
+      cdkDragBoundary=".game-boundary" cdkDrag>
+      <app-card-preview [cache]="false" [tiltable]="true" [template]="(card.faceUp ? card.card.frontCardTemplateId 
                         : card.card.backCardTemplateId) 
-                        | entity: cardTemplatesService | async"
-          [card]="card.card" [scale]="card.magnified ? zoomMagnifiedLevel : zoomLevel" ></app-card-preview>
-          <!-- <div class="drop-zone"
+                        | entity: cardTemplatesService | async" [card]="card.card"
+        [scale]="card.magnified ? zoomMagnifiedLevel : zoomLevel"></app-card-preview>
+      <!-- <div class="drop-zone"
           style="width: 100px; height: 100px; background-color: red;"
           cdkDropList
         [cdkDropListData]="field.cards"></div> -->
-      </div>
+    </div>
     }
-  }
+    }
 
-  @for (component of components; track component) {
-    <div class="game-component"
-      (contextmenu)="onComponentContextMenu($event, cm, component)"
-      [cdkDragData]="component"
+    @for (component of components; track component) {
+    <div class="game-component" (contextmenu)="onComponentContextMenu($event, cm, component)" [cdkDragData]="component"
       (cdkDragStarted)="onDragStarted($event, components, component)"
-      (cdkDragEnded)="onDragEnded($event, components, component)"
-      [cdkDragFreeDragPosition]="component.pos"
+      (cdkDragEnded)="onDragEnded($event, components, component)" [cdkDragFreeDragPosition]="component.pos"
       cdkDragBoundary=".game-boundary" cdkDrag>
       <div class="tiltable">
         @if (component.type == 'd6') {
-                    <div [class]="'component ' + component.className 
-                        + ' face-' + component.face"
-            [class.rolling]="component.rolling" >
-            <div class="pip"></div>
-            <div class="pip"></div>
-            <div class="pip"></div>
-            <div class="pip"></div>
-            <div class="pip"></div>
-            <div class="pip"></div>
-            <div class="pip"></div>
-            <div class="pip"></div>
-            <div class="pip"></div>
-            <div class="depth"></div>
-          </div>
+        <div [class]="'component ' + component.className 
+                        + ' face-' + component.face" [class.rolling]="component.rolling">
+          <div class="pip"></div>
+          <div class="pip"></div>
+          <div class="pip"></div>
+          <div class="pip"></div>
+          <div class="pip"></div>
+          <div class="pip"></div>
+          <div class="pip"></div>
+          <div class="pip"></div>
+          <div class="pip"></div>
+          <div class="depth"></div>
+        </div>
         } @else {
-          <div [class]="'component ' + component.className"
-            [class.rolling]="component.rolling"
-            [class.back]="!component.faceUp" >
-            <div class="depth"></div>
-          </div>
+        <div [class]="'component ' + component.className" [class.rolling]="component.rolling"
+          [class.back]="!component.faceUp">
+          <div class="depth"></div>
+        </div>
         }
       </div>
     </div>
-  }
-</div>
+    }
+  </div>
 </div>
 <p-contextmenu #cm [model]="contextMenuItems" />
