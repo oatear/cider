@@ -25,8 +25,12 @@ export default class XlsxUtils {
                     return lookups.get(header.service)?.get(<any>record[header.field]);
                 }
 
-                if (header.type === FieldType.dropdown) {
-                    return record[header.field];
+                if (header.type === FieldType.dropdown || header.type === FieldType.dropdownOptions) {
+                    const value = record[header.field];
+                    if (typeof value === 'object') {
+                        return JSON.stringify(value);
+                    }
+                    return value;
                 }
 
                 return record[header.field];
