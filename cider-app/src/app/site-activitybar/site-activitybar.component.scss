@@ -2,38 +2,85 @@
     flex-direction: column;
     border: none;
     height: 100%;
-    p-menubarsub {
-        height: 100%;
+    width: 60px;
+    // background: var(--p-menubar-background);
+    display: flex;
+
+    &.p-menubar {
+        flex-direction: column !important;
+        display: flex !important;
+        padding: 0 10px;
+
         .p-menubar-root-list {
-            flex-direction: column;
-            height: 100%;
+            flex-direction: column !important;
+            height: 100% !important;
             transition: filter 0.3s ease-in-out;
+            display: flex !important;
+            background: none;
+            border: none;
+            padding: 0;
+            width: 100%;
+
             .p-menubar-item {
+                width: 100%;
+
                 &:hover {
                     animation: hue-spin 3s linear infinite;
                 }
+
                 &.menu-item-bottom {
                     margin-top: auto;
                 }
+
+                // &.focus .p-menubar-item-content {
+                //     background: var(--p-menubar-item-focus-background);
+                // }
+
                 .p-menubar-item-content {
                     display: flex;
                     flex-direction: column;
-                    .p-menubar-item-icon {
-                        font-size: 20px;
-                    }
-                    .p-menubar-item-label {
-                        display: none;
+                    justify-content: center;
+                    align-items: center;
+                    height: 40px;
+                    // background: var(--p-content-background);
+
+                    .p-menubar-item-link {
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                        align-items: center;
+                        width: 100%;
+                        height: 100%;
+                        padding: 0;
+                        background: none;
+                        border: none;
+                        box-shadow: none;
+
+                        .p-menubar-item-icon {
+                            font-size: 20px;
+                            margin: 0;
+                            // color: var(--p-text-color);
+                        }
+
+                        .p-menubar-item-label {
+                            display: none;
+                        }
                     }
                 }
             }
         }
     }
+
     .p-menubar-end {
         display: none;
     }
+
     .logo-image {
         filter: hue-rotate(0deg);
         transition: filter 1s ease-in-out;
+        cursor: pointer;
+        border-radius: 10px;
+
         &:hover {
             filter: hue-rotate(360deg);
         }
@@ -44,6 +91,7 @@
     0% {
         filter: hue-rotate(0deg);
     }
+
     100% {
         filter: hue-rotate(360deg);
     }

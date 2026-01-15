@@ -11,6 +11,7 @@
     background-color: transparent;
     min-height: 0;
     margin-right: 10px;
+
     .p-col {
         padding: 0;
     }
@@ -23,57 +24,62 @@
     p-card {
         width: 100%;
         height: 100%;
-        .p-card {
+
+        .p-card-body {
             height: 100%;
-            width: 100%;
-            .p-card-body {
+
+            .p-card-content {
                 height: 100%;
-                .p-card-content {
-                    height: 100%;
-                }
             }
         }
-        .preview-card {
+
+        &.preview-card {
             display: grid;
+
             .p-card-body {
                 overflow: scroll;
             }
         }
-        .code-editor {
-        }
+
+        .code-editor {}
     }
 }
 
 :host ::ng-deep ngx-monaco-editor {
     height: 100%;
+
     .editor-container {
         height: 100%;
     }
 }
 
 :host ::ng-deep .markdown-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-  line-height: 1.6;
-//   padding: 2rem;
-//   border-radius: 6px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    //   padding: 2rem;
+    //   border-radius: 6px;
 
-  h1, h2 {
-    border-bottom: 1px solid var(--p-content-hover-background);
-    padding-bottom: 0.3em;
-  }
-  pre {
-    background-color: var(--p-content-hover-background);
-    padding: 0.5em;
-    overflow: auto;
-    border-radius: 6px;
-    > code {
-        display: inline-block;
+    h1,
+    h2 {
+        border-bottom: 1px solid var(--p-content-hover-background);
+        padding-bottom: 0.3em;
     }
-  }
-  code {
-    background-color: var(--p-content-hover-background);
-    padding: 0.2em 0.4em;
-    border-radius: 3px;
-    font-size: 85%;
-  }
+
+    pre {
+        background-color: var(--p-content-hover-background);
+        padding: 0.5em;
+        overflow: auto;
+        border-radius: 6px;
+
+        >code {
+            display: inline-block;
+        }
+    }
+
+    code {
+        background-color: var(--p-content-hover-background);
+        padding: 0.2em 0.4em;
+        border-radius: 3px;
+        font-size: 85%;
+    }
 }

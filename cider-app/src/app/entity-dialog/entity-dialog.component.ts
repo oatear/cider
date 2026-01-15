@@ -11,7 +11,8 @@ import TranslateUtils from '../shared/utils/translate-utils';
   selector: 'app-entity-dialog',
   templateUrl: './entity-dialog.component.html',
   styleUrls: ['./entity-dialog.component.scss'],
-  providers: [MessageService]
+  providers: [MessageService],
+  standalone: false
 })
 export class EntityDialogComponent<Entity, Identifier extends string | number> implements OnInit, OnChanges {
   @Input() service: EntityService<Entity, Identifier> | undefined;
@@ -24,7 +25,7 @@ export class EntityDialogComponent<Entity, Identifier extends string | number> i
   loading: boolean = false;
   FieldType = FieldType;
 
-  constructor(private messageService: MessageService, 
+  constructor(private messageService: MessageService,
     private translate: TranslateService,
     private domSanitizer: DomSanitizer) { }
 
@@ -34,7 +35,7 @@ export class EntityDialogComponent<Entity, Identifier extends string | number> i
         .then(fields => this.columns = fields);
     }
   }
-  
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['service'] && this.service && this.service.getFields) {
       this.service.getFields().then(fields => TranslateUtils.translateFields(fields, this.translate))
@@ -59,8 +60,8 @@ export class EntityDialogComponent<Entity, Identifier extends string | number> i
     this.service?.create(entity).then(result => {
       this.loading = false;
       this.hideDialog();
-      this.messageService.add({severity:'success', summary: 'Successful', detail: 'Entity Created', life: 3000});
-      this.onCreate.emit(entity);
+      this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Entity Created', life: 3000 });
+      this.onCreate.emit(result);
     }).catch(error => {
       this.loading = false;
     });
@@ -71,7 +72,7 @@ export class EntityDialogComponent<Entity, Identifier extends string | number> i
     this.service?.update(id, entity).then(result => {
       this.loading = false;
       this.hideDialog();
-      this.messageService.add({severity:'success', summary: 'Successful', detail: 'Entity Updated', life: 3000});
+      this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Entity Updated', life: 3000 });
     }).catch(error => {
       this.loading = false;
     });

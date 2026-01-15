@@ -5,9 +5,10 @@ import PackageUtils from '../shared/utils/package-utils';
 import { PersistentPath } from '../data-services/types/persistent-path.type';
 
 @Component({
-  selector: 'app-site-footer',
-  templateUrl: './site-footer.component.html',
-  styleUrls: ['./site-footer.component.scss']
+    selector: 'app-site-footer',
+    templateUrl: './site-footer.component.html',
+    styleUrls: ['./site-footer.component.scss'],
+    standalone: false
 })
 export class SiteFooterComponent implements OnInit {
   projectHomeUrl$: Observable<PersistentPath | undefined>;

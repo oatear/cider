@@ -1,0 +1,12 @@
+<div class="dropdown-option-editor">
+    <div *ngFor="let option of options; let i = index" class="option-row p-mb-2 p-d-flex p-ai-center">
+        <p-colorPicker [(ngModel)]="option.color" (onChange)="onChange()" appendTo="body"
+            class="p-mr-2"></p-colorPicker>
+        <input type="text" pInputText [(ngModel)]="option.value" (ngModelChange)="onChange()" placeholder="Option Value"
+            class="p-mr-2 p-flex-grow-1" />
+        <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-text"
+            (click)="removeOption(i)"></button>
+    </div>
+    <button pButton pRipple label="Add Option" icon="pi pi-plus" class="p-button-outlined"
+        (click)="addOption()"></button>
+</div>

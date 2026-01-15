@@ -3,14 +3,14 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { EntityDialogComponent } from './entity-dialog.component';
 
 describe('EntityDialogComponent', () => {
-  let component: EntityDialogComponent;
-  let fixture: ComponentFixture<EntityDialogComponent>;
+  let component: EntityDialogComponent<any, any>;
+  let fixture: ComponentFixture<EntityDialogComponent<any, any>>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ EntityDialogComponent ]
+      declarations: [EntityDialogComponent]
     })
-    .compileComponents();
+      .compileComponents();
   });
 
   beforeEach(() => {

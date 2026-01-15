@@ -4,7 +4,8 @@ import StringUtils from '../utils/string-utils';
 import * as Handlebars from 'handlebars';
 
 @Pipe({
-  name: 'handlebars',
+    name: 'handlebars',
+    standalone: false
 })
 export class HandlebarsPipe implements PipeTransform {
 

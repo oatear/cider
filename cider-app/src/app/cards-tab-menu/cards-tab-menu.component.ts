@@ -5,9 +5,10 @@ import { DecksService } from '../data-services/services/decks.service';
 import { Deck } from '../data-services/types/deck.type';
 
 @Component({
-  selector: 'app-cards-tab-menu',
-  templateUrl: './cards-tab-menu.component.html',
-  styleUrls: ['./cards-tab-menu.component.scss']
+    selector: 'app-cards-tab-menu',
+    templateUrl: './cards-tab-menu.component.html',
+    styleUrls: ['./cards-tab-menu.component.scss'],
+    standalone: false
 })
 export class CardsTabMenuComponent implements OnInit {
 

@@ -5,14 +5,17 @@
     min-height: 100vh;
     height: 100%;
     width: 100%;
+
     .site-body {
         display: flex;
         flex: 1;
         flex-direction: row;
         overflow: hidden;
-        > p-splitter {
+
+        >p-splitter {
             flex: 1;
             width: 0px;
+
             .site-splitter {
                 height: 100%;
                 border: none;
@@ -21,7 +24,7 @@
     }
 }
 
-:host ::ng-deep .page-card, 
+:host ::ng-deep .page-card,
 :host ::ng-deep .page-card.header-card {
     // margin: 25px;
     margin-bottom: 25px;
@@ -54,50 +57,66 @@
 
 :host ::ng-deep .site-splitter {
     background: none;
+    border: none;
+
+    .p-splitterpanel {
+        display: flex;
+        flex-grow: 1;
+        flex-direction: column;
+    }
 
     app-site-sidebar {
-        background: var(--surface-0);
+        // background: var(--p-content-background);
         flex: 1;
         display: flex;
         overflow: hidden;
         margin-right: 10px;
     }
+
     app-site-content {
-        background: var(--surface-0);
+        // background: var(--p-content-background);
         flex: 1;
         display: flex;
         width: 100%;
+        height: 100%;
         margin-left: 10px;
+
         .site-content {
             flex: 1;
         }
     }
+
     .site-sidebar-placeholder {
-        background: var(--p-content-background);
+        background: var(--cider-content-background);
         border-radius: 10px;
         margin-right: 10px;
         flex: 1;
     }
+
     .site-content-placeholder {
-        background: var(--surface-0);
+        background: var(--cider-content-background);
+        border-radius: 10px;
         margin-left: 10px;
+        margin-right: 15px;
         flex: 1;
-        width: 100%;
     }
+
     .p-splitter-gutter {
         background: transparent;
         margin-top: 10px;
         margin-bottom: 10px;
+
         &:hover {
-            background: var(--p-surface-800);
+            background: var(--p-surface-300);
         }
     }
+
     .p-splitter-gutter-resizing {
         background: #3f4b5b;
     }
 
 
-    > .p-splitterpanel:first-child {
+    >.p-splitterpanel:first-child {
         min-width: 200px;
 
         // transform-style: preserve-3d;
@@ -109,17 +128,19 @@
     }
 
     &.no-sidebar {
-        > .p-splitterpanel:first-child {
+        >.p-splitterpanel:first-child {
             flex: 0 0 0px !important;
             min-width: 0px;
 
             transform: perspective(1000px) rotateX(5deg) rotateY(-5deg);
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
         }
-        > .p-splitter-gutter {
+
+        >.p-splitter-gutter {
             flex: 0 0 0px !important;
             display: none;
         }
+
         app-site-content {
             margin-left: 0px;
         }
@@ -127,10 +148,11 @@
 }
 
 :host ::ng-deep .site-splitter:not(.p-splitter-resizing) {
-    > .p-splitterpanel:first-child {
+    >.p-splitterpanel:first-child {
         transition: flex 0.3s ease-in-out, min-width 0.3s ease-in-out, transform 0.3s ease, box-shadow 0.3s ease;
     }
-    > .p-splitter-gutter {
+
+    >.p-splitter-gutter {
         transition: flex 0.3s ease-in-out, display 0s 0.3s allow-discrete;
     }
 }

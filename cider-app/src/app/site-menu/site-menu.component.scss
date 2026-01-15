@@ -1,19 +1,22 @@
-
 .site-menu {
-    background-color: var(--surface-a);
+    background: none;
     user-select: none;
     -webkit-user-select: none;
     -webkit-app-region: drag;
+
     .deck-name {
         font-weight: 500;
     }
+
     p-tag {
         background: none;
         color: var(--p-text-muted-color);
         color: var(--p-menubar-color);
     }
+
     display: flex;
 }
+
 .logo-image {
     margin-right: 15px;
 }
@@ -25,54 +28,56 @@
     height: 45px;
     border-radius: 0px;
     border: 0;
+    background: none !important;
 
-    p-menubarsub {
-        --webkit-app-region: no-drag;
-        app-region: no-drag;
+    .p-menubar-root-list {
+        -webkit-app-region: no-drag;
     }
 
-    .p-menubar-root-list > .p-menuitem > .p-menuitem-link:focus {
+    .p-menubar-root-list>.p-menuitem>.p-menuitem-link:focus {
         box-shadow: none;
     }
 
     .p-submenu-list {
-        background: #343e4d;
+        background: var(--cider-overlay-background, #343e4d);
         border: none;
     }
 
     .p-menuitem {
         user-select: none;
         -webkit-user-select: none;
-        -webkit-app-region: none;
+        -webkit-app-region: no-drag;
         z-index: 3;
     }
 
-    .p-menubar-root-list > .p-menuitem > .p-menuitem-link {
+    .p-menubar-root-list>.p-menuitem>.p-menuitem-link {
         border-radius: 10px;
     }
 
     .p-menuitem.selected-deck {
-        background-color: var(--surface-a);
+        background-color: var(--cider-hover-background, var(--p-surface-100));
         border-radius: 10px;
     }
 
-    .p-menuitem.p-menuitem-active > .p-menuitem-link {
-        background: var(--surface-d);
+    .p-menuitem.p-menubar-item-active>.p-menubar-item-link,
+    .p-menuitem.p-menuitem-active>.p-menuitem-link {
+        background: var(--p-surface-300);
     }
 }
 
 :host ::ng-deep p-breadcrumb {
-    --webkit-app-region: no-drag;
-    app-region: no-drag;
+    -webkit-app-region: no-drag;
+
     .p-breadcrumb-list {
         user-select: none;
         -webkit-user-select: none;
-        -webkit-app-region: none;
+        -webkit-app-region: no-drag;
     }
 }
 
 :host ::ng-deep .p-breadcrumb {
     background: none;
+
     .p-breadcrumb-item-link {
         .p-breadcrumb-item-icon {
             line-height: 17px;

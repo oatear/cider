@@ -1,63 +1,61 @@
 <p-toast></p-toast>
 <p-dialog [(visible)]="visible" (visibleChange)="visibleChange.emit($event)" (onHide)="hideDialog()"
-    [style]="{width: '450px'}" [header]="title || ('controls.create-edit' | translate)" [modal]="true" styleClass="p-fluid">
-    <ng-template pTemplate="content">
-        <ng-container *ngFor="let col of columns">
-            <ng-container [ngSwitch]="true">
-                <ng-container *ngSwitchCase="col.hidden"></ng-container>
-                <ng-container *ngSwitchCase="!col.hidden && col.service !== undefined">
-                    <div *ngIf="col.service" class="p-field">
-                        <label [for]="col.field">{{col.header}}</label>
-                        <p-dropdown [options]="(col.service | entityList | async) || []" [(ngModel)]="entity[col.field]" 
-                            [id]="col.field | toString" optionLabel="name" [optionValue]="col.service.getIdField()" class="p-mr-2"
-                            appendTo="body"></p-dropdown>
-                    </div>
-                </ng-container>
-                <ng-container *ngSwitchCase="!col.hidden && col.type === FieldType.option 
-                    && col.service === undefined">
-                    <div class="p-field">
-                        <label [for]="col.field">{{col.header}}</label>
-                        <p-dropdown [options]="col.options || []" [(ngModel)]="entity[col.field]" 
-                            [id]="col.field | toString" class="p-mr-2" appendTo="body"></p-dropdown>
-                    </div>
-                </ng-container>
-                <ng-container *ngSwitchCase="!col.hidden && col.type === FieldType.optionList 
-                    && (!$any(entity).type || $any(entity).type !== FieldType.option)">
-                </ng-container>
-                <ng-container *ngSwitchCase="!col.hidden && col.type === FieldType.optionList 
-                    && $any(entity).type && $any(entity).type === FieldType.option">
-                    <div class="p-field">
-                        <label [for]="col.field">{{col.header}}</label>
-                        <p-message severity="info" text="Press [Enter] to create new options"></p-message>
-                        <p-autocomplete [(ngModel)]="entity[col.field]" [inputId]="col.field.toString()" [typeahead]="false" multiple fluid></p-autocomplete>
-                    </div>
-                </ng-container>
-                <ng-container *ngSwitchCase="!col.hidden && col.type === FieldType.file">
-                    <div class="p-field">
-                        <label [for]="col.field">{{col.header}}</label>
-                        <p-fileUpload name="entity[col.field]" mode="basic" accept="image/*,font/*" [maxFileSize]="200000000" 
-                            [chooseLabel]="'controls.import' | translate" class="inline-block" 
-                            [customUpload]="true" (onSelect)="uploadFile(entity, col.field, $event)"></p-fileUpload>
-                    </div>
-                </ng-container>
-                <ng-container *ngSwitchCase="!col.hidden && col.type === FieldType.textArea">
-                    <div class="p-field">
-                        <label [for]="col.field">{{col.header}}</label>
-                        <textarea [rows]="5" [cols]="30" pTextarea [autoResize]="true" 
-                            [id]="col.field" [(ngModel)]="entity[col.field]" ></textarea>
-                    </div>
-                </ng-container>
-                <ng-container *ngSwitchDefault>
-                    <div class="p-field">
-                        <label [for]="col.field">{{col.header}}</label>
-                        <input type="text" pInputText [id]="col.field" [(ngModel)]="entity[col.field]" required autofocus />
-                    </div>
-                </ng-container>
-              </ng-container>
-        </ng-container>
-    </ng-template>
-    <ng-template pTemplate="footer">
-        <button pButton pRipple [label]="'controls.cancel' | translate" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
-        <button pButton pRipple [label]="'controls.save' | translate" icon="pi pi-check" class="p-button-text" (click)="save()"></button>
-    </ng-template>
+  [style]="{width: '450px'}" [header]="title || ('controls.create-edit' | translate)" [modal]="true"
+  styleClass="p-fluid">
+  <ng-template pTemplate="content">
+    @for (col of columns; track col) {
+    @switch (true) {
+    @case (col.hidden || (col.visible && !col.visible(entity))) {
+    }
+    @case (!col.hidden && (col.visible ? col.visible(entity) : true) && col.service !== undefined) {
+    @if (col.service) {
+    <div class="p-field">
+      <label [for]="col.field">{{col.header}}</label>
+      <p-select [options]="(col.service | entityList | async) || []" [(ngModel)]="entity[col.field]"
+        [id]="col.field | toString" optionLabel="name" [optionValue]="col.service.getIdField()" class="p-mr-2"
+        appendTo="body"></p-select>
+    </div>
+    }
+    }
+    @case (!col.hidden && (col.visible ? col.visible(entity) : true) && col.type === FieldType.dropdown
+    && col.service === undefined) {
+    <div class="p-field">
+      <label [for]="col.field">{{col.header}}</label>
+      <p-select [options]="col.options || []" [(ngModel)]="entity[col.field]" [id]="col.field | toString" class="p-mr-2"
+        appendTo="body" optionLabel="value" optionValue="value"></p-select>
+    </div>
+    }
+    @case (!col.hidden && (col.visible ? col.visible(entity) : true) && col.type === FieldType.dropdownOptions) {
+    <div class="p-field">
+      <label [for]="col.field">{{col.header}}</label>
+      <app-dropdown-option-editor [(ngModel)]="entity[col.field]" [id]="col.field"></app-dropdown-option-editor>
+    </div>
+    }
+
+    @case (!col.hidden && (col.visible ? col.visible(entity) : true) && col.type === FieldType.file) {
+    <div class="p-field">
+      <label [for]="col.field">{{col.header}}</label>
+      <p-fileUpload name="entity[col.field]" mode="basic" accept="image/*,font/*" [maxFileSize]="200000000"
+        [chooseLabel]="'controls.import' | translate" class="inline-block" [customUpload]="true"
+        (onSelect)="uploadFile(entity, col.field, $event)"></p-fileUpload>
+    </div>
+    }
+
+    @default {
+    @if (!col.hidden && (col.visible ? col.visible(entity) : true)) {
+    <div class="p-field">
+      <label [for]="col.field">{{col.header}}</label>
+      <input type="text" pInputText [id]="col.field" [(ngModel)]="entity[col.field]" required autofocus />
+    </div>
+    }
+    }
+    }
+    }
+  </ng-template>
+  <ng-template pTemplate="footer">
+    <button pButton pRipple [label]="'controls.cancel' | translate" icon="pi pi-times" class="p-button-text"
+      (click)="hideDialog()"></button>
+    <button pButton pRipple [label]="'controls.save' | translate" icon="pi pi-check" class="p-button-text"
+      (click)="save()"></button>
+  </ng-template>
 </p-dialog>

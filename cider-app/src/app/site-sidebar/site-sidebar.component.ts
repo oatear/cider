@@ -3,6 +3,8 @@ import { ConfirmationService, MenuItem, MessageService, TreeNode } from 'primeng
 import { DecksService } from '../data-services/services/decks.service';
 import { AssetsService } from '../data-services/services/assets.service';
 import { CardTemplatesService } from '../data-services/services/card-templates.service';
+import { Action } from 'rxjs/internal/scheduler/Action';
+import { CardAttributesService } from '../data-services/services/card-attributes.service';
 import { ElectronService } from '../data-services/electron/electron.service';
 import { combineLatest, debounceTime, firstValueFrom, lastValueFrom, merge, timeout } from 'rxjs';
 import StringUtils from '../shared/utils/string-utils';
@@ -19,7 +21,8 @@ import { Asset } from '../data-services/types/asset.type';
   selector: 'app-site-sidebar',
   templateUrl: './site-sidebar.component.html',
   styleUrls: ['./site-sidebar.component.scss'],
-  providers: [MessageService, ConfirmationService]
+  providers: [MessageService, ConfirmationService],
+  standalone: false
 })
 export class SiteSidebarComponent implements OnInit {
   deckId: number = 0;
@@ -33,12 +36,13 @@ export class SiteSidebarComponent implements OnInit {
   entity: any = {};
 
   constructor(private decksService: DecksService,
+    private cardAttributesService: CardAttributesService,
     private assetsService: AssetsService,
     private templatesService: CardTemplatesService,
     private documentsService: DocumentsService,
     private electronService: ElectronService,
     private confirmationService: ConfirmationService,
-    private messageService: MessageService, 
+    private messageService: MessageService,
     private translate: TranslateService,
     private httpClient: HttpClient,
     private router: Router,
@@ -69,18 +73,18 @@ export class SiteSidebarComponent implements OnInit {
         this.updateFiles();
       }
     });
-    
+
     // update menu on db change, but only if project is open
     combineLatest([this.db.onChange()])
-    .pipe(debounceTime(500)).subscribe(() => {
-      const isProjectOpen: boolean = this.electronService.getIsProjectOpen().getValue();
-      if (!this.electronService.isElectron() || isProjectOpen) {
-        console.log('change detected, project is open, sidebar update');
-        this.updateFiles();
-      } else {
-        console.log('change detected, project is not open, skipping sidebar update');
-      }
-    });
+      .pipe(debounceTime(500)).subscribe(() => {
+        const isProjectOpen: boolean = this.electronService.getIsProjectOpen().getValue();
+        if (!this.electronService.isElectron() || isProjectOpen) {
+          console.log('change detected, project is open, sidebar update');
+          this.updateFiles();
+        } else {
+          console.log('change detected, project is not open, skipping sidebar update');
+        }
+      });
   }
 
   async updateFiles() {
@@ -94,7 +98,7 @@ export class SiteSidebarComponent implements OnInit {
     // Setup project home node
     // -----------------------------------------------
     await firstValueFrom(this.electronService.getProjectHomeUrl()).then(homeUrl => {
-      let projectName = StringUtils.lastDirectoryFromUrl(homeUrl?.path 
+      let projectName = StringUtils.lastDirectoryFromUrl(homeUrl?.path
         ?? this.translate.instant('sidebar.unknown-project'));
       updatedFiles.push({
         label: projectName,
@@ -105,7 +109,7 @@ export class SiteSidebarComponent implements OnInit {
               label: this.translate.instant('sidebar.add-new-deck'),
               icon: 'pi pi-plus',
               command: () => {
-                this.openCreateDialog(this.decksService, 
+                this.openCreateDialog(this.decksService,
                   this.translate.instant('sidebar.create-new-deck'), {
                   name: `${this.translate.instant('sidebar.deck')}-${Math.random().toString(36).substr(2, 9)}`
                 });
@@ -115,7 +119,7 @@ export class SiteSidebarComponent implements OnInit {
               label: this.translate.instant('sidebar.add-new-document'),
               icon: 'pi pi-file',
               command: () => {
-                this.openCreateDocumentDialog(this.documentsService, 
+                this.openCreateDocumentDialog(this.documentsService,
                   this.translate.instant('sidebar.create-new-document'));
               }
             },
@@ -156,7 +160,7 @@ export class SiteSidebarComponent implements OnInit {
                 label: this.translate.instant('sidebar.add-new-document'),
                 icon: 'pi pi-file',
                 command: () => {
-                  this.openCreateDocumentDialog(this.documentsService, 
+                  this.openCreateDocumentDialog(this.documentsService,
                     this.translate.instant('sidebar.create-new-document'));
                 }
               },
@@ -164,7 +168,7 @@ export class SiteSidebarComponent implements OnInit {
                 label: this.translate.instant('sidebar.edit-rename-document'),
                 icon: 'pi pi-pencil',
                 command: () => {
-                  this.openEditDialog(this.documentsService, document.id, 
+                  this.openEditDialog(this.documentsService, document.id,
                     this.translate.instant('sidebar.edit-rename-document'));
                 }
               },
@@ -237,7 +241,7 @@ export class SiteSidebarComponent implements OnInit {
         });
 
         deckChildren.push({
-          label: this.translate.instant('sidebar.export-cards') ,
+          label: this.translate.instant('sidebar.export-cards'),
           data: {
             url: '/decks/' + deck.id + '/export-cards',
           },
@@ -248,7 +252,7 @@ export class SiteSidebarComponent implements OnInit {
         // -----------------------------------------------
         // Fetch deck templates
         // -----------------------------------------------
-        this.templatesService.getAllUnfiltered({deckId: (deck || {}).id}).then(templates => 
+        this.templatesService.getAllUnfiltered({ deckId: (deck || {}).id }).then(templates =>
           templates.forEach(template => {
             deckChildren.push({
               label: template.name,
@@ -266,7 +270,7 @@ export class SiteSidebarComponent implements OnInit {
                     label: this.translate.instant('sidebar.edit-rename-card-template'),
                     icon: 'pi pi-pencil',
                     command: () => {
-                      this.openEditDialog(this.templatesService, template.id, 
+                      this.openEditDialog(this.templatesService, template.id,
                         this.translate.instant('sidebar.edit-rename-card-template'));
                     }
                   },
@@ -274,7 +278,7 @@ export class SiteSidebarComponent implements OnInit {
                     label: this.translate.instant('sidebar.duplicate-card-template'),
                     icon: 'pi pi-copy',
                     command: () => {
-                      this.openDuplicateDialog(this.templatesService, template.id, 
+                      this.openDuplicateDialog(this.templatesService, template.id,
                         this.translate.instant('sidebar.duplicate-card-template'));
                     }
                   },
@@ -291,7 +295,7 @@ export class SiteSidebarComponent implements OnInit {
               styleClass: 'card-template',
             })
           }
-        ));
+          ));
 
         let deckFile = {
           label: deck.name,
@@ -316,7 +320,7 @@ export class SiteSidebarComponent implements OnInit {
                 label: this.translate.instant('sidebar.edit-rename-deck'),
                 icon: 'pi pi-pencil',
                 command: () => {
-                  this.openEditDialog(this.decksService, deck.id, 
+                  this.openEditDialog(this.decksService, deck.id,
                     this.translate.instant('sidebar.edit-rename-deck'));
                 }
               },
@@ -347,7 +351,7 @@ export class SiteSidebarComponent implements OnInit {
               label: this.translate.instant('sidebar.add-new-deck'),
               icon: 'pi pi-plus',
               command: () => {
-                this.openCreateDialog(this.decksService, 
+                this.openCreateDialog(this.decksService,
                   this.translate.instant('sidebar.create-new-deck'), {
                   name: `Deck-${Math.random().toString(36).substr(2, 9)}`
                 });
@@ -377,7 +381,7 @@ export class SiteSidebarComponent implements OnInit {
               label: this.translate.instant('sidebar.add-new-asset'),
               icon: 'pi pi-plus',
               command: () => {
-                this.openCreateDialog(this.assetsService, 
+                this.openCreateDialog(this.assetsService,
                   this.translate.instant('sidebar.create-new-asset'), {
                   name: `asset-${Math.random().toString(36).substr(2, 9)}`
                 });
@@ -387,7 +391,7 @@ export class SiteSidebarComponent implements OnInit {
               label: this.translate.instant('sidebar.generate-new-asset'),
               icon: 'pi pi-sparkles',
               command: () => {
-                  this.router.navigateByUrl(`/assets/generator`);
+                this.router.navigateByUrl(`/assets/generator`);
               }
             }
           ],
@@ -403,7 +407,7 @@ export class SiteSidebarComponent implements OnInit {
                 label: this.translate.instant('sidebar.add-new-asset'),
                 icon: 'pi pi-plus',
                 command: () => {
-                  this.openCreateDialog(this.assetsService, 
+                  this.openCreateDialog(this.assetsService,
                     this.translate.instant('sidebar.create-new-asset'), {
                     name: `asset-${Math.random().toString(36).substr(2, 9)}`
                   });
@@ -413,14 +417,14 @@ export class SiteSidebarComponent implements OnInit {
                 label: this.translate.instant('sidebar.generate-new-asset'),
                 icon: 'pi pi-sparkles',
                 command: () => {
-                    this.router.navigateByUrl(`/assets/generator`);
+                  this.router.navigateByUrl(`/assets/generator`);
                 }
               },
               {
                 label: this.translate.instant('sidebar.edit-rename-asset'),
                 icon: 'pi pi-pencil',
                 command: () => {
-                  this.openEditDialog(this.assetsService, asset.id, 
+                  this.openEditDialog(this.assetsService, asset.id,
                     this.translate.instant('sidebar.edit-rename-asset'));
                 }
               },
@@ -433,7 +437,7 @@ export class SiteSidebarComponent implements OnInit {
               }
             ],
           },
-          icon:  this.getAssetIcon(asset),
+          icon: this.getAssetIcon(asset),
           styleClass: 'asset-file',
         }))
       });
@@ -486,16 +490,18 @@ export class SiteSidebarComponent implements OnInit {
       this.router.navigateByUrl(selectedNode.data.url, { skipLocationChange: false });
     }
   }
-  
-  public openDeleteDialog(entityId : any, service: EntityService<any, any>) {
+
+  public openDeleteDialog(entityId: any, service: EntityService<any, any>) {
     this.confirmationService.confirm({
       message: this.translate.instant('sidebar.confirm-entity-delete-message'),
       header: this.translate.instant('sidebar.delete-entity'),
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         service?.delete(entityId).then(deleted => {
-          this.messageService.add({severity:'success', summary: 'Successful', 
-            detail: this.translate.instant('sidebar.entity-deleted'), life: 3000});
+          this.messageService.add({
+            severity: 'success', summary: 'Successful',
+            detail: this.translate.instant('sidebar.entity-deleted'), life: 3000
+          });
         });
       }
     });
@@ -504,7 +510,7 @@ export class SiteSidebarComponent implements OnInit {
   public async openCreateDocumentDialog(service: EntityService<any, any>, dialogTitle: string) {
     // Create a random name for the new document
     const randomName = `README-${Math.random().toString(36).substr(2, 9)}`;
-    const blob = await firstValueFrom(this.httpClient.get('assets/README-TEMPLATE.md', {responseType: 'blob'}));
+    const blob = await firstValueFrom(this.httpClient.get('assets/README-TEMPLATE.md', { responseType: 'blob' }));
     const defaultContent = await blob.text();
     this.entity = {
       name: randomName,
@@ -525,6 +531,13 @@ export class SiteSidebarComponent implements OnInit {
     this.dialogVisible = true;
   }
 
+  public onEntityCreated(entity: any) {
+    if (this.service === this.decksService) {
+      console.log('Deck created, creating system attributes for deck ' + entity.id);
+      this.cardAttributesService.createSystemAttributes(entity.id);
+    }
+  }
+
   public openEditDialog(service: EntityService<any, any>, entityId: any, dialogTitle: string) {
     this.service = service;
     this.dialogTitle = dialogTitle || 'Edit Entity';
@@ -541,7 +554,7 @@ export class SiteSidebarComponent implements OnInit {
     this.entity = {} as any;
     service.get(entityId).then(entity => {
       // Create a new entity with the same properties but without the ID
-      this.entity = {...entity};
+      this.entity = { ...entity };
       delete this.entity.id; // Remove the ID to create a new entity
       // Optionally, you can modify the name to indicate it's a duplicate
       if (this.entity.name) {

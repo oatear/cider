@@ -2,16 +2,24 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { LocalStorageService } from '../data-services/local-storage/local-storage.service';
 import { TranslateService } from '@ngx-translate/core';
 import { ElectronService } from '../data-services/electron/electron.service';
+import { ThemeService } from '../data-services/theme/theme.service';
+import { CiderThemeConfig } from '../shared/theme-registry';
 
 @Component({
   selector: 'app-settings-dialog',
   templateUrl: './settings-dialog.component.html',
-  styleUrl: './settings-dialog.component.scss'
+  styleUrl: './settings-dialog.component.scss',
+  standalone: false
 })
 export class SettingsDialogComponent {
   @Input() visible: boolean = false;
   @Output() visibleChange: EventEmitter<boolean> = new EventEmitter<boolean>();
-  darkMode: boolean = true;
+
+  /** Available themes for the dropdown */
+  themes: CiderThemeConfig[];
+  /** Currently selected theme ID */
+  selectedTheme: string;
+
   /* Make sure to also update app.component.ts addLangs() */
   languages: {label: string, value: string}[] = [
     {label: 'English (EN)', value: 'en'},
@@ -34,16 +42,18 @@ export class SettingsDialogComponent {
   language: string;
   isElectron: boolean;
 
-  constructor(private localStorageService: LocalStorageService,
+  constructor(
+    private localStorageService: LocalStorageService,
     private translate: TranslateService,
-    private electronService: ElectronService
+    private electronService: ElectronService,
+    private themeService: ThemeService
   ) {
     this.isElectron = electronService.isElectron();
-    this.darkMode = this.localStorageService.getDarkMode();
     this.language = this.localStorageService.getLanguage() || translate.getBrowserLang() || 'en';
-    // translate.onLangChange.subscribe(() => {
-    //   this.languages = translate.getLangs().map(lang => ({label: lang.toUpperCase(), value: lang}));
-    // });
+
+    // Initialize theme dropdown
+    this.themes = this.themeService.getAvailableThemes();
+    this.selectedTheme = this.themeService.getCurrentTheme().id;
   }
 
   public setLanguage(lang: string) {
@@ -51,9 +61,27 @@ export class SettingsDialogComponent {
     this.translate.use(lang);
   }
 
-  public setDarkMode(event: any) {
-    this.localStorageService.setDarkMode(this.darkMode);
-    document.querySelector('html')?.classList.toggle(LocalStorageService.DARK_MODE, this.darkMode);
+  public get renderers(): { label: string, value: string }[] {
+    return [
+      { label: 'html-to-image', value: 'html-to-image' },
+      { label: 'dom-to-image-more', value: 'dom-to-image-more' }
+    ];
+  }
+
+  public get selectedRenderer(): string {
+    return this.localStorageService.getRenderer();
+  }
+
+  public set selectedRenderer(value: string) {
+    this.setRenderer(value);
+  }
+
+  public setRenderer(renderer: string) {
+    this.localStorageService.setRenderer(renderer);
+  }
+
+  public setTheme(themeId: string) {
+    this.themeService.applyTheme(themeId);
   }
 
   public hideDialog() {

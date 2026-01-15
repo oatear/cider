@@ -17,57 +17,65 @@
         background: #343e4d;
         border-radius: 10px;
         border-width: 0;
+
         &:hover {
             background: #404d61;
         }
+
         &.project-button {
             animation: gradient 5s ease infinite;
+
             &::after,
             &::before {
-              content: '';
-              width: 200%;
-              height: 200%;
-              position: absolute;
-              top: -35px;
-              left: 50%;
-              transform: translate(-50%, -75%);
-              background: #000;
+                content: '';
+                width: 200%;
+                height: 200%;
+                position: absolute;
+                top: -35px;
+                left: 50%;
+                transform: translate(-50%, -75%);
+                background: #000;
             }
-            
+
             &::before {
-              border-radius: 45%;
-              background: rgba(#343e4d, 0.5);
-              animation: liquid 5s linear infinite;
+                border-radius: 45%;
+                background: rgba(#343e4d, 0.5);
+                animation: liquid 5s linear infinite;
             }
-            
+
             &::after {
-              border-radius: 40%;
-              background: rgba(20, 20, 20, 0.4);
-              animation: liquid 10s linear infinite;
+                border-radius: 40%;
+                background: rgba(20, 20, 20, 0.4);
+                animation: liquid 10s linear infinite;
             }
-            &:hover::after, &:hover::before {
-              top: -50px;
+
+            &:hover::after,
+            &:hover::before {
+                top: -50px;
             }
         }
     }
 }
 
 @keyframes gradient {
-	0% {
-		background-position: 0% 50%;
-	}
-	50% {
-		background-position: 100% 50%;
-	}
-	100% {
-		background-position: 0% 50%;
-	}
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
 }
-  
+
 @keyframes liquid {
     0% {
         transform: translate(-50%, -75%) rotate(0deg);
     }
+
     100% {
         transform: translate(-50%, -75%) rotate(360deg);
     }
@@ -84,6 +92,6 @@
     background-size: auto 300px;
 }
 
-:host ::ng-deep p-card > div.p-card {
+:host ::ng-deep .p-card {
     margin-right: 10px;
 }

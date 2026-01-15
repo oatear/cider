@@ -1,26 +1,32 @@
 <p-card styleClass="page-card controls-card">
-    <span class="asset-name">{{ asset.name }}</span>
-    <span class="asset-details">
-        <p-tag *ngIf="fileType == 'image'" class="p-mr-2">{{ imageDimensions.width }} x {{ imageDimensions.height }} </p-tag>
-        <p-tag class="p-mr-2">{{ fileSize }} </p-tag>
-        <p-tag class="p-mr-2">{{ fileExtension }} </p-tag>
-        <p-tag class="p-mr-2">{{ fileType }} </p-tag>
-    </span>
-    <!-- <p-buttongroup>
-        <button pButton type="button" icon="pi pi-search-minus" (click)="changeZoom(-0.1)"></button>
-        <button pButton type="button" icon="pi pi-search-plus" (click)="changeZoom(0.1)"></button>
-    </p-buttongroup> -->
-    <span class="asset-controls">
-        <button pButton type="button" icon="pi pi-pencil" (click)="openEditDialog(asset)" class="p-mr-2"></button>
-        <button pButton type="button" icon="pi pi-trash" (click)="openDeleteDialog(asset)" severity="danger" ></button>
-    </span>
+  <span class="asset-name">{{ asset.name }}</span>
+  <span class="asset-details">
+    @if (fileType == 'image') {
+      <p-tag class="p-mr-2">{{ imageDimensions.width }} x {{ imageDimensions.height }} </p-tag>
+    }
+    <p-tag class="p-mr-2">{{ fileSize }} </p-tag>
+    <p-tag class="p-mr-2">{{ fileExtension }} </p-tag>
+    <p-tag class="p-mr-2">{{ fileType }} </p-tag>
+  </span>
+  <!-- <p-buttongroup>
+  <button pButton type="button" icon="pi pi-search-minus" (click)="changeZoom(-0.1)"></button>
+  <button pButton type="button" icon="pi pi-search-plus" (click)="changeZoom(0.1)"></button>
+</p-buttongroup> -->
+<span class="asset-controls">
+  <button pButton type="button" icon="pi pi-pencil" (click)="openEditDialog(asset)" class="p-mr-2"></button>
+  <button pButton type="button" icon="pi pi-trash" (click)="openDeleteDialog(asset)" severity="danger" ></button>
+</span>
 </p-card>
 <p-card styleClass="page-card asset-card">
-    <!-- <img [src]="asset.file | fileUrl" [style.transform]="'scale(' + zoom + ')'"/> -->
-    <img *ngIf="fileType == 'image'" [src]="asset.file | fileUrl"/>
-    <div *ngIf="fileType != 'image'" class="preview">
-        {{ fileExtension | uppercase }} {{ fileType | uppercase}}
+  <!-- <img [src]="asset.file | fileUrl" [style.transform]="'scale(' + zoom + ')'"/> -->
+  @if (fileType == 'image') {
+    <img [src]="asset.file | fileUrl"/>
+  }
+  @if (fileType != 'image') {
+    <div class="preview">
+      {{ fileExtension | uppercase }} {{ fileType | uppercase}}
     </div>
+  }
 </p-card>
 <app-entity-dialog [service]="assetsService" [(visible)]="dialogVisible" [entity]="asset"></app-entity-dialog>
 <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>

@@ -70,9 +70,9 @@ export class ElectronService {
    * 
    * @returns true/false
    */
-  public isElectron() : boolean {
-    return typeof window !== 'undefined' 
-      && typeof window.process === 'object' 
+  public isElectron(): boolean {
+    return typeof window !== 'undefined'
+      && typeof window.process === 'object'
       && (<any>window.process).type === 'renderer';
   }
 
@@ -114,8 +114,9 @@ export class ElectronService {
     return this.getIpcRenderer().invoke("remove-directory", persistentPath);
   }
 
-  public listDirectory(persistentPath: PersistentPath): Promise<{ 
-    name: string; isDirectory: boolean; isFile: boolean; }[]> {
+  public listDirectory(persistentPath: PersistentPath): Promise<{
+    name: string; isDirectory: boolean; isFile: boolean;
+  }[]> {
     if (!this.isElectron()) {
       return Promise.resolve([]);
     }
@@ -157,8 +158,10 @@ export class ElectronService {
     this.getIpcRenderer().send("exit-application");
   }
 
-  public async saveProject(assets: Asset[], documents: Document[], decks: { name: string; cardsCsv: string; 
-    attributesCsv: string; templates: CardTemplate[];}[]) {
+  public async saveProject(assets: Asset[], documents: Document[], decks: {
+    name: string; cardsCsv: string;
+    attributesCsv: string; templates: CardTemplate[];
+  }[]) {
     if (!this.isElectron()) {
       return;
     }
@@ -172,11 +175,11 @@ export class ElectronService {
 
     // delete existing markdown or css files in project root
     await this.listDirectory({ bookmark: homeUrl.bookmark, path: homeUrl.path }).then(documentUrls => Promise.all(documentUrls
-      .filter(documentUrl => documentUrl.isFile 
+      .filter(documentUrl => documentUrl.isFile
         && !documentUrl.name.includes('.DS_Store')
-        && (documentUrl.name.includes('.md') || documentUrl.name.includes('.markdown') 
-        || documentUrl.name.includes('.MD')
-        || documentUrl.name.includes('.css') || documentUrl.name.includes('.CSS'))
+        && (documentUrl.name.includes('.md') || documentUrl.name.includes('.markdown')
+          || documentUrl.name.includes('.MD')
+          || documentUrl.name.includes('.css') || documentUrl.name.includes('.CSS'))
       ).map(async documentUrl => {
         return await this.removeDirectory({ bookmark: homeUrl.bookmark, path: homeUrl.path + '/' + documentUrl.name });
       })));
@@ -185,12 +188,14 @@ export class ElectronService {
     const writeAllDocuments: Promise<boolean[]> = Promise.all(documents.map(async document => {
       const mimeType = document.mime ?? 'text/markdown'; // Fallback for older documents without mime type
       StringUtils.mimeToExtension
-      const blob: Blob = new Blob([document.content], {type: mimeType});
-      const file: File = new File([blob], 
-        document.name + '.' + StringUtils.mimeToExtension(mimeType), {type: mimeType});
+      const blob: Blob = new Blob([document.content], { type: mimeType });
+      const file: File = new File([blob],
+        document.name + '.' + StringUtils.mimeToExtension(mimeType), { type: mimeType });
       const buffer = await file.arrayBuffer();
-      return await this.writeFile({ bookmark: homeUrl.bookmark, 
-        path: homeUrl.path + '/' + file.name }, 
+      return await this.writeFile({
+        bookmark: homeUrl.bookmark,
+        path: homeUrl.path + '/' + file.name
+      },
         Buffer.from(buffer));
     }));
     await writeAllDocuments;
@@ -199,9 +204,11 @@ export class ElectronService {
     await this.createDirectory({ bookmark: homeUrl.bookmark, path: assetsUrl });
     const writeAllAssets: Promise<boolean[]> = Promise.all(assets.map(async asset => {
       const buffer = await asset.file.arrayBuffer();
-      return await this.writeFile({ bookmark: homeUrl.bookmark, 
+      return await this.writeFile({
+        bookmark: homeUrl.bookmark,
         path: assetsUrl + '/' + StringUtils.toKebabCase(asset.name)
-          + '.' + StringUtils.mimeToExtension(asset.file.type) },
+          + '.' + StringUtils.mimeToExtension(asset.file.type)
+      },
         Buffer.from(buffer));
     }));
 
@@ -246,69 +253,70 @@ export class ElectronService {
 
     // read document/markdown/css files
     await this.listDirectory({ bookmark: homeUrl.bookmark, path: documentsUrl }).then(documentUrls => Promise.all(documentUrls
-      .filter(documentUrl => documentUrl.isFile 
+      .filter(documentUrl => documentUrl.isFile
         && !documentUrl.name.includes('.DS_Store')
-        && (documentUrl.name.includes('.md') || documentUrl.name.includes('.markdown') 
-        || documentUrl.name.includes('.MD')
-        || documentUrl.name.includes('.css') || documentUrl.name.includes('.CSS'))
+        && (documentUrl.name.includes('.md') || documentUrl.name.includes('.markdown')
+          || documentUrl.name.includes('.MD')
+          || documentUrl.name.includes('.css') || documentUrl.name.includes('.CSS'))
       ).map(async documentUrl => {
-      const documentNameSplit = StringUtils.splitNameAndExtension(documentUrl.name);
-      const documentName = documentNameSplit.name;
-      const documentExt = documentNameSplit.extension;
-      const documentBuffer = await this.readFile({ bookmark: homeUrl.bookmark, path: documentsUrl + '/' + documentUrl.name });
-      if (!documentBuffer) {
-        return;
-      }
-      const mime = StringUtils.extensionToMime(documentExt);
-      const blob: Blob = new Blob([documentBuffer], {type: mime});
-      const content: string = await blob.text();
-      const document = await documentsService.create(<any>{
-        name: documentName,
-        mime: mime,
-        content: content,
-      }, true);
-      return document;
-    })));
+        const documentNameSplit = StringUtils.splitNameAndExtension(documentUrl.name);
+        const documentName = documentNameSplit.name;
+        const documentExt = documentNameSplit.extension;
+        const documentBuffer = await this.readFile({ bookmark: homeUrl.bookmark, path: documentsUrl + '/' + documentUrl.name });
+        if (!documentBuffer) {
+          return;
+        }
+        const mime = StringUtils.extensionToMime(documentExt);
+        const blob: Blob = new Blob([new Uint8Array(documentBuffer)], { type: mime });
+        const content: string = await blob.text();
+        const document = await documentsService.create(<any>{
+          name: documentName,
+          mime: mime,
+          content: content,
+        }, true);
+        return document;
+      })));
 
     // read assets
     await this.listDirectory({ bookmark: homeUrl.bookmark, path: assetsUrl }).then(assetUrls => Promise.all(assetUrls
       .filter(assetUrl => assetUrl.isFile && !assetUrl.name.includes('.DS_Store')).map(async assetUrl => {
-      const assetNameSplit = StringUtils.splitNameAndExtension(assetUrl.name);
-      const assetName = assetNameSplit.name;
-      const assetExt = assetNameSplit.extension;
-      const assetBuffer = await this.readFile({ bookmark: homeUrl.bookmark, path: assetsUrl + '/' + assetUrl.name });
-      if (!assetBuffer) {
-        return;
-      }
-      const fileType = StringUtils.extensionToMime(assetExt);
-      const blob: Blob = new Blob([assetBuffer], {type: fileType});
-      const file: File = new File([blob], assetName, {type: fileType});
-      const asset = await assetsService.create(<any>{
-        file: file,
-        name: assetName
-      }, true);
-      return asset;
-    })));
+        const assetNameSplit = StringUtils.splitNameAndExtension(assetUrl.name);
+        const assetName = assetNameSplit.name;
+        const assetExt = assetNameSplit.extension;
+        const assetBuffer = await this.readFile({ bookmark: homeUrl.bookmark, path: assetsUrl + '/' + assetUrl.name });
+        if (!assetBuffer) {
+          return;
+        }
+        const fileType = StringUtils.extensionToMime(assetExt);
+        const blob: Blob = new Blob([new Uint8Array(assetBuffer)], { type: fileType });
+        const file: File = new File([blob], assetName, { type: fileType });
+        const asset = await assetsService.create(<any>{
+          file: file,
+          name: assetName
+        }, true);
+        return asset;
+      })));
     const deckUrls = await this.listDirectory({ bookmark: homeUrl.bookmark, path: decksUrl });
     await Promise.all(deckUrls.filter(deckUrl => deckUrl.isDirectory).map(async deckUrl => {
       const deckName = deckUrl.name;
-      const deck = await decksService.create(<any>{name: StringUtils.kebabToTitleCase(deckName)});
+      const deck = await decksService.create(<any>{ name: StringUtils.kebabToTitleCase(deckName) });
       const deckFullUrl = decksUrl + '/' + deckUrl.name;
       // for each .html file, also read the accompanying .css file
       const deckFileUrls = await this.listDirectory({ bookmark: homeUrl.bookmark, path: deckFullUrl });
-      await Promise.all(deckFileUrls.filter(deckFileUrl => deckFileUrl.isFile 
+      await Promise.all(deckFileUrls.filter(deckFileUrl => deckFileUrl.isFile
         && StringUtils.splitNameAndExtension(deckFileUrl.name).extension === 'html').map(async templateUrl => {
           const nameSplit = StringUtils.splitNameAndExtension(templateUrl.name);
           const prettyName = StringUtils.kebabToTitleCase(nameSplit.name);
           const htmlUrl = deckFullUrl + '/' + nameSplit.name + '.html';
           const cssUrl = deckFullUrl + '/' + nameSplit.name + '.css';
-          const html = await this.readTextFile({ bookmark: homeUrl.bookmark, path: htmlUrl }).then(text => text ? text: '');
+          const html = await this.readTextFile({ bookmark: homeUrl.bookmark, path: htmlUrl }).then(text => text ? text : '');
           const css = await this.readTextFile({ bookmark: homeUrl.bookmark, path: cssUrl }).then(text => text ? text : '');
           return await cardTemplatesService.create(<any>{ deckId: deck.id, name: prettyName, html: html, css: css }, true);
-      }));
+        }));
       const attributesUrl = deckFullUrl + '/attributes.csv';
       const cardsUrl = deckFullUrl + '/cards.csv';
       const attributes = await this.importCsv({ bookmark: homeUrl.bookmark, path: attributesUrl }, 'attributes.csv', cardAttributesService, deck.id);
+      await cardAttributesService.createSystemAttributes(deck.id);
       const cards = await this.importCsv({ bookmark: homeUrl.bookmark, path: cardsUrl }, 'cards.csv', cardsService, deck.id);
     }));
 
@@ -316,7 +324,7 @@ export class ElectronService {
     this.setProjectUnsaved(false);
   }
 
-  private async importCsv<Entity, Identity extends string | number>(persistentPath: PersistentPath, fileName: string, 
+  private async importCsv<Entity, Identity extends string | number>(persistentPath: PersistentPath, fileName: string,
     service: EntityService<Entity, Identity>, deckId: number) {
     const nameSplit = StringUtils.splitNameAndExtension(fileName);
     const fileType = StringUtils.extensionToMime(nameSplit.extension);
@@ -325,8 +333,8 @@ export class ElectronService {
       console.log('import csv failed', persistentPath.path);
       return;
     }
-    const blob: Blob = new Blob([buffer], {type: fileType});
-    const file: File = new File([blob], fileName, {type: fileType});
+    const blob: Blob = new Blob([new Uint8Array(buffer)], { type: fileType });
+    const file: File = new File([blob], fileName, { type: fileType });
     const entities: Entity[] = await XlsxUtils.entityImport(
       await service.getFields({ deckId: deckId }),
       await service.getLookups({ deckId: deckId }),

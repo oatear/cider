@@ -1,24 +1,26 @@
-
 /**
  Style override: p-selectbutton
  **/
 :host ::ng-deep .p-selectbutton .p-button {
-    background: #262d36;;
-    border: 1px solid  #262d36;;
+    background: #262d36;
+    border: 1px solid #262d36;
     color: rgba(255, 255, 255, 0.6);
     transition: background-color 0.15s, border-color 0.15s, box-shadow 0.15s;
+
     &.p-highlight {
-        background: var(--surface-d);
-        border-color: var(--surface-d);
+        background: var(--p-surface-200);
+        border-color: var(--p-surface-200);
         color: rgba(255, 255, 255, 0.6);
     }
+
     &:not(.p-disabled):not(.p-highlight):hover {
         background: #343e4d;
         border-color: #343e4d;
         color: #ffffff;
     }
+
     &:focus {
-        box-shadow: 0 0 0 1px var(--surface-d);
+        box-shadow: 0 0 0 1px var(--p-surface-200);
         box-shadow: none;
     }
 }
@@ -26,28 +28,47 @@
 /**
  Syle override: p-card
  **/
- :host ::ng-deep .p-card {
+:host ::ng-deep .p-card {
+    background: var(--cider-content-background, var(--p-card-background));
     box-shadow: none
- }
+}
+
+/**
+ Syle override: p-dialog 
+ **/
+:host ::ng-deep .p-dialog {
+    background: var(--cider-overlay-background, var(--p-dialog-background));
+    border-radius: 10px;
+    border: none;
+
+    .p-dialog-header,
+    .p-dialog-content {
+        background: transparent;
+    }
+}
 
 /**
  Syle override: p-dialog-mask 
  **/
 :host ::ng-deep .p-dialog-mask {
-    background-color: var(--maskbg);
+    background-color: var(--p-mask-background);
     backdrop-filter: blur(10px);
 }
+
 :host ::ng-deep .p-component-overlay-enter {
     animation: none;
 }
+
 :host ::ng-deep .p-component-overlay-leave {
     animation: p-component-overlay-leave-animation 150ms forwards;
 }
+
 @keyframes p-component-overlay-leave-animation {
     from {
-        background-color: var(--maskbg);
+        background-color: var(--p-mask-background);
         backdrop-filter: blur(10px);
     }
+
     to {
         background-color: transparent;
         backdrop-filter: blur(0px);
@@ -59,4 +80,22 @@
  **/
 :host ::ng-deep .p-menubar ul {
     z-index: 2;
+}
+
+:host ::ng-deep .site-menu .p-menubar ul {
+    z-index: 60;
+}
+
+/**
+ Style override: p-dataview
+ **/
+:host ::ng-deep .p-dataview {
+    .p-dataview-content {
+        background: var(--cider-content-background, var(--p-dataview-content-background));
+    }
+
+    .p-paginator {
+        background: var(--cider-content-background, var(--p-paginator-background));
+        border: none;
+    }
 }

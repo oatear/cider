@@ -5,9 +5,10 @@ import { ElectronService } from '../data-services/electron/electron.service';
 import { PersistentPath } from '../data-services/types/persistent-path.type';
 
 @Component({
-  selector: 'app-site-template',
-  templateUrl: './site-template.component.html',
-  styleUrls: ['./site-template.component.scss']
+    selector: 'app-site-template',
+    templateUrl: './site-template.component.html',
+    styleUrls: ['./site-template.component.scss'],
+    standalone: false
 })
 export class SiteTemplateComponent {
   splitterPanels: any[] = []

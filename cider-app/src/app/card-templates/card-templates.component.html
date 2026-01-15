@@ -1,55 +1,65 @@
 <p-toast></p-toast>
 <div class="template-editor">
-    <p-splitter class="template-panel" [panelSizes]="[40, 60]" [minSizes]="[25, 25]" 
-        (onResizeStart)="onResizeStart($event)"
-        (onResizeEnd)="onResizeEnd($event)">
-        <ng-template pTemplate>
-            <div class="left-panel p-col p-flex p-align-items-center p-justify-content-center">
-                <p-card styleClass="page-card">
-                    <div class="preview-controls" *ngIf="!disablePanels">
-                        <p-dropdown [options]="cards" [(ngModel)]="selectedCard" [filter]="true" filterby="name"
-                            optionLabel="name" styleClass="card-dropdown"></p-dropdown>
-                        <p-buttongroup>
-                            <button pButton type="button" icon="pi pi-search-minus" 
-                                (click)="changeZoom(ZOOM_DOWN)"></button>
-                            <button pButton type="button" icon="pi pi-search-plus" 
-                                (click)="changeZoom(ZOOM_UP)"></button>
-                        </p-buttongroup>
-                    </div>
-                    <div class="preview-space" *ngIf="!disablePanels">
-                        <app-card-preview [card]="selectedCard" [template]="selectedTemplate" *ngIf="selectedCard"
-                            [scale]="zoom" [cache]="false" [tiltable]="true"></app-card-preview>
-                    </div>
-                </p-card>
+  <p-splitter class="template-panel" [panelSizes]="[40, 60]" [minSizes]="[25, 25]"
+    (onResizeStart)="onResizeStart($event)" (onResizeEnd)="onResizeEnd($event)">
+    <ng-template pTemplate>
+      <div class="left-panel p-col p-flex p-align-items-center p-justify-content-center">
+        <p-card styleClass="page-card">
+          @if (!disablePanels) {
+            <div class="preview-controls">
+              <p-select [options]="cards" [(ngModel)]="selectedCard" [filter]="true" filterBy="name"
+              optionLabel="name" class="card-dropdown"></p-select>
+              <p-buttongroup>
+                <button pButton type="button" icon="pi pi-search-minus"
+                (click)="changeZoom(ZOOM_DOWN)"></button>
+                <button pButton type="button" icon="pi pi-search-plus"
+                (click)="changeZoom(ZOOM_UP)"></button>
+              </p-buttongroup>
             </div>
-        </ng-template>
-        <ng-template pTemplate>
-            <div class="right-panel p-col p-flex p-align-items-center p-justify-content-center">
-                <p-splitter class="code-editor-panel" [panelSizes]="[50, 50]" [minSizes]="[25, 25]"
-                    (onResizeStart)="onResizeStart($event)" (onResizeEnd)="onResizeEnd($event)"
-                    layout="vertical">
-                    <ng-template pTemplate>
-                        <div class="css-editor-panel p-col p-flex p-align-items-center p-justify-content-center">
-                            <p-card styleClass="css-editor" header="CSS + Handlebars">
-                                <ngx-monaco-editor class="code-editor" *ngIf="selectedTemplate && !disablePanels"
-                                    [options]="cssEditorOptions" [(ngModel)]="selectedTemplate.css" (ngModelChange)="debounceSave()"></ngx-monaco-editor>
-                            </p-card>
-                        </div>
-                    </ng-template>
-                    <ng-template pTemplate>
-                        <div class="html-editor-panel p-col p-flex p-align-items-center p-justify-content-center">
-                            <p-card styleClass="html-editor" header="HTML + Handlebars">
-                                <ngx-monaco-editor class="code-editor" *ngIf="selectedTemplate && !disablePanels"
-                                    [options]="htmlEditorOptions" [(ngModel)]="selectedTemplate.html" (ngModelChange)="debounceSave()"></ngx-monaco-editor>
-                            </p-card>
-                        </div>
-                    </ng-template>
-                </p-splitter>
+          }
+          @if (!disablePanels) {
+            <div class="preview-space">
+              @if (selectedCard) {
+                <app-card-preview [card]="selectedCard" [template]="selectedTemplate"
+                [scale]="zoom" [cache]="false" [tiltable]="true"></app-card-preview>
+              }
             </div>
-        </ng-template>
-    </p-splitter>
+          }
+        </p-card>
+      </div>
+    </ng-template>
+    <ng-template pTemplate>
+      <div class="right-panel p-col p-flex p-align-items-center p-justify-content-center">
+        <p-splitter class="code-editor-panel" [panelSizes]="[50, 50]" [minSizes]="[25, 25]"
+          (onResizeStart)="onResizeStart($event)" (onResizeEnd)="onResizeEnd($event)" layout="vertical">
+          <ng-template pTemplate>
+            <div class="css-editor-panel p-col p-flex p-align-items-center p-justify-content-center">
+              <p-card styleClass="css-editor" header="CSS + Handlebars">
+                @if (selectedTemplate && !disablePanels) {
+                  <ngx-monaco-editor class="code-editor"
+                    [options]="cssEditorOptions" [(ngModel)]="selectedTemplate.css"
+                  (ngModelChange)="debounceSave()"></ngx-monaco-editor>
+                }
+              </p-card>
+            </div>
+          </ng-template>
+          <ng-template pTemplate>
+            <div class="html-editor-panel p-col p-flex p-align-items-center p-justify-content-center">
+              <p-card styleClass="html-editor" header="HTML + Handlebars">
+                @if (selectedTemplate && !disablePanels) {
+                  <ngx-monaco-editor class="code-editor"
+                    [options]="htmlEditorOptions" [(ngModel)]="selectedTemplate.html"
+                  (ngModelChange)="debounceSave()"></ngx-monaco-editor>
+                }
+              </p-card>
+            </div>
+          </ng-template>
+        </p-splitter>
+      </div>
+    </ng-template>
+  </p-splitter>
 </div>
 <app-entity-dialog [service]="service" [(visible)]="dialogVisible" [entity]="editTemplate"
-    (onCreate)="updateTemplatesList()"></app-entity-dialog>
+(onCreate)="updateTemplatesList()"></app-entity-dialog>
 <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
 <p-dialog header="Information" [style]="{width: '450px'}" [(visible)]="infoVisible">{{infoText}}</p-dialog>

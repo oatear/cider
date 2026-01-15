@@ -1,18 +1,21 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Document } from '../data-services/types/document.type';
 import { DocumentsService } from '../data-services/services/documents.service';
-import { debounceTime, Subject } from 'rxjs';
-import { LocalStorageService } from '../data-services/local-storage/local-storage.service';
+import { debounceTime, Subject, Subscription } from 'rxjs';
+import { ThemeService } from '../data-services/theme/theme.service';
 
 @Component({
   selector: 'app-document',
   templateUrl: './document.component.html',
-  styleUrl: './document.component.scss'
+  styleUrl: './document.component.scss',
+  standalone: false
 })
-export class DocumentComponent implements OnInit {
-  editorOptions: any = { theme: 'vs-dark-extended', language: 'markdown', 
-    automaticLayout: true, minimap: { enabled: false } };
+export class DocumentComponent implements OnInit, OnDestroy {
+  editorOptions: any = {
+    theme: 'vs-dark-extended', language: 'markdown',
+    automaticLayout: true, minimap: { enabled: false }
+  };
   textDocument: Document = {
     name: "",
     mime: "text/markdown",
@@ -22,33 +25,34 @@ export class DocumentComponent implements OnInit {
   documentChanges: Subject<boolean>;
   private editor: any;
   private monaco: any;
+  private themeSubscription: Subscription | null = null;
 
   constructor(private route: ActivatedRoute,
-    private localStorage: LocalStorageService,
+    private themeService: ThemeService,
     private documentsService: DocumentsService,
   ) {
     this.route.paramMap.subscribe(params => {
-        const documentIdString = params.get('documentId') || '';
-        const documentId = parseInt(documentIdString, 10);
-        if (!isNaN(documentId)) {
-          this.documentsService.get(documentId).then((textDocument) => {
-            this.textDocument = textDocument;
-            this.updateEditorType();
-          }).catch(error => {
-            console.error(`Error fetching document with ID ${documentId}:`, error);
-          });
-        } else {
-          this.textDocument = {
-            name: "New Document",
-            mime: "text/markdown",
-            content: ""
-          } as Document;
-        }
+      const documentIdString = params.get('documentId') || '';
+      const documentId = parseInt(documentIdString, 10);
+      if (!isNaN(documentId)) {
+        this.documentsService.get(documentId).then((textDocument) => {
+          this.textDocument = textDocument;
+          this.updateEditorType();
+        }).catch(error => {
+          console.error(`Error fetching document with ID ${documentId}:`, error);
+        });
+      } else {
+        this.textDocument = {
+          name: "New Document",
+          mime: "text/markdown",
+          content: ""
+        } as Document;
+      }
     });
     this.documentChanges = new Subject();
-    if (!this.localStorage.getDarkMode()) {
-      this.editorOptions.theme = 'vs';
-    }
+
+    // Set initial theme based on current theme
+    this.editorOptions.theme = this.themeService.isDarkMode() ? 'vs-dark-extended' : 'vs';
   }
 
   protected editorInitialized(editor: any) {
@@ -76,9 +80,24 @@ export class DocumentComponent implements OnInit {
   ngOnInit(): void {
     this.documentChanges.asObservable().pipe(debounceTime(1000))
       .subscribe(() => this.save(this.textDocument));
+
+    // Subscribe to theme changes for Monaco editor
+    this.themeSubscription = this.themeService.currentTheme$.subscribe(theme => {
+      const monacoTheme = theme.colorScheme === 'dark' ? 'vs-dark-extended' : 'vs';
+      this.editorOptions = { ...this.editorOptions, theme: monacoTheme };
+      if (this.monaco && this.editor) {
+        this.monaco.editor.setTheme(monacoTheme);
+      }
+    });
   }
-    
-  public save(entity : Document) {
+
+  ngOnDestroy(): void {
+    if (this.themeSubscription) {
+      this.themeSubscription.unsubscribe();
+    }
+  }
+
+  public save(entity: Document) {
     const id = (<any>this.textDocument)[this.documentsService?.getIdField()];
     if (id) {
       this.updateExisting(id, this.textDocument);
@@ -86,7 +105,7 @@ export class DocumentComponent implements OnInit {
   }
 
   public updateExisting(id: number, entity: Document) {
-    this.documentsService?.update(id, entity).then(result => {}).catch(error => {});
+    this.documentsService?.update(id, entity).then(result => { }).catch(error => { });
   }
 
   public debounceSave() {

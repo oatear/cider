@@ -1,11 +1,8 @@
-/**
- * Field Type
- */
- export enum FieldType {
+export enum FieldType {
     text = 'text',
-    textArea = 'text-area',
-    number = 'number',
-    file = 'file',
-    option = 'option',
-    optionList = 'optionList'
+    dropdown = 'dropdown',
+    dropdownOptions = 'dropdown-options',
+    numeric = 'numeric',
+    checkbox = 'checkbox',
+    file = 'file'
 }

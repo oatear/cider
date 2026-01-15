@@ -12,23 +12,25 @@ declare const gtag: Function;
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
+  standalone: false
 })
-export class AppComponent implements OnInit{
+export class AppComponent implements OnInit {
+  title = 'cider';
 
   constructor(private router: Router,
-              private localStorageService: LocalStorageService,
-              private translateService: TranslateService) {
+    private localStorageService: LocalStorageService,
+    private translateService: TranslateService) {
   }
 
   ngOnInit() {
+    this.updateViewWidthHeightVar();
+    window.addEventListener('resize', () => {
       this.updateViewWidthHeightVar();
-      window.addEventListener('resize', () => {
-        this.updateViewWidthHeightVar();
-      });
+    });
 
-      // this.setUpAnalytics();
-      this.initDarkMode();
-      this.initTranslateService();
+    // this.setUpAnalytics();
+    this.initDarkMode();
+    this.initTranslateService();
   }
 
   // private setUpAnalytics() {

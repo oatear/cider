@@ -1,30 +1,34 @@
 <p-card styleClass="page-card tabbed-card">
-    <div class="card-controls">
-        <p-selectButton [options]="zoomOptions" [(ngModel)]="zoomLevel" class="p-mr-3"
-            optionLabel="label" optionValue="value"></p-selectButton>
-        <p-selectButton [options]="sideOptions" [(ngModel)]="sideSelected" class="p-mr-3"
-            optionLabel="label" optionValue="value"></p-selectButton>
-        <p-selectButton [options]="copyOptions" [(ngModel)]="copySelected" class="p-mr-3"
-            optionLabel="label" optionValue="value" (onChange)="refreshCards()"></p-selectButton>
-        <div class="filler"></div>
-        <p-iconfield>
-            <input type="text" pInputText [placeholder]="'controls.search' | translate" (input)="filter($event)" />
-            <p-inputicon styleClass="pi pi-search" />
-        </p-iconfield>
-    </div>
-    <div class="card-thumbnails">
-        <p-dataview #dv [value]="thumbnailCards" [rows]="25" [paginator]="true" paginatorPosition="bottom" 
-            [filterBy]="filterFields" [alwaysShowPaginator]="false" [showCurrentPageReport]="true">
-            <ng-template let-cards #list>
-                <div class="card-list">
-                    <ng-container *ngFor="let card of cards">
-                        <app-card-preview *ngIf="sideSelected == 'fronts' || sideSelected == 'both'" [cache]="false" [tiltable]="true"
-                            [card]="card" [scale]="zoomLevel" [template]="card.frontCardTemplateId | entity: templatesService | async"></app-card-preview>
-                        <app-card-preview *ngIf="sideSelected == 'backs' || sideSelected == 'both'" [cache]="false" [tiltable]="true"
-                            [card]="card" [scale]="zoomLevel" [template]="card.backCardTemplateId | entity: templatesService | async"></app-card-preview>
-                    </ng-container>
-                </div>
-            </ng-template>
-        </p-dataview>
-    </div>
+  <div class="card-controls">
+    <p-selectButton [options]="zoomOptions" [(ngModel)]="zoomLevel" class="p-mr-3" optionLabel="label"
+      optionValue="value" required="true" allowEmpty="false"></p-selectButton>
+    <p-selectButton [options]="sideOptions" [(ngModel)]="sideSelected" class="p-mr-3" optionLabel="label"
+      optionValue="value" required="true" allowEmpty="false"></p-selectButton>
+    <p-selectButton [options]="copyOptions" [(ngModel)]="copySelected" class="p-mr-3" optionLabel="label"
+      optionValue="value" required="true" (onChange)="refreshCards()" allowEmpty="false"></p-selectButton>
+    <div class="filler"></div>
+    <p-iconfield>
+      <input type="text" pInputText [placeholder]="'controls.search' | translate" (input)="filter($event)" />
+      <p-inputicon styleClass="pi pi-search" />
+    </p-iconfield>
+  </div>
+  <div class="card-thumbnails">
+    <p-dataview #dv [value]="thumbnailCards" [rows]="25" [paginator]="true" paginatorPosition="bottom"
+      [filterBy]="filterFields" [alwaysShowPaginator]="false" [showCurrentPageReport]="true">
+      <ng-template let-cards #list>
+        <div class="card-list">
+          @for (card of cards; track $index) {
+          @if (sideSelected == 'fronts' || sideSelected == 'both') {
+          <app-card-preview [cache]="false" [tiltable]="true" [card]="card" [scale]="zoomLevel"
+            [template]="card.frontCardTemplateId | entity: templatesService | async"></app-card-preview>
+          }
+          @if (sideSelected == 'backs' || sideSelected == 'both') {
+          <app-card-preview [cache]="false" [tiltable]="true" [card]="card" [scale]="zoomLevel"
+            [template]="card.backCardTemplateId | entity: templatesService | async"></app-card-preview>
+          }
+          }
+        </div>
+      </ng-template>
+    </p-dataview>
+  </div>
 </p-card>

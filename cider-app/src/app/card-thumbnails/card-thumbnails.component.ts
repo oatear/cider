@@ -5,9 +5,10 @@ import { Card } from '../data-services/types/card.type';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
-  selector: 'app-card-thumbnails',
-  templateUrl: './card-thumbnails.component.html',
-  styleUrls: ['./card-thumbnails.component.scss']
+    selector: 'app-card-thumbnails',
+    templateUrl: './card-thumbnails.component.html',
+    styleUrls: ['./card-thumbnails.component.scss'],
+    standalone: false
 })
 export class CardThumbnailsComponent implements OnInit {
   @ViewChild('dv') dv!: DataView;

@@ -5,7 +5,8 @@ import { EntityService } from '../types/entity-service.type';
  * Get a list of all the entities
  */
 @Pipe({
-  name: 'entityList'
+    name: 'entityList',
+    standalone: false
 })
 export class EntityListPipe implements PipeTransform {
 
