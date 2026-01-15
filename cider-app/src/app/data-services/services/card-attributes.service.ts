@@ -5,6 +5,8 @@ import { CardAttribute } from '../types/card-attribute.type';
 import { FieldType } from '../types/field-type.type';
 import { DecksService } from './decks.service';
 
+import StringUtils from 'src/app/shared/utils/string-utils';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -39,6 +41,39 @@ export class CardAttributesService extends DecksChildService<CardAttribute, numb
 
   override getEntityName(entity: CardAttribute) {
     return entity.name;
+  }
+
+  override create(entity: CardAttribute, overrideParent?: boolean | undefined): Promise<CardAttribute> {
+    const normalizedType = (entity.type as string)?.toLowerCase().trim();
+    if ((normalizedType === FieldType.dropdown || normalizedType === 'option') && entity.options) {
+      if ((entity.type as string) !== FieldType.dropdown) {
+        entity.type = FieldType.dropdown;
+      }
+
+      if (typeof entity.options === 'string') {
+        const strOptions = entity.options as string;
+        try {
+          const parsed = JSON.parse(strOptions);
+          if (Array.isArray(parsed)) {
+            entity.options = parsed;
+            return super.create(entity, overrideParent);
+          }
+        } catch (e) {
+          // ignore error, treat as legacy string
+        }
+
+        // Split by pipe if present, otherwise treat as single option
+        const optionsList = strOptions.split('|').map(o => o.trim());
+
+        entity.options = optionsList.map(o => {
+          return { value: o, color: StringUtils.generateRandomColor() };
+        });
+
+        // Log for debugging if needed, or remove later
+        // console.log('Migrated options:', entity.options);
+      }
+    }
+    return super.create(entity, overrideParent);
   }
 
   async createSystemAttributes(deckId: number) {

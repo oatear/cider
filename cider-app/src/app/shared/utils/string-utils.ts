@@ -38,14 +38,14 @@ export default class StringUtils {
      */
     public static splitNameAndExtension(filename: string): { name: string; extension: string; } {
         if (!filename) {
-            return {name: '', extension: ''};
+            return { name: '', extension: '' };
         }
         const indexOfPeriod = filename.lastIndexOf('.');
         if (indexOfPeriod <= 0) {
-            return {name: filename, extension: ''};
+            return { name: filename, extension: '' };
         }
         return {
-            name: filename.substring(0, indexOfPeriod), 
+            name: filename.substring(0, indexOfPeriod),
             extension: filename.substring(indexOfPeriod + 1)
         };
     }
@@ -142,5 +142,19 @@ export default class StringUtils {
             result += characters.charAt(Math.floor(Math.random() * characters.length));
         }
         return result;
+    }
+
+    /**
+     * Generate a random hex color
+     * 
+     * @returns 
+     */
+    public static generateRandomColor(): string {
+        const letters = '0123456789ABCDEF';
+        let color = '#';
+        for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
     }
 }
