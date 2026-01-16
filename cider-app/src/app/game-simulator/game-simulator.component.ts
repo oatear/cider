@@ -1,4 +1,4 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, ElementRef, ViewChild } from '@angular/core';
 import { DecksService } from '../data-services/services/decks.service';
 import { CardsService } from '../data-services/services/cards.service';
 import { CardTemplatesService } from '../data-services/services/card-templates.service';
@@ -62,6 +62,10 @@ interface Position {
 export class GameSimulatorComponent {
   private static readonly COLORS = ['silver', 'gold', 'crimson',
     'emerald', 'azure', 'lilac', 'ivory', 'charcoal'];
+  private static readonly BASE_CARD_WIDTH = 250; // Approximated from visual reference or default - Fallback only
+  private static readonly BASE_CARD_HEIGHT = 350;
+
+  @ViewChild('gameBoundary') gameBoundary!: ElementRef;
   stacks: CardStack[] = [];
   field: CardZone = { name: 'Field', cards: [] };
   components: GameComponent[] = [];
@@ -157,8 +161,24 @@ export class GameSimulatorComponent {
       const drawnCard = stack.cards.pop();
       if (drawnCard) {
         // change position to deck position + offset
-        drawnCard.pos.x = stack.pos.x + 50 + (Math.random() * 20 - 10);
-        drawnCard.pos.y = stack.pos.y + 50 + (Math.random() * 20 - 10);
+        // change position to deck position + offset
+        let newX = stack.pos.x + 50 + (Math.random() * 20 - 10);
+        let newY = stack.pos.y + 50 + (Math.random() * 20 - 10);
+
+        let width = GameSimulatorComponent.BASE_CARD_WIDTH * this.zoomLevel;
+        let height = GameSimulatorComponent.BASE_CARD_HEIGHT * this.zoomLevel;
+
+        const stackEl = document.getElementById(stack.uniqueId);
+        if (stackEl) {
+          const rect = stackEl.getBoundingClientRect();
+          width = rect.width;
+          height = rect.height;
+        }
+
+        const clampedPos = this.clampPosition({ x: newX, y: newY }, width, height);
+
+        drawnCard.pos.x = clampedPos.x;
+        drawnCard.pos.y = clampedPos.y;
         drawnCard.faceUp = faceUp;
         this.field.cards.push(drawnCard);
       }
@@ -175,8 +195,24 @@ export class GameSimulatorComponent {
       // Set its properties for being on the field
       drawnCard.faceUp = true;
       // Position it near the stack it came from for a better user experience
-      drawnCard.pos.x = stack.pos.x + 40;
-      drawnCard.pos.y = stack.pos.y + 40;
+      // Position it near the stack it came from for a better user experience
+      let newX = stack.pos.x + 40;
+      let newY = stack.pos.y + 40;
+
+      let width = GameSimulatorComponent.BASE_CARD_WIDTH * this.zoomLevel;
+      let height = GameSimulatorComponent.BASE_CARD_HEIGHT * this.zoomLevel;
+
+      const stackEl = document.getElementById(stack.uniqueId);
+      if (stackEl) {
+        const rect = stackEl.getBoundingClientRect();
+        width = rect.width;
+        height = rect.height;
+      }
+
+      const clampedPos = this.clampPosition({ x: newX, y: newY }, width, height);
+
+      drawnCard.pos.x = clampedPos.x;
+      drawnCard.pos.y = clampedPos.y;
 
       // Add the card to the field
       this.field.cards.push(drawnCard);
@@ -460,23 +496,23 @@ export class GameSimulatorComponent {
         items: [
           {
             label: '0.15x',
-            command: () => this.zoomLevel = 0.15
+            command: () => { this.zoomLevel = 0.15; this.clampAllItems(); }
           },
           {
             label: '0.2x',
-            command: () => this.zoomLevel = 0.20
+            command: () => { this.zoomLevel = 0.20; this.clampAllItems(); }
           },
           {
             label: '0.25x',
-            command: () => this.zoomLevel = 0.25
+            command: () => { this.zoomLevel = 0.25; this.clampAllItems(); }
           },
           {
             label: '0.30x',
-            command: () => this.zoomLevel = 0.30
+            command: () => { this.zoomLevel = 0.30; this.clampAllItems(); }
           },
           {
             label: '0.35x',
-            command: () => this.zoomLevel = 0.35
+            command: () => { this.zoomLevel = 0.35; this.clampAllItems(); }
           }
         ]
       },
@@ -579,8 +615,11 @@ export class GameSimulatorComponent {
   }
 
   onDragEnded(event: CdkDragEnd<any>, items: Positionable[], item: Positionable) {
-    item.pos.x += event.distance.x;
-    item.pos.y += event.distance.y;
+    const pos = event.source.getFreeDragPosition();
+    item.pos = {
+      x: pos.x,
+      y: pos.y
+    };
 
     if (this.draggingStack && this.hoveredItem && this.hoveredItem !== item) {
       const targetStack = this.hoveredItem as CardStack;
@@ -599,8 +638,11 @@ export class GameSimulatorComponent {
   }
 
   onCardDragEnded(event: CdkDragEnd<any>, cards: GameCard[], card: GameCard) {
-    card.pos.x += event.distance.x;
-    card.pos.y += event.distance.y;
+    const pos = event.source.getFreeDragPosition();
+    card.pos = {
+      x: pos.x,
+      y: pos.y
+    };
     if (this.hoveredItem) {
       const index = cards.indexOf(card);
       cards.splice(index, 1);
@@ -650,26 +692,91 @@ export class GameSimulatorComponent {
     }
   }
 
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    this.clampAllItems();
+  }
+
+  private clampAllItems() {
+    const defaultCardWidth = GameSimulatorComponent.BASE_CARD_WIDTH * this.zoomLevel;
+    const defaultCardHeight = GameSimulatorComponent.BASE_CARD_HEIGHT * this.zoomLevel;
+
+    // Clamp Stacks
+    this.stacks.forEach(stack => {
+      let width = defaultCardWidth;
+      let height = defaultCardHeight;
+      const el = document.getElementById(stack.uniqueId);
+      if (el) {
+        width = el.getBoundingClientRect().width;
+        height = el.getBoundingClientRect().height;
+      }
+      const newPos = this.clampPosition(stack.pos, width, height);
+      stack.pos = { x: newPos.x, y: newPos.y };
+    });
+
+    // Clamp Cards
+    this.field.cards.forEach(card => {
+      let width = defaultCardWidth;
+      let height = defaultCardHeight;
+      const el = document.getElementById(card.uniqueId);
+      if (el) {
+        width = el.getBoundingClientRect().width;
+        height = el.getBoundingClientRect().height;
+      }
+      const newPos = this.clampPosition(card.pos, width, height);
+      card.pos = { x: newPos.x, y: newPos.y };
+    });
+
+    // Clamp Components (Dice/Coins)
+    // Approximate size 50x50
+    const componentSize = 50;
+    this.components.forEach(comp => {
+      let width = componentSize;
+      let height = componentSize;
+      const el = document.getElementById(comp.uniqueId);
+      if (el) {
+        width = el.getBoundingClientRect().width;
+        height = el.getBoundingClientRect().height;
+      }
+      const newPos = this.clampPosition(comp.pos, width, height);
+      comp.pos = { x: newPos.x, y: newPos.y };
+    });
+  }
+
+  private clampPosition(pos: Position, itemWidth: number, itemHeight: number, padding: number = 16): Position {
+    if (!this.gameBoundary) return pos;
+
+    const boundaryRect = this.gameBoundary.nativeElement.getBoundingClientRect();
+    // The items uses absolute positioning relative to the container.
+    // So the max X is containerWidth - itemWidth
+    // And max Y is containerHeight - itemHeight
+
+    const maxX = boundaryRect.width - itemWidth - padding;
+    const maxY = boundaryRect.height - itemHeight - padding;
+
+    return {
+      x: Math.max(padding, Math.min(maxX, pos.x)),
+      y: Math.max(padding, Math.min(maxY, pos.y))
+    };
+  }
+
   private calculateMagnifiedPosition(event: MouseEvent, card: GameCard) {
-    // Estimated size of magnified card (zoomed level * base size approx 350x500)
-    // If base is 250x350 and zoom is 0.4, it's small? Wait, existing zoom is 0.2. Magnified is 0.4.
-    // Let's assume the preview component handles scale. We just need to know roughly how much projected space it takes.
-    // A standard Poker card is 2.5x3.5 aspect ratio.
-    // Let's rely on the mouse position as the center target, as that's intuitive "bring to here".
-    // Or use card position. User asked for "centered to original card".
-    // Note: card.pos is relative to the container (absolute positioning).
-    // We need screen coordinates for the fixed overlay.
+    let width = 300; // Fallback
+    let height = 420; // Fallback
 
-    const cardRectX = card.pos.x; // This is absolute in container... we might need client rect if container scrolls?
-    // Actually, standard drag/drop usually implies container relative.
-    // If we use fixed positioning, we need client coordinates.
-    // Let's use event.clientX/Y as a starting point if we want "near mouse/card".
-    // But card.pos might be better if we want it stable.
-    // However, converting card.pos to screen coordinates requires finding the container offset.
-    // "event.clientX" is easier and usually where the card is (since we clicked it).
+    // Attempt to calculate actual target dimensions based on the source element
+    const el = document.getElementById(card.uniqueId);
+    if (el) {
+      const rect = el.getBoundingClientRect();
+      // Calculate base dimensions (unscaled)
+      const baseWidth = rect.width / this.zoomLevel;
+      const baseHeight = rect.height / this.zoomLevel;
 
-    const width = 300; // Estimated width
-    const height = 420; // Estimated height
+      // Calculate target dimensions
+      width = baseWidth * this.zoomMagnifiedLevel;
+      height = baseHeight * this.zoomMagnifiedLevel;
+    }
+
     const padding = 20;
 
     let x = event.clientX;

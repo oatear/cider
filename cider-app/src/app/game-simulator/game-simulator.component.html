@@ -5,14 +5,14 @@
   [cdkDropListData]="field.cards"
   (cdkDropListDropped)="onCardDropped($event)"
   cdkDropList> -->
-  <div class="field game-boundary" (contextmenu)="onFieldContextMenu($event, cm)">
+  <div class="field game-boundary" #gameBoundary (contextmenu)="onFieldContextMenu($event, cm)">
     <!-- cdkDropList
     [cdkDropListData]="stack.cards"
     (cdkDropListDropped)="onCardDropped($event)" -->
     <!-- Stacks -->
     @for (stack of stacks; track stack.uniqueId) {
     @if (stack.cards) {
-    <div class="card-stack game-card" [class.empty]="stack.cards.length === 0"
+    <div class="card-stack game-card" [class.empty]="stack.cards.length === 0" [id]="stack.uniqueId"
       (contextmenu)="onStackContextMenu($event, cm, stack)" (cdkDragStarted)="onDragStarted($event, stacks, stack)"
       (cdkDragEnded)="onDragEnded($event, stacks, stack)" [cdkDragFreeDragPosition]="stack.pos"
       [style.zIndex]="stack.zIndex || 10" cdkDragBoundary=".game-boundary" cdkDrag>
@@ -52,7 +52,7 @@
     <!-- (cdkDragEntered)="onDragEntered($event, card)" -->
     @for (card of field.cards; track card) {
     @if (card.card.frontCardTemplateId) {
-    <div class="field-card game-card" (contextmenu)="onCardContextMenu($event, cm, card)"
+    <div class="field-card game-card" (contextmenu)="onCardContextMenu($event, cm, card)" [id]="card.uniqueId"
       (mousedown)="onCardMouseDown($event, card)" (mouseup)="onCardMouseUp($event, card)" [cdkDragData]="card"
       (cdkDragStarted)="onCardDragStarted($event, field.cards, card)"
       (cdkDragEnded)="onCardDragEnded($event, field.cards, card)" [cdkDragFreeDragPosition]="card.pos"
@@ -67,7 +67,7 @@
 
     @for (component of components; track component) {
     <div class="game-component" (contextmenu)="onComponentContextMenu($event, cm, component)" [cdkDragData]="component"
-      (cdkDragStarted)="onDragStarted($event, components, component)"
+      [id]="component.uniqueId" (cdkDragStarted)="onDragStarted($event, components, component)"
       (cdkDragEnded)="onDragEnded($event, components, component)" [cdkDragFreeDragPosition]="component.pos"
       [style.zIndex]="component.zIndex || 10" cdkDragBoundary=".game-boundary" cdkDrag>
       <div class="tiltable">
