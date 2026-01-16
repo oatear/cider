@@ -17,6 +17,8 @@ $colors: (
     charcoal: (#3b4a54, #a1b0bc, #27333a) // balanced depth and top face
 );
 
+$shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
+
 @each $name, $values in $colors {
     $bg: nth($values, 1);
     $fg: nth($values, 2);
@@ -366,7 +368,7 @@ $colors: (
 
     .card-wrapper {
         border-radius: 10px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        box-shadow: $shadow-3d;
         transform-style: preserve-3d; // Enable 3D children
 
         &.flipping {
@@ -577,7 +579,7 @@ $game-coin-size: 50px;
         background: #c6982e;
         z-index: -1;
         transform: translateZ(-1px);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.20);
+        box-shadow: $shadow-3d;
     }
 
     &::after {
@@ -607,7 +609,7 @@ $game-cube-size: 30px;
         border: 2px solid #2e8b57;
         box-sizing: border-box;
         box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4),
-            0 2px 3px rgba(0, 0, 0, 0.2);
+            $shadow-3d;
         color: #fff;
         font-weight: bold;
         font-size: 14px;
@@ -675,7 +677,7 @@ $die-bg: #f9f9f9;
 $die-border: #ccc;
 $die-color: #222;
 $die-side-color: #e0e0e0;
-$die-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+$die-shadow: $shadow-3d;
 
 .game-component {
     .game-d6 {
