@@ -23,13 +23,17 @@
                         | entity: cardTemplatesService | async" [card]="stack.cards[stack.cards.length - 1].card"
           [scale]="zoomLevel"></app-card-preview>
         }
+        <div class="draw-action" (click)="drawCard(stack); $event.stopPropagation()"
+          (mousedown)="$event.stopPropagation()">
+          <i class="pi pi-arrow-down"></i>
+        </div>
       </div>
       @if (stack.cards.length === 0) {
       <div class="stack-placeholder">
         <span class="placeholder-text">{{ stack.name }}</span>
       </div>
       }
-      @if (draggingCard) {
+      @if (draggingCard || draggingStack) {
       <div class="dropzone" (mouseover)="onMouseEntered($event, stack)" (mouseout)="onMouseExited($event, stack)"></div>
       }
       <div class="count">{{ stack.name }} {{ stack.cards.length }}</div>
@@ -42,20 +46,15 @@
     <!-- (cdkDragEntered)="onDragEntered($event, card)" -->
     @for (card of field.cards; track card) {
     @if (card.card.frontCardTemplateId) {
-    <div class="field-card game-card" [class.magnified]="card.magnified"
-      (contextmenu)="onCardContextMenu($event, cm, card)" (mousedown)="onCardMouseDown($event, card)"
-      (mouseup)="onCardMouseUp($event, card)" [cdkDragData]="card"
+    <div class="field-card game-card" (contextmenu)="onCardContextMenu($event, cm, card)"
+      (mousedown)="onCardMouseDown($event, card)" (mouseup)="onCardMouseUp($event, card)" [cdkDragData]="card"
       (cdkDragStarted)="onCardDragStarted($event, field.cards, card)"
       (cdkDragEnded)="onCardDragEnded($event, field.cards, card)" [cdkDragFreeDragPosition]="card.pos"
       cdkDragBoundary=".game-boundary" cdkDrag>
       <app-card-preview [cache]="false" [tiltable]="true" [template]="(card.faceUp ? card.card.frontCardTemplateId 
                         : card.card.backCardTemplateId) 
                         | entity: cardTemplatesService | async" [card]="card.card"
-        [scale]="card.magnified ? zoomMagnifiedLevel : zoomLevel"></app-card-preview>
-      <!-- <div class="drop-zone"
-          style="width: 100px; height: 100px; background-color: red;"
-          cdkDropList
-        [cdkDropListData]="field.cards"></div> -->
+        [scale]="zoomLevel"></app-card-preview>
     </div>
     }
     }
@@ -91,4 +90,13 @@
     }
   </div>
 </div>
+
+@if (magnifiedCard) {
+<div class="magnified-overlay" [style.left.px]="magnifiedPos.x" [style.top.px]="magnifiedPos.y">
+  <app-card-preview [cache]="false" [tiltable]="true" [template]="(magnifiedCard.faceUp ? magnifiedCard.card.frontCardTemplateId 
+                    : magnifiedCard.card.backCardTemplateId) | entity: cardTemplatesService | async"
+    [card]="magnifiedCard.card" [scale]="zoomMagnifiedLevel"></app-card-preview>
+</div>
+}
+
 <p-contextmenu #cm [model]="contextMenuItems" />

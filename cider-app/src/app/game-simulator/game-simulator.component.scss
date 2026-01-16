@@ -114,6 +114,44 @@ $colors: (
     .card-stack {
         z-index: 1;
 
+        &:hover {
+            z-index: 2;
+        }
+
+        .card-wrapper {
+            position: relative;
+        }
+
+        .draw-action {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            opacity: 0;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        &:hover .draw-action {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        & .draw-action:active {
+            transform: translate(-50%, -50%) scale(0.95);
+            background: rgba(0, 0, 0, 0.8);
+        }
+
         .stack-placeholder {
             display: flex;
             align-items: center;
@@ -213,6 +251,11 @@ $colors: (
     box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
         0 8px 10px 1px rgba(0, 0, 0, 0.14),
         0 3px 14px 2px rgba(0, 0, 0, 0.12);
+    pointer-events: none;
+}
+
+.cdk-drag-dragging {
+    pointer-events: none;
 }
 
 .game-component {
@@ -455,6 +498,15 @@ $die-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
     100% {
         transform: translate(0, 0) rotate(0deg);
     }
+}
+
+.magnified-overlay {
+    position: fixed;
+    z-index: 1000;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    // Add a slight shadow or glow to distinguish it
+    filter: drop-shadow(0 0 20px rgba(0, 0, 0, 0.5));
 }
 
 .game-component .component.rolling,

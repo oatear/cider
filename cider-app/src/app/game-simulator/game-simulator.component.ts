@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import { DecksService } from '../data-services/services/decks.service';
 import { CardsService } from '../data-services/services/cards.service';
 import { CardTemplatesService } from '../data-services/services/card-templates.service';
@@ -76,6 +76,7 @@ export class GameSimulatorComponent {
   contextMenuItems: MenuItem[] = [];
   hoveredItem: Positionable | undefined;
   draggingCard: boolean = false;
+  draggingStack: boolean = false;
   draggingComponent: boolean = false;
 
   constructor(
@@ -558,6 +559,11 @@ export class GameSimulatorComponent {
       items.push(item);
     }
     this.hoveredItem = undefined;
+
+    // Check if we are dragging a stack
+    if (items === this.stacks) {
+      this.draggingStack = true;
+    }
   }
 
   public onCardDragStarted(event: any, items: Positionable[], item: Positionable) {
@@ -568,7 +574,21 @@ export class GameSimulatorComponent {
   onDragEnded(event: CdkDragEnd<any>, items: Positionable[], item: Positionable) {
     item.pos.x += event.distance.x;
     item.pos.y += event.distance.y;
-    // this.dragging = false;
+
+    if (this.draggingStack && this.hoveredItem && this.hoveredItem !== item) {
+      const targetStack = this.hoveredItem as CardStack;
+      const sourceStack = item as CardStack;
+
+      // Move all cards from source to target
+      targetStack.cards.push(...sourceStack.cards);
+
+      // Remove source stack
+      this.deleteItem(this.stacks, sourceStack);
+
+      this.hoveredItem = undefined;
+    }
+
+    this.draggingStack = false;
   }
 
   onCardDragEnded(event: CdkDragEnd<any>, cards: GameCard[], card: GameCard) {
@@ -597,16 +617,65 @@ export class GameSimulatorComponent {
     }
   }
 
+  magnifiedCard: GameCard | undefined;
+  magnifiedPos: Position = { x: 0, y: 0 };
+
+  // ... (previous code)
+
   onCardMouseDown(event: MouseEvent, card: GameCard) {
     if (event.button == 1) {
-      card.magnified = true;
+      this.calculateMagnifiedPosition(event, card);
+      this.magnifiedCard = card;
+      event.preventDefault(); // Prevent default middle click scroll
     }
   }
 
   onCardMouseUp(event: MouseEvent, card: GameCard) {
     if (event.button == 1) {
-      card.magnified = false;
+      this.magnifiedCard = undefined;
     }
+  }
+
+  @HostListener('window:mouseup', ['$event'])
+  onWindowMouseUp(event: MouseEvent) {
+    if (event.button == 1) {
+      this.magnifiedCard = undefined;
+    }
+  }
+
+  private calculateMagnifiedPosition(event: MouseEvent, card: GameCard) {
+    // Estimated size of magnified card (zoomed level * base size approx 350x500)
+    // If base is 250x350 and zoom is 0.4, it's small? Wait, existing zoom is 0.2. Magnified is 0.4.
+    // Let's assume the preview component handles scale. We just need to know roughly how much projected space it takes.
+    // A standard Poker card is 2.5x3.5 aspect ratio.
+    // Let's rely on the mouse position as the center target, as that's intuitive "bring to here".
+    // Or use card position. User asked for "centered to original card".
+    // Note: card.pos is relative to the container (absolute positioning).
+    // We need screen coordinates for the fixed overlay.
+
+    const cardRectX = card.pos.x; // This is absolute in container... we might need client rect if container scrolls?
+    // Actually, standard drag/drop usually implies container relative.
+    // If we use fixed positioning, we need client coordinates.
+    // Let's use event.clientX/Y as a starting point if we want "near mouse/card".
+    // But card.pos might be better if we want it stable.
+    // However, converting card.pos to screen coordinates requires finding the container offset.
+    // "event.clientX" is easier and usually where the card is (since we clicked it).
+
+    const width = 300; // Estimated width
+    const height = 420; // Estimated height
+    const padding = 20;
+
+    let x = event.clientX;
+    let y = event.clientY;
+
+    // Clamp to window
+    const minX = width / 2 + padding;
+    const maxX = window.innerWidth - (width / 2) - padding;
+    const minY = height / 2 + padding;
+    const maxY = window.innerHeight - (height / 2) - padding;
+
+    this.magnifiedPos.x = Math.max(minX, Math.min(maxX, x));
+    this.magnifiedPos.y = Math.max(minY, Math.min(maxY, y));
   }
 
 }
