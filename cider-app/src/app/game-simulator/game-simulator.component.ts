@@ -85,6 +85,23 @@ export class GameSimulatorComponent {
   draggingStack: boolean = false;
   draggingComponent: boolean = false;
 
+  renameDialogVisible: boolean = false;
+  renameStackName: string = '';
+  stackToRename: CardStack | undefined;
+
+  saveStackName() {
+    if (this.stackToRename && this.renameStackName.trim().length > 0) {
+      this.stackToRename.name = this.renameStackName;
+      this.renameDialogVisible = false;
+    }
+  }
+
+  cancelRename() {
+    this.renameDialogVisible = false;
+    this.stackToRename = undefined;
+    this.renameStackName = '';
+  }
+
   constructor(
     private decksService: DecksService,
     private cardsService: CardsService,
@@ -255,7 +272,17 @@ export class GameSimulatorComponent {
         label: this.translate.instant('simulator.draw-card'),
         icon: 'pi pi-plus',
         command: () => this.drawCard(stack),
-        disabled: stack.cards.length === 0
+        "disabled": stack.cards.length === 0
+      },
+      {
+        label: this.translate.instant('simulator.rename-stack'),
+        icon: 'pi pi-pencil',
+        command: () => {
+          this.stackToRename = stack;
+          this.renameStackName = stack.name;
+          this.renameDialogVisible = true;
+        },
+        disabled: stack === this.discard
       },
       {
         label: this.translate.instant('simulator.draw-card-facedown'),

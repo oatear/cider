@@ -582,3 +582,20 @@ $die-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
 .card-stack .shuffling {
     animation: dice-shake-roll 0.6s ease-in-out;
 }
+
+.dialog-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.full-width-input {
+    width: 100%;
+}
+
+.dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}

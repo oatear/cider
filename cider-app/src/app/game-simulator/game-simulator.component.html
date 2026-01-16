@@ -105,4 +105,17 @@
 </div>
 }
 
+<p-dialog [header]="'simulator.rename-stack' | translate" [(visible)]="renameDialogVisible" [modal]="true"
+  [draggable]="false" [resizable]="false" [style]="{ width: '25rem' }">
+  <div class="dialog-content">
+    <label for="stackName" class="font-semibold">{{ 'fields.name' | translate }}</label>
+    <input pInputText id="stackName" class="full-width-input" autocomplete="off" [(ngModel)]="renameStackName"
+      (keyup.enter)="saveStackName()" autofocus />
+  </div>
+  <div class="dialog-footer">
+    <p-button [label]="'controls.cancel' | translate" severity="secondary" (onClick)="cancelRename()" />
+    <p-button [label]="'controls.save' | translate" (onClick)="saveStackName()" />
+  </div>
+</p-dialog>
+
 <p-contextmenu #cm [model]="contextMenuItems" />

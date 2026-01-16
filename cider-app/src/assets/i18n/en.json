@@ -141,6 +141,7 @@
     },
     "simulator": {
         "draw-card": "Draw Card",
+        "rename-stack": "Rename Stack",
         "draw-card-facedown": "Draw Card Facedown",
         "draw-specific-card": "Draw Specific Card",
         "shuffle-stack": "Shuffle Stack",
