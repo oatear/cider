@@ -153,6 +153,48 @@ $colors: (
         }
     }
 
+    @keyframes component-flip {
+        0% {
+            transform: perspective(1000px) translateZ(0) rotateY(0deg);
+        }
+
+        20% {
+            transform: perspective(1000px) translateZ(40px) rotateY(45deg);
+        }
+
+        40% {
+            opacity: 1;
+        }
+
+        49.9% {
+            transform: perspective(1000px) translateZ(60px) rotateY(90deg);
+            opacity: 1;
+        }
+
+        50% {
+            // Mask the interpolation glitch
+            opacity: 0;
+            transform: perspective(1000px) translateZ(60px) rotateY(0deg);
+        }
+
+        50.1% {
+            transform: perspective(1000px) translateZ(60px) rotateY(-90deg);
+            opacity: 1;
+        }
+
+        60% {
+            opacity: 1;
+        }
+
+        80% {
+            transform: perspective(1000px) translateZ(40px) rotateY(-45deg);
+        }
+
+        100% {
+            transform: perspective(1000px) translateZ(0) rotateY(0deg);
+        }
+    }
+
     .game-card {
         position: absolute;
         z-index: 10;
@@ -445,33 +487,51 @@ $colors: (
         width: 50px;
         height: 50px;
         background: rgb(213, 92, 92);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); // Default shadow
+        transition: box-shadow 0.3s ease;
+    }
+
+    // Trigger shadow change when wrapper is hovered
+    &:hover .component {
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    &:active .component {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
 }
 
 .tiltable {
-    display: inline-block;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    transform-origin: center center;
     transform-style: preserve-3d;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.3s ease;
     transform: perspective(1000px) rotateX(0deg) rotateY(0deg);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    // box-shadow removed to prevent square artifact on round items
     backface-visibility: hidden;
     will-change: transform;
 
     &:hover {
         transform: perspective(1000px) rotateX(5deg) rotateY(-5deg);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        // box-shadow moved to children
     }
 
     &:active {
         transform: perspective(1000px) rotateX(2deg) rotateY(-2deg) scale(0.98);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    &.flipping {
+        animation: component-flip 0.4s ease-in-out;
+        pointer-events: none;
     }
 }
 
 $game-coin-size: 50px;
 
 .game-component .game-coin {
-    position: absolute;
+    position: relative;
     width: $game-coin-size;
     height: $game-coin-size;
     border-radius: 50%;
@@ -481,6 +541,31 @@ $game-coin-size: 50px;
     box-sizing: border-box;
     font-family: Arial, Helvetica, sans-serif;
     transform-style: preserve-3d;
+    backface-visibility: hidden; // Important for flip
+
+    .thickness-side {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        width: 4px; // Thickness
+        height: 100%;
+        // Use a central plane (septum) technique for cylinder profile illusion
+        transform: translateX(-50%) rotateY(90deg);
+        background: inherit; // Gold
+        filter: brightness(0.7);
+        border: inherit;
+        z-index: -1;
+        opacity: 1;
+
+        // Remove specific side positioning since we are using a central septum
+        &.right,
+        &.left {
+            right: auto;
+            left: 50%; // Force center
+            transform-origin: center;
+            transform: translateX(-50%) rotateY(90deg);
+        }
+    }
 
     .depth {
         position: absolute;
@@ -515,7 +600,7 @@ $game-cube-size: 30px;
 
 .game-component {
     .game-cube {
-        position: absolute;
+        position: relative;
         width: $game-cube-size;
         height: $game-cube-size;
         background-color: #50c878; // emerald base
@@ -531,6 +616,30 @@ $game-cube-size: 30px;
         border-radius: 4px;
         font-family: Arial, Helvetica, sans-serif;
         transform-style: preserve-3d;
+        backface-visibility: hidden;
+
+        .thickness-side {
+            position: absolute;
+            top: 0;
+            width: $game-cube-size; // Cover full side for a cube
+            height: 100%;
+            background-color: inherit;
+            border: inherit;
+            filter: brightness(0.8);
+            z-index: -1;
+
+            &.right {
+                right: 0;
+                transform-origin: right;
+                transform: rotateY(-90deg);
+            }
+
+            &.left {
+                left: 0;
+                transform-origin: left;
+                transform: rotateY(90deg);
+            }
+        }
 
         .depth {
             position: absolute;
@@ -570,7 +679,7 @@ $die-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
 
 .game-component {
     .game-d6 {
-        position: absolute;
+        position: relative;
         width: $die-size;
         height: $die-size;
         background-color: $die-bg;

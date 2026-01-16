@@ -78,7 +78,7 @@
       [id]="component.uniqueId" (cdkDragStarted)="onDragStarted($event, components, component)"
       (cdkDragEnded)="onDragEnded($event, components, component)" [cdkDragFreeDragPosition]="component.pos"
       [style.zIndex]="component.zIndex || 10" cdkDragBoundary=".game-boundary" cdkDrag>
-      <div class="tiltable">
+      <div class="tiltable" [class.flipping]="component.flipping">
         @if (component.type == 'd6') {
         <div [class]="'component ' + component.className 
                         + ' face-' + component.face" [class.rolling]="component.rolling">
@@ -96,6 +96,8 @@
         } @else {
         <div [class]="'component ' + component.className" [class.rolling]="component.rolling"
           [class.back]="!component.faceUp">
+          <div class="thickness-side right"></div>
+          <div class="thickness-side left"></div>
           <div class="depth"></div>
         </div>
         }

@@ -44,6 +44,7 @@ interface GameComponent extends Positionable {
   faceUp: boolean;
   face?: number;
   rolling?: boolean;
+  flipping?: boolean;
   contextMenu: MenuItem[];
 }
 
@@ -482,6 +483,19 @@ export class GameSimulatorComponent {
     cm.show(event);
   }
 
+  public flipComponent(component: GameComponent) {
+    if (component.flipping) return;
+
+    component.flipping = true;
+    setTimeout(() => {
+      component.faceUp = !component.faceUp;
+    }, 200);
+
+    setTimeout(() => {
+      component.flipping = false;
+    }, 400);
+  }
+
   public onCardContextMenu(event: MouseEvent, cm: ContextMenu, card: GameCard) {
     event.preventDefault();
     this.contextMenuItems = [
@@ -562,6 +576,9 @@ export class GameSimulatorComponent {
                     event.item?.state as GameComponent;
                   componentState.rolling = true;
                   setTimeout(() => {
+                    // Also use flipComponent if desired, but rolling is distinct.
+                    // Let's keep rolling as is for random, but if we want 3D flip for strict flip:
+                    // Random flip implies "tossing". 
                     componentState.faceUp = Math.random() < 0.5;
                     componentState.rolling = false;
                   }, 600);
@@ -573,7 +590,9 @@ export class GameSimulatorComponent {
                 command: (event: any) => {
                   const componentState: GameComponent | undefined =
                     event.item?.state as GameComponent;
-                  componentState.faceUp = !componentState.faceUp;
+                  if (componentState) {
+                    this.flipComponent(componentState);
+                  }
                 }
               },
             ];
@@ -603,7 +622,9 @@ export class GameSimulatorComponent {
                   command: (event: any) => {
                     const componentState: GameComponent | undefined =
                       event.item?.state as GameComponent;
-                    componentState.faceUp = !componentState.faceUp;
+                    if (componentState) {
+                      this.flipComponent(componentState);
+                    }
                   }
                 },
               ],
