@@ -62,8 +62,11 @@ interface Position {
 export class GameSimulatorComponent {
   private static readonly COLORS = ['silver', 'gold', 'crimson',
     'emerald', 'azure', 'lilac', 'ivory', 'charcoal'];
-  private static readonly BASE_CARD_WIDTH = 250; // Approximated from visual reference or default - Fallback only
-  private static readonly BASE_CARD_HEIGHT = 350;
+  public static readonly BASE_CARD_WIDTH = 825; // Approximated from visual reference or default - Fallback only
+  public static readonly BASE_CARD_HEIGHT = 1125;
+
+  public readonly baseCardWidth = GameSimulatorComponent.BASE_CARD_WIDTH;
+  public readonly baseCardHeight = GameSimulatorComponent.BASE_CARD_HEIGHT;
 
   @ViewChild('gameBoundary') gameBoundary!: ElementRef;
   stacks: CardStack[] = [];
@@ -686,8 +689,34 @@ export class GameSimulatorComponent {
       // Move all cards from source to target
       targetStack.cards.push(...sourceStack.cards);
 
-      // Remove source stack
-      this.deleteItem(this.stacks, sourceStack);
+      // Check if source stack is the discard pile
+      if (sourceStack === this.discard) {
+        // Clear cards from discard
+        sourceStack.cards = [];
+
+        // Reposition discard pile near the target stack
+        // Offset by a bit so it's visible "popped out"
+        let newX = targetStack.pos.x + 120; // Offset to the right
+        let newY = targetStack.pos.y + 20;
+
+        // Get dimensions for clamping
+        let width = GameSimulatorComponent.BASE_CARD_WIDTH * this.zoomLevel;
+        let height = GameSimulatorComponent.BASE_CARD_HEIGHT * this.zoomLevel;
+
+        const stackEl = document.getElementById(targetStack.uniqueId);
+        if (stackEl) {
+          const rect = stackEl.getBoundingClientRect();
+          width = rect.width;
+          height = rect.height;
+        }
+
+        const clampedPos = this.clampPosition({ x: newX, y: newY }, width, height);
+        sourceStack.pos = clampedPos;
+
+      } else {
+        // Remove source stack normally
+        this.deleteItem(this.stacks, sourceStack);
+      }
 
       this.hoveredItem = undefined;
     }
@@ -748,11 +777,6 @@ export class GameSimulatorComponent {
     if (event.button == 1) {
       this.magnifiedCard = undefined;
     }
-  }
-
-  @HostListener('window:resize', ['$event'])
-  onResize(event: any) {
-    this.clampAllItems();
   }
 
   private clampAllItems() {

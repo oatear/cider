@@ -25,7 +25,8 @@
         }
       </div>
       @if (stack.cards.length === 0) {
-      <div class="stack-placeholder">
+      <div class="stack-placeholder" [style.width.px]="baseCardWidth * zoomLevel"
+        [style.height.px]="baseCardHeight * zoomLevel">
         <span class="placeholder-text">{{ stack.name }}</span>
       </div>
       }
