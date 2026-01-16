@@ -102,6 +102,41 @@ export class GameSimulatorComponent {
     this.renameStackName = '';
   }
 
+  drawSpecificCardDialogVisible: boolean = false;
+  drawSpecificCardSearchQuery: string = '';
+  drawSpecificCardStack: CardStack | undefined;
+  filteredCards: GameCard[] = [];
+
+  openDrawSpecificCardDialog(stack: CardStack) {
+    this.drawSpecificCardStack = stack;
+    this.drawSpecificCardSearchQuery = '';
+    this.filterCards();
+    this.drawSpecificCardDialogVisible = true;
+  }
+
+  filterCards() {
+    if (!this.drawSpecificCardStack) {
+      this.filteredCards = [];
+      return;
+    }
+    if (!this.drawSpecificCardSearchQuery.trim()) {
+      this.filteredCards = [...this.drawSpecificCardStack.cards];
+    } else {
+      const query = this.drawSpecificCardSearchQuery.toLowerCase();
+      this.filteredCards = this.drawSpecificCardStack.cards.filter(gameCard =>
+        gameCard.card.name.toLowerCase().includes(query)
+      );
+    }
+  }
+
+  onDrawSpecificCardSelect(card: GameCard) {
+    if (this.drawSpecificCardStack) {
+      this.drawSpecificCardFromStack(this.drawSpecificCardStack, card);
+      this.drawSpecificCardDialogVisible = false;
+      this.drawSpecificCardStack = undefined;
+    }
+  }
+
   constructor(
     private decksService: DecksService,
     private cardsService: CardsService,
@@ -294,11 +329,7 @@ export class GameSimulatorComponent {
         label: this.translate.instant('simulator.draw-specific-card'),
         icon: 'pi pi-id-card',
         disabled: stack.cards.length === 0,
-        // Dynamically create a submenu for each card in the stack
-        items: stack.cards.map(gameCard => ({
-          label: gameCard.card.name,
-          command: () => this.drawSpecificCardFromStack(stack, gameCard)
-        }))
+        command: () => this.openDrawSpecificCardDialog(stack)
       },
       {
         label: this.translate.instant('simulator.shuffle-stack'),

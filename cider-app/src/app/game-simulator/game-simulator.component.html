@@ -105,6 +105,33 @@
 </div>
 }
 
+<p-dialog [header]="'simulator.draw-specific-card' | translate" [(visible)]="drawSpecificCardDialogVisible"
+  [modal]="true" [draggable]="false" [resizable]="false" [style]="{ width: '25rem' }">
+  <div class="dialog-content">
+    <span class="p-input-icon-left full-width-input">
+      <i class="pi pi-search"></i>
+      <input pInputText type="text" [(ngModel)]="drawSpecificCardSearchQuery" (ngModelChange)="filterCards()"
+        [placeholder]="'controls.search' | translate" class="full-width-input" autofocus />
+    </span>
+    <div class="card-list">
+      @for (card of filteredCards; track card.uniqueId) {
+      <div class="card-item" (click)="onDrawSpecificCardSelect(card)">
+        {{ card.card.name }}
+      </div>
+      }
+      @if (filteredCards.length === 0) {
+      <div class="card-item" style="text-align: center; color: #999; cursor: default;">
+        {{ 'controls.no-results' | translate }}
+      </div>
+      }
+    </div>
+  </div>
+  <div class="dialog-footer">
+    <p-button [label]="'controls.cancel' | translate" severity="secondary"
+      (onClick)="drawSpecificCardDialogVisible = false" />
+  </div>
+</p-dialog>
+
 <p-dialog [header]="'simulator.rename-stack' | translate" [(visible)]="renameDialogVisible" [modal]="true"
   [draggable]="false" [resizable]="false" [style]="{ width: '25rem' }">
   <div class="dialog-content">

@@ -310,7 +310,7 @@ $colors: (
     z-index: 1000 !important;
 
     .dropzone {
-        pointer-events: none;
+        display: none;
     }
 }
 
@@ -594,8 +594,58 @@ $die-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
     width: 100%;
 }
 
+.p-input-icon-left.full-width-input {
+    display: block; // Ensure span takes full width
+    width: 100%;
+    position: relative; // Crucial for absolute positioning of child icon
+
+    >i {
+        position: absolute;
+        top: 50%;
+        left: 0.75rem;
+        margin-top: 0;
+        transform: translateY(-50%);
+        z-index: 10;
+        color: var(--p-text-color-secondary); // Use subtle text color
+    }
+
+    >input {
+        padding-left: 2.5rem; // Ensure text doesn't overlap icon
+    }
+}
+
 .dialog-footer {
     display: flex;
     justify-content: flex-end;
     gap: 0.5rem;
+}
+
+.card-list {
+    display: flex;
+    flex-direction: column;
+    max-height: 300px;
+    overflow-y: auto;
+    // Match input style for consistency
+    border: 1px solid var(--p-inputtext-border-color, #ccc);
+    border-radius: var(--p-border-radius, 4px);
+    background: none;
+    color: var(--p-inputtext-color, #333);
+
+}
+
+.card-item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+    border-bottom: none;
+    border-radius: 10px;
+
+    &:last-child {
+        border-bottom: none;
+    }
+
+    &:hover {
+        background-color: var(--p-highlight-background, #e9ecef);
+        color: var(--p-highlight-color, #495057);
+    }
 }
