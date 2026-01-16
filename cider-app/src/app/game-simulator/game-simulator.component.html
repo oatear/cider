@@ -12,10 +12,10 @@
     <!-- Stacks -->
     @for (stack of stacks; track stack.uniqueId) {
     @if (stack.cards) {
-    <div class="card-stack game-card" [class.empty]="stack.cards.length === 0" (click)="drawCard(stack)"
+    <div class="card-stack game-card" [class.empty]="stack.cards.length === 0"
       (contextmenu)="onStackContextMenu($event, cm, stack)" (cdkDragStarted)="onDragStarted($event, stacks, stack)"
       (cdkDragEnded)="onDragEnded($event, stacks, stack)" [cdkDragFreeDragPosition]="stack.pos"
-      cdkDragBoundary=".game-boundary" cdkDrag>
+      [style.zIndex]="stack.zIndex || 10" cdkDragBoundary=".game-boundary" cdkDrag>
       <div class="card-wrapper" [class.shuffling]="stack.shuffling">
         @if (stack.cards.length > 0 && stack.cards[stack.cards.length - 1].card.backCardTemplateId) {
         <app-card-preview [cache]="false" [tiltable]="true" [template]="(stack.faceUp ? stack.cards[stack.cards.length - 1].card.frontCardTemplateId 
@@ -23,20 +23,26 @@
                         | entity: cardTemplatesService | async" [card]="stack.cards[stack.cards.length - 1].card"
           [scale]="zoomLevel"></app-card-preview>
         }
-        <div class="draw-action" (click)="drawCard(stack); $event.stopPropagation()"
-          (mousedown)="$event.stopPropagation()">
-          <i class="pi pi-arrow-down"></i>
-        </div>
       </div>
       @if (stack.cards.length === 0) {
       <div class="stack-placeholder">
         <span class="placeholder-text">{{ stack.name }}</span>
       </div>
       }
+      <div class="draw-action" (click)="drawCard(stack); $event.stopPropagation()"
+        (mousedown)="$event.stopPropagation()">
+        @if (stack.cards.length > 0) {
+        <i class="pi pi-arrow-down"></i>
+        } @else {
+        <i class="pi pi-ban"></i>
+        }
+      </div>
+
       @if (draggingCard || draggingStack) {
       <div class="dropzone" (mouseover)="onMouseEntered($event, stack)" (mouseout)="onMouseExited($event, stack)"></div>
       }
-      <div class="count">{{ stack.name }} {{ stack.cards.length }}</div>
+      <div class="count" (click)="$event.stopPropagation()" (mousedown)="$event.stopPropagation()">{{ stack.name }} {{
+        stack.cards.length }}</div>
     </div>
     }
     }
@@ -50,7 +56,7 @@
       (mousedown)="onCardMouseDown($event, card)" (mouseup)="onCardMouseUp($event, card)" [cdkDragData]="card"
       (cdkDragStarted)="onCardDragStarted($event, field.cards, card)"
       (cdkDragEnded)="onCardDragEnded($event, field.cards, card)" [cdkDragFreeDragPosition]="card.pos"
-      cdkDragBoundary=".game-boundary" cdkDrag>
+      [style.zIndex]="card.zIndex || 10" cdkDragBoundary=".game-boundary" cdkDrag>
       <app-card-preview [cache]="false" [tiltable]="true" [template]="(card.faceUp ? card.card.frontCardTemplateId 
                         : card.card.backCardTemplateId) 
                         | entity: cardTemplatesService | async" [card]="card.card"
@@ -63,7 +69,7 @@
     <div class="game-component" (contextmenu)="onComponentContextMenu($event, cm, component)" [cdkDragData]="component"
       (cdkDragStarted)="onDragStarted($event, components, component)"
       (cdkDragEnded)="onDragEnded($event, components, component)" [cdkDragFreeDragPosition]="component.pos"
-      cdkDragBoundary=".game-boundary" cdkDrag>
+      [style.zIndex]="component.zIndex || 10" cdkDragBoundary=".game-boundary" cdkDrag>
       <div class="tiltable">
         @if (component.type == 'd6') {
         <div [class]="'component ' + component.className 

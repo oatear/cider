@@ -102,21 +102,36 @@ $colors: (
 :host ::ng-deep {
     .game-card {
         position: absolute;
-        // z-index: 2;
+        z-index: 10;
         height: fit-content;
         width: fit-content;
+        transition: z-index 0s; // Instant z-index switch
+
+        &:hover {
+            z-index: 100;
+        }
 
         &.magnified {
-            z-index: 3;
+            z-index: 2000; // Higher than drag
+        }
+
+        // Ensure rounding passes through to preview components
+        app-card-preview {
+            display: block;
+
+            ::ng-deep .card-preview {
+                border-radius: 40px; // Scaled radius (40 * 0.2 = 8px)
+                overflow: hidden;
+            }
         }
     }
 
     .card-stack {
-        z-index: 1;
+        // z-index: 1; removed
 
-        &:hover {
-            z-index: 2;
-        }
+        // &:hover {
+        //     z-index: 2;
+        // } removed
 
         .card-wrapper {
             position: relative;
@@ -158,25 +173,52 @@ $colors: (
             justify-content: center;
             width: 150px;
             height: 200px;
-            border: 1px dashed var(--p-menubar-border-color);
+            border: 2px dashed #7d7d7d;
             border-radius: 8px;
-            color: #666;
+            background-color: rgba(255, 255, 255, 0.03);
+            color: #888;
             font-size: 14px;
+            font-weight: 500;
+        }
+
+        @keyframes dropzone-pulse {
+            0% {
+                border-color: rgba(60, 171, 108, 0.4);
+                background-color: rgba(60, 171, 108, 0.05);
+            }
+
+            50% {
+                border-color: rgba(60, 171, 108, 0.7);
+                background-color: rgba(60, 171, 108, 0.15);
+            }
+
+            100% {
+                border-color: rgba(60, 171, 108, 0.4);
+                background-color: rgba(60, 171, 108, 0.05);
+            }
         }
 
         .dropzone {
             position: absolute;
-            top: 0px;
-            left: 0px;
-            width: 100%;
-            height: 100%;
+            top: -4px;
+            left: -4px;
+            width: calc(100% + 8px);
+            height: calc(100% + 8px);
             padding: 10px;
-            // border: 1px dashed var(--p-menubar-border-color);
-            border: 1px dashed rgb(0, 255, 255);
-            border-radius: 8px;
+            border: 2px dashed rgba(60, 171, 108, 0.4); // Emeraldish
+            border-radius: 10px;
+            background-color: rgba(60, 171, 108, 0.05);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: all; // Ensure it catches events if needed, though structure suggests it's an overlay
+            z-index: 100;
+            animation: dropzone-pulse 2s infinite ease-in-out;
 
             &:hover {
-                border-color: yellow;
+                animation: none; // Stop pulsing on hover to show locked state
+                border: 2px solid #3cab6c; // Solid emerald
+                background-color: rgba(60, 171, 108, 0.25);
+                box-shadow: 0 0 15px rgba(60, 171, 108, 0.4);
+                transform: scale(1.02);
             }
         }
 
@@ -201,12 +243,21 @@ $colors: (
     // position: relative;
     // background: white;
     // border: 1px solid #ccc;
-    border-radius: 2px;
+    // border-radius: 2px;
+    border-radius: 10px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
     z-index: 1;
 
     app-card-preview {
         // opacity: 0.1;
+        // border-radius: 10px;
+        // overflow: hidden;
+        display: block; // Ensure it respects border radius
+
+        ::ng-deep .card-preview {
+            border-radius: 40px; // Scaled radius
+            overflow: hidden;
+        }
     }
 
     &::before,
@@ -219,7 +270,7 @@ $colors: (
         height: 100%;
         // background: white;
         // border: 1px solid #ccc;
-        border-radius: 2px;
+        border-radius: 10px;
         // background: var(--p-content-background);
         background: #8e8e9f;
         z-index: -1;
@@ -256,11 +307,20 @@ $colors: (
 
 .cdk-drag-dragging {
     pointer-events: none;
+    z-index: 1000 !important;
+
+    .dropzone {
+        pointer-events: none;
+    }
 }
 
 .game-component {
     position: absolute;
-    z-index: 1;
+    z-index: 10; // Match game-card
+
+    &:hover {
+        z-index: 100;
+    }
 
     .component {
         width: 50px;
@@ -507,6 +567,15 @@ $die-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
     transform: translate(-50%, -50%);
     // Add a slight shadow or glow to distinguish it
     filter: drop-shadow(0 0 20px rgba(0, 0, 0, 0.5));
+
+    app-card-preview {
+        display: block;
+
+        ::ng-deep .card-preview {
+            border-radius: 40px; // Consistent "physical" radius
+            overflow: hidden;
+        }
+    }
 }
 
 .game-component .component.rolling,

@@ -45,6 +45,7 @@ interface GameComponent extends Positionable {
 
 interface Positionable {
   pos: Position;
+  zIndex?: number;
 }
 
 interface Position {
@@ -75,6 +76,7 @@ export class GameSimulatorComponent {
   zoomMagnifiedLevel: number = 0.40;
   contextMenuItems: MenuItem[] = [];
   hoveredItem: Positionable | undefined;
+  topZIndex: number = 100;
   draggingCard: boolean = false;
   draggingStack: boolean = false;
   draggingComponent: boolean = false;
@@ -551,7 +553,12 @@ export class GameSimulatorComponent {
     newStacks?.forEach((stack) => this.stacks.push(stack));
   }
 
+  public bringToFront(item: Positionable) {
+    item.zIndex = ++this.topZIndex;
+  }
+
   public onDragStarted(event: any, items: Positionable[], item: Positionable) {
+    this.bringToFront(item);
     // send card to the end of the cards array
     const index = items.indexOf(item);
     if (index > -1) {
