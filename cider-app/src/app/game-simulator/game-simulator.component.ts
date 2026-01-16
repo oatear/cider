@@ -30,7 +30,9 @@ interface GameCard extends Positionable {
   uniqueId: string;
   card: Card;
   faceUp: boolean;
-  magnified?: boolean;
+  matchId?: string;
+  discarding?: boolean;
+  drawing?: boolean;
 }
 
 interface GameComponent extends Positionable {
@@ -216,26 +218,48 @@ export class GameSimulatorComponent {
       const drawnCard = stack.cards.pop();
       if (drawnCard) {
         // change position to deck position + offset
-        // change position to deck position + offset
-        let newX = stack.pos.x + 50 + (Math.random() * 20 - 10);
+        // Reverted to bottom-right offset
+        let newX = stack.pos.x + 100 + (Math.random() * 20 - 10);
         let newY = stack.pos.y + 50 + (Math.random() * 20 - 10);
 
         let width = GameSimulatorComponent.BASE_CARD_WIDTH * this.zoomLevel;
         let height = GameSimulatorComponent.BASE_CARD_HEIGHT * this.zoomLevel;
 
         const stackEl = document.getElementById(stack.uniqueId);
-        if (stackEl) {
+        let startX = stack.pos.x;
+        let startY = stack.pos.y;
+
+        if (stackEl && this.gameBoundary) {
           const rect = stackEl.getBoundingClientRect();
           width = rect.width;
           height = rect.height;
+
+          const boundaryRect = this.gameBoundary.nativeElement.getBoundingClientRect();
+          startX = rect.left - boundaryRect.left;
+          startY = rect.top - boundaryRect.top;
         }
 
         const clampedPos = this.clampPosition({ x: newX, y: newY }, width, height);
 
-        drawnCard.pos.x = clampedPos.x;
-        drawnCard.pos.y = clampedPos.y;
+        // Animation logic
+        // Assign NEW object to trigger change detection
+        drawnCard.pos = { x: startX, y: startY };
         drawnCard.faceUp = faceUp;
+        // drawnCard.drawing = true; // Moved down to prevent animating from 0,0
+
         this.field.cards.push(drawnCard);
+
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            drawnCard.drawing = true; // Enable transition
+            // Assign NEW object for target
+            drawnCard.pos = { x: clampedPos.x, y: clampedPos.y };
+
+            setTimeout(() => {
+              drawnCard.drawing = false;
+            }, 300);
+          });
+        });
       }
     }
   }
@@ -250,27 +274,46 @@ export class GameSimulatorComponent {
       // Set its properties for being on the field
       drawnCard.faceUp = true;
       // Position it near the stack it came from for a better user experience
-      // Position it near the stack it came from for a better user experience
-      let newX = stack.pos.x + 40;
-      let newY = stack.pos.y + 40;
+      // Reverted to bottom-right offset
+      let newX = stack.pos.x + 50 + (Math.random() * 20 - 10);
+      let newY = stack.pos.y + 50 + (Math.random() * 20 - 10);
 
       let width = GameSimulatorComponent.BASE_CARD_WIDTH * this.zoomLevel;
       let height = GameSimulatorComponent.BASE_CARD_HEIGHT * this.zoomLevel;
 
       const stackEl = document.getElementById(stack.uniqueId);
-      if (stackEl) {
+      let startX = stack.pos.x;
+      let startY = stack.pos.y;
+
+      if (stackEl && this.gameBoundary) {
         const rect = stackEl.getBoundingClientRect();
         width = rect.width;
         height = rect.height;
+
+        const boundaryRect = this.gameBoundary.nativeElement.getBoundingClientRect();
+        startX = rect.left - boundaryRect.left;
+        startY = rect.top - boundaryRect.top;
       }
 
       const clampedPos = this.clampPosition({ x: newX, y: newY }, width, height);
 
-      drawnCard.pos.x = clampedPos.x;
-      drawnCard.pos.y = clampedPos.y;
+      // Animation logic
+      drawnCard.pos = { x: startX, y: startY };
+      // drawnCard.drawing = true; // Moved to prevent animating from 0,0
 
       // Add the card to the field
       this.field.cards.push(drawnCard);
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          drawnCard.drawing = true; // Enable transition
+          drawnCard.pos = { x: clampedPos.x, y: clampedPos.y };
+
+          setTimeout(() => {
+            drawnCard.drawing = false;
+          }, 300);
+        });
+      });
     }
   }
 
@@ -285,8 +328,39 @@ export class GameSimulatorComponent {
   public discardCard(cards: GameCard[], card: GameCard) {
     const index = cards.indexOf(card);
     if (index > -1) {
-      cards.splice(index, 1);
-      this.discard.cards.push(card);
+      card.discarding = true;
+      card.faceUp = true; // Ensure face up while confirming discard
+
+      // Animate to discard pile
+      let width = GameSimulatorComponent.BASE_CARD_WIDTH * this.zoomLevel;
+      let height = GameSimulatorComponent.BASE_CARD_HEIGHT * this.zoomLevel;
+      const stackEl = document.getElementById(this.discard.uniqueId);
+      if (stackEl) {
+        width = stackEl.getBoundingClientRect().width;
+        height = stackEl.getBoundingClientRect().height;
+      }
+
+      // Target position
+      const targetPos = this.clampPosition(
+        { x: this.discard.pos.x, y: this.discard.pos.y },
+        width,
+        height
+      );
+
+      // Apply position (CDK Drag will follow this if bound correctly, 
+      // otherwise angular binding on [cdkDragFreeDragPosition] should update it)
+      card.pos = targetPos;
+
+      // Wait for animation
+      setTimeout(() => {
+        // Double check index in case it changed (unlikely in single threaded JS but good practice if async intervened)
+        const idx = cards.indexOf(card);
+        if (idx > -1) {
+          cards.splice(idx, 1);
+          card.discarding = false; // Reset state so it's interactable if drawn again
+          this.discard.cards.push(card);
+        }
+      }, 500);
     }
   }
 

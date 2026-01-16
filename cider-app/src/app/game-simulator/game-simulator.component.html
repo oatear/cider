@@ -57,7 +57,8 @@
       (mousedown)="onCardMouseDown($event, card)" (mouseup)="onCardMouseUp($event, card)" [cdkDragData]="card"
       (cdkDragStarted)="onCardDragStarted($event, field.cards, card)"
       (cdkDragEnded)="onCardDragEnded($event, field.cards, card)" [cdkDragFreeDragPosition]="card.pos"
-      [style.zIndex]="card.zIndex || 10" cdkDragBoundary=".game-boundary" cdkDrag>
+      [style.zIndex]="card.zIndex || 10" [class.discarding]="card.discarding" [class.drawing]="card.drawing"
+      cdkDragBoundary=".game-boundary" cdkDrag>
       <app-card-preview [cache]="false" [tiltable]="true" [template]="(card.faceUp ? card.card.frontCardTemplateId 
                         : card.card.backCardTemplateId) 
                         | entity: cardTemplatesService | async" [card]="card.card"
