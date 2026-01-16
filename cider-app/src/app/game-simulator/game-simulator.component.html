@@ -16,12 +16,18 @@
       (contextmenu)="onStackContextMenu($event, cm, stack)" (cdkDragStarted)="onDragStarted($event, stacks, stack)"
       (cdkDragEnded)="onDragEnded($event, stacks, stack)" [cdkDragFreeDragPosition]="stack.pos"
       [style.zIndex]="stack.zIndex || 10" cdkDragBoundary=".game-boundary" cdkDrag>
-      <div class="card-wrapper" [class.shuffling]="stack.shuffling">
+      <div class="card-wrapper" [class.shuffling]="stack.shuffling" [class.flipping]="stack.flipping">
+        <div class="thickness-side right"></div>
+        <div class="thickness-side left"></div>
         @if (stack.cards.length > 0 && stack.cards[stack.cards.length - 1].card.backCardTemplateId) {
         <app-card-preview [cache]="false" [tiltable]="true" [template]="(stack.faceUp ? stack.cards[stack.cards.length - 1].card.frontCardTemplateId 
                         : stack.cards[stack.cards.length - 1].card.backCardTemplateId)
                         | entity: cardTemplatesService | async" [card]="stack.cards[stack.cards.length - 1].card"
           [scale]="zoomLevel"></app-card-preview>
+        }
+        @if (stack.cards.length > 0 && !stack.cards[stack.cards.length - 1].card.backCardTemplateId) {
+        <div class="card-back-placeholder" [style.width.px]="baseCardWidth * zoomLevel"
+          [style.height.px]="baseCardHeight * zoomLevel"></div>
         }
       </div>
       @if (stack.cards.length === 0) {
@@ -58,7 +64,7 @@
       (cdkDragStarted)="onCardDragStarted($event, field.cards, card)"
       (cdkDragEnded)="onCardDragEnded($event, field.cards, card)" [cdkDragFreeDragPosition]="card.pos"
       [style.zIndex]="card.zIndex || 10" [class.discarding]="card.discarding" [class.drawing]="card.drawing"
-      cdkDragBoundary=".game-boundary" cdkDrag>
+      [class.flipping]="card.flipping" cdkDragBoundary=".game-boundary" cdkDrag>
       <app-card-preview [cache]="false" [tiltable]="true" [template]="(card.faceUp ? card.card.frontCardTemplateId 
                         : card.card.backCardTemplateId) 
                         | entity: cardTemplatesService | async" [card]="card.card"

@@ -24,6 +24,7 @@ interface CardStack extends Positionable {
   faceUp: boolean;
   deletable: boolean;
   shuffling?: boolean;
+  flipping?: boolean;
 }
 
 interface GameCard extends Positionable {
@@ -33,6 +34,7 @@ interface GameCard extends Positionable {
   matchId?: string;
   discarding?: boolean;
   drawing?: boolean;
+  flipping?: boolean;
 }
 
 interface GameComponent extends Positionable {
@@ -209,8 +211,19 @@ export class GameSimulatorComponent {
   }
 
   public flipStack(stack: CardStack) {
-    stack.cards = stack.cards.reverse();
-    stack.faceUp = !stack.faceUp;
+    if (stack.cards.length === 0 || stack.flipping) {
+      return;
+    }
+
+    stack.flipping = true;
+    setTimeout(() => {
+      stack.cards = stack.cards.reverse();
+      stack.faceUp = !stack.faceUp;
+    }, 200);
+
+    setTimeout(() => {
+      stack.flipping = false;
+    }, 400);
   }
 
   public drawCard(stack: CardStack, faceUp: boolean = true) {
@@ -364,6 +377,19 @@ export class GameSimulatorComponent {
     }
   }
 
+  public flipCard(card: GameCard) {
+    if (card.flipping) return; // Prevent double trigger
+
+    card.flipping = true;
+    setTimeout(() => {
+      card.faceUp = !card.faceUp;
+    }, 200); // Half of animation duration
+
+    setTimeout(() => {
+      card.flipping = false;
+    }, 400); // Full animation duration
+  }
+
   public deleteItem(items: Positionable[], item: Positionable) {
     const index = items.indexOf(item);
     if (index > -1) {
@@ -462,10 +488,7 @@ export class GameSimulatorComponent {
       {
         label: this.translate.instant('simulator.flip-card'),
         icon: 'pi pi-refresh',
-        command: () => {
-          // Logic to flip the card, if applicable
-          card.faceUp = !card.faceUp;
-        }
+        command: () => this.flipCard(card)
       },
       {
         label: this.translate.instant('simulator.create-stack'),
