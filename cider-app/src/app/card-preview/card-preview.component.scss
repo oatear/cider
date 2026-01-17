@@ -67,7 +67,7 @@
     height: 100%;
     pointer-events: none;
     z-index: 10;
-    mix-blend-mode: overlay;
+    mix-blend-mode: multiply;
     opacity: 0.5;
     background: linear-gradient(115deg,
             transparent 20%,
