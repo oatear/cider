@@ -370,6 +370,7 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
         border-radius: 10px;
         box-shadow: $shadow-3d;
         transform-style: preserve-3d; // Enable 3D children
+        transition: rotate 0.3s ease-in-out;
 
         &.flipping {
             animation: card-flip 0.4s ease-in-out;
@@ -426,31 +427,31 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
         &::after {
             content: '';
             position: absolute;
-            top: 4px;
-            left: 4px;
+            // Base offset 4px * depth vector
+            top: calc(4px * var(--depth-y, 1));
+            left: calc(4px * var(--depth-x, 1));
             width: 100%;
             height: 100%;
             border-radius: 10px;
             background: #8e8e9f;
-            z-index: -1;
+            z-index: -3; // Lower than thickness sides
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.20);
-
-            // Should be hidden during the flip to avoid flat planes cutting through?
-            // Actually, if we rotate, these just look flat. 
-            // We want the THICKNESS sides to do the heavy lifting at 90deg.
-            // But at 0deg we want these.
+            transition: top 0.3s, left 0.3s; // Smooth transition during rotation
         }
 
         &::before {
-            top: 8px;
-            left: 8px;
-            z-index: -2;
+            // Second layer: 8px * depth vector (2 * 4px)
+            top: calc(8px * var(--depth-y, 1));
+            left: calc(8px * var(--depth-x, 1));
+            z-index: -4;
         }
 
         &::after {
-            top: 4px;
-            left: 4px;
+            // First layer already set by default rule but explicit here for clarity if needed
+            // top: calc(4px * var(--depth-y, 1));
+            // left: calc(4px * var(--depth-x, 1));
         }
+
     }
 }
 
@@ -474,6 +475,13 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
 
     .dropzone {
         display: none;
+        transition: rotate 0.3s ease-in-out;
+    }
+}
+
+.field-card {
+    .card-wrapper {
+        transition: rotate 0.3s ease-in-out;
     }
 }
 

@@ -146,6 +146,8 @@
         "draw-specific-card": "Draw Specific Card",
         "shuffle-stack": "Shuffle Stack",
         "flip-stack": "Flip Stack",
+        "rotate-left": "Rotate Left",
+        "rotate-right": "Rotate Right",
         "split-in-half": "Split in Half",
         "split-by-attribute": "Split by Attribute",
         "delete": "Delete",

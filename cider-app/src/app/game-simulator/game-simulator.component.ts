@@ -25,6 +25,7 @@ interface CardStack extends Positionable {
   deletable: boolean;
   shuffling?: boolean;
   flipping?: boolean;
+  rotation?: number;
 }
 
 interface GameCard extends Positionable {
@@ -35,6 +36,7 @@ interface GameCard extends Positionable {
   discarding?: boolean;
   drawing?: boolean;
   flipping?: boolean;
+  rotation?: number;
 }
 
 interface GameComponent extends Positionable {
@@ -183,6 +185,7 @@ export class GameSimulatorComponent {
             faceUp: false,
             pos: dropPos,
             deletable: true,
+            rotation: 0
           });
         });
       });
@@ -209,6 +212,18 @@ export class GameSimulatorComponent {
       const j = Math.floor(Math.random() * (i + 1));
       [cards[i], cards[j]] = [cards[j], cards[i]];
     }
+  }
+
+
+
+  public rotateStack(stack: CardStack, angle: number) {
+    stack.rotation = (stack.rotation || 0) + angle;
+    // Apply rotation to all contained cards so they come out rotated
+    stack.cards.forEach(card => card.rotation = stack.rotation);
+  }
+
+  public rotateCard(card: GameCard, angle: number) {
+    card.rotation = (card.rotation || 0) + angle;
   }
 
   public flipStack(stack: CardStack) {
@@ -259,6 +274,7 @@ export class GameSimulatorComponent {
         // Assign NEW object to trigger change detection
         drawnCard.pos = { x: startX, y: startY };
         drawnCard.faceUp = faceUp;
+        drawnCard.rotation = stack.rotation || 0;
         // drawnCard.drawing = true; // Moved down to prevent animating from 0,0
 
         this.field.cards.push(drawnCard);
@@ -287,6 +303,7 @@ export class GameSimulatorComponent {
 
       // Set its properties for being on the field
       drawnCard.faceUp = true;
+      drawnCard.rotation = stack.rotation || 0;
       // Position it near the stack it came from for a better user experience
       // Reverted to bottom-right offset
       let newX = stack.pos.x + 50 + (Math.random() * 20 - 10);
@@ -454,6 +471,16 @@ export class GameSimulatorComponent {
         disabled: stack.cards.length === 0
       },
       {
+        label: this.translate.instant('simulator.rotate-left'),
+        icon: 'pi pi-undo',
+        command: () => this.rotateStack(stack, -90)
+      },
+      {
+        label: this.translate.instant('simulator.rotate-right'),
+        icon: 'pi pi-refresh',
+        command: () => this.rotateStack(stack, 90)
+      },
+      {
         label: this.translate.instant('simulator.split-in-half'),
         icon: 'pi pi-clone',
         command: () => this.splitInHalf(stack),
@@ -503,6 +530,16 @@ export class GameSimulatorComponent {
         label: this.translate.instant('simulator.flip-card'),
         icon: 'pi pi-refresh',
         command: () => this.flipCard(card)
+      },
+      {
+        label: this.translate.instant('simulator.rotate-left'),
+        icon: 'pi pi-undo',
+        command: () => this.rotateCard(card, -90)
+      },
+      {
+        label: this.translate.instant('simulator.rotate-right'),
+        icon: 'pi pi-refresh',
+        command: () => this.rotateCard(card, 90)
       },
       {
         label: this.translate.instant('simulator.create-stack'),
@@ -992,4 +1029,59 @@ export class GameSimulatorComponent {
     this.magnifiedPos.y = Math.max(minY, Math.min(maxY, y));
   }
 
+  public getStackDepthStyle(rotation: number = 0) {
+    const rad = rotation * (Math.PI / 180);
+    // Target vector is (1, 1) for "Down-Right" bias
+    // We want local vector (x, y) such that Rotate(x,y) = (1, 1) relative to screen axes
+    // Inverse rotation:
+    // x = x' cos(a) + y' sin(a)
+    // y = -x' sin(a) + y' cos(a)
+    // with x'=1, y'=1
+    const x = Math.cos(rad) + Math.sin(rad);
+    const y = -Math.sin(rad) + Math.cos(rad);
+
+
+    return {
+      '--depth-x': x.toFixed(2),
+      '--depth-y': y.toFixed(2)
+    };
+  }
+
+  public getStackCountStyle(rotation: number = 0) {
+    // We want to keep the count at the visual "Bottom Right" corner
+    // The container (.card-stack) size is fixed to the base orientation (Portrait)
+    // The visual content (.card-wrapper) rotates around the center.
+
+    // Normalized rotation (0, 90, 180, 270)
+    const rot = ((rotation % 360) + 360) % 360;
+
+    let style: any = {};
+
+    // Base position is bottom: 5px, right: 5px
+    // Center is 50%, 50%
+    // If 0 deg: bottom/right is correct.
+    // If 90 deg: Visual bottom-right is actually (Top, Right) of the container logic?
+    // Wait, visual W becomes H.
+    // Visual Bottom is Right Side of Container. Visual Right is Top Side of Container.
+    // So Visual Bottom-Right is Top-Right of Container.
+
+    // If 180 deg: Visual Bottom-Right is Top-Left of Container.
+    // If 270 deg: Visual Bottom-Right is Bottom-Left of Container.
+
+    switch (rot) {
+      case 90:
+        style = { top: '5px', right: '5px', bottom: 'auto', left: 'auto' };
+        break;
+      case 180:
+        style = { top: '5px', left: '5px', bottom: 'auto', right: 'auto' };
+        break;
+      case 270:
+        style = { bottom: '5px', left: '5px', top: 'auto', right: 'auto' };
+        break;
+      default: // 0
+        style = { bottom: '5px', right: '5px', top: 'auto', left: 'auto' };
+        break;
+    }
+    return style;
+  }
 }
