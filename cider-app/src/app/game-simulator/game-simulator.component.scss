@@ -244,9 +244,13 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
             // Default transition for nice hover effects if valid later
             transition: transform 0.2s ease;
 
-            ::ng-deep .card-preview {
+            ::ng-deep .scale-wrapper {
                 border-radius: 40px; // Scaled radius (40 * 0.2 = 8px)
-                overflow: hidden;
+
+                .card-preview {
+                    border-radius: 40px; // Scaled radius (40 * 0.2 = 8px)
+                    overflow: hidden;
+                }
             }
         }
     }
@@ -412,9 +416,13 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
             display: block; // Ensure it respects border radius
             backface-visibility: hidden; // Hide back when rotated
 
-            ::ng-deep .card-preview {
+            ::ng-deep .scale-wrapper {
                 border-radius: 40px; // Scaled radius
-                overflow: hidden;
+
+                .card-preview {
+                    border-radius: 40px; // Scaled radius
+                    overflow: hidden;
+                }
             }
         }
 
@@ -809,9 +817,13 @@ $die-shadow: $shadow-3d;
     app-card-preview {
         display: block;
 
-        ::ng-deep .card-preview {
+        ::ng-deep .scale-wrapper {
             border-radius: 40px; // Consistent "physical" radius
-            overflow: hidden;
+
+            .card-preview {
+                border-radius: 40px; // Consistent "physical" radius
+                overflow: hidden;
+            }
         }
     }
 }

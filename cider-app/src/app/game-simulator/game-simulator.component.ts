@@ -37,6 +37,7 @@ interface GameCard extends Positionable {
   drawing?: boolean;
   flipping?: boolean;
   rotation?: number;
+  holographic?: boolean;
 }
 
 interface GameComponent extends Positionable {
@@ -530,6 +531,11 @@ export class GameSimulatorComponent {
         label: this.translate.instant('simulator.flip-card'),
         icon: 'pi pi-refresh',
         command: () => this.flipCard(card)
+      },
+      {
+        label: this.translate.instant('simulator.toggle-holographic'),
+        icon: 'pi pi-star',
+        command: () => card.holographic = !card.holographic
       },
       {
         label: this.translate.instant('simulator.rotate-left'),

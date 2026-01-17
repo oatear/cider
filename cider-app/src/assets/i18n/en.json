@@ -152,6 +152,7 @@
         "split-by-attribute": "Split by Attribute",
         "delete": "Delete",
         "flip-card": "Flip Card",
+        "toggle-holographic": "Toggle Holographic",
         "create-stack": "Create Stack",
         "discard-card": "Discard Card",
         "duplicate": "Duplicate",

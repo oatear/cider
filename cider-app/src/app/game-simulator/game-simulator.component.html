@@ -26,7 +26,8 @@
         <app-card-preview [cache]="false" [tiltable]="true" [template]="(stack.faceUp ? stack.cards[stack.cards.length - 1].card.frontCardTemplateId 
                         : stack.cards[stack.cards.length - 1].card.backCardTemplateId)
                         | entity: cardTemplatesService | async" [card]="stack.cards[stack.cards.length - 1].card"
-          [scale]="zoomLevel"></app-card-preview>
+          [scale]="zoomLevel"
+          [holographic]="stack.cards[stack.cards.length - 1].holographic && stack.faceUp"></app-card-preview>
         }
         @if (stack.cards.length > 0 && !stack.cards[stack.cards.length - 1].card.backCardTemplateId) {
         <div class="card-back-placeholder" [style.width.px]="baseCardWidth * zoomLevel"
@@ -73,8 +74,8 @@
       <div class="card-wrapper" [style.rotate]="(card.rotation || 0) + 'deg'">
         <app-card-preview [cache]="false" [tiltable]="true" [template]="(card.faceUp ? card.card.frontCardTemplateId 
                           : card.card.backCardTemplateId) 
-                          | entity: cardTemplatesService | async" [card]="card.card"
-          [scale]="zoomLevel"></app-card-preview>
+                          | entity: cardTemplatesService | async" [card]="card.card" [scale]="zoomLevel"
+          [holographic]="card.holographic && card.faceUp"></app-card-preview>
       </div>
     </div>
     }
@@ -118,7 +119,8 @@
 <div class="magnified-overlay" [style.left.px]="magnifiedPos.x" [style.top.px]="magnifiedPos.y">
   <app-card-preview [cache]="false" [tiltable]="true" [template]="(magnifiedCard.faceUp ? magnifiedCard.card.frontCardTemplateId 
                     : magnifiedCard.card.backCardTemplateId) | entity: cardTemplatesService | async"
-    [card]="magnifiedCard.card" [scale]="zoomMagnifiedLevel"></app-card-preview>
+    [card]="magnifiedCard.card" [scale]="zoomMagnifiedLevel"
+    [holographic]="magnifiedCard.holographic && magnifiedCard.faceUp"></app-card-preview>
 </div>
 }
 
