@@ -163,6 +163,7 @@
         "add-die": "Add Die",
         "roll-die": "Roll Die",
         "zoom": "Zoom",
-        "reset-game": "Reset Game"
+        "reset-game": "Reset Game",
+        "update-game-state": "Update Game"
     }
 }

@@ -11,55 +11,10 @@ import StringUtils from '../shared/utils/string-utils';
 import MathUtils from '../shared/utils/math-utils';
 import { EntityField } from '../data-services/types/entity-field.type';
 import { TranslateService } from '@ngx-translate/core';
+import { GameSimulatorStateService } from './game-simulator-state.service';
+import { CardStack, CardZone, GameCard, GameComponent, Position, Positionable } from './game-simulator.types';
 
-interface CardZone {
-  name: string;
-  cards: GameCard[];
-}
 
-interface CardStack extends Positionable {
-  uniqueId: string;
-  name: string;
-  cards: GameCard[];
-  faceUp: boolean;
-  deletable: boolean;
-  shuffling?: boolean;
-  flipping?: boolean;
-  rotation?: number;
-}
-
-interface GameCard extends Positionable {
-  uniqueId: string;
-  card: Card;
-  faceUp: boolean;
-  matchId?: string;
-  discarding?: boolean;
-  drawing?: boolean;
-  flipping?: boolean;
-  rotation?: number;
-  holographic?: boolean;
-}
-
-interface GameComponent extends Positionable {
-  uniqueId: string;
-  type: 'coin' | 'cube' | 'd6';
-  className: string;
-  faceUp: boolean;
-  face?: number;
-  rolling?: boolean;
-  flipping?: boolean;
-  contextMenu: MenuItem[];
-}
-
-interface Positionable {
-  pos: Position;
-  zIndex?: number;
-}
-
-interface Position {
-  x: number;
-  y: number;
-}
 
 @Component({
   selector: 'app-game-simulator',
@@ -77,17 +32,14 @@ export class GameSimulatorComponent {
   public readonly baseCardHeight = GameSimulatorComponent.BASE_CARD_HEIGHT;
 
   @ViewChild('gameBoundary') gameBoundary!: ElementRef;
-  stacks: CardStack[] = [];
-  field: CardZone = { name: 'Field', cards: [] };
-  components: GameComponent[] = [];
-  // hand: CardZone = { name: 'Hand', cards: [] };
-  discard: CardStack = {
-    name: 'Discard', cards: [], faceUp: true,
-    uniqueId: StringUtils.generateRandomString(),
-    pos: { x: 0, y: 0 },
-    deletable: false
-  };
-  zoomLevel: number = 0.20;
+
+  get stacks() { return this.gameStateService.stacks; }
+  get field() { return this.gameStateService.field; }
+  get components() { return this.gameStateService.components; }
+  get discard() { return this.gameStateService.discard; }
+
+  get zoomLevel() { return this.gameStateService.zoomLevel; }
+  set zoomLevel(value: number) { this.gameStateService.zoomLevel = value; }
   zoomMagnifiedLevel: number = 0.40;
   contextMenuItems: MenuItem[] = [];
   hoveredItem: Positionable | undefined;
@@ -152,61 +104,16 @@ export class GameSimulatorComponent {
     private decksService: DecksService,
     private cardsService: CardsService,
     private translate: TranslateService,
-    public cardTemplatesService: CardTemplatesService) {
-    // Initialize the component, if needed
-    this.resetGame();
+    public cardTemplatesService: CardTemplatesService,
+    public gameStateService: GameSimulatorStateService
+  ) {
+    if (!this.gameStateService.initialized) {
+      this.gameStateService.resetGame();
+    }
   }
 
-  private resetGame() {
-    const stacks: CardStack[] = [];
-    this.decksService.getAll().then(decks => {
-      return decks.forEach((deck, index) => {
-        return this.cardsService.getAll({ deckId: deck.id }).then(cards => {
-          const expandedCards: GameCard[] = [];
-          cards.forEach(card => {
-            for (let i = 0; i < card.count; i++) {
-              expandedCards.push({
-                // Ensure unique ID for each card instance
-                uniqueId: StringUtils.generateRandomString(),
-                card: card,
-                faceUp: true,
-                pos: { x: 0, y: 0 }
-              } as GameCard);
-            }
-          });
-          this.shuffleCards(expandedCards);
-          const dropPos: Position = {
-            x: (index % 4) * 200,
-            y: Math.floor(index / 4) * 300
-          };
-          stacks.push({
-            uniqueId: StringUtils.generateRandomString(),
-            name: deck.name,
-            cards: expandedCards,
-            faceUp: false,
-            pos: dropPos,
-            deletable: true,
-            rotation: 0
-          });
-        });
-      });
-    }).then(result => {
-      this.discard = {
-        name: 'Discard',
-        cards: [],
-        uniqueId: StringUtils.generateRandomString(),
-        faceUp: true,
-        pos: { x: 800, y: 0 },
-        deletable: false,
-      };
-      stacks.push(this.discard);
+  // resetGame is now handled by GameSimulatorStateService
 
-      this.stacks = stacks;
-      this.field.cards = [];
-      // this.hand.cards = [];
-      this.discard.cards = [];
-    });
-  }
 
   public shuffleCards(cards: GameCard[]) {
     for (let i = cards.length - 1; i > 0; i--) {
@@ -741,7 +648,12 @@ export class GameSimulatorComponent {
       {
         label: this.translate.instant('simulator.reset-game'),
         icon: 'pi pi-refresh',
-        command: () => this.resetGame(),
+        command: () => this.gameStateService.resetGame(),
+      },
+      {
+        label: this.translate.instant('simulator.update-game-state'),
+        icon: 'pi pi-sync',
+        command: () => this.gameStateService.updateGameState(),
       },
     ];
     cm.show(event);
