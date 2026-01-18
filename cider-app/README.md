@@ -109,17 +109,39 @@ rm -R MyIcon.iconset
  - Name: MAS_PROVISIONING_PROFILE
  - Secret: base64 from above
 
- ## Start App from Terminal for Troubleshooting Logs
+## Start App from Terminal for Troubleshooting Logs
  `open -a Cider.app`
 
- ## Read the provisionprofile entitlements (look for <dic> and <key>Entitlements</key>)
+## Read the provisionprofile entitlements (look for <dic> and <key>Entitlements</key>)
  `security cms -D -i build/cider-dev.provisionprofile `
 
- ## Read the entitlements claimed by the app
+## Read the entitlements claimed by the app
  `codesign --display --entitlements - --xml Cider.app | plutil -convert xml1 -o - -`
 
- ## Search for app launch errors in your Console App
+## Search for app launch errors in your Console App
  - Search bar: `message type:error`
  - Start streaming logs
  - Launch app
  - Stop streaming logs
+
+# Release new App Store version
+
+## Build for App Store (cmd)
+ `npm run electron:build-mas`
+ The new .pkg file will be created in the `release/mas-arm64` directory.
+
+## Upload to App Store (Transporter)
+1. Open Transporter app
+2. Drag the latest `.pkg` file from the `release/mas-arm64` directory
+3. Submit to App Store Connect
+4. Wait for the app to be processed and approved ('The app is ready for internal testing').
+5. If the build shows up as Waiting for Review, it is waiting for approval from the App Store Review team (24 - 48 Hrs)
+6. If the build shows up as Ready for Sale, it is ready to be released to the public
+
+## Test the App Store build (Test Flight)
+1. Open up Test Flight
+2. Select Oatear Cider from the list and click Update
+
+## Publish the App (App Store Connect)
+1. Click the ... menu in Transporter and select "View in App Store Connect"
+
