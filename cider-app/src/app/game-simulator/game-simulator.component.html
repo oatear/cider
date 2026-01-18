@@ -5,109 +5,163 @@
   [cdkDropListData]="field.cards"
   (cdkDropListDropped)="onCardDropped($event)"
   cdkDropList> -->
-  <div class="field game-boundary"
-    (contextmenu)="onFieldContextMenu($event, cm)">
+  <div class="field game-boundary" #gameBoundary (contextmenu)="onFieldContextMenu($event, cm)">
     <!-- cdkDropList
     [cdkDropListData]="stack.cards"
     (cdkDropListDropped)="onCardDropped($event)" -->
     <!-- Stacks -->
     @for (stack of stacks; track stack.uniqueId) {
-      @if (stack.cards) {
-        <div class="card-stack game-card"
-          [class.empty]="stack.cards.length === 0"
-          (click)="drawCard(stack)"
-          (contextmenu)="onStackContextMenu($event, cm, stack)"
-          (cdkDragStarted)="onDragStarted($event, stacks, stack)"
-          (cdkDragEnded)="onDragEnded($event, stacks, stack)"
-          [cdkDragFreeDragPosition]="stack.pos"
-          cdkDragBoundary=".game-boundary" cdkDrag>
-          <div class="card-wrapper"
-            [class.shuffling]="stack.shuffling" >
-            @if (stack.cards.length > 0 && stack.cards[stack.cards.length - 1].card.backCardTemplateId) {
-              <app-card-preview [cache]="false" [tiltable]="true"
-                    [template]="(stack.faceUp ? stack.cards[stack.cards.length - 1].card.frontCardTemplateId 
+    @if (stack.cards) {
+    <div class="card-stack game-card" [class.empty]="stack.cards.length === 0" [id]="stack.uniqueId"
+      (contextmenu)="onStackContextMenu($event, cm, stack)" (cdkDragStarted)="onDragStarted($event, stacks, stack)"
+      (cdkDragEnded)="onDragEnded($event, stacks, stack)" [cdkDragFreeDragPosition]="stack.pos"
+      [style.zIndex]="stack.zIndex || 10" cdkDragBoundary=".game-boundary" cdkDrag>
+      <div class="card-wrapper" [class.shuffling]="stack.shuffling" [class.flipping]="stack.flipping"
+        [style.rotate]="(stack.rotation || 0) + 'deg'" [style]="getStackDepthStyle(stack.rotation)">
+        <div class="thickness-side right"></div>
+        <div class="thickness-side left"></div>
+        <div class="thickness-side top"></div>
+        <div class="thickness-side bottom"></div>
+        @if (stack.cards.length > 0 && stack.cards[stack.cards.length - 1].card.backCardTemplateId) {
+        <app-card-preview [cache]="false" [tiltable]="true" [template]="(stack.faceUp ? stack.cards[stack.cards.length - 1].card.frontCardTemplateId 
                         : stack.cards[stack.cards.length - 1].card.backCardTemplateId)
-                        | entity: cardTemplatesService | async"
-              [card]="stack.cards[stack.cards.length - 1].card" [scale]="zoomLevel" ></app-card-preview>
-            }
-          </div>
-          @if (stack.cards.length === 0) {
-            <div class="stack-placeholder">
-              <span class="placeholder-text">{{ stack.name }}</span>
-            </div>
-          }
-          @if (draggingCard) {
-            <div class="dropzone"
-              (mouseover)="onMouseEntered($event, stack)"
-            (mouseout)="onMouseExited($event, stack)"></div>
-          }
-          <div class="count">{{ stack.name }} {{ stack.cards.length }}</div>
-        </div>
+                        | entity: cardTemplatesService | async" [card]="stack.cards[stack.cards.length - 1].card"
+          [scale]="zoomLevel"
+          [holographic]="stack.cards[stack.cards.length - 1].holographic && stack.faceUp"></app-card-preview>
+        }
+        @if (stack.cards.length > 0 && !stack.cards[stack.cards.length - 1].card.backCardTemplateId) {
+        <div class="card-back-placeholder" [style.width.px]="baseCardWidth * zoomLevel"
+          [style.height.px]="baseCardHeight * zoomLevel"></div>
+        }
+      </div>
+      @if (stack.cards.length === 0) {
+      <div class="stack-placeholder" [style.width.px]="baseCardWidth * zoomLevel"
+        [style.height.px]="baseCardHeight * zoomLevel">
+        <span class="placeholder-text">{{ stack.name }}</span>
+      </div>
       }
+      <div class="draw-action" (click)="drawCard(stack); $event.stopPropagation()"
+        (mousedown)="$event.stopPropagation()">
+        @if (stack.cards.length > 0) {
+        <i class="pi pi-arrow-down"></i>
+        } @else {
+        <i class="pi pi-ban"></i>
+        }
+      </div>
+
+      @if (draggingCard || draggingStack) {
+      <div class="dropzone" (mouseover)="onMouseEntered($event, stack)" (mouseout)="onMouseExited($event, stack)"
+        [style.rotate]="(stack.rotation || 0) + 'deg'"></div>
+      }
+      <div class="count" (click)="$event.stopPropagation()" (mousedown)="$event.stopPropagation()"
+        [ngStyle]="getStackCountStyle(stack.rotation)">{{ stack.name }} {{
+        stack.cards.length }}</div>
+    </div>
+    }
     }
 
     <!-- (click)="discardCard(field.cards, card)"  -->
     <!-- (cdkDragDropped)="changePosition($event, card)" -->
     <!-- (cdkDragEntered)="onDragEntered($event, card)" -->
     @for (card of field.cards; track card) {
-      @if (card.card.frontCardTemplateId) {
-        <div class="field-card game-card"
-          [class.magnified]="card.magnified"
-          (contextmenu)="onCardContextMenu($event, cm, card)"
-          (mousedown)="onCardMouseDown($event, card)"
-          (mouseup)="onCardMouseUp($event, card)"
-          [cdkDragData]="card"
-          (cdkDragStarted)="onCardDragStarted($event, field.cards, card)"
-          (cdkDragEnded)="onCardDragEnded($event, field.cards, card)"
-          [cdkDragFreeDragPosition]="card.pos"
-          cdkDragBoundary=".game-boundary" cdkDrag>
-          <app-card-preview [cache]="false" [tiltable]="true"
-                    [template]="(card.faceUp ? card.card.frontCardTemplateId 
-                        : card.card.backCardTemplateId) 
-                        | entity: cardTemplatesService | async"
-          [card]="card.card" [scale]="card.magnified ? zoomMagnifiedLevel : zoomLevel" ></app-card-preview>
-          <!-- <div class="drop-zone"
-          style="width: 100px; height: 100px; background-color: red;"
-          cdkDropList
-        [cdkDropListData]="field.cards"></div> -->
+    @if (card.card.frontCardTemplateId) {
+    <div class="field-card game-card" (contextmenu)="onCardContextMenu($event, cm, card)" [id]="card.uniqueId"
+      (mousedown)="onCardMouseDown($event, card)" (mouseup)="onCardMouseUp($event, card)" [cdkDragData]="card"
+      (cdkDragStarted)="onCardDragStarted($event, field.cards, card)"
+      (cdkDragEnded)="onCardDragEnded($event, field.cards, card)" [cdkDragFreeDragPosition]="card.pos"
+      [style.zIndex]="card.zIndex || 10" [class.discarding]="card.discarding" [class.drawing]="card.drawing"
+      [class.flipping]="card.flipping" cdkDragBoundary=".game-boundary" cdkDrag>
+      <div class="card-wrapper" [style.rotate]="(card.rotation || 0) + 'deg'">
+        <app-card-preview [cache]="false" [tiltable]="true" [template]="(card.faceUp ? card.card.frontCardTemplateId 
+                          : card.card.backCardTemplateId) 
+                          | entity: cardTemplatesService | async" [card]="card.card" [scale]="zoomLevel"
+          [holographic]="card.holographic && card.faceUp"></app-card-preview>
       </div>
+    </div>
     }
-  }
+    }
 
-  @for (component of components; track component) {
-    <div class="game-component"
-      (contextmenu)="onComponentContextMenu($event, cm, component)"
-      [cdkDragData]="component"
-      (cdkDragStarted)="onDragStarted($event, components, component)"
-      (cdkDragEnded)="onDragEnded($event, components, component)"
-      [cdkDragFreeDragPosition]="component.pos"
-      cdkDragBoundary=".game-boundary" cdkDrag>
-      <div class="tiltable">
+    @for (component of components; track component) {
+    <div class="game-component" (contextmenu)="onComponentContextMenu($event, cm, component)" [cdkDragData]="component"
+      [id]="component.uniqueId" (cdkDragStarted)="onDragStarted($event, components, component)"
+      (cdkDragEnded)="onDragEnded($event, components, component)" [cdkDragFreeDragPosition]="component.pos"
+      [style.zIndex]="component.zIndex || 10" cdkDragBoundary=".game-boundary" cdkDrag>
+      <div class="tiltable" [class.flipping]="component.flipping">
         @if (component.type == 'd6') {
-                    <div [class]="'component ' + component.className 
-                        + ' face-' + component.face"
-            [class.rolling]="component.rolling" >
-            <div class="pip"></div>
-            <div class="pip"></div>
-            <div class="pip"></div>
-            <div class="pip"></div>
-            <div class="pip"></div>
-            <div class="pip"></div>
-            <div class="pip"></div>
-            <div class="pip"></div>
-            <div class="pip"></div>
-            <div class="depth"></div>
-          </div>
+        <div [class]="'component ' + component.className 
+                        + ' face-' + component.face" [class.rolling]="component.rolling">
+          <div class="pip"></div>
+          <div class="pip"></div>
+          <div class="pip"></div>
+          <div class="pip"></div>
+          <div class="pip"></div>
+          <div class="pip"></div>
+          <div class="pip"></div>
+          <div class="pip"></div>
+          <div class="pip"></div>
+          <div class="depth"></div>
+        </div>
         } @else {
-          <div [class]="'component ' + component.className"
-            [class.rolling]="component.rolling"
-            [class.back]="!component.faceUp" >
-            <div class="depth"></div>
-          </div>
+        <div [class]="'component ' + component.className" [class.rolling]="component.rolling"
+          [class.back]="!component.faceUp">
+          <div class="thickness-side right"></div>
+          <div class="thickness-side left"></div>
+          <div class="depth"></div>
+        </div>
         }
       </div>
     </div>
-  }
+    }
+  </div>
 </div>
+
+@if (magnifiedCard) {
+<div class="magnified-overlay" [style.left.px]="magnifiedPos.x" [style.top.px]="magnifiedPos.y">
+  <app-card-preview [cache]="false" [tiltable]="true" [template]="(magnifiedCard.faceUp ? magnifiedCard.card.frontCardTemplateId 
+                    : magnifiedCard.card.backCardTemplateId) | entity: cardTemplatesService | async"
+    [card]="magnifiedCard.card" [scale]="zoomMagnifiedLevel"
+    [holographic]="magnifiedCard.holographic && magnifiedCard.faceUp"></app-card-preview>
 </div>
+}
+
+<p-dialog [header]="'simulator.draw-specific-card' | translate" [(visible)]="drawSpecificCardDialogVisible"
+  [modal]="true" [draggable]="false" [resizable]="false" [style]="{ width: '25rem' }">
+  <div class="dialog-content">
+    <span class="p-input-icon-left full-width-input">
+      <i class="pi pi-search"></i>
+      <input pInputText type="text" [(ngModel)]="drawSpecificCardSearchQuery" (ngModelChange)="filterCards()"
+        [placeholder]="'controls.search' | translate" class="full-width-input" autofocus />
+    </span>
+    <div class="card-list">
+      @for (card of filteredCards; track card.uniqueId) {
+      <div class="card-item" (click)="onDrawSpecificCardSelect(card)">
+        {{ card.card.name }}
+      </div>
+      }
+      @if (filteredCards.length === 0) {
+      <div class="card-item" style="text-align: center; color: #999; cursor: default;">
+        {{ 'controls.no-results' | translate }}
+      </div>
+      }
+    </div>
+  </div>
+  <div class="dialog-footer">
+    <p-button [label]="'controls.cancel' | translate" severity="secondary"
+      (onClick)="drawSpecificCardDialogVisible = false" />
+  </div>
+</p-dialog>
+
+<p-dialog [header]="'simulator.rename-stack' | translate" [(visible)]="renameDialogVisible" [modal]="true"
+  [draggable]="false" [resizable]="false" [style]="{ width: '25rem' }">
+  <div class="dialog-content">
+    <label for="stackName" class="font-semibold">{{ 'fields.name' | translate }}</label>
+    <input pInputText id="stackName" class="full-width-input" autocomplete="off" [(ngModel)]="renameStackName"
+      (keyup.enter)="saveStackName()" autofocus />
+  </div>
+  <div class="dialog-footer">
+    <p-button [label]="'controls.cancel' | translate" severity="secondary" (onClick)="cancelRename()" />
+    <p-button [label]="'controls.save' | translate" (onClick)="saveStackName()" />
+  </div>
+</p-dialog>
+
 <p-contextmenu #cm [model]="contextMenuItems" />

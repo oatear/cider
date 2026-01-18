@@ -25,6 +25,7 @@ export class CardPreviewComponent implements OnInit, AfterViewChecked, OnChanges
   @Input() lowInk: boolean = false;
   @Input() cache: boolean = false;
   @Input() tiltable: boolean = false;
+  @Input() holographic: boolean | undefined = false;
   initialWidth: number = 0;
   initialHeight: number = 0;
   assetUrls: any;

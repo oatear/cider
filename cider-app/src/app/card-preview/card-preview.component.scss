@@ -1,6 +1,6 @@
 :host {
     display: flex;
-    width:fit-content;
+    width: fit-content;
     height: fit-content;
 }
 
@@ -9,6 +9,7 @@
     width: fit-content;
     height: fit-content;
 }
+
 .card-element {
     width: fit-content;
     height: fit-content;
@@ -32,6 +33,7 @@
         transform: perspective(1000px) rotateX(5deg) rotateY(-5deg);
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
     }
+
     &:active {
         transform: perspective(1000px) rotateX(2deg) rotateY(-2deg) scale(0.98);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
@@ -45,12 +47,42 @@
             border-color: black !important;
             color: black !important;
         }
+
         img {
             opacity: 30% !important;
             filter: grayscale(100%) !important;
         }
+
         .card {
             border: 5px solid black !important;
         }
     }
+}
+
+.holo-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10;
+    mix-blend-mode: multiply;
+    opacity: 0.6;
+    background: linear-gradient(115deg,
+            transparent 20%,
+            rgba(255, 0, 0, 0.4) 30%,
+            rgba(255, 255, 0, 0.4) 40%,
+            rgba(0, 255, 0, 0.4) 50%,
+            rgba(0, 255, 255, 0.4) 60%,
+            rgba(0, 0, 255, 0.4) 70%,
+            rgba(255, 0, 255, 0.4) 80%,
+            transparent 90%);
+    background-size: 200% 200%;
+    background-position: 50% 50%;
+    transition: background-position 0.3s ease;
+}
+
+.tiltable:hover .holo-overlay {
+    background-position: 100% 100%;
 }

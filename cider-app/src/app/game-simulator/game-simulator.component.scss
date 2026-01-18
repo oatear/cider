@@ -1,36 +1,46 @@
 // background, foreground, side
 $colors: (
-  silver:   (#c0c0c0, #e8e8e8, #9a9a9a),   // slightly brighter top, softened edge
-  gold:     (#f1c40f, #ffe877, #b88e0a),   // warm highlight, rich side
-  crimson:  (#c0162e, #f88a9b, #84121f),   // more muted than high contrast version
-  emerald:  (#3cab6c, #9ce6c1, #287c4d),   // rich green, gentle contrast
-  azure:    (#1a80d6, #aad7ff, #0c5b9b),   // softened vibrant blue
-  lilac:    (#b78fc4, #ead7f3, #7e6291),   // more pastel balance
-  ivory:    (#b3b396, #ffffff, #c5c5a5),   // calm, subtle contrast
-  charcoal: (#3b4a54, #a1b0bc, #27333a)    // balanced depth and top face
+    silver: (#c0c0c0, #e8e8e8, #9a9a9a),
+    // slightly brighter top, softened edge
+    gold: (#f1c40f, #ffe877, #b88e0a),
+    // warm highlight, rich side
+    crimson: (#c0162e, #f88a9b, #84121f),
+    // more muted than high contrast version
+    emerald: (#3cab6c, #9ce6c1, #287c4d),
+    // rich green, gentle contrast
+    azure: (#1a80d6, #aad7ff, #0c5b9b),
+    // softened vibrant blue
+    lilac: (#b78fc4, #ead7f3, #7e6291),
+    // more pastel balance
+    ivory: (#b3b396, #ffffff, #c5c5a5),
+    // calm, subtle contrast
+    charcoal: (#3b4a54, #a1b0bc, #27333a) // balanced depth and top face
 );
 
+$shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
+
 @each $name, $values in $colors {
-  $bg: nth($values, 1);
-  $fg: nth($values, 2);
-  $side: nth($values, 3);
+    $bg: nth($values, 1);
+    $fg: nth($values, 2);
+    $side: nth($values, 3);
 
-  .game-simulator .game-component .color-#{"" + $name} {
-    background-color: $bg;
-    border-color: $fg;
-    color: $fg;
+    .game-simulator .game-component .color-#{"" + $name} {
+        background-color: $bg;
+        border-color: $fg;
+        color: $fg;
 
-    .depth {
-        background: $side;
-    }
+        .depth {
+            background: $side;
+        }
 
-    &.game-d6 {
-        background-color: $fg;
-        .pip {
-            // background-color: $side;
+        &.game-d6 {
+            background-color: $fg;
+
+            .pip {
+                // background-color: $side;
+            }
         }
     }
-  }
 }
 
 :host {
@@ -92,42 +102,254 @@ $colors: (
 }
 
 :host ::ng-deep {
-    .game-card {
-        position: absolute;
-        // z-index: 2;
-        height: fit-content;
-        width: fit-content;
-        &.magnified {
-            z-index: 3;
+    @keyframes discard-rotate {
+        0% {
+            transform: scale(1) rotate(0deg);
+        }
+
+        20% {
+            transform: scale(1.1) rotate(10deg);
+        }
+
+        90% {
+            transform: scale(0.95) rotate(2deg);
+        }
+
+        100% {
+            transform: scale(1) rotate(0deg);
         }
     }
+
+    @keyframes card-flip {
+        0% {
+            transform: perspective(1000px) rotateY(0deg);
+        }
+
+        40% {
+            opacity: 1;
+        }
+
+        49.9% {
+            transform: perspective(1000px) rotateY(90deg);
+            opacity: 1;
+        }
+
+        50% {
+            // Mask the interpolation glitch where it passes through 0deg
+            opacity: 0;
+            transform: perspective(1000px) rotateY(0deg);
+        }
+
+        50.1% {
+            transform: perspective(1000px) rotateY(-90deg);
+            opacity: 1;
+        }
+
+        60% {
+            opacity: 1;
+        }
+
+        100% {
+            // End state is effectively 0deg (unflipped relative to new face)
+            transform: perspective(1000px) rotateY(0deg);
+        }
+    }
+
+    @keyframes component-flip {
+        0% {
+            transform: perspective(1000px) translateZ(0) rotateY(0deg);
+        }
+
+        20% {
+            transform: perspective(1000px) translateZ(40px) rotateY(45deg);
+        }
+
+        40% {
+            opacity: 1;
+        }
+
+        49.9% {
+            transform: perspective(1000px) translateZ(60px) rotateY(90deg);
+            opacity: 1;
+        }
+
+        50% {
+            // Mask the interpolation glitch
+            opacity: 0;
+            transform: perspective(1000px) translateZ(60px) rotateY(0deg);
+        }
+
+        50.1% {
+            transform: perspective(1000px) translateZ(60px) rotateY(-90deg);
+            opacity: 1;
+        }
+
+        60% {
+            opacity: 1;
+        }
+
+        80% {
+            transform: perspective(1000px) translateZ(40px) rotateY(-45deg);
+        }
+
+        100% {
+            transform: perspective(1000px) translateZ(0) rotateY(0deg);
+        }
+    }
+
+    .game-card {
+        position: absolute;
+        z-index: 10;
+        height: fit-content;
+        width: fit-content;
+        transition: z-index 0s; // Instant z-index switch
+
+        &:hover {
+            z-index: 100;
+        }
+
+        &.magnified {
+            z-index: 2000; // Higher than drag
+        }
+
+        &.discarding {
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.175);
+            pointer-events: none;
+            z-index: 1000 !important;
+
+            app-card-preview {
+                animation: discard-rotate 0.5s forwards ease-in-out;
+            }
+        }
+
+        &.drawing {
+            transition: transform 0.3s ease-out;
+            pointer-events: none;
+            z-index: 1000 !important;
+        }
+
+        &.flipping {
+            pointer-events: none;
+            z-index: 1000 !important;
+
+            app-card-preview {
+                animation: card-flip 0.4s ease-in-out;
+            }
+        }
+
+        // Ensure rounding passes through to preview components
+        app-card-preview {
+            display: block;
+
+            // Default transition for nice hover effects if valid later
+            transition: transform 0.2s ease;
+
+            ::ng-deep .scale-wrapper {
+                border-radius: 40px; // Scaled radius (40 * 0.2 = 8px)
+
+                .card-preview {
+                    border-radius: 40px; // Scaled radius (40 * 0.2 = 8px)
+                    overflow: hidden;
+                }
+            }
+        }
+    }
+
     .card-stack {
-        z-index: 1;
+        // z-index: 1; removed
+
+        // &:hover {
+        //     z-index: 2;
+        // } removed
+
+        .card-wrapper {
+            position: relative;
+        }
+
+        .draw-action {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            opacity: 0;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        &:hover .draw-action {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        & .draw-action:active {
+            transform: translate(-50%, -50%) scale(0.95);
+            background: rgba(0, 0, 0, 0.8);
+        }
+
         .stack-placeholder {
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 150px;
-            height: 200px;
-            border: 1px dashed var(--p-menubar-border-color);
+            // width and height are set via style binding in template
+            border: 2px dashed #7d7d7d;
             border-radius: 8px;
-            color: #666;
+            background-color: rgba(255, 255, 255, 0.03);
+            color: #888;
             font-size: 14px;
+            font-weight: 500;
         }
-        .dropzone {
-            position: absolute;
-            top: 0px;
-            left: 0px;
-            width: 100%;
-            height: 100%;
-            padding: 10px;
-            // border: 1px dashed var(--p-menubar-border-color);
-            border: 1px dashed rgb(0, 255, 255);
-            border-radius: 8px;
-            &:hover {
-                border-color: yellow;
+
+        @keyframes dropzone-pulse {
+            0% {
+                border-color: rgba(60, 171, 108, 0.4);
+                background-color: rgba(60, 171, 108, 0.05);
+            }
+
+            50% {
+                border-color: rgba(60, 171, 108, 0.7);
+                background-color: rgba(60, 171, 108, 0.15);
+            }
+
+            100% {
+                border-color: rgba(60, 171, 108, 0.4);
+                background-color: rgba(60, 171, 108, 0.05);
             }
         }
+
+        .dropzone {
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            width: calc(100% + 8px);
+            height: calc(100% + 8px);
+            padding: 10px;
+            border: 2px dashed rgba(60, 171, 108, 0.4); // Emeraldish
+            border-radius: 10px;
+            background-color: rgba(60, 171, 108, 0.05);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: all; // Ensure it catches events if needed, though structure suggests it's an overlay
+            z-index: 100;
+            animation: dropzone-pulse 2s infinite ease-in-out;
+
+            &:hover {
+                animation: none; // Stop pulsing on hover to show locked state
+                border: 2px solid #3cab6c; // Solid emerald
+                background-color: rgba(60, 171, 108, 0.25);
+                box-shadow: 0 0 15px rgba(60, 171, 108, 0.4);
+                transform: scale(1.02);
+            }
+        }
+
         .count {
             position: absolute;
             bottom: 5px;
@@ -146,93 +368,188 @@ $colors: (
 }
 
 :host ::ng-deep .card-stack:not(.empty) {
-    // position: relative;
-    // background: white;
-    // border: 1px solid #ccc;
-    border-radius: 2px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
     z-index: 1;
 
-    app-card-preview {
-        // opacity: 0.1;
-    }
+    .card-wrapper {
+        border-radius: 10px;
+        box-shadow: $shadow-3d;
+        transform-style: preserve-3d; // Enable 3D children
+        transition: rotate 0.3s ease-in-out;
 
-    &::before,
-    &::after {
-        content: '';
-        position: absolute;
-        top: 4px;
-        left: 4px;
-        width: 100%;
-        height: 100%;
-        // background: white;
-        // border: 1px solid #ccc;
-        border-radius: 2px;
-        // background: var(--p-content-background);
-        background: #8e8e9f;
-        z-index: -1;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.20);
-    }
+        &.flipping {
+            animation: card-flip 0.4s ease-in-out;
+            pointer-events: none;
+        }
 
-    &::before {
-        top: 8px;
-        left: 8px;
-        z-index: -2;
-        // opacity: 0.8;
-    }
+        // Thickness simulation
+        .thickness-side {
+            position: absolute;
+            top: 0;
+            width: 10px; // Thickness
+            height: 100%;
+            background: linear-gradient(to right, #ccc, #e0e0e0, #bbb);
+            // Texture to look like pages
+            background-image: repeating-linear-gradient(to right,
+                    rgba(0, 0, 0, 0.05) 0px,
+                    rgba(0, 0, 0, 0.05) 1px,
+                    transparent 1px,
+                    transparent 2px);
+            transform-origin: center;
+            opacity: 1;
+            z-index: -1; // Behind the face
+            border-radius: 2px;
 
-    &::after {
-        top: 4px;
-        left: 4px;
-        // opacity: 0.9;
+            &.right {
+                right: 0;
+                transform-origin: right;
+                transform: rotateY(-90deg);
+            }
+
+            &.left {
+                left: 0;
+                transform-origin: left;
+                transform: rotateY(90deg);
+            }
+        }
+
+        app-card-preview {
+            display: block; // Ensure it respects border radius
+            backface-visibility: hidden; // Hide back when rotated
+
+            ::ng-deep .scale-wrapper {
+                border-radius: 40px; // Scaled radius
+
+                .card-preview {
+                    border-radius: 40px; // Scaled radius
+                    overflow: hidden;
+                }
+            }
+        }
+
+        .card-back-placeholder {
+            background-color: #8e8e9f;
+            border-radius: 40px; // Scaled radius to match preview
+        }
+
+        &::before,
+        &::after {
+            content: '';
+            position: absolute;
+            // Base offset 4px * depth vector
+            top: calc(4px * var(--depth-y, 1));
+            left: calc(4px * var(--depth-x, 1));
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+            background: #8e8e9f;
+            z-index: -3; // Lower than thickness sides
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.20);
+            transition: top 0.3s, left 0.3s; // Smooth transition during rotation
+        }
+
+        &::before {
+            // Second layer: 8px * depth vector (2 * 4px)
+            top: calc(8px * var(--depth-y, 1));
+            left: calc(8px * var(--depth-x, 1));
+            z-index: -4;
+        }
+
+        &::after {
+            // First layer already set by default rule but explicit here for clarity if needed
+            // top: calc(4px * var(--depth-y, 1));
+            // left: calc(4px * var(--depth-x, 1));
+        }
+
     }
 }
 
 .card-stack.cdk-drop-list-dragging {
-  border: 2px dashed #4caf50;
-  background-color: #f1fff1;
+    border: 2px dashed #4caf50;
+    background-color: #f1fff1;
 }
 
 .cdk-drag-preview {
-  box-sizing: border-box;
-  border-radius: 4px;
-  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
-              0 8px 10px 1px rgba(0, 0, 0, 0.14),
-              0 3px 14px 2px rgba(0, 0, 0, 0.12);
+    box-sizing: border-box;
+    border-radius: 4px;
+    box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+        0 8px 10px 1px rgba(0, 0, 0, 0.14),
+        0 3px 14px 2px rgba(0, 0, 0, 0.12);
+    pointer-events: none;
+}
+
+.cdk-drag-dragging {
+    pointer-events: none;
+    z-index: 1000 !important;
+
+    .dropzone {
+        display: none;
+        transition: rotate 0.3s ease-in-out;
+    }
+}
+
+.field-card {
+    .card-wrapper {
+        transition: rotate 0.3s ease-in-out;
+    }
 }
 
 .game-component {
     position: absolute;
-    z-index: 1;
+    z-index: 10; // Match game-card
+
+    &:hover {
+        z-index: 100;
+    }
+
     .component {
         width: 50px;
         height: 50px;
         background: rgb(213, 92, 92);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); // Default shadow
+        transition: box-shadow 0.3s ease;
+    }
+
+    // Trigger shadow change when wrapper is hovered
+    &:hover .component {
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    &:active .component {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
 }
 
 .tiltable {
-    display: inline-block;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    transform-origin: center center;
     transform-style: preserve-3d;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.3s ease;
     transform: perspective(1000px) rotateX(0deg) rotateY(0deg);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    // box-shadow removed to prevent square artifact on round items
     backface-visibility: hidden;
     will-change: transform;
 
     &:hover {
         transform: perspective(1000px) rotateX(5deg) rotateY(-5deg);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        // box-shadow moved to children
     }
+
     &:active {
         transform: perspective(1000px) rotateX(2deg) rotateY(-2deg) scale(0.98);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    &.flipping {
+        animation: component-flip 0.4s ease-in-out;
+        pointer-events: none;
     }
 }
 
 $game-coin-size: 50px;
+
 .game-component .game-coin {
-    position: absolute;
+    position: relative;
     width: $game-coin-size;
     height: $game-coin-size;
     border-radius: 50%;
@@ -242,6 +559,31 @@ $game-coin-size: 50px;
     box-sizing: border-box;
     font-family: Arial, Helvetica, sans-serif;
     transform-style: preserve-3d;
+    backface-visibility: hidden; // Important for flip
+
+    .thickness-side {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        width: 4px; // Thickness
+        height: 100%;
+        // Use a central plane (septum) technique for cylinder profile illusion
+        transform: translateX(-50%) rotateY(90deg);
+        background: inherit; // Gold
+        filter: brightness(0.7);
+        border: inherit;
+        z-index: -1;
+        opacity: 1;
+
+        // Remove specific side positioning since we are using a central septum
+        &.right,
+        &.left {
+            right: auto;
+            left: 50%; // Force center
+            transform-origin: center;
+            transform: translateX(-50%) rotateY(90deg);
+        }
+    }
 
     .depth {
         position: absolute;
@@ -253,7 +595,7 @@ $game-coin-size: 50px;
         background: #c6982e;
         z-index: -1;
         transform: translateZ(-1px);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.20);
+        box-shadow: $shadow-3d;
     }
 
     &::after {
@@ -276,14 +618,14 @@ $game-cube-size: 30px;
 
 .game-component {
     .game-cube {
-        position: absolute;
+        position: relative;
         width: $game-cube-size;
         height: $game-cube-size;
         background-color: #50c878; // emerald base
         border: 2px solid #2e8b57;
         box-sizing: border-box;
-        box-shadow: inset 0 1px 1px rgba(255,255,255,0.4),
-                    0 2px 3px rgba(0,0,0,0.2);
+        box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4),
+            $shadow-3d;
         color: #fff;
         font-weight: bold;
         font-size: 14px;
@@ -292,6 +634,30 @@ $game-cube-size: 30px;
         border-radius: 4px;
         font-family: Arial, Helvetica, sans-serif;
         transform-style: preserve-3d;
+        backface-visibility: hidden;
+
+        .thickness-side {
+            position: absolute;
+            top: 0;
+            width: $game-cube-size; // Cover full side for a cube
+            height: 100%;
+            background-color: inherit;
+            border: inherit;
+            filter: brightness(0.8);
+            z-index: -1;
+
+            &.right {
+                right: 0;
+                transform-origin: right;
+                transform: rotateY(-90deg);
+            }
+
+            &.left {
+                left: 0;
+                transform-origin: left;
+                transform: rotateY(90deg);
+            }
+        }
 
         .depth {
             position: absolute;
@@ -327,88 +693,209 @@ $die-bg: #f9f9f9;
 $die-border: #ccc;
 $die-color: #222;
 $die-side-color: #e0e0e0;
-$die-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+$die-shadow: $shadow-3d;
 
 .game-component {
-  .game-d6 {
-    position: absolute;
-    width: $die-size;
-    height: $die-size;
-    background-color: $die-bg;
-    border: 2px solid $die-border;
-    border-radius: 8px;
-    box-shadow: $die-shadow;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(3, 1fr);
-    padding: 4px;
-    box-sizing: border-box;
-    transform-style: preserve-3d;
-
-    // Depth simulation layer
-    .depth {
-        position: absolute;
-        top: 4px;
-        left: 4px;
+    .game-d6 {
+        position: relative;
         width: $die-size;
         height: $die-size;
+        background-color: $die-bg;
+        border: 2px solid $die-border;
         border-radius: 8px;
-        background-color: $die-side-color;
-        z-index: -1;
-        transform: translateZ(-1px);
-    }
+        box-shadow: $die-shadow;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(3, 1fr);
+        padding: 4px;
+        box-sizing: border-box;
+        transform-style: preserve-3d;
 
-    .pip {
-        width: 6px;
-        height: 6px;
-        background: $die-color;
-        border-radius: 50%;
-        margin: auto;
-        opacity: 0;
-        transition: opacity 0.2s;
-    }
+        // Depth simulation layer
+        .depth {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: $die-size;
+            height: $die-size;
+            border-radius: 8px;
+            background-color: $die-side-color;
+            z-index: -1;
+            transform: translateZ(-1px);
+        }
 
-    &.face-1 .pip:nth-child(5),
-    &.face-2 .pip:nth-child(1),
-    &.face-2 .pip:nth-child(9),
-    &.face-3 .pip:nth-child(1),
-    &.face-3 .pip:nth-child(5),
-    &.face-3 .pip:nth-child(9),
-    &.face-4 .pip:nth-child(1),
-    &.face-4 .pip:nth-child(3),
-    &.face-4 .pip:nth-child(7),
-    &.face-4 .pip:nth-child(9),
-    &.face-5 .pip:nth-child(1),
-    &.face-5 .pip:nth-child(3),
-    &.face-5 .pip:nth-child(5),
-    &.face-5 .pip:nth-child(7),
-    &.face-5 .pip:nth-child(9),
-    &.face-6 .pip:nth-child(1),
-    &.face-6 .pip:nth-child(3),
-    &.face-6 .pip:nth-child(4),
-    &.face-6 .pip:nth-child(6),
-    &.face-6 .pip:nth-child(7),
-    &.face-6 .pip:nth-child(9) {
-        opacity: 1;
+        .pip {
+            width: 6px;
+            height: 6px;
+            background: $die-color;
+            border-radius: 50%;
+            margin: auto;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        &.face-1 .pip:nth-child(5),
+        &.face-2 .pip:nth-child(1),
+        &.face-2 .pip:nth-child(9),
+        &.face-3 .pip:nth-child(1),
+        &.face-3 .pip:nth-child(5),
+        &.face-3 .pip:nth-child(9),
+        &.face-4 .pip:nth-child(1),
+        &.face-4 .pip:nth-child(3),
+        &.face-4 .pip:nth-child(7),
+        &.face-4 .pip:nth-child(9),
+        &.face-5 .pip:nth-child(1),
+        &.face-5 .pip:nth-child(3),
+        &.face-5 .pip:nth-child(5),
+        &.face-5 .pip:nth-child(7),
+        &.face-5 .pip:nth-child(9),
+        &.face-6 .pip:nth-child(1),
+        &.face-6 .pip:nth-child(3),
+        &.face-6 .pip:nth-child(4),
+        &.face-6 .pip:nth-child(6),
+        &.face-6 .pip:nth-child(7),
+        &.face-6 .pip:nth-child(9) {
+            opacity: 1;
+        }
     }
-  }
 }
 
 @keyframes dice-shake-roll {
-  0%   { transform: translate(0, 0) rotate(0deg); }
-  10%  { transform: translate(-2px, 1px) rotate(-3deg); }
-  20%  { transform: translate(2px, -1px) rotate(3deg); }
-  30%  { transform: translate(-3px, 2px) rotate(-2deg); }
-  40%  { transform: translate(3px, -2px) rotate(2deg); }
-  50%  { transform: translate(-2px, 1px) rotate(-1deg); }
-  60%  { transform: translate(2px, 0) rotate(1deg); }
-  70%  { transform: translate(-1px, 1px) rotate(-2deg); }
-  80%  { transform: translate(1px, -1px) rotate(2deg); }
-  90%  { transform: translate(0px, 0px) rotate(-1deg); }
-  100% { transform: translate(0, 0) rotate(0deg); }
+    0% {
+        transform: translate(0, 0) rotate(0deg);
+    }
+
+    10% {
+        transform: translate(-2px, 1px) rotate(-3deg);
+    }
+
+    20% {
+        transform: translate(2px, -1px) rotate(3deg);
+    }
+
+    30% {
+        transform: translate(-3px, 2px) rotate(-2deg);
+    }
+
+    40% {
+        transform: translate(3px, -2px) rotate(2deg);
+    }
+
+    50% {
+        transform: translate(-2px, 1px) rotate(-1deg);
+    }
+
+    60% {
+        transform: translate(2px, 0) rotate(1deg);
+    }
+
+    70% {
+        transform: translate(-1px, 1px) rotate(-2deg);
+    }
+
+    80% {
+        transform: translate(1px, -1px) rotate(2deg);
+    }
+
+    90% {
+        transform: translate(0px, 0px) rotate(-1deg);
+    }
+
+    100% {
+        transform: translate(0, 0) rotate(0deg);
+    }
+}
+
+.magnified-overlay {
+    position: fixed;
+    z-index: 1000;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    // Add a slight shadow or glow to distinguish it
+    filter: drop-shadow(0 0 20px rgba(0, 0, 0, 0.5));
+
+    app-card-preview {
+        display: block;
+
+        ::ng-deep .scale-wrapper {
+            border-radius: 40px; // Consistent "physical" radius
+
+            .card-preview {
+                border-radius: 40px; // Consistent "physical" radius
+                overflow: hidden;
+            }
+        }
+    }
 }
 
 .game-component .component.rolling,
 .card-stack .shuffling {
-  animation: dice-shake-roll 0.6s ease-in-out;
+    animation: dice-shake-roll 0.6s ease-in-out;
+}
+
+.dialog-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.full-width-input {
+    width: 100%;
+}
+
+.p-input-icon-left.full-width-input {
+    display: block; // Ensure span takes full width
+    width: 100%;
+    position: relative; // Crucial for absolute positioning of child icon
+
+    >i {
+        position: absolute;
+        top: 50%;
+        left: 0.75rem;
+        margin-top: 0;
+        transform: translateY(-50%);
+        z-index: 10;
+        color: var(--p-text-color-secondary); // Use subtle text color
+    }
+
+    >input {
+        padding-left: 2.5rem; // Ensure text doesn't overlap icon
+    }
+}
+
+.dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.card-list {
+    display: flex;
+    flex-direction: column;
+    max-height: 300px;
+    overflow-y: auto;
+    // Match input style for consistency
+    border: 1px solid var(--p-inputtext-border-color, #ccc);
+    border-radius: var(--p-border-radius, 4px);
+    background: none;
+    color: var(--p-inputtext-color, #333);
+
+}
+
+.card-item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+    border-bottom: none;
+    border-radius: 10px;
+
+    &:last-child {
+        border-bottom: none;
+    }
+
+    &:hover {
+        background-color: var(--p-highlight-background, #e9ecef);
+        color: var(--p-highlight-color, #495057);
+    }
 }
