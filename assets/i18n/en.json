@@ -141,14 +141,18 @@
     },
     "simulator": {
         "draw-card": "Draw Card",
+        "rename-stack": "Rename Stack",
         "draw-card-facedown": "Draw Card Facedown",
         "draw-specific-card": "Draw Specific Card",
         "shuffle-stack": "Shuffle Stack",
         "flip-stack": "Flip Stack",
+        "rotate-left": "Rotate Left",
+        "rotate-right": "Rotate Right",
         "split-in-half": "Split in Half",
         "split-by-attribute": "Split by Attribute",
         "delete": "Delete",
         "flip-card": "Flip Card",
+        "toggle-holographic": "Toggle Holographic",
         "create-stack": "Create Stack",
         "discard-card": "Discard Card",
         "duplicate": "Duplicate",
@@ -159,6 +163,7 @@
         "add-die": "Add Die",
         "roll-die": "Roll Die",
         "zoom": "Zoom",
-        "reset-game": "Reset Game"
+        "reset-game": "Reset Game",
+        "update-game-state": "Update Game"
     }
 }
