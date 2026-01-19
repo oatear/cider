@@ -19,6 +19,7 @@
 :host ::ng-deep p-card:nth-child(2) {
     flex: 1;
     min-height: 0;
+    margin-bottom: 0;
 
     &.asset-card {
         height: 100%;
