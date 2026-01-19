@@ -582,6 +582,9 @@ export class SiteSidebarComponent implements OnInit {
   }
 
   private updateDirtyIndicators() {
+    if (!this.electronService.isElectron()) {
+      return;
+    }
     const traverse = (nodes: TreeNode[]) => {
       nodes.forEach(node => {
         if (node.data && node.data.type && node.data.id) {
