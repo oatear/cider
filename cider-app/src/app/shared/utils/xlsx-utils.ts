@@ -4,6 +4,7 @@ import { EntityService } from 'src/app/data-services/types/entity-service.type';
 import { FieldType } from 'src/app/data-services/types/field-type.type';
 import * as XLSX from 'xlsx';
 import FileUtils from './file-utils';
+import StringUtils from './string-utils';
 
 export default class XlsxUtils {
 
@@ -77,13 +78,22 @@ export default class XlsxUtils {
                     if (header.service) {
                         let foundValue = false;
                         lookups.get(header.service)?.forEach((value, key) => {
-                            if (value === (<any>object)[header.header]) {
+                            let dbValue = String(value).trim();
+                            let csvValue = String((<any>object)[header.header] || '').trim();
+                            if (dbValue === csvValue) {
                                 (<any>converted)[header.field] = key;
                                 foundValue = true;
+                            } else {
+                                // Fallback: try kebab-case comparison
+                                // This handles cases where template names are "My Template" (DB) but "my-template" (CSV)
+                                if (StringUtils.toKebabCase(dbValue) === StringUtils.toKebabCase(csvValue)) {
+                                    (<any>converted)[header.field] = key;
+                                    foundValue = true;
+                                }
                             }
                         });
                         if (!foundValue) {
-                            console.log(`Could not find value (${(<any>object)[header.header]}) for column: ${header.header}`);
+                            console.warn(`Could not find value (${(<any>object)[header.header]}) for column: ${header.header}. Available keys:`, [...(lookups.get(header.service)?.values() || [])]);
                         }
 
                     } else if (header.type === FieldType.dropdown) {

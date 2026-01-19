@@ -18,13 +18,14 @@ import XlsxUtils from '../shared/utils/xlsx-utils';
 import { DocumentsService } from '../data-services/services/documents.service';
 import { PersistentPath } from '../data-services/types/persistent-path.type';
 import { TranslateService } from '@ngx-translate/core';
+import { ProjectStateService } from '../data-services/services/project-state.service';
 
 @Component({
-    selector: 'app-site-menu',
-    templateUrl: './site-menu.component.html',
-    styleUrls: ['./site-menu.component.scss'],
-    providers: [MessageService, ConfirmationService],
-    standalone: false
+  selector: 'app-site-menu',
+  templateUrl: './site-menu.component.html',
+  styleUrls: ['./site-menu.component.scss'],
+  providers: [MessageService, ConfirmationService],
+  standalone: false
 })
 export class SiteMenuComponent implements OnInit {
 
@@ -46,7 +47,7 @@ export class SiteMenuComponent implements OnInit {
   public breadcrumbs: MenuItem[] = [];
   public home: MenuItem | undefined;
 
-  constructor(private decksService : DecksService,
+  constructor(private decksService: DecksService,
     private confirmationService: ConfirmationService,
     private electronService: ElectronService,
     private localStorageService: LocalStorageService,
@@ -55,6 +56,7 @@ export class SiteMenuComponent implements OnInit {
     private cardAttributesService: CardAttributesService,
     private cardTemplatesService: CardTemplatesService,
     private documentsService: DocumentsService,
+    private projectStateService: ProjectStateService,
     private translate: TranslateService,
     private ngZone: NgZone,
     private router: Router,
@@ -84,23 +86,25 @@ export class SiteMenuComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    combineLatest([this.selectedDeck$, this.recentProjectUrls$, 
-      this.projectHomeUrl$, this.projectUnsaved$,
-      this.translate.onLangChange]).subscribe({
-      next: ([selectedDeck, persistentPaths, projectHomeUrl, 
+    combineLatest([this.selectedDeck$, this.recentProjectUrls$,
+    this.projectHomeUrl$, this.projectUnsaved$,
+    this.translate.onLangChange]).subscribe({
+      next: ([selectedDeck, persistentPaths, projectHomeUrl,
         projectUnsaved, langChange]) => {
         // setup the recent project urls
-        this.recentProjectUrlItems = persistentPaths.map(persistentPath => { return {
-          label: StringUtils.lastDirectoryFromUrl(persistentPath.path),
-          title: persistentPath.path,
-          icon: 'pi pi-pw pi-folder',
-          command: () => {
-            this.electronService.selectDirectory(persistentPath);
-            this.localStorageService.addRecentProjectUrl(persistentPath);
-            this.openProject(persistentPath);
-            this.electronService.setProjectUnsaved(false);
+        this.recentProjectUrlItems = persistentPaths.map(persistentPath => {
+          return {
+            label: StringUtils.lastDirectoryFromUrl(persistentPath.path),
+            title: persistentPath.path,
+            icon: 'pi pi-pw pi-folder',
+            command: () => {
+              this.electronService.selectDirectory(persistentPath);
+              this.localStorageService.addRecentProjectUrl(persistentPath);
+              this.openProject(persistentPath);
+              this.electronService.setProjectUnsaved(false);
+            }
           }
-        }});
+        });
 
         // setup the menu items
         this.items = [
@@ -113,7 +117,7 @@ export class SiteMenuComponent implements OnInit {
                 icon: 'pi pi-pw pi-file',
                 visible: this.electronService.isElectron(),
                 command: () => this.newProject()
-              }, 
+              },
               {
                 label: this.translate.instant('menu.open-project'),
                 icon: 'pi pi-pw pi-folder',
@@ -123,7 +127,7 @@ export class SiteMenuComponent implements OnInit {
                 label: this.translate.instant('menu.open-recent'),
                 icon: 'pi pi-pw pi-folder',
                 visible: this.electronService.isElectron(),
-                disabled: !this.recentProjectUrlItems 
+                disabled: !this.recentProjectUrlItems
                   || this.recentProjectUrlItems.length <= 0,
                 items: this.recentProjectUrlItems
               }, {
@@ -139,14 +143,14 @@ export class SiteMenuComponent implements OnInit {
                 visible: this.electronService.isElectron(),
                 command: () => this.saveProjectAs()
               }, {
-                  separator:true,
-                  visible: this.electronService.isElectron(),
+                separator: true,
+                visible: this.electronService.isElectron(),
               }, {
                 label: this.translate.instant('menu.advanced'),
                 icon: 'pi pi-pw pi-database',
                 items: [
                   {
-                    label: this.translate.instant('menu.reload-project'), 
+                    label: this.translate.instant('menu.reload-project'),
                     icon: 'pi pi-pw pi-folder',
                     visible: this.electronService.isElectron(),
                     command: () => this.reloadProjectProcedure()
@@ -165,14 +169,14 @@ export class SiteMenuComponent implements OnInit {
                   }
                 ]
               }, {
-                separator:true
+                separator: true
               }, {
                 label: this.translate.instant("menu.export-cards"),
                 icon: 'pi pi-pw pi-file-pdf',
                 disabled: !selectedDeck,
                 routerLink: [`/decks/${selectedDeck?.id}/export-cards`]
               }, {
-                separator:true,
+                separator: true,
                 visible: this.electronService.isElectron(),
               }, {
                 label: this.translate.instant('menu.exit-project'),
@@ -189,7 +193,8 @@ export class SiteMenuComponent implements OnInit {
             ]
           }
         ];
-    }});
+      }
+    });
 
     // use the router to update the current route
     this.router.events.pipe(
@@ -217,7 +222,7 @@ export class SiteMenuComponent implements OnInit {
       currentPath += pathSegment;
       const label = await lastValueFrom(
         this.translate.get(`breadcrumbs.${segment}`).pipe(timeout(1000)))
-        .then(translation => translation !== `breadcrumbs.${segment}` ? translation 
+        .then(translation => translation !== `breadcrumbs.${segment}` ? translation
           : StringUtils.kebabToTitleCase(segment));
 
       breadcrumbs.push({
@@ -229,7 +234,7 @@ export class SiteMenuComponent implements OnInit {
 
     this.breadcrumbs = breadcrumbs;
   }
-  
+
   public uploadFile(event: any) {
     if (event?.currentFiles?.length) {
       this.importFile = event.files[0];
@@ -331,7 +336,7 @@ export class SiteMenuComponent implements OnInit {
 
   public logoClicked() {
     this.isSaving = true;
-    setTimeout (() => {
+    setTimeout(() => {
       this.isSaving = false;
     }, 1800);
   }
@@ -400,7 +405,7 @@ export class SiteMenuComponent implements OnInit {
     this.displayLoading = true;
     this.loadingHeader = 'Saving Project';
     this.loadingInfo = 'Exporting database rows...';
-    
+
     // save to the filesystem
     const assetsPromised = this.assetsService.getAll();
     const documentsPromised = this.documentsService.getAll();
@@ -422,17 +427,20 @@ export class SiteMenuComponent implements OnInit {
       // templates
       const templates = await this.cardTemplatesService.getAll({ deckId: deck.id });
       return {
+        id: deck.id,
         name: StringUtils.toKebabCase(deck.name),
         cardsCsv: cardsCsv,
         attributesCsv: attributesCsv,
         templates: templates
       };
     })));
-    
-    Promise.all([assetsPromised, documentsPromised, decksPromised]).then(([assets, documents, decks]) => {
-      return this.electronService.saveProject(assets, documents, decks);
+
+    Promise.all([assetsPromised, documentsPromised, decksPromised]).then(async ([assets, documents, decks]) => {
+      const dirtyEntities = await firstValueFrom(this.projectStateService.getDirtyEntities());
+      return this.electronService.saveProject(assets, documents, decks, dirtyEntities);
     }).then(() => {
       this.electronService.setProjectUnsaved(false);
+      this.projectStateService.clearDirtyState();
       this.isSaving = false;
       this.displayLoading = false;
     });
@@ -464,20 +472,46 @@ export class SiteMenuComponent implements OnInit {
   }
 
   private openProjectProcedure(persistentPath: PersistentPath) {
+    // Check for crash recovery
+    const recoveryPath = this.projectStateService.getCrashRecoveryPath();
+    if (recoveryPath === persistentPath.path) {
+      this.confirmationService.confirm({
+        message: 'It appears the application closed unexpectedly while working on this project. Do you want to recover your unsaved changes?',
+        header: 'Crash Recovery',
+        icon: 'pi pi-exclamation-triangle',
+        accept: () => {
+          this.executeOpenProject(persistentPath, true);
+        },
+        reject: () => {
+          this.executeOpenProject(persistentPath, false);
+        }
+      });
+    } else {
+      this.executeOpenProject(persistentPath, false);
+    }
+  }
+
+  private executeOpenProject(persistentPath: PersistentPath, recover: boolean) {
     this.loadingIndeterminate = true;
     this.loadingHeader = 'Opening Project';
     this.loadingInfo = 'Reading project data...';
     this.displayLoading = true;
+    this.projectStateService.setTrackingEnabled(false);
     this.electronService.openProject(persistentPath, this.db, this.assetsService, this.decksService,
-      this.cardTemplatesService, this.cardAttributesService, this.cardsService, 
-      this.documentsService).then(() => {
+      this.cardTemplatesService, this.cardAttributesService, this.cardsService,
+      this.documentsService, recover).then(async () => {
+        this.projectStateService.setTrackingEnabled(true);
         this.assetsService.updateAssetUrls();
         this.decksService.selectDeck(undefined);
-        this.electronService.setProjectUnsaved(false);
+        if (recover) {
+          await this.projectStateService.markAllDirty();
+        } else {
+          this.projectStateService.clearDirtyState();
+        }
         this.electronService.setProjectOpen(true);
         this.router.navigateByUrl(`/project`);
         this.displayLoading = false;
-    });
+      });
   }
 
   public titlebarDoubleClick() {

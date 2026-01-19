@@ -15,6 +15,8 @@ import { DocumentsService } from '../data-services/services/documents.service';
 import { HttpClient } from '@angular/common/http';
 import { AppDB } from '../data-services/indexed-db/db';
 import { TranslateService } from '@ngx-translate/core';
+import { ProjectStateService } from '../data-services/services/project-state.service';
+import { PersistentPath } from '../data-services/types/persistent-path.type';
 import { Asset } from '../data-services/types/asset.type';
 
 @Component({
@@ -46,6 +48,7 @@ export class SiteSidebarComponent implements OnInit {
     private translate: TranslateService,
     private httpClient: HttpClient,
     private router: Router,
+    private projectStateService: ProjectStateService,
     private db: AppDB) {
     // Initialize or fetch any necessary data here
     // observe the decks and templates
@@ -74,14 +77,16 @@ export class SiteSidebarComponent implements OnInit {
       }
     });
 
-    // update menu on db change, but only if project is open
-    combineLatest([this.db.onChange()])
+    combineLatest([this.db.onChange(), this.projectStateService.getDirtyEntities()])
       .pipe(debounceTime(500)).subscribe(() => {
         const isProjectOpen: boolean = this.electronService.getIsProjectOpen().getValue();
         if (!this.electronService.isElectron() || isProjectOpen) {
           console.log('change detected, project is open, sidebar update');
-          this.updateFiles();
+          this.updateFiles().then(() => {
+            this.updateDirtyIndicators();
+          });
         } else {
+
           console.log('change detected, project is not open, skipping sidebar update');
         }
       });
@@ -139,6 +144,8 @@ export class SiteSidebarComponent implements OnInit {
           label: document.name,
           data: {
             url: '/documents/' + document.id,
+            id: document.id,
+            type: 'document'
           },
           icon: 'pi pi-receipt',
           styleClass: 'document-file',
@@ -155,6 +162,8 @@ export class SiteSidebarComponent implements OnInit {
           label: document.name,
           data: {
             url: '/documents/' + document.id,
+            id: document.id,
+            type: 'document',
             contextMenu: [
               {
                 label: this.translate.instant('sidebar.add-new-document'),
@@ -258,6 +267,8 @@ export class SiteSidebarComponent implements OnInit {
               label: template.name,
               data: {
                 url: '/decks/' + deck.id + '/templates/' + template.id,
+                id: template.id,
+                type: 'template',
                 contextMenu: [
                   {
                     label: this.translate.instant('sidebar.add-new-card-template'),
@@ -301,6 +312,8 @@ export class SiteSidebarComponent implements OnInit {
           label: deck.name,
           data: {
             url: '/decks/' + deck.id + '/cards',
+            id: deck.id,
+            type: 'deck',
             contextMenu: [
               {
                 label: this.translate.instant('sidebar.add-new-card-template'),
@@ -402,6 +415,8 @@ export class SiteSidebarComponent implements OnInit {
           label: asset.name,
           data: {
             url: '/assets/' + asset.id,
+            id: asset.id,
+            type: 'asset',
             contextMenu: [
               {
                 label: this.translate.instant('sidebar.add-new-asset'),
@@ -564,6 +579,31 @@ export class SiteSidebarComponent implements OnInit {
       }
     });
     this.dialogVisible = true;
+  }
+
+  private updateDirtyIndicators() {
+    const traverse = (nodes: TreeNode[]) => {
+      nodes.forEach(node => {
+        if (node.data && node.data.type && node.data.id) {
+          const isDirty = this.projectStateService.isEntityDirty(node.data.type, node.data.id);
+          if (isDirty) {
+            if (!node.label?.endsWith('*')) {
+              node.label = node.label + ' *';
+              node.styleClass = (node.styleClass || '') + ' dirty-node';
+            }
+          } else {
+            if (node.label?.endsWith(' *')) {
+              node.label = node.label?.substring(0, node.label.length - 2);
+              node.styleClass = node.styleClass?.replace('dirty-node', '').trim();
+            }
+          }
+        }
+        if (node.children) {
+          traverse(node.children);
+        }
+      });
+    };
+    traverse(this.files);
   }
 
 }

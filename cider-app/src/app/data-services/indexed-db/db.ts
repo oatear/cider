@@ -36,7 +36,7 @@ export class AppDB extends Dexie {
     assets!: Table<Asset, number>;
     cardTemplates!: Table<CardTemplate, number>;
     private httpClient;
-    private changeSubject: Subject<null>;
+    private changeSubject: Subject<any>;
     private loadSubject: Subject<null>;
 
     constructor(httpClient: HttpClient,
@@ -44,7 +44,7 @@ export class AppDB extends Dexie {
     ) {
         super(AppDB.DB_NAME);
         this.httpClient = httpClient;
-        this.changeSubject = new Subject<null>();
+        this.changeSubject = new Subject<any>();
         this.loadSubject = new Subject<null>();
         /**
          * Dexie Versioning Documentation:
@@ -152,8 +152,49 @@ export class AppDB extends Dexie {
 
         // trigger changeSubject when change emitted to db
         Dexie.on('storagemutated', (event) => {
-            this.changeSubject.next(null);
+            // We still use this for general "unsaved" flag if needed, 
+            // but rely on hooks for granular updates.
+            // this.changeSubject.next(event); 
         });
+
+        this.on('populate', () => {
+            // populate
+        });
+
+        // Add hooks for granular dirty tracking
+        const trackChange = (tableName: string, type: string, key: any) => {
+            this.changeSubject.next({ tableName, type, key });
+        };
+
+        // We need to wait for tables to be initialized or just access them via this.table()
+        // But hook must be on the specific table instance.
+        // It's safer to loop strictly over known tables.
+
+        const tablesToWatch = [
+            { name: AppDB.DECKS_TABLE },
+            { name: AppDB.CARDS_TABLE },
+            { name: AppDB.ASSETS_TABLE },
+            { name: AppDB.CARD_TEMPLATES_TABLE },
+            { name: AppDB.CARD_ATTRIBUTES_TABLE },
+            { name: AppDB.DOCUMENTS_TABLE }
+        ];
+
+        tablesToWatch.forEach(t => {
+            this.table(t.name).hook('creating', function (primKey, obj, trans) {
+                // For auto-incremented keys, primKey is undefined here.
+                // We must assign onsuccess to capture the generated key.
+                this.onsuccess = function (id) {
+                    trackChange(t.name, 'create', id);
+                };
+            });
+            this.table(t.name).hook('updating', (mods, primKey, obj, trans) => {
+                trackChange(t.name, 'update', primKey);
+            });
+            this.table(t.name).hook('deleting', (primKey, obj, trans) => {
+                trackChange(t.name, 'delete', primKey);
+            });
+        });
+
     }
 
     async populateFromFile() {

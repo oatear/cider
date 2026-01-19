@@ -6,6 +6,8 @@ import { AsyncSubject, BehaviorSubject, Observable } from 'rxjs';
 import { SearchParameters } from '../types/search-parameters.type';
 import { IndexedDbService } from '../indexed-db/indexed-db.service';
 import StringUtils from 'src/app/shared/utils/string-utils';
+import { ElectronService } from '../electron/electron.service';
+import { PersistentPath } from '../types/persistent-path.type';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +16,9 @@ export class AssetsService extends IndexedDbService<Asset, number> {
   assetUrls: BehaviorSubject<any>;
   private isLoadingSubject: BehaviorSubject<boolean>;
 
-  constructor(db: AppDB) {
+  private currentHomeUrl: PersistentPath | undefined;
+
+  constructor(db: AppDB, private electronService: ElectronService) {
     super(db, AppDB.ASSETS_TABLE, [
       { field: 'id', header: 'ID', type: FieldType.numeric, hidden: true },
       { field: 'name', header: 'Name', type: FieldType.text },
@@ -28,6 +32,63 @@ export class AssetsService extends IndexedDbService<Asset, number> {
     db.onLoad().subscribe(() => {
       this.updateAssetUrls();
     });
+
+    this.electronService.getProjectHomeUrl().subscribe(url => this.currentHomeUrl = url);
+
+    // Handle File Watcher Events
+    this.electronService.getFileAdded().subscribe(path => this.handleFileAdded(path));
+    this.electronService.getFileRemoved().subscribe(path => this.handleFileRemoved(path));
+  }
+
+  private async handleFileAdded(absPath: string) {
+    if (!this.currentHomeUrl) return;
+    const homeUrl = this.currentHomeUrl;
+
+    const assetsPath = homeUrl.path + '/assets'; // Hardcoded structure from ElectronService
+    if (absPath.startsWith(assetsPath)) {
+      console.log('New asset detected:', absPath);
+      const fileName = StringUtils.lastDirectoryFromUrl(absPath);
+      const nameSplit = StringUtils.splitNameAndExtension(fileName);
+      const assetName = nameSplit.name;
+
+      // Check if exists
+      const existing = await this.getByName(assetName);
+      if (existing && existing.id) {
+        console.log('Asset already exists in DB');
+        return;
+      }
+
+      // Import
+      const persistentPath: any = { path: absPath, bookmark: homeUrl.bookmark }; // assuming bookmark works for subpath or we request access
+      const buffer = await this.electronService.readFile(persistentPath);
+      if (buffer) {
+        const fileType = StringUtils.extensionToMime(nameSplit.extension);
+        const blob = new Blob([new Uint8Array(buffer)], { type: fileType });
+        const file = new File([blob], fileName, { type: fileType });
+        await this.create({
+          file: file,
+          name: assetName,
+        } as any, true);
+        this.updateAssetUrls();
+      }
+    }
+  }
+
+  private async handleFileRemoved(absPath: string) {
+    if (!this.currentHomeUrl) return;
+    const homeUrl = this.currentHomeUrl;
+    const assetsPath = homeUrl.path + '/assets';
+    if (absPath.startsWith(assetsPath)) {
+      const fileName = StringUtils.lastDirectoryFromUrl(absPath);
+      const nameSplit = StringUtils.splitNameAndExtension(fileName);
+      const assetName = nameSplit.name;
+
+      const existing = await this.getByName(assetName);
+      if (existing && existing.id) {
+        await this.delete(existing.id);
+        this.updateAssetUrls();
+      }
+    }
   }
 
   public updateAssetUrls() {
