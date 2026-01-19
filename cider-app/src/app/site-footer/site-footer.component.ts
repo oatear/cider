@@ -5,20 +5,24 @@ import PackageUtils from '../shared/utils/package-utils';
 import { PersistentPath } from '../data-services/types/persistent-path.type';
 
 @Component({
-    selector: 'app-site-footer',
-    templateUrl: './site-footer.component.html',
-    styleUrls: ['./site-footer.component.scss'],
-    standalone: false
+  selector: 'app-site-footer',
+  templateUrl: './site-footer.component.html',
+  styleUrls: ['./site-footer.component.scss'],
+  standalone: false
 })
 export class SiteFooterComponent implements OnInit {
   projectHomeUrl$: Observable<PersistentPath | undefined>;
   projectUnsaved$: Observable<boolean>;
   appVersion: string = '0.0.0';
 
-  constructor(private electronService : ElectronService) {
+  constructor(public electronService: ElectronService) {
     this.projectHomeUrl$ = this.electronService.getProjectHomeUrl();
     this.projectUnsaved$ = this.electronService.getProjectUnsaved();
     this.appVersion = PackageUtils.getVersion();
+  }
+
+  get isElectron(): boolean {
+    return this.electronService.isElectron();
   }
 
   ngOnInit(): void {

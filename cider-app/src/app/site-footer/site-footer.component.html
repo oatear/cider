@@ -1,12 +1,14 @@
 <div class="footer">
     <span>CIDEr {{appVersion}}</span>
-    <span class="fill">{{
-        !(projectHomeUrl$ | async)?.path && (projectUnsaved$ | async) ? 'Untitled' : ''
-    }}
-        {{(projectHomeUrl$ | async)?.path}}
-        {{(projectUnsaved$ | async) ? '*' : ''}}</span>
+    <span class="fill">
+        <ng-container *ngIf="isElectron">
+            {{ !(projectHomeUrl$ | async)?.path && (projectUnsaved$ | async) ? 'Untitled' : '' }}
+            {{(projectHomeUrl$ | async)?.path}}
+            {{(projectUnsaved$ | async) ? '*' : ''}}
+        </ng-container>
+    </span>
     <span class="p-mr-2">Copyright Ⓒ 2025 Oatear LLC</span>
-    <p-button icon="pi pi-discord" [rounded]="true" [text]="true" (onClick)="navigateToDiscord()"/>
-    <p-button icon="pi pi-github" [rounded]="true" [text]="true" (onClick)="navigateToGithub()"/>
-    <p-button icon="pi pi-book" [rounded]="true" [text]="true" (onClick)="navigateToUserGuide()"/>
+    <p-button icon="pi pi-discord" [rounded]="true" [text]="true" (onClick)="navigateToDiscord()" />
+    <p-button icon="pi pi-github" [rounded]="true" [text]="true" (onClick)="navigateToGithub()" />
+    <p-button icon="pi pi-book" [rounded]="true" [text]="true" (onClick)="navigateToUserGuide()" />
 </div>
