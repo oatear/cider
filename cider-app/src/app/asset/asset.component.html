@@ -2,7 +2,7 @@
   <span class="asset-name">{{ asset.name }}</span>
   <span class="asset-details">
     @if (fileType == 'image') {
-      <p-tag class="p-mr-2">{{ imageDimensions.width }} x {{ imageDimensions.height }} </p-tag>
+    <p-tag class="p-mr-2">{{ imageDimensions.width }} x {{ imageDimensions.height }} </p-tag>
     }
     <p-tag class="p-mr-2">{{ fileSize }} </p-tag>
     <p-tag class="p-mr-2">{{ fileExtension }} </p-tag>
@@ -12,20 +12,81 @@
   <button pButton type="button" icon="pi pi-search-minus" (click)="changeZoom(-0.1)"></button>
   <button pButton type="button" icon="pi pi-search-plus" (click)="changeZoom(0.1)"></button>
 </p-buttongroup> -->
-<span class="asset-controls">
-  <button pButton type="button" icon="pi pi-pencil" (click)="openEditDialog(asset)" class="p-mr-2"></button>
-  <button pButton type="button" icon="pi pi-trash" (click)="openDeleteDialog(asset)" severity="danger" ></button>
-</span>
+  <span class="asset-controls">
+    <button pButton type="button" icon="pi pi-pencil" (click)="openEditDialog(asset)" class="p-mr-2"></button>
+    <button pButton type="button" icon="pi pi-trash" (click)="openDeleteDialog(asset)" severity="danger"></button>
+  </span>
 </p-card>
 <p-card styleClass="page-card asset-card">
   <!-- <img [src]="asset.file | fileUrl" [style.transform]="'scale(' + zoom + ')'"/> -->
   @if (fileType == 'image') {
-    <img [src]="asset.file | fileUrl"/>
+  <img [src]="asset.file | fileUrl" />
   }
-  @if (fileType != 'image') {
-    <div class="preview">
-      {{ fileExtension | uppercase }} {{ fileType | uppercase}}
+
+  @if (fileType == 'font') {
+  <div class="font-preview-container">
+    <div class="font-header">
+      <div class="font-icon-sample" [style.font-family]="fontPreviewFamily ? fontPreviewFamily : 'sans-serif'">
+        Aa
+      </div>
+      <div class="font-header-info">
+        <h2>{{ fontMetadata?.fontFamily || asset.name }}</h2>
+        <span class="subfamily">{{ fontMetadata?.fontSubfamily || 'Regular' }}</span>
+      </div>
     </div>
+
+    <div class="preview-section">
+      <label>Preview Text</label>
+      <textarea pInputTextarea [autoResize]="true" [(ngModel)]="previewText" [style.font-family]="fontPreviewFamily"
+        [style.font-size.px]="previewFontSize" class="live-preview-input"></textarea>
+      <div class="preview-controls">
+        <i class="pi pi-minus-circle" (click)="decreasePreviewFontSize()"></i>
+        <span>{{ previewFontSize }}px</span>
+        <i class="pi pi-plus-circle" (click)="increasePreviewFontSize()"></i>
+      </div>
+    </div>
+
+    <div class="metadata-grid" *ngIf="fontMetadata">
+      <div class="meta-item">
+        <label>Full Name</label>
+        <span>{{ fontMetadata.fullName }}</span>
+      </div>
+      <div class="meta-item">
+        <label>Version</label>
+        <span>{{ fontMetadata.version }}</span>
+      </div>
+      <div class="meta-item">
+        <label>Copyright</label>
+        <span>{{ fontMetadata.copyright }}</span>
+      </div>
+      <div class="meta-item">
+        <label>License</label>
+        <a *ngIf="fontMetadata.licenseURL" [href]="fontMetadata.licenseURL" target="_blank">View License</a>
+        <span *ngIf="!fontMetadata.licenseURL">{{ fontMetadata.license }}</span>
+      </div>
+      <div class="meta-item full-width" *ngIf="fontMetadata.designer">
+        <label>Designer</label>
+        <a *ngIf="fontMetadata.designerURL" [href]="fontMetadata.designerURL" target="_blank">{{ fontMetadata.designer
+          }}</a>
+        <span *ngIf="!fontMetadata.designerURL">{{ fontMetadata.designer }}</span>
+      </div>
+    </div>
+
+    <div class="usage-section">
+      <div class="section-header">
+        <h3>Usage</h3>
+        <button pButton icon="pi pi-copy" [label]="copyState['usage'] ? 'Copied!' : 'Copy'"
+          class="p-button-sm p-button-text" (click)="copyToClipboard(fontUsageSnippet, 'usage')"></button>
+      </div>
+      <pre class="code-block"><code>{{ fontUsageSnippet }}</code></pre>
+    </div>
+  </div>
+  }
+
+  @if (fileType != 'image' && fileType != 'font') {
+  <div class="preview">
+    {{ fileExtension | uppercase }} {{ fileType | uppercase}}
+  </div>
   }
 </p-card>
 <app-entity-dialog [service]="assetsService" [(visible)]="dialogVisible" [entity]="asset"></app-entity-dialog>
