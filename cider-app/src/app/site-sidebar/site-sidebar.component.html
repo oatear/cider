@@ -1,5 +1,6 @@
 <p-tree [value]="files" styleClass="file-tree" [filter]="true" [filterPlaceholder]="'controls.search' | translate"
-    [selectionMode]="'single'" [(selection)]="selectedFile" [contextMenu]="cm"
+    [selectionMode]="'single'" [(selection)]="selectedFile" [contextMenu]="cm" [draggableNodes]="true"
+    [droppableNodes]="true" (onNodeDrop)="onNodeDrop($event)" draggableScope="self" droppableScope="self"
     (onNodeContextMenuSelect)="onNodeContextMenuSelect($event)" (onNodeSelect)="onNodeSelect($event)">
     <ng-template let-node pTemplate="default">
         <span>{{ node.label }}</span>

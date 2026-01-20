@@ -192,6 +192,25 @@ try {
       return true;
     });
   });
+  /**
+   * Rename directory
+   * 
+   * params: oldUrl, newUrl
+   * return true
+   */
+  ipcMain.handle('rename-directory', async (event, oldPersistentPath, newPersistentPath) => {
+    const stopAccess = requestPathAccess(oldPersistentPath);
+    if (!fs.existsSync(oldPersistentPath.path)) {
+      console.log('directory does not exists', oldPersistentPath.path);
+      stopAccess();
+      return false;
+    }
+    return fs.promises.rename(oldPersistentPath.path, newPersistentPath.path).then(() => {
+      console.log('directory renamed', oldPersistentPath.path, 'to', newPersistentPath.path);
+      stopAccess();
+      return true;
+    });
+  });
 
   /**
    * List files in a directory

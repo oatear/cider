@@ -27,9 +27,10 @@ export class AppDB extends Dexie {
     public static readonly PRINT_TEMPLATES_TABLE: string = 'printTemplates';
     public static readonly CARD_ATTRIBUTES_TABLE: string = 'cardAttributes';
     public static readonly DOCUMENTS_TABLE: string = 'documents';
+    public static readonly ASSET_FOLDERS_TABLE: string = 'assetFolders';
     private static readonly ALL_TABLES = [
         AppDB.GAMES_TABLE, AppDB.DECKS_TABLE, AppDB.CARDS_TABLE, AppDB.ASSETS_TABLE,
-        AppDB.CARD_TEMPLATES_TABLE, AppDB.CARD_ATTRIBUTES_TABLE, AppDB.DOCUMENTS_TABLE];
+        AppDB.CARD_TEMPLATES_TABLE, AppDB.CARD_ATTRIBUTES_TABLE, AppDB.DOCUMENTS_TABLE, AppDB.ASSET_FOLDERS_TABLE];
 
     games!: Table<Deck, number>;
     cards!: Table<Card, number>;
@@ -132,6 +133,18 @@ export class AppDB extends Dexie {
         this.version(8).stores({
             cardAttributes: '++id, deckId, name, [deckId+name], type, options, description, width, order',
         });
+        this.version(9).stores({
+            assets: '++id, name, path',
+        }).upgrade(transaction => {
+            return transaction.table(AppDB.ASSETS_TABLE).toCollection().modify(asset => {
+                if (!asset.path) {
+                    asset.path = '';
+                }
+            });
+        });
+        this.version(10).stores({
+            assetFolders: '++id, path',
+        });
 
         // populate in a non-traditional way since the 'on populate' will not allow ajax calls
         this.on('ready', () => this.table(AppDB.DECKS_TABLE).count()
@@ -176,7 +189,8 @@ export class AppDB extends Dexie {
             { name: AppDB.ASSETS_TABLE },
             { name: AppDB.CARD_TEMPLATES_TABLE },
             { name: AppDB.CARD_ATTRIBUTES_TABLE },
-            { name: AppDB.DOCUMENTS_TABLE }
+            { name: AppDB.DOCUMENTS_TABLE },
+            { name: AppDB.ASSET_FOLDERS_TABLE }
         ];
 
         tablesToWatch.forEach(t => {

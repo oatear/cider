@@ -8,11 +8,11 @@ import FileUtils from '../shared/utils/file-utils';
 import { combineLatest, forkJoin, take } from 'rxjs';
 
 @Component({
-    selector: 'app-asset',
-    templateUrl: './asset.component.html',
-    styleUrl: './asset.component.scss',
-    providers: [MessageService, ConfirmationService],
-    standalone: false
+  selector: 'app-asset',
+  templateUrl: './asset.component.html',
+  styleUrl: './asset.component.scss',
+  providers: [MessageService, ConfirmationService],
+  standalone: false
 })
 export class AssetComponent {
   public asset: Asset = {} as Asset;
@@ -39,7 +39,7 @@ export class AssetComponent {
       const assetIdString = routeParams.get('assetId') || '';
       const assetId = parseInt(assetIdString, 10);
       this.assetUrls = assetUrls;
-      
+
       if (!isNaN(assetId)) {
         this.assetsService.get(assetId).then((asset) => {
           this.asset = asset;
@@ -54,7 +54,7 @@ export class AssetComponent {
 
   private updateFileDetails() {
     if (this.asset && this.asset.name && this.assetUrls) {
-      const fileUrl = this.assetUrls[StringUtils.toKebabCase(this.asset.name)];
+      const fileUrl = this.getAssetUrl(this.asset, this.assetUrls);
       if (fileUrl) {
         this.fileSize = FileUtils.formatFileSize(this.asset.file.size);
         this.fileExtension = StringUtils.mimeToExtension(this.asset.file.type);
@@ -80,7 +80,7 @@ export class AssetComponent {
     }
   }
 
-  public openEditDialog(asset : Asset) {
+  public openEditDialog(asset: Asset) {
     this.asset = asset;
     this.dialogVisible = true;
   }
@@ -89,7 +89,7 @@ export class AssetComponent {
     const id = (<any>asset)[this.assetsService?.getIdField()];
     this.updateExisting(id, asset);
   }
-  
+
   public updateExisting(id: number, asset: Asset) {
     this.assetsService?.update(id, asset).then(result => {
     }).catch(error => {
@@ -97,7 +97,7 @@ export class AssetComponent {
     });
   }
 
-  public openDeleteDialog(entity : Asset) {
+  public openDeleteDialog(entity: Asset) {
     this.confirmationService.confirm({
       message: 'Are you sure you want to delete this entity?',
       header: 'Delete Entity',
@@ -108,6 +108,22 @@ export class AssetComponent {
         });
       }
     });
+  }
+
+  public getAssetUrl(asset: Asset, assetUrls: any): string {
+    let currentLevel = assetUrls;
+    if (asset.path) {
+      const parts = asset.path.split('/');
+      for (const part of parts) {
+        const key = StringUtils.toKebabCase(part);
+        if (currentLevel[key]) {
+          currentLevel = currentLevel[key];
+        } else {
+          return '';
+        }
+      }
+    }
+    return currentLevel[StringUtils.toKebabCase(asset.name)];
   }
 
 }

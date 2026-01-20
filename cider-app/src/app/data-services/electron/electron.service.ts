@@ -159,6 +159,13 @@ export class ElectronService {
     return this.getIpcRenderer().invoke("remove-directory", persistentPath);
   }
 
+  public renameDirectory(oldPersistentPath: PersistentPath, newPersistentPath: PersistentPath): Promise<boolean> {
+    if (!this.isElectron()) {
+      return Promise.resolve(false);
+    }
+    return this.getIpcRenderer().invoke("rename-directory", oldPersistentPath, newPersistentPath);
+  }
+
   public listDirectory(persistentPath: PersistentPath): Promise<{
     name: string; isDirectory: boolean; isFile: boolean;
   }[]> {
@@ -413,30 +420,87 @@ export class ElectronService {
     if (!this.isElectron()) return false;
     const assetsUrl = homeUrl.path + "/" + ElectronService.ASSETS_DIR;
     if (!homeUrl.path) return false;
-    // We rely on createDirectory to handle existence (it returns false if exists but creates if not)
-    await this.createDirectory({ bookmark: homeUrl.bookmark, path: assetsUrl });
+
+    // Use asset.path to determining target directory
+    const assetFolder = asset.path ? asset.path : '';
+    const fullFolderPath = assetsUrl + (assetFolder ? '/' + assetFolder : '');
+
+    // Ensure the folder exists
+    await this.createDirectory({ bookmark: homeUrl.bookmark, path: fullFolderPath });
 
     const extension = StringUtils.mimeToExtension(asset.file.type);
     const filename = StringUtils.toKebabCase(asset.name) + '.' + extension;
+    const fullPath = fullFolderPath + '/' + filename;
 
     const buffer = await asset.file.arrayBuffer();
     // Optimization: Check if file exists? 
-    // Checking binary content is expensive.
-    // For now, let's just check if it exists. If it does, we assume it hasn't changed 
-    // because assets in this app are usually immutable (renaming creates a new one). 
-    // But if user REPLACED usage of an asset? 
-    // Actually, 'Asset' entity matches a file. 
-    // If we just overwrite, it's fine. 
-    // But to avoid write, we can check existence.
-    const fileExists = await this.readFile({ bookmark: homeUrl.bookmark, path: assetsUrl + '/' + filename }).then(b => !!b);
+    const fileExists = await this.readFile({ bookmark: homeUrl.bookmark, path: fullPath }).then(b => !!b);
     if (fileExists) {
       return true;
     }
 
     return await this.writeFile({
       bookmark: homeUrl.bookmark,
-      path: assetsUrl + '/' + filename
+      path: fullPath
     }, Buffer.from(buffer));
+  }
+
+  // ...
+
+  private async pruneAssets(homeUrl: PersistentPath, currentAssets: Asset[]) {
+    if (!this.isElectron()) return;
+    const assetsUrl = homeUrl.path + "/" + ElectronService.ASSETS_DIR;
+    const validAssetPaths = new Set<string>();
+
+    currentAssets.forEach(asset => {
+      const extension = StringUtils.mimeToExtension(asset.file.type);
+      const filename = StringUtils.toKebabCase(asset.name) + '.' + extension;
+      const relativePath = asset.path ? asset.path + '/' + filename : filename;
+      validAssetPaths.add(relativePath);
+    });
+
+    try {
+      // Recursive prune
+      const pruneRecursive = async (currentPath: string, relativePath: string) => {
+        const files = await this.listDirectory({ bookmark: homeUrl.bookmark, path: currentPath });
+        for (const file of files) {
+          const fileRelativePath = relativePath ? relativePath + '/' + file.name : file.name;
+          if (file.isDirectory) {
+            // Recurse
+            await pruneRecursive(currentPath + '/' + file.name, fileRelativePath);
+            // Check if directory is empty after pruning children? 
+            // If so, delete it?
+            // Maybe check if directory is in our valid paths (as a prefix)?
+            // Actually we didn't track "valid folders".
+            // But if a folder is empty, we can delete it.
+            const remaining = await this.listDirectory({ bookmark: homeUrl.bookmark, path: currentPath + '/' + file.name });
+            if (remaining.length === 0) {
+              console.log(`Pruning empty folder: ${file.name}`);
+              // this.removeDirectory({ bookmark: homeUrl.bookmark, path: currentPath + '/' + file.name }); 
+              // Careful removing directories if they were just created by user but empty.
+              // But this is "Prune". Sync with DB state. 
+              // If DB assumes it's empty/gone, we delete.
+              // But we support empty folders in UI... 
+              // However, pruneAssets is call on SAVE.
+              // If we only save VALID assets, we might wipe empty folders.
+              // We need to decide if we persist empty folders.
+              // Since AssetsService doesn't track folders, we lose empty folders on save if we wipe them.
+              // Let's KEEP empty folders for now to avoid deleting user's new folders.
+            }
+          } else {
+            // File
+            if (!file.name.includes('.DS_Store') && !validAssetPaths.has(fileRelativePath)) {
+              console.log(`Pruning orphaned asset: ${fileRelativePath}`);
+              await this.removeDirectory({ bookmark: homeUrl.bookmark, path: currentPath + '/' + file.name });
+            }
+          }
+        }
+      };
+      await pruneRecursive(assetsUrl, '');
+
+    } catch (e) {
+      console.error("Error pruning assets", e);
+    }
   }
 
   public async saveDeckCards(homeUrl: PersistentPath, deckName: string, csv: string): Promise<boolean> {
@@ -532,25 +596,52 @@ export class ElectronService {
         return document;
       })));
 
-    // read assets
-    await this.listDirectory({ bookmark: homeUrl.bookmark, path: assetsUrl }).then(assetUrls => Promise.all(assetUrls
-      .filter(assetUrl => assetUrl.isFile && !assetUrl.name.includes('.DS_Store')).map(async assetUrl => {
-        const assetNameSplit = StringUtils.splitNameAndExtension(assetUrl.name);
-        const assetName = assetNameSplit.name;
-        const assetExt = assetNameSplit.extension;
-        const assetBuffer = await this.readFile({ bookmark: homeUrl.bookmark, path: assetsUrl + '/' + assetUrl.name });
-        if (!assetBuffer) {
-          return;
+    // read assets recursively
+    // Helper to traverse and collect assets/folders
+    const folderPaths = new Set<string>();
+    const assetFiles: { path: string, relativePath: string, name: string, extension: string }[] = [];
+
+    const traverseAssets = async (currentPath: string, relativePath: string) => {
+      const entries = await this.listDirectory({ bookmark: homeUrl.bookmark, path: currentPath });
+      for (const entry of entries) {
+        const entryPath = currentPath + '/' + entry.name;
+        const entryRelativePath = relativePath ? relativePath + '/' + entry.name : entry.name;
+
+        if (entry.isDirectory && !entry.name.includes('.DS_Store')) {
+          folderPaths.add(entryRelativePath);
+          await traverseAssets(entryPath, entryRelativePath);
+        } else if (entry.isFile && !entry.name.includes('.DS_Store')) {
+          const split = StringUtils.splitNameAndExtension(entry.name);
+          assetFiles.push({
+            path: entryPath,
+            relativePath: relativePath,
+            name: split.name,
+            extension: split.extension
+          });
         }
-        const fileType = StringUtils.extensionToMime(assetExt);
-        const blob: Blob = new Blob([new Uint8Array(assetBuffer)], { type: fileType });
-        const file: File = new File([blob], assetName, { type: fileType });
-        const asset = await assetsService.create(<any>{
-          file: file,
-          name: assetName
-        }, true);
-        return asset;
-      })));
+      }
+    };
+
+    await traverseAssets(assetsUrl, '');
+
+    // Save folders to DB
+    await db.table(AppDB.ASSET_FOLDERS_TABLE).bulkAdd(Array.from(folderPaths).map(p => ({ path: p })));
+
+    // Load assets
+    await Promise.all(assetFiles.map(async fileInfo => {
+      const assetBuffer = await this.readFile({ bookmark: homeUrl.bookmark, path: fileInfo.path });
+      if (!assetBuffer) return;
+
+      const fileType = StringUtils.extensionToMime(fileInfo.extension);
+      const blob: Blob = new Blob([new Uint8Array(assetBuffer)], { type: fileType });
+      const file: File = new File([blob], fileInfo.name, { type: fileType });
+
+      await assetsService.create(<any>{
+        file: file,
+        name: fileInfo.name,
+        path: fileInfo.relativePath
+      }, true);
+    }));
     const deckUrls = await this.listDirectory({ bookmark: homeUrl.bookmark, path: decksUrl });
     await Promise.all(deckUrls.filter(deckUrl => deckUrl.isDirectory).map(async deckUrl => {
       const deckName = deckUrl.name;
@@ -608,29 +699,6 @@ export class ElectronService {
 
 
 
-  private async pruneAssets(homeUrl: PersistentPath, currentAssets: Asset[]) {
-    if (!this.isElectron()) return;
-    const assetsUrl = homeUrl.path + "/" + ElectronService.ASSETS_DIR;
-    const validAssetNames = new Set<string>();
-
-    currentAssets.forEach(asset => {
-      const extension = StringUtils.mimeToExtension(asset.file.type);
-      const filename = StringUtils.toKebabCase(asset.name) + '.' + extension;
-      validAssetNames.add(filename);
-    });
-
-    try {
-      const files = await this.listDirectory({ bookmark: homeUrl.bookmark, path: assetsUrl });
-      for (const file of files) {
-        if (file.isFile && !file.name.includes('.DS_Store') && !validAssetNames.has(file.name)) {
-          console.log(`Pruning orphaned asset: ${file.name}`);
-          await this.removeDirectory({ bookmark: homeUrl.bookmark, path: assetsUrl + '/' + file.name });
-        }
-      }
-    } catch (e) {
-      console.error("Error pruning assets", e);
-    }
-  }
 
   private async pruneDecks(homeUrl: PersistentPath, currentDecks: { name: string }[]) {
     if (!this.isElectron()) return;
