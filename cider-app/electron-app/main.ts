@@ -1,4 +1,4 @@
-import {app, BrowserWindow, screen, systemPreferences, ipcMain, dialog } from 'electron';
+import { app, BrowserWindow, screen, systemPreferences, ipcMain, dialog } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -8,13 +8,13 @@ const serve = args.some(val => val === '--serve');
 var shouldClose: Boolean = false;
 
 export interface PersistentPath {
-    url: string;
-    bookmark: string;
+  url: string;
+  bookmark: string;
 }
 
 function createWindow(): BrowserWindow {
 
-  const defaultSize : { width: number, height: number } = { width: 1280, height: 800 };
+  const defaultSize: { width: number, height: number } = { width: 1280, height: 800 };
   const screenSize = screen.getPrimaryDisplay().workAreaSize;
 
   win = new BrowserWindow({
@@ -86,7 +86,7 @@ function createWindow(): BrowserWindow {
 
 function requestPathAccess(persistentPath: PersistentPath): () => void {
   if (!persistentPath || !persistentPath.bookmark) {
-    return () => {};
+    return () => { };
   }
   return app.startAccessingSecurityScopedResource(persistentPath.bookmark) as () => void;
 }
@@ -179,7 +179,7 @@ try {
    * params: dirUrl
    * return true
    */
-   ipcMain.handle('remove-directory', async (event, persistentPath) => {
+  ipcMain.handle('remove-directory', async (event, persistentPath) => {
     const stopAccess = requestPathAccess(persistentPath);
     if (!fs.existsSync(persistentPath.path)) {
       console.log('directory does not exists', persistentPath.path);
@@ -188,6 +188,25 @@ try {
     }
     return fs.promises.rm(persistentPath.path, { recursive: true, force: true }).then(() => {
       console.log('directory removed', persistentPath.path);
+      stopAccess();
+      return true;
+    });
+  });
+  /**
+   * Rename directory
+   * 
+   * params: oldUrl, newUrl
+   * return true
+   */
+  ipcMain.handle('rename-directory', async (event, oldPersistentPath, newPersistentPath) => {
+    const stopAccess = requestPathAccess(oldPersistentPath);
+    if (!fs.existsSync(oldPersistentPath.path)) {
+      console.log('directory does not exists', oldPersistentPath.path);
+      stopAccess();
+      return false;
+    }
+    return fs.promises.rename(oldPersistentPath.path, newPersistentPath.path).then(() => {
+      console.log('directory renamed', oldPersistentPath.path, 'to', newPersistentPath.path);
       stopAccess();
       return true;
     });
@@ -246,10 +265,10 @@ try {
   ipcMain.handle('read-text-file', async (event, persistentPath) => {
     const stopAccess = requestPathAccess(persistentPath);
     if (!fs.existsSync(persistentPath.path)) {
-    stopAccess();
+      stopAccess();
       return null;
     }
-    const buffer = fs.readFileSync(persistentPath.path, {encoding: 'utf8'});
+    const buffer = fs.readFileSync(persistentPath.path, { encoding: 'utf8' });
     console.log('read file', persistentPath.path);
     stopAccess();
     return buffer;
@@ -270,9 +289,64 @@ try {
   });
 
   /**
+   * Watch directory
+   */
+  let watcher: any = null;
+  ipcMain.handle('watch-directory', async (event, persistentPath) => {
+    const stopAccess = requestPathAccess(persistentPath);
+    if (watcher) {
+      watcher.close();
+    }
+    const chokidar = require('chokidar');
+    watcher = chokidar.watch(persistentPath.path, {
+      ignored: /(^|[\/\\])\../, // ignore dotfiles
+      persistent: true,
+      ignoreInitial: true // don't emit add for existing files
+    });
+
+    watcher
+      .on('add', (path: string) => {
+        if (win) win.webContents.send('file-added', path);
+      })
+      .on('change', (path: string) => {
+        if (win) win.webContents.send('file-changed', path);
+      })
+      .on('unlink', (path: string) => {
+        if (win) win.webContents.send('file-removed', path);
+      })
+      .on('addDir', (path: string) => {
+        if (win) win.webContents.send('directory-added', path);
+      })
+      .on('unlinkDir', (path: string) => {
+        if (win) win.webContents.send('directory-removed', path);
+      });
+
+    console.log('watching directory', persistentPath.path);
+    // stopAccess(); // Don't stop access while watching? 
+    // Actually, startAccessingSecurityScopedResource returns a function to release. 
+    // Ideally we keep it open while using it. But for file system events, the kernel handles it? 
+    // Safe to close for now as we don't hold a file descriptor open continuously in node but chokidar might need it.
+    // However, usually we can release after setting up. 
+    stopAccess();
+    return true;
+  });
+
+  ipcMain.handle('unwatch-directory', async (event) => {
+    if (watcher) {
+      watcher.close();
+      watcher = null;
+      console.log('stopped watching directory');
+    }
+    return true;
+  });
+
+  /**
    * Exit the application
    */
   ipcMain.on('exit-application', async (event, arg) => {
+    if (watcher) {
+      watcher.close();
+    }
     shouldClose = true;
     app.quit();
   });

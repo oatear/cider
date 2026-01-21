@@ -63,6 +63,18 @@ export default class StringUtils {
     }
 
     /**
+     * Get the directory from the given url string
+     * 
+     * @param url 
+     * @returns 
+     */
+    public static getDirectoryFromUrl(url: string) {
+        let index = url.lastIndexOf('/') > 0 ? url.lastIndexOf('/') : url.lastIndexOf('\\');
+        if (index === -1) return '';
+        return url.substring(0, index);
+    }
+
+    /**
      * Convert the given mime type into the relevant extension
      * 
      * @param mime 

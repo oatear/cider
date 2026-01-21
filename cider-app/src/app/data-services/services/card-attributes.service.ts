@@ -4,15 +4,21 @@ import { DecksChildService } from '../indexed-db/decks-child.service';
 import { CardAttribute } from '../types/card-attribute.type';
 import { FieldType } from '../types/field-type.type';
 import { DecksService } from './decks.service';
-
 import StringUtils from 'src/app/shared/utils/string-utils';
+import { ElectronService } from '../electron/electron.service';
+import { ProjectStateService } from './project-state.service';
+import XlsxUtils from 'src/app/shared/utils/xlsx-utils';
+import { PersistentPath } from '../types/persistent-path.type';
+import { firstValueFrom, groupBy, mergeMap, debounceTime, filter } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CardAttributesService extends DecksChildService<CardAttribute, number> {
 
-  constructor(decksService: DecksService, db: AppDB) {
+  constructor(decksService: DecksService, db: AppDB,
+    private electronService: ElectronService,
+    private projectStateService: ProjectStateService) {
     super(decksService, db, AppDB.CARD_ATTRIBUTES_TABLE, [
       { field: 'id', header: 'ID', type: FieldType.numeric, hidden: true },
       { field: 'deckId', header: 'Deck ID', type: FieldType.numeric, hidden: true },
@@ -30,7 +36,63 @@ export class CardAttributesService extends DecksChildService<CardAttribute, numb
       { field: 'options', header: 'Options', type: FieldType.dropdownOptions, visible: (e) => e.type === FieldType.dropdown },
       { field: 'width', header: 'Width', type: FieldType.numeric },
       { field: 'order', header: 'Order', type: FieldType.numeric }
-    ])
+    ]);
+
+    this.electronService.getFileChanged().pipe(
+      filter(path => path.endsWith('attributes.csv')),
+      groupBy(path => path),
+      mergeMap(group => group.pipe(debounceTime(300)))
+    ).subscribe(path => this.handleFileChanged(path));
+  }
+
+  private async handleFileChanged(path: string) {
+    const parts = path.split('/');
+    if (parts.length < 2) return;
+    const folderName = parts[parts.length - 2];
+
+    const decks = await this.decksService.getAll();
+    const deck = decks.find(d => StringUtils.toKebabCase(d.name) === folderName);
+
+    if (deck) {
+      console.log(`Syncing attributes for deck: ${deck.name} from external CSV change.`);
+      await this.syncFromCsv(path, deck.id);
+    }
+  }
+
+  private async syncFromCsv(path: string, deckId: number) {
+    const homeUrl = await firstValueFrom(this.electronService.getProjectHomeUrl());
+    if (!homeUrl) return;
+
+    const persistentPath: PersistentPath = {
+      path: path,
+      bookmark: homeUrl.bookmark
+    };
+
+    const buffer = await this.electronService.readFile(persistentPath);
+    if (!buffer) return;
+
+    const blob: Blob = new Blob([new Uint8Array(buffer)], { type: 'text/csv' });
+    const file: File = new File([blob], 'attributes.csv', { type: 'text/csv' });
+
+    const fields = await this.getFields({ deckId });
+    const lookups = await this.getLookups({ deckId });
+
+    const entities = await XlsxUtils.entityImport(fields, lookups, file);
+
+    this.projectStateService.setTrackingEnabled(false);
+    try {
+      await this.db.table(this.tableName).where({ deckId }).delete();
+      await Promise.all(entities.map(entity => {
+        (<any>entity)['deckId'] = deckId;
+        return this.create(entity, true);
+      }));
+      await this.createSystemAttributes(deckId);
+      console.log(`Synced ${entities.length} attributes for deck ${deckId}`);
+    } catch (e) {
+      console.error("Error syncing attributes from CSV", e);
+    } finally {
+      this.projectStateService.setTrackingEnabled(true);
+    }
   }
 
   override getAll(equalityCriterias?: { [key: string]: any; }) {
@@ -62,15 +124,11 @@ export class CardAttributesService extends DecksChildService<CardAttribute, numb
           // ignore error, treat as legacy string
         }
 
-        // Split by pipe if present, otherwise treat as single option
         const optionsList = strOptions.split('|').map(o => o.trim());
 
         entity.options = optionsList.map(o => {
           return { value: o, color: StringUtils.generateRandomColor() };
         });
-
-        // Log for debugging if needed, or remove later
-        // console.log('Migrated options:', entity.options);
       }
     }
     return super.create(entity, overrideParent);
