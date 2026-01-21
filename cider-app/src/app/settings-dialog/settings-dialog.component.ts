@@ -21,22 +21,23 @@ export class SettingsDialogComponent {
   selectedTheme: string;
 
   /* Make sure to also update app.component.ts addLangs() */
-  languages: { label: string, value: string }[] = [
-    { label: 'English (EN)', value: 'en' },
-    { label: 'Français (FR)', value: 'fr' },
-    { label: 'Español (ES)', value: 'es' },
-    { label: 'Български (BG)', value: 'bg' },
-    { label: 'Deutsch (DE)', value: 'de' },
-    { label: 'Italiano (IT)', value: 'it' },
-    { label: 'Português (PT)', value: 'pt' },
-    { label: 'Русский (RU)', value: 'ru' },
-    { label: 'Polski (PL)', value: 'pl' },
-    { label: 'Ukrainian (UK)', value: 'uk' },
-    { label: '한국어 (KO)', value: 'ko' },
-    { label: '日本語 (JA)', value: 'ja' },
-    { label: '简体中文 (ZH)', value: 'zh' },
-    { label: 'Türkçe (TR)', value: 'tr' },
-    { label: 'Nederlands (NL)', value: 'nl' },
+  languages: {label: string, value: string}[] = [
+    {label: 'English (EN)', value: 'en'},
+    {label: 'Français (FR)', value: 'fr'},
+    {label: 'Español (ES)', value: 'es'},
+    {label: 'Български (BG)', value: 'bg'},
+    {label: 'Deutsch (DE)', value: 'de'},
+    {label: 'Italiano (IT)', value: 'it'},
+    {label: 'Português (PT)', value: 'pt'},
+    {label: 'Русский (RU)', value: 'ru'},
+    {label: 'Polski (PL)', value: 'pl'},
+    {label: 'Ukrainian (UK)', value: 'uk'},
+    {label: '한국어 (KO)', value: 'ko'},
+    {label: '日本語 (JA)', value: 'ja'},
+    {label: '简体中文 (ZH)', value: 'zh-Hans'},
+    {label: '繁體中文 (ZH)', value: 'zh-Hant'},
+    {label: 'Türkçe (TR)', value: 'tr'},
+    {label: 'Nederlands (NL)', value: 'nl'},
   ];
   language: string;
   isElectron: boolean;
