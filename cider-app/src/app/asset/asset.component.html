@@ -20,7 +20,9 @@
 <p-card styleClass="page-card asset-card">
   <!-- <img [src]="asset.file | fileUrl" [style.transform]="'scale(' + zoom + ')'"/> -->
   @if (fileType == 'image') {
-  <img [src]="asset.file | fileUrl" />
+  <div class="image-container">
+    <img [src]="asset.file | fileUrl" />
+  </div>
   }
 
   @if (fileType == 'font') {
