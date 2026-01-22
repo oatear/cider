@@ -549,6 +549,13 @@ export class SiteSidebarComponent implements OnInit {
               }
             },
             {
+              label: this.translate.instant('sidebar.generate-new-asset'),
+              icon: 'pi pi-sparkles',
+              command: () => {
+                this.router.navigateByUrl(`/assets/generator`);
+              }
+            },
+            {
               label: this.translate.instant('sidebar.delete-asset'),
               icon: 'pi pi-trash',
               command: () => {

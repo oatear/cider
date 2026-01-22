@@ -19,7 +19,7 @@
 </p-card>
 <p-card styleClass="page-card asset-card">
   <!-- <img [src]="asset.file | fileUrl" [style.transform]="'scale(' + zoom + ')'"/> -->
-  @if (fileType == 'image') {
+  @if (fileType == 'image' && !isSvg) {
   <div class="image-container">
     <img [src]="asset.file | fileUrl" />
   </div>
@@ -85,7 +85,79 @@
   </div>
   }
 
-  @if (fileType != 'image' && fileType != 'font') {
+  @if (isSvg) {
+  <div class="svg-editor-container">
+    <div class="svg-header">
+      <div class="editor-controls-title" (click)="showSvgEditor = !showSvgEditor"
+        style="cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="pi" [ngClass]="showSvgEditor ? 'pi-chevron-down' : 'pi-chevron-right'"></i>
+        <h3>Editor</h3>
+      </div>
+      <div class="actions">
+        <button pButton icon="pi pi-undo" class="p-button-text p-button-rounded" (click)="undo()"
+          [disabled]="currentHistoryIndex <= 0" pTooltip="Undo"></button>
+        <button pButton icon="pi pi-refresh" class="p-button-text p-button-rounded" (click)="redo()"
+          [disabled]="currentHistoryIndex >= svgHistory.length - 1" pTooltip="Redo"></button>
+        <button pButton label="Save Changes" icon="pi pi-save" (click)="saveSvgChanges()"></button>
+      </div>
+    </div>
+
+    <div class="svg-editor-panel" *ngIf="showSvgEditor">
+      <div class="control-group" *ngIf="svgColors.length > 0">
+        <h4>Colors</h4>
+        <div class="color-grid">
+          <div class="color-item" *ngFor="let color of svgColors">
+            <div class="color-preview" [style.background-color]="color.current" [style.opacity]="color.currentAlpha">
+            </div>
+            <input type="color" [(ngModel)]="color.current" (change)="onSvgChange()"
+              [pTooltip]="color.current + (color.currentAlpha < 1 ? ' (' + math.round(color.currentAlpha * 100) + '%)' : '')"
+              tooltipPosition="top">
+            <div class="opacity-control" (click)="$event.stopPropagation()">
+              <input type="range" min="0" max="1" step="0.01" [(ngModel)]="color.currentAlpha" (change)="onSvgChange()">
+              <input type="number" [ngModel]="math.round(color.currentAlpha * 100)"
+                (ngModelChange)="color.currentAlpha = $event / 100; onSvgChange()" min="0" max="100" step="1"
+                class="opacity-input">
+            </div>
+            <span class="color-label">{{ color.original }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="control-group" *ngIf="svgStrokeWidths.length > 0">
+        <h4>Stroke Widths</h4>
+        <div class="width-list">
+          <div class="width-item" *ngFor="let width of svgStrokeWidths">
+            <label>Original: {{ width.original }}</label>
+            <div class="input-wrapper">
+              <input pInputText type="number" [(ngModel)]="width.current" (change)="onSvgChange()" step="0.5">
+              <span class="suffix">{{ width.suffix }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="empty-state" *ngIf="svgColors.length === 0 && svgStrokeWidths.length === 0">
+        <i class="pi pi-images"></i>
+        <span>No editable properties detected.</span>
+      </div>
+    </div>
+
+    <div class="svg-preview-area">
+      <img [src]="svgPreviewUrl" *ngIf="svgPreviewUrl" class="svg-preview-img"
+        [style.transform]="'scale(' + zoom + ')'" />
+
+      <div class="zoom-controls">
+        <button pButton icon="pi pi-minus" class="p-button-rounded p-button-text p-button-sm"
+          (click)="changeZoom(-0.25)"></button>
+        <button pButton class="p-button-rounded p-button-text p-button-sm value-display" (click)="resetZoom()">{{
+          math.round(zoom * 100) }}%</button>
+        <button pButton icon="pi pi-plus" class="p-button-rounded p-button-text p-button-sm"
+          (click)="changeZoom(0.25)"></button>
+      </div>
+    </div>
+  </div>
+  }
+
+  @if (fileType != 'image' && fileType != 'font' && !isSvg) {
   <div class="preview">
     {{ fileExtension | uppercase }} {{ fileType | uppercase}}
   </div>
