@@ -118,6 +118,7 @@
         "card-margins": "Kaartmarges (inch)",
         "cards-per-page": "Kaarten per Pagina",
         "low-ink-mode": "Zuinig Inktgebruik",
+        "include-backs": "Inclusief kaartachterkanten",
         "mirror-backs-x": "Spiegel Achterzijdes X",
         "mirror-backs-y": "Spiegel Achterzijdes Y",
         "paper-dpi": "Papier DPI (dots per inch)",

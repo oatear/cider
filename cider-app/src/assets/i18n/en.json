@@ -123,6 +123,7 @@
         "card-margins": "Card Margins (inches)",
         "cards-per-page": "Cards Per Page",
         "low-ink-mode": "Low Ink Mode",
+        "include-backs": "Include Card Backs",
         "mirror-backs-x": "Mirror Backs X",
         "mirror-backs-y": "Mirror Backs Y",
         "paper-dpi": "Paper DPI (dots per inch)",
