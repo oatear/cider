@@ -20,7 +20,8 @@
             <div class="preview-page"
               [style.width.px]="selectedPaper.orientation === 'portrait' ? paperWidth * paperDpi : paperHeight * paperDpi"
               [style.height.px]="selectedPaper.orientation === 'portrait' ? paperHeight * paperDpi : paperWidth * paperDpi"
-              [style.padding.px]="paperMargins * paperDpi" [style.transform]="'scale(' + scale + ')'">
+              [style.padding]="(paperMarginY * paperDpi) + 'px ' + (paperMarginX * paperDpi) + 'px'"
+              [style.transform]="'scale(' + scale + ')'">
               <div #cardSheets class="preview-sheet">
                 @for (card of sheet; track $index) {
                 <div class="card-wrapper" [style.margin.px]="cardMargins * paperDpi">
@@ -39,7 +40,8 @@
             <div class="preview-page"
               [style.width.px]="selectedPaper.orientation === 'portrait' ? paperWidth * paperDpi : paperHeight * paperDpi"
               [style.height.px]="selectedPaper.orientation === 'portrait' ? paperHeight * paperDpi : paperWidth * paperDpi"
-              [style.padding.px]="paperMargins * paperDpi" [style.transform]="'scale(' + scale + ')'">
+              [style.padding]="(paperMarginY * paperDpi) + 'px ' + (paperMarginX * paperDpi) + 'px'"
+              [style.transform]="'scale(' + scale + ')'">
               <div #cardSheets [class]="'preview-sheet ' + (mirrorBacksY ? 'mirror' : 'not-mirror') "
                 [style.transform]="'scale(' + (mirrorBacksX ? -1 : 1) + ', ' + (mirrorBacksY ? -1 : 1) + ')'">
                 @for (card of sheet; track $index) {
@@ -105,14 +107,21 @@
           </div>
         </div>
         <div class="p-d-flex p-flex-row">
-          <div class="p-field p-mr-2">
-            <label [for]="paperMargins">{{'export.paper-margins' | translate}}</label>
-            <input type="number" pInputText [id]="paperMargins" [(ngModel)]="paperMargins" required autofocus
-              [disabled]="selectedPaper.name.includes('Tabletop Simulator')" />
-          </div>
           <div class="p-field">
             <label [for]="cardMargins">{{'export.card-margins' | translate}}</label>
             <input type="number" pInputText [id]="cardMargins" [(ngModel)]="cardMargins" required autofocus
+              [disabled]="selectedPaper.name.includes('Tabletop Simulator')" />
+          </div>
+        </div>
+        <div class="p-d-flex p-flex-row">
+          <div class="p-field p-mr-2">
+            <label [for]="paperMarginX">{{'export.paper-margin-x' | translate}}</label>
+            <input type="number" pInputText [id]="paperMarginX" [(ngModel)]="paperMarginX" required autofocus
+              [disabled]="selectedPaper.name.includes('Tabletop Simulator')" />
+          </div>
+          <div class="p-field">
+            <label [for]="paperMarginY">{{'export.paper-margin-y' | translate}}</label>
+            <input type="number" pInputText [id]="paperMarginY" [(ngModel)]="paperMarginY" required autofocus
               [disabled]="selectedPaper.name.includes('Tabletop Simulator')" />
           </div>
         </div>

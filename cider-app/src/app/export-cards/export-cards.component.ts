@@ -21,10 +21,10 @@ import { TranslateService } from '@ngx-translate/core';
   providers: [ConfirmationService],
   standalone: false
 })
-export class ExportCardsComponent implements OnInit {
+export class ExportCardsComponent implements OnInit, AfterViewChecked {
   private static readonly SINGULAR_EXPORT = 'singular-export';
   private static readonly SHEET_EXPORT = 'sheet-export';
-  private static readonly PDF_DPI = 72;
+  public static readonly PDF_DPI = 72;
   private static readonly EXPORT_OPTIONS: RadioOption[] = [
     { name: 'Card Sheet', value: ExportCardsComponent.SHEET_EXPORT },
     { name: 'Individual Images', value: ExportCardsComponent.SINGULAR_EXPORT }
@@ -43,13 +43,16 @@ export class ExportCardsComponent implements OnInit {
   @ViewChildren('frontCards') frontCards: QueryList<CardPreviewComponent> = {} as QueryList<CardPreviewComponent>;
   @ViewChildren('backCards') backCards: QueryList<CardPreviewComponent> = {} as QueryList<CardPreviewComponent>;
 
+  private autoFitDone: boolean = false;
+
   public exportType: string = ExportCardsComponent.SHEET_EXPORT;
   public exportOptions: RadioOption[] = [];
   public paperOptions: PaperType[] = [];
   public selectedPaper: PaperType;
   public paperWidth: number;
   public paperHeight: number;
-  public paperMargins: number = 0.4;
+  public paperMarginX: number = 0.4;
+  public paperMarginY: number = 0.4;
   public paperDpi: number = 300;
   public cardMargins: number = 0.05;
   public cardsPerPage: number = 6;
@@ -164,7 +167,9 @@ export class ExportCardsComponent implements OnInit {
   public changePaperType() {
     if (this.selectedPaper.name === 'Tabletop Simulator') {
       this.cardMargins = 0;
-      this.paperMargins = 0;
+      this.cardMargins = 0;
+      this.paperMarginX = 0;
+      this.paperMarginY = 0;
       console.log('selectedPaper', this.selectedPaper);
       this.paperWidth = this.cardSheetCards.first.initialWidth * 10 / this.paperDpi;
       this.paperHeight = this.cardSheetCards.first.initialHeight * 7 / this.paperDpi;
@@ -180,7 +185,8 @@ export class ExportCardsComponent implements OnInit {
       this.paperHeight = this.selectedPaper.height;
       this.mirrorBacksX = this.selectedPaper.mirrorBacksX;
       this.mirrorBacksY = this.selectedPaper.mirrorBacksY;
-      this.paperMargins = 0.4;
+      this.paperMarginX = 0.4;
+      this.paperMarginY = 0.4;
       this.cardMargins = 0.05;
       this.cardsPerPage = 6;
       this.pixelRatio = 1;
@@ -189,6 +195,64 @@ export class ExportCardsComponent implements OnInit {
       this.updateSlices();
     }
     // console.log('change paper type', this.selectedPaper.name, this.mirrorBacksX, this.mirrorBacksY);
+    if (this.selectedPaper.name !== 'Tabletop Simulator') {
+      this.autoFit();
+    }
+  }
+
+  ngAfterViewChecked(): void {
+    if (!this.autoFitDone && this.cardSheetCards && this.cardSheetCards.length > 0) {
+      const firstCard = this.cardSheetCards.first;
+      if (firstCard.initialWidth && firstCard.initialHeight) {
+        this.autoFit();
+        this.autoFitDone = true;
+      }
+    }
+  }
+
+  public autoFit() {
+    if (!this.cardSheetCards || this.cardSheetCards.length === 0) {
+      return;
+    }
+    const firstCard = this.cardSheetCards.first;
+    if (!firstCard || !firstCard.initialWidth || !firstCard.initialHeight) {
+      return;
+    }
+    if (this.selectedPaper.name === 'Tabletop Simulator') {
+      return;
+    }
+
+    const cardWidth = ((firstCard.initialWidth / this.paperDpi) + this.cardMargins * 2);
+    const cardHeight = ((firstCard.initialHeight / this.paperDpi) + this.cardMargins * 2);
+
+    const effectivePaperWidth = this.selectedPaper.orientation === 'landscape' ? this.paperHeight : this.paperWidth;
+    const effectivePaperHeight = this.selectedPaper.orientation === 'landscape' ? this.paperWidth : this.paperHeight;
+
+    let bestCount = 0;
+    let bestRows = 0;
+    let bestCols = 0;
+
+    // Try fitting in portrait (relative to paper, which might be landscape)
+    let cols = Math.floor(effectivePaperWidth / cardWidth);
+    let rows = Math.floor(effectivePaperHeight / cardHeight);
+    if (cols * rows > bestCount) {
+      bestCount = cols * rows;
+      bestRows = rows;
+      bestCols = cols;
+    }
+
+    if (bestCount > 0) {
+      const usedWidth = bestCols * cardWidth;
+      const usedHeight = bestRows * cardHeight;
+
+      const residueX = effectivePaperWidth - usedWidth;
+      const residueY = effectivePaperHeight - usedHeight;
+
+      this.paperMarginX = parseFloat((residueX / 2).toFixed(4));
+      this.paperMarginY = parseFloat((residueY / 2).toFixed(4));
+      this.cardsPerPage = bestCount;
+      this.updateSlices();
+    }
   }
 
   /**
@@ -354,11 +418,11 @@ export class ExportCardsComponent implements OnInit {
       return {
         image: image,
         width: this.selectedPaper.orientation == 'portrait'
-          ? (this.paperWidth - this.paperMargins * 2) * ExportCardsComponent.PDF_DPI
-          : (this.paperHeight - this.paperMargins * 2) * ExportCardsComponent.PDF_DPI,
+          ? (this.paperWidth - this.paperMarginX * 2) * ExportCardsComponent.PDF_DPI
+          : (this.paperHeight - this.paperMarginY * 2) * ExportCardsComponent.PDF_DPI,
         height: this.selectedPaper.orientation == 'portrait'
-          ? (this.paperHeight - this.paperMargins * 2) * ExportCardsComponent.PDF_DPI
-          : (this.paperWidth - this.paperMargins * 2) * ExportCardsComponent.PDF_DPI
+          ? (this.paperHeight - this.paperMarginY * 2) * ExportCardsComponent.PDF_DPI
+          : (this.paperWidth - this.paperMarginX * 2) * ExportCardsComponent.PDF_DPI
       };
     });
     const docDefinition = {
@@ -368,7 +432,12 @@ export class ExportCardsComponent implements OnInit {
         height: this.paperHeight * ExportCardsComponent.PDF_DPI
       },
       pageOrientation: this.selectedPaper.orientation,
-      pageMargins: this.paperMargins * ExportCardsComponent.PDF_DPI
+      pageMargins: [
+        this.paperMarginX * ExportCardsComponent.PDF_DPI,
+        this.paperMarginY * ExportCardsComponent.PDF_DPI,
+        this.paperMarginX * ExportCardsComponent.PDF_DPI,
+        this.paperMarginY * ExportCardsComponent.PDF_DPI
+      ] as [number, number, number, number]
     };
     pdfMake.createPdf(docDefinition).getBlob((blob) => {
       FileUtils.saveAs(blob, 'card-sheets.pdf');
