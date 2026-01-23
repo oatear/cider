@@ -109,6 +109,10 @@ $preview-individual-scale: 0.08;
                 height: 100%;
                 overflow: visible;
 
+                display: flex;
+                flex-wrap: wrap;
+                align-content: flex-start;
+
                 .card-wrapper {
                     display: inline-block;
                     position: relative;

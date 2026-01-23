@@ -54,7 +54,7 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
   public paperMarginX: number = 0.4;
   public paperMarginY: number = 0.4;
   public paperDpi: number = 300;
-  public cardMargins: number = 0.05;
+  public cardGap: number = 0.1;
   public cardsPerPage: number = 6;
   public originalCards: Card[] = [];
   public cards: Card[] = [];
@@ -173,8 +173,7 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
 
   public changePaperType() {
     if (this.selectedPaper.name === 'Tabletop Simulator') {
-      this.cardMargins = 0;
-      this.cardMargins = 0;
+      this.cardGap = 0;
       this.paperMarginX = 0;
       this.paperMarginY = 0;
       console.log('selectedPaper', this.selectedPaper);
@@ -194,7 +193,7 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
       this.mirrorBacksY = this.selectedPaper.mirrorBacksY;
       this.paperMarginX = 0.4;
       this.paperMarginY = 0.4;
-      this.cardMargins = 0.05;
+      this.cardGap = 0.1;
       this.cardsPerPage = 6;
       this.pixelRatio = 1;
       this.showFront = true;
@@ -211,7 +210,9 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
     if (!this.autoFitDone && this.cardSheetCards && this.cardSheetCards.length > 0) {
       const firstCard = this.cardSheetCards.first;
       if (firstCard.initialWidth && firstCard.initialHeight) {
-        this.autoFit();
+        setTimeout(() => {
+          this.autoFit();
+        });
         this.autoFitDone = true;
       }
     }
@@ -229,8 +230,8 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
       return;
     }
 
-    const cardWidth = ((firstCard.initialWidth / this.paperDpi) + this.cardMargins * 2);
-    const cardHeight = ((firstCard.initialHeight / this.paperDpi) + this.cardMargins * 2);
+    const cardWidth = (firstCard.initialWidth / this.paperDpi);
+    const cardHeight = (firstCard.initialHeight / this.paperDpi);
 
     const effectivePaperWidth = this.selectedPaper.orientation === 'landscape' ? this.paperHeight : this.paperWidth;
     const effectivePaperHeight = this.selectedPaper.orientation === 'landscape' ? this.paperWidth : this.paperHeight;
@@ -240,8 +241,15 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
     let bestCols = 0;
 
     // Try fitting in portrait (relative to paper, which might be landscape)
-    let cols = Math.floor(effectivePaperWidth / cardWidth);
-    let rows = Math.floor(effectivePaperHeight / cardHeight);
+    // Formula: floor((Paper + Gap - 2*MinMargin) / (Card + Gap))
+    const minMargin = 0.1;
+    let cols = Math.floor((effectivePaperWidth + this.cardGap - 2 * minMargin) / (cardWidth + this.cardGap));
+    let rows = Math.floor((effectivePaperHeight + this.cardGap - 2 * minMargin) / (cardHeight + this.cardGap));
+
+    // Ensure at least 1 col/row if paper fits at least 1 card (technically covered by math but safe check)
+    if (effectivePaperWidth < cardWidth) cols = 0;
+    if (effectivePaperHeight < cardHeight) rows = 0;
+
     if (cols * rows > bestCount) {
       bestCount = cols * rows;
       bestRows = rows;
@@ -249,8 +257,9 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
     }
 
     if (bestCount > 0) {
-      const usedWidth = bestCols * cardWidth;
-      const usedHeight = bestRows * cardHeight;
+      // Used width = Cols * Card + (Cols - 1) * Gap
+      const usedWidth = bestCols * cardWidth + Math.max(0, bestCols - 1) * this.cardGap;
+      const usedHeight = bestRows * cardHeight + Math.max(0, bestRows - 1) * this.cardGap;
 
       const residueX = effectivePaperWidth - usedWidth;
       const residueY = effectivePaperHeight - usedHeight;

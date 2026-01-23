@@ -22,9 +22,9 @@
               [style.height.px]="selectedPaper.orientation === 'portrait' ? paperHeight * paperDpi : paperWidth * paperDpi"
               [style.padding]="(paperMarginY * paperDpi) + 'px ' + (paperMarginX * paperDpi) + 'px'"
               [style.transform]="'scale(' + scale + ')'">
-              <div #cardSheets class="preview-sheet">
+              <div #cardSheets class="preview-sheet" [style.gap.px]="cardGap * paperDpi">
                 @for (card of sheet; track $index) {
-                <div class="card-wrapper" [style.margin.px]="cardMargins * paperDpi">
+                <div class="card-wrapper">
                   <app-card-preview #cardSheetCards [card]="card" [lowInk]="lowInk" [cache]="renderCache"
                     [template]="card.frontCardTemplateId | entity: templatesService | async"></app-card-preview>
                   @if (showCutMarks) {
@@ -90,12 +90,59 @@
               [style.padding]="(paperMarginY * paperDpi) + 'px ' + (paperMarginX * paperDpi) + 'px'"
               [style.transform]="'scale(' + scale + ')'">
               <div #cardSheets [class]="'preview-sheet ' + (mirrorBacksY ? 'mirror' : 'not-mirror') "
-                [style.transform]="'scale(' + (mirrorBacksX ? -1 : 1) + ', ' + (mirrorBacksY ? -1 : 1) + ')'">
+                [style.transform]="'scale(' + (mirrorBacksX ? -1 : 1) + ', ' + (mirrorBacksY ? -1 : 1) + ')'"
+                [style.gap.px]="cardGap * paperDpi">
                 @for (card of sheet; track $index) {
-                <div class="card-wrapper" [style.margin.px]="cardMargins * paperDpi"
-                  [style.transform]="mirrorBacksY || mirrorBacksX ? 'scaleX(-1) ' : ''">
+                <div class="card-wrapper" [style.transform]="mirrorBacksY || mirrorBacksX ? 'scaleX(-1) ' : ''">
                   <app-card-preview #cardSheetCards [card]="card" [lowInk]="lowInk" [cache]="renderCache"
                     [template]="card.backCardTemplateId | entity: templatesService | async"></app-card-preview>
+                  @if (showCutMarks) {
+                  <svg class="cut-marks" [style.top.px]="-cutOffset * paperDpi" [style.left.px]="-cutOffset * paperDpi"
+                    [style.width.px]="cardSheetCards.initialWidth + cutOffset * paperDpi * 2"
+                    [style.height.px]="cardSheetCards.initialHeight + cutOffset * paperDpi * 2">
+                    <!-- Top Left -->
+                    <line [attr.x1]="(cutOffset + cutBleed) * paperDpi"
+                      [attr.y1]="(cutOffset - cutMarkLength) * paperDpi" [attr.x2]="(cutOffset + cutBleed) * paperDpi"
+                      [attr.y2]="cutOffset * paperDpi" stroke="black" stroke-width="1" />
+                    <line [attr.x1]="(cutOffset - cutMarkLength) * paperDpi"
+                      [attr.y1]="(cutOffset + cutBleed) * paperDpi" [attr.x2]="cutOffset * paperDpi"
+                      [attr.y2]="(cutOffset + cutBleed) * paperDpi" stroke="black" stroke-width="1" />
+
+                    <!-- Top Right -->
+                    <line [attr.x1]="cardSheetCards.initialWidth + (cutOffset - cutBleed) * paperDpi"
+                      [attr.y1]="(cutOffset - cutMarkLength) * paperDpi"
+                      [attr.x2]="cardSheetCards.initialWidth + (cutOffset - cutBleed) * paperDpi"
+                      [attr.y2]="cutOffset * paperDpi" stroke="black" stroke-width="1" />
+                    <line [attr.x1]="cardSheetCards.initialWidth + cutOffset * paperDpi"
+                      [attr.y1]="(cutOffset + cutBleed) * paperDpi"
+                      [attr.x2]="cardSheetCards.initialWidth + (cutOffset + cutMarkLength) * paperDpi"
+                      [attr.y2]="(cutOffset + cutBleed) * paperDpi" stroke="black" stroke-width="1" />
+
+                    <!-- Bottom Left -->
+                    <line [attr.x1]="(cutOffset + cutBleed) * paperDpi"
+                      [attr.y1]="cardSheetCards.initialHeight + cutOffset * paperDpi"
+                      [attr.x2]="(cutOffset + cutBleed) * paperDpi"
+                      [attr.y2]="cardSheetCards.initialHeight + (cutOffset + cutMarkLength) * paperDpi" stroke="black"
+                      stroke-width="1" />
+                    <line [attr.x1]="(cutOffset - cutMarkLength) * paperDpi"
+                      [attr.y1]="cardSheetCards.initialHeight + (cutOffset - cutBleed) * paperDpi"
+                      [attr.x2]="cutOffset * paperDpi"
+                      [attr.y2]="cardSheetCards.initialHeight + (cutOffset - cutBleed) * paperDpi" stroke="black"
+                      stroke-width="1" />
+
+                    <!-- Bottom Right -->
+                    <line [attr.x1]="cardSheetCards.initialWidth + (cutOffset - cutBleed) * paperDpi"
+                      [attr.y1]="cardSheetCards.initialHeight + cutOffset * paperDpi"
+                      [attr.x2]="cardSheetCards.initialWidth + (cutOffset - cutBleed) * paperDpi"
+                      [attr.y2]="cardSheetCards.initialHeight + (cutOffset + cutMarkLength) * paperDpi" stroke="black"
+                      stroke-width="1" />
+                    <line [attr.x1]="cardSheetCards.initialWidth + cutOffset * paperDpi"
+                      [attr.y1]="cardSheetCards.initialHeight + (cutOffset - cutBleed) * paperDpi"
+                      [attr.x2]="cardSheetCards.initialWidth + (cutOffset + cutMarkLength) * paperDpi"
+                      [attr.y2]="cardSheetCards.initialHeight + (cutOffset - cutBleed) * paperDpi" stroke="black"
+                      stroke-width="1" />
+                  </svg>
+                  }
                 </div>
                 }
               </div>
@@ -160,8 +207,8 @@
               (ngModelChange)="updateSlices()" [disabled]="selectedPaper.name.includes('Tabletop Simulator')" />
           </div>
           <div class="p-field">
-            <label [for]="cardMargins">{{'export.card-margins' | translate}}</label>
-            <input type="number" pInputText [id]="cardMargins" [(ngModel)]="cardMargins" required autofocus
+            <label [for]="cardGap">{{'export.card-gaps' | translate}}</label>
+            <input type="number" pInputText [id]="cardGap" [(ngModel)]="cardGap" required autofocus
               [disabled]="selectedPaper.name.includes('Tabletop Simulator')" />
           </div>
         </div>

@@ -121,7 +121,7 @@
         "paper-height": "Paper Height (inches)",
         "paper-margin-x": "Paper Margin X (inches)",
         "paper-margin-y": "Paper Margin Y (inches)",
-        "card-margins": "Card Margins (inches)",
+        "card-gaps": "Card Gaps (inches)",
         "cards-per-page": "Cards Per Page",
         "low-ink-mode": "Low Ink Mode",
         "mirror-backs-x": "Mirror Backs X",
