@@ -121,20 +121,25 @@
           <input type="number" pInputText [id]="cardsPerPage" [(ngModel)]="cardsPerPage" required autofocus
             (ngModelChange)="updateSlices()" [disabled]="selectedPaper.name.includes('Tabletop Simulator')" />
         </div>
-        <div class="p-field p-d-flex p-flex-row">
-          <div class="p-field p-d-inline-flex p-flex-row p-mr-2">
+        <div class="p-field checkbox-group">
+          <div class="checkbox-item">
             <p-checkbox name="lowInk" class="p-mr-2" [binary]="true" [(ngModel)]="lowInk" inputId="lowInk"></p-checkbox>
-            <label for="lowInk" class="ml-2">{{'export.low-ink-mode' | translate}}</label>
+            <label for="lowInk">{{'export.low-ink-mode' | translate}}</label>
           </div>
-          <div class="p-field p-d-inline-flex p-flex-row p-mr-2">
+          <div class="checkbox-item">
+            <p-checkbox name="excludeCardBacks" class="p-mr-2" [binary]="true" [(ngModel)]="excludeCardBacks"
+              (onChange)="changePaperType()" inputId="excludeCardBacks"></p-checkbox>
+            <label for="excludeCardBacks">Exclude Card Backs</label>
+          </div>
+          <div class="checkbox-item">
             <p-checkbox name="mirrorBacksX" class="p-mr-2" [binary]="true" [(ngModel)]="mirrorBacksX"
               inpudId="mirrorBacksX"></p-checkbox>
-            <label for="mirrorBacksX" class="ml-2">{{'export.mirror-backs-x' | translate}}</label>
+            <label for="mirrorBacksX">{{'export.mirror-backs-x' | translate}}</label>
           </div>
-          <div class="p-field p-d-inline-flex p-flex-row p-mr-2">
+          <div class="checkbox-item">
             <p-checkbox name="mirrorBacksY" class="p-mr-2" [binary]="true" [(ngModel)]="mirrorBacksY"
               inputId="mirrorBacksY"></p-checkbox>
-            <label for="mirrorBacksY" class="ml-2">{{'export.mirror-backs-y' | translate}}</label>
+            <label for="mirrorBacksY">{{'export.mirror-backs-y' | translate}}</label>
           </div>
         </div>
         <div class="p-d-flex p-flex-row">

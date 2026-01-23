@@ -72,6 +72,7 @@ export class ExportCardsComponent implements OnInit {
   public maxTtsPixels: number = 4096;
   public scale: number = 0.1;
   public exportSelectionDialogVisible: boolean = false;
+  public excludeCardBacks: boolean = false;
   public someCardsMissingTemplates: boolean = false;
   renderCache: boolean = false;
   zoomOptions: any[] = [
@@ -88,7 +89,7 @@ export class ExportCardsComponent implements OnInit {
     private confirmationService: ConfirmationService) {
     cardsService.getAll().then(cards => {
       // check cards for front/back templates being defined
-      const cardsWithTemplatesDefined = cards.filter(card => card.backCardTemplateId && card.frontCardTemplateId);
+      const cardsWithTemplatesDefined = cards.filter(card => card.frontCardTemplateId);
       this.someCardsMissingTemplates = cards.length != cardsWithTemplatesDefined.length;
       this.originalCards = cardsWithTemplatesDefined;
       this.cards = cardsWithTemplatesDefined;
@@ -184,7 +185,7 @@ export class ExportCardsComponent implements OnInit {
       this.cardsPerPage = 6;
       this.pixelRatio = 1;
       this.showFront = true;
-      this.showBack = true;
+      this.showBack = !this.excludeCardBacks;
       this.updateSlices();
     }
     // console.log('change paper type', this.selectedPaper.name, this.mirrorBacksX, this.mirrorBacksY);
@@ -235,7 +236,7 @@ export class ExportCardsComponent implements OnInit {
     const renderSlices = this.sliceIntoChunks(this.cards, sliceSize);
     const hardLimit = pLimit(1);
     this.showFront = true;
-    this.showBack = true;
+    this.showBack = !this.excludeCardBacks;
     this.renderCache = true;
     this.loadingPercent = 0;
     const preRenders$ = renderSlices.map((slice, index) => {
@@ -269,8 +270,10 @@ export class ExportCardsComponent implements OnInit {
     await this.prerenderCardImages();
     this.loadingPercent = 0;
 
+    const exportSides = this.excludeCardBacks ? [true] : [true, false];
+
     const promisedSheetImages$ = this.slicedCards.map((sheet, sheetIndex) => {
-      return Promise.all([true, false].map(async (showFront) => {
+      return Promise.all(exportSides.map(async (showFront) => {
         return await hardLimit(async () => {
           this.sheet = sheet;
           this.showFront = showFront;
@@ -397,18 +400,23 @@ export class ExportCardsComponent implements OnInit {
       const imgName = 'front-' + imgIdentifier + '.png';
       return this.dataUrlToFile(imgUri, imgName);
     });
-    const backCards$ = this.backCards.map(async cardPreview => {
-      await lastValueFrom(cardPreview.isCacheLoaded()).catch(() => {
-        return Promise.reject('Failed to render card "' + cardPreview.card.name + '" with template "' + cardPreview.template.name + '".');
+
+    let backCards$: Promise<File>[] = [];
+    if (!this.excludeCardBacks) {
+      backCards$ = this.backCards.map(async cardPreview => {
+        await lastValueFrom(cardPreview.isCacheLoaded()).catch(() => {
+          return Promise.reject('Failed to render card "' + cardPreview.card.name + '" with template "' + cardPreview.template.name + '".');
+        });
+        const imgUri = await limit(() => this.imageRendererService.toPng((<any>cardPreview).element.nativeElement,
+          { pixelRatio: this.individualExportPixelRatio }));
+        const imgIdentifier = this.individualExportUseCardName
+          ? StringUtils.toKebabCase(cardPreview.card?.name)
+          : cardPreview.card?.id;
+        const imgName = 'back-' + imgIdentifier + '.png';
+        return this.dataUrlToFile(imgUri, imgName);
       });
-      const imgUri = await limit(() => this.imageRendererService.toPng((<any>cardPreview).element.nativeElement,
-        { pixelRatio: this.individualExportPixelRatio }));
-      const imgIdentifier = this.individualExportUseCardName
-        ? StringUtils.toKebabCase(cardPreview.card?.name)
-        : cardPreview.card?.id;
-      const imgName = 'back-' + imgIdentifier + '.png';
-      return this.dataUrlToFile(imgUri, imgName);
-    });
+    }
+
     const allCards$ = frontCards$.concat(backCards$);
     return Promise.all(this.promisesProgress(allCards$, () => this.loadingPercent += 100.0 / (allCards$.length + 1)))
       .then(promisedImages => {

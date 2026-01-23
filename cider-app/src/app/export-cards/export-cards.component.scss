@@ -63,6 +63,21 @@ $preview-individual-scale: 0.08;
     div.p-d-flex div.p-field {
         flex: 1
     }
+
+    .checkbox-group {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        align-items: center;
+
+        .checkbox-item {
+            flex: initial !important; // Override the general rule
+            display: flex;
+            align-items: center;
+            white-space: nowrap; // Prevent label wrapping for short items
+        }
+    }
 }
 
 .card-controls {
