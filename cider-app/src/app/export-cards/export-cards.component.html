@@ -27,6 +27,53 @@
                 <div class="card-wrapper" [style.margin.px]="cardMargins * paperDpi">
                   <app-card-preview #cardSheetCards [card]="card" [lowInk]="lowInk" [cache]="renderCache"
                     [template]="card.frontCardTemplateId | entity: templatesService | async"></app-card-preview>
+                  @if (showCutMarks) {
+                  <svg class="cut-marks" [style.top.px]="-cutOffset * paperDpi" [style.left.px]="-cutOffset * paperDpi"
+                    [style.width.px]="cardSheetCards.initialWidth + cutOffset * paperDpi * 2"
+                    [style.height.px]="cardSheetCards.initialHeight + cutOffset * paperDpi * 2">
+                    <!-- Top Left -->
+                    <line [attr.x1]="(cutOffset + cutBleed) * paperDpi"
+                      [attr.y1]="(cutOffset - cutMarkLength) * paperDpi" [attr.x2]="(cutOffset + cutBleed) * paperDpi"
+                      [attr.y2]="cutOffset * paperDpi" stroke="black" stroke-width="1" />
+                    <line [attr.x1]="(cutOffset - cutMarkLength) * paperDpi"
+                      [attr.y1]="(cutOffset + cutBleed) * paperDpi" [attr.x2]="cutOffset * paperDpi"
+                      [attr.y2]="(cutOffset + cutBleed) * paperDpi" stroke="black" stroke-width="1" />
+
+                    <!-- Top Right -->
+                    <line [attr.x1]="cardSheetCards.initialWidth + (cutOffset - cutBleed) * paperDpi"
+                      [attr.y1]="(cutOffset - cutMarkLength) * paperDpi"
+                      [attr.x2]="cardSheetCards.initialWidth + (cutOffset - cutBleed) * paperDpi"
+                      [attr.y2]="cutOffset * paperDpi" stroke="black" stroke-width="1" />
+                    <line [attr.x1]="cardSheetCards.initialWidth + cutOffset * paperDpi"
+                      [attr.y1]="(cutOffset + cutBleed) * paperDpi"
+                      [attr.x2]="cardSheetCards.initialWidth + (cutOffset + cutMarkLength) * paperDpi"
+                      [attr.y2]="(cutOffset + cutBleed) * paperDpi" stroke="black" stroke-width="1" />
+
+                    <!-- Bottom Left -->
+                    <line [attr.x1]="(cutOffset + cutBleed) * paperDpi"
+                      [attr.y1]="cardSheetCards.initialHeight + cutOffset * paperDpi"
+                      [attr.x2]="(cutOffset + cutBleed) * paperDpi"
+                      [attr.y2]="cardSheetCards.initialHeight + (cutOffset + cutMarkLength) * paperDpi" stroke="black"
+                      stroke-width="1" />
+                    <line [attr.x1]="(cutOffset - cutMarkLength) * paperDpi"
+                      [attr.y1]="cardSheetCards.initialHeight + (cutOffset - cutBleed) * paperDpi"
+                      [attr.x2]="cutOffset * paperDpi"
+                      [attr.y2]="cardSheetCards.initialHeight + (cutOffset - cutBleed) * paperDpi" stroke="black"
+                      stroke-width="1" />
+
+                    <!-- Bottom Right -->
+                    <line [attr.x1]="cardSheetCards.initialWidth + (cutOffset - cutBleed) * paperDpi"
+                      [attr.y1]="cardSheetCards.initialHeight + cutOffset * paperDpi"
+                      [attr.x2]="cardSheetCards.initialWidth + (cutOffset - cutBleed) * paperDpi"
+                      [attr.y2]="cardSheetCards.initialHeight + (cutOffset + cutMarkLength) * paperDpi" stroke="black"
+                      stroke-width="1" />
+                    <line [attr.x1]="cardSheetCards.initialWidth + cutOffset * paperDpi"
+                      [attr.y1]="cardSheetCards.initialHeight + (cutOffset - cutBleed) * paperDpi"
+                      [attr.x2]="cardSheetCards.initialWidth + (cutOffset + cutMarkLength) * paperDpi"
+                      [attr.y2]="cardSheetCards.initialHeight + (cutOffset - cutBleed) * paperDpi" stroke="black"
+                      stroke-width="1" />
+                  </svg>
+                  }
                 </div>
                 }
               </div>
@@ -107,6 +154,11 @@
           </div>
         </div>
         <div class="p-d-flex p-flex-row">
+          <div class="p-field p-mr-2">
+            <label [for]="cardsPerPage">{{'export.cards-per-page' | translate}}</label>
+            <input type="number" pInputText [id]="cardsPerPage" [(ngModel)]="cardsPerPage" required autofocus
+              (ngModelChange)="updateSlices()" [disabled]="selectedPaper.name.includes('Tabletop Simulator')" />
+          </div>
           <div class="p-field">
             <label [for]="cardMargins">{{'export.card-margins' | translate}}</label>
             <input type="number" pInputText [id]="cardMargins" [(ngModel)]="cardMargins" required autofocus
@@ -124,11 +176,6 @@
             <input type="number" pInputText [id]="paperMarginY" [(ngModel)]="paperMarginY" required autofocus
               [disabled]="selectedPaper.name.includes('Tabletop Simulator')" />
           </div>
-        </div>
-        <div class="p-field">
-          <label [for]="cardsPerPage">{{'export.cards-per-page' | translate}}</label>
-          <input type="number" pInputText [id]="cardsPerPage" [(ngModel)]="cardsPerPage" required autofocus
-            (ngModelChange)="updateSlices()" [disabled]="selectedPaper.name.includes('Tabletop Simulator')" />
         </div>
         <div class="p-field checkbox-group">
           <div class="checkbox-item">
@@ -149,6 +196,23 @@
             <p-checkbox name="mirrorBacksY" class="p-mr-2" [binary]="true" [(ngModel)]="mirrorBacksY"
               inputId="mirrorBacksY"></p-checkbox>
             <label for="mirrorBacksY">{{'export.mirror-backs-y' | translate}}</label>
+          </div>
+          <div class="checkbox-item">
+            <p-checkbox name="showCutMarks" class="p-mr-2" [binary]="true" [(ngModel)]="showCutMarks"
+              inputId="showCutMarks"></p-checkbox>
+            <label for="showCutMarks">{{'export.cut-marks' | translate}}</label>
+          </div>
+        </div>
+        <div class="p-d-flex p-flex-row">
+          <div class="p-field p-mr-2">
+            <label [for]="cutBleed">{{'export.cut-bleed' | translate}}</label>
+            <input type="number" pInputText [id]="cutBleed" [(ngModel)]="cutBleed" required autofocus
+              [disabled]="!showCutMarks" />
+          </div>
+          <div class="p-field">
+            <label [for]="cutMarkLength">{{'export.cut-mark-length' | translate}}</label>
+            <input type="number" pInputText [id]="cutMarkLength" [(ngModel)]="cutMarkLength" required autofocus
+              [disabled]="!showCutMarks" />
           </div>
         </div>
         <div class="p-d-flex p-flex-row">

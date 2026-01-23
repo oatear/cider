@@ -63,7 +63,14 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
   public sheet: Card[] = [];
   public showFront: boolean = true;
   public showBack: boolean = true;
+  public showCutMarks: boolean = false;
+  public cutBleed: number = 0.125;
+  public cutMarkLength: number = 0.125;
   public displayLoading: boolean = false;
+
+  get cutOffset(): number {
+    return Math.max(this.cutBleed, this.cutMarkLength);
+  }
   public loadingPercent: number = 0;
   public loadingInfo: string = '';
   public lowInk: boolean = false;
@@ -419,10 +426,10 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
         image: image,
         width: this.selectedPaper.orientation == 'portrait'
           ? (this.paperWidth - this.paperMarginX * 2) * ExportCardsComponent.PDF_DPI
-          : (this.paperHeight - this.paperMarginY * 2) * ExportCardsComponent.PDF_DPI,
+          : (this.paperHeight - this.paperMarginX * 2) * ExportCardsComponent.PDF_DPI,
         height: this.selectedPaper.orientation == 'portrait'
           ? (this.paperHeight - this.paperMarginY * 2) * ExportCardsComponent.PDF_DPI
-          : (this.paperWidth - this.paperMarginX * 2) * ExportCardsComponent.PDF_DPI
+          : (this.paperWidth - this.paperMarginY * 2) * ExportCardsComponent.PDF_DPI
       };
     });
     const docDefinition = {
