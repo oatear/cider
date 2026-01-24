@@ -420,7 +420,11 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
 
         this.loadingInfo = 'Generating sheet ' + sheetIndex + ' images...';
         const cardSheets = await Promise.all(this.cardSheets.map(cardSheet => limit(() => {
-          return this.imageRendererService.toPng((<any>cardSheet).nativeElement, { pixelRatio: 1.0, onImageErrorHandler: (error) => { console.log('error', error); } });
+          return this.imageRendererService.toPng((<any>cardSheet).nativeElement, {
+            pixelRatio: 1.0,
+            style: { transform: 'none', margin: '0' },
+            onImageErrorHandler: (error) => { console.log('error', error); }
+          });
         })));
         this.loadingPercent += 100.0 / (this.slicedCards.length + 1);
         return cardSheets;
@@ -434,11 +438,11 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
       return {
         image: image,
         width: this.selectedPaper.orientation == 'portrait'
-          ? (this.paperWidth - this.paperMarginX * 2) * ExportCardsComponent.PDF_DPI
-          : (this.paperHeight - this.paperMarginX * 2) * ExportCardsComponent.PDF_DPI,
+          ? (this.paperWidth) * ExportCardsComponent.PDF_DPI
+          : (this.paperHeight) * ExportCardsComponent.PDF_DPI,
         height: this.selectedPaper.orientation == 'portrait'
-          ? (this.paperHeight - this.paperMarginY * 2) * ExportCardsComponent.PDF_DPI
-          : (this.paperWidth - this.paperMarginY * 2) * ExportCardsComponent.PDF_DPI
+          ? (this.paperHeight) * ExportCardsComponent.PDF_DPI
+          : (this.paperWidth) * ExportCardsComponent.PDF_DPI
       };
     });
     const docDefinition = {
@@ -448,12 +452,7 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
         height: this.paperHeight * ExportCardsComponent.PDF_DPI
       },
       pageOrientation: this.selectedPaper.orientation,
-      pageMargins: [
-        this.paperMarginX * ExportCardsComponent.PDF_DPI,
-        this.paperMarginY * ExportCardsComponent.PDF_DPI,
-        this.paperMarginX * ExportCardsComponent.PDF_DPI,
-        this.paperMarginY * ExportCardsComponent.PDF_DPI
-      ] as [number, number, number, number]
+      pageMargins: [0, 0, 0, 0] as [number, number, number, number]
     };
     pdfMake.createPdf(docDefinition).getBlob((blob) => {
       FileUtils.saveAs(blob, 'card-sheets.pdf');

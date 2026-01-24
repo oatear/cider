@@ -17,12 +17,12 @@
           <div class="scale-wrapper"
             [style.width.px]="selectedPaper.orientation === 'portrait' ? paperWidth * paperDpi * scale: paperHeight * paperDpi * scale"
             [style.height.px]="selectedPaper.orientation === 'portrait' ? paperHeight * paperDpi * scale: paperWidth * paperDpi * scale">
-            <div class="preview-page"
+            <div #cardSheets class="preview-page"
               [style.width.px]="selectedPaper.orientation === 'portrait' ? paperWidth * paperDpi : paperHeight * paperDpi"
               [style.height.px]="selectedPaper.orientation === 'portrait' ? paperHeight * paperDpi : paperWidth * paperDpi"
               [style.padding]="(paperMarginY * paperDpi) + 'px ' + (paperMarginX * paperDpi) + 'px'"
               [style.transform]="'scale(' + scale + ')'">
-              <div #cardSheets class="preview-sheet" [style.gap.px]="cardGap * paperDpi">
+              <div class="preview-sheet" [style.gap.px]="cardGap * paperDpi">
                 @for (card of sheet; track $index) {
                 <div class="card-wrapper">
                   <app-card-preview #cardSheetCards [card]="card" [lowInk]="lowInk" [cache]="renderCache"
@@ -84,18 +84,19 @@
           <div class="scale-wrapper"
             [style.width.px]="selectedPaper.orientation === 'portrait' ? paperWidth * paperDpi * scale: paperHeight * paperDpi * scale"
             [style.height.px]="selectedPaper.orientation === 'portrait' ? paperHeight * paperDpi * scale: paperWidth * paperDpi * scale">
-            <div class="preview-page"
+            <div #cardSheets class="preview-page"
               [style.width.px]="selectedPaper.orientation === 'portrait' ? paperWidth * paperDpi : paperHeight * paperDpi"
               [style.height.px]="selectedPaper.orientation === 'portrait' ? paperHeight * paperDpi : paperWidth * paperDpi"
               [style.padding]="(paperMarginY * paperDpi) + 'px ' + (paperMarginX * paperDpi) + 'px'"
               [style.transform]="'scale(' + scale + ')'">
-              <div #cardSheets [class]="'preview-sheet ' + (mirrorBacksY ? 'mirror' : 'not-mirror') "
+              <div [class]="'preview-sheet ' + (mirrorBacksY ? 'mirror' : 'not-mirror') "
                 [style.transform]="'scale(' + (mirrorBacksX ? -1 : 1) + ', ' + (mirrorBacksY ? -1 : 1) + ')'"
                 [style.gap.px]="cardGap * paperDpi">
                 @for (card of sheet; track $index) {
-                <div class="card-wrapper" [style.transform]="mirrorBacksY || mirrorBacksX ? 'scaleX(-1) ' : ''">
+                <div class="card-wrapper">
                   <app-card-preview #cardSheetCards [card]="card" [lowInk]="lowInk" [cache]="renderCache"
-                    [template]="card.backCardTemplateId | entity: templatesService | async"></app-card-preview>
+                    [template]="card.backCardTemplateId | entity: templatesService | async"
+                    [style.transform]="mirrorBacksY || mirrorBacksX ? 'scaleX(-1) ' : ''"></app-card-preview>
                   @if (showCutMarks) {
                   <svg class="cut-marks" [style.top.px]="-cutOffset * paperDpi" [style.left.px]="-cutOffset * paperDpi"
                     [style.width.px]="cardSheetCards.initialWidth + cutOffset * paperDpi * 2"
