@@ -3,6 +3,34 @@ import { BehaviorSubject } from 'rxjs';
 import { ElectronService } from '../electron/electron.service';
 import { PersistentPath } from '../types/persistent-path.type';
 
+export interface ExportConfiguration {
+  exportType?: string;
+  paperType?: string;
+  paperConfig?: {
+    width: number;
+    height: number;
+    width_custom: number;
+    height_custom: number;
+    orientation: 'landscape' | 'portrait';
+    mirrorBacksX: boolean;
+    mirrorBacksY: boolean;
+    cardsPerPage: number;
+    cardGap: number;
+    paperMarginX: number;
+    paperMarginY: number;
+    paperDpi: number;
+  },
+  lowInk?: boolean;
+  excludeCardBacks?: boolean;
+  showCutMarks?: boolean;
+  cutBleed?: number;
+  cutMarkLength?: number;
+  individualExportPixelRatio?: number;
+  individualExportUseCardName?: boolean;
+  scale?: number;
+  maxTtsPixels?: number;
+}
+
 /**
  * Local storage is used for storing user preferences
  */
@@ -14,6 +42,7 @@ export class LocalStorageService {
   static readonly MAX_RECENT_PROJECT_URLS = 5;
   static readonly DARK_MODE = "dark-mode";
   static readonly RENDERER_TYPE = "renderer-type";
+  static readonly EXPORT_CONFIG = "export-config";
 
   public recentProjectUrls: BehaviorSubject<PersistentPath[]>;
 
@@ -94,6 +123,15 @@ export class LocalStorageService {
 
   public setRenderer(renderer: string) {
     localStorage.setItem(LocalStorageService.RENDERER_TYPE, renderer);
+  }
+
+  public getExportConfig(): ExportConfiguration | null {
+    const config = localStorage.getItem(LocalStorageService.EXPORT_CONFIG);
+    return config ? JSON.parse(config) : null;
+  }
+
+  public setExportConfig(config: ExportConfiguration) {
+    localStorage.setItem(LocalStorageService.EXPORT_CONFIG, JSON.stringify(config));
   }
 
 }

@@ -14,6 +14,8 @@ import GeneralUtils from '../shared/utils/general-utils';
 import { ConfirmationService } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
 
+import { LocalStorageService } from '../data-services/local-storage/local-storage.service';
+
 @Component({
   selector: 'app-export-cards',
   templateUrl: './export-cards.component.html',
@@ -44,6 +46,7 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
   @ViewChildren('backCards') backCards: QueryList<CardPreviewComponent> = {} as QueryList<CardPreviewComponent>;
 
   private autoFitDone: boolean = false;
+  private initializationDone: boolean = false;
 
   public exportType: string = ExportCardsComponent.SHEET_EXPORT;
   public exportOptions: RadioOption[] = [];
@@ -96,6 +99,7 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
     public templatesService: CardTemplatesService,
     private imageRendererService: ImageRendererService,
     private translate: TranslateService,
+    private localStorageService: LocalStorageService,
     private confirmationService: ConfirmationService) {
     cardsService.getAll().then(cards => {
       // check cards for front/back templates being defined
@@ -120,7 +124,69 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
   ngOnInit(): void {
     this.translate.stream('welcome.title').subscribe(() => {
       this.updateOptions();
+      this.loadSettings();
+      this.initializationDone = true;
     });
+  }
+
+  private loadSettings() {
+    const config = this.localStorageService.getExportConfig();
+    if (config) {
+      if (config.exportType) this.exportType = config.exportType;
+
+      if (config.paperType) {
+        const foundPaper = this.paperOptions.find(p => p.name === config.paperType);
+        if (foundPaper) {
+          this.selectedPaper = foundPaper;
+          // Apply custom dimensions if it was custom
+          if (config.paperConfig && this.selectedPaper.name.includes('Custom')) {
+            this.selectedPaper.width = config.paperConfig.width_custom;
+            this.selectedPaper.height = config.paperConfig.height_custom;
+          }
+        }
+      }
+
+      if (config.paperConfig) {
+        // We set these but changePaperType might override them if not handled carefully
+        // Ideally we let changePaperType handle defaults, then override with saved values if custom
+        this.paperWidth = config.paperConfig.width;
+        this.paperHeight = config.paperConfig.height;
+        this.cardsPerPage = config.paperConfig.cardsPerPage;
+        this.cardGap = config.paperConfig.cardGap;
+        this.paperMarginX = config.paperConfig.paperMarginX;
+        this.paperMarginY = config.paperConfig.paperMarginY;
+        this.paperDpi = config.paperConfig.paperDpi;
+      }
+
+      if (config.lowInk !== undefined) this.lowInk = config.lowInk;
+      if (config.excludeCardBacks !== undefined) this.excludeCardBacks = config.excludeCardBacks;
+      if (config.showCutMarks !== undefined) this.showCutMarks = config.showCutMarks;
+      if (config.cutBleed !== undefined) this.cutBleed = config.cutBleed;
+      if (config.cutMarkLength !== undefined) this.cutMarkLength = config.cutMarkLength;
+      if (config.individualExportPixelRatio !== undefined) this.individualExportPixelRatio = config.individualExportPixelRatio;
+      if (config.individualExportUseCardName !== undefined) this.individualExportUseCardName = config.individualExportUseCardName;
+      if (config.scale !== undefined) this.scale = config.scale;
+      if (config.maxTtsPixels !== undefined) this.maxTtsPixels = config.maxTtsPixels;
+
+      // Force update things that depend on these values
+      this.changePaperType(); // This resets some values based on paper type
+
+      // Re-apply values that changePaperType might have reset if they are valid for the current paper type
+      if (config.paperConfig && !this.selectedPaper.name.includes('Tabletop Simulator')) {
+        this.paperWidth = config.paperConfig.width;
+        this.paperHeight = config.paperConfig.height;
+        this.cardsPerPage = config.paperConfig.cardsPerPage;
+        this.cardGap = config.paperConfig.cardGap;
+        this.paperMarginX = config.paperConfig.paperMarginX;
+        this.paperMarginY = config.paperConfig.paperMarginY;
+      }
+
+      // Mirror backs is usually tied to paper type but let's see if we should override
+      if (config.paperConfig) {
+        this.mirrorBacksX = config.paperConfig.mirrorBacksX;
+        this.mirrorBacksY = config.paperConfig.mirrorBacksY;
+      }
+    }
   }
 
   public updateOptions() {
@@ -169,6 +235,7 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
   public updateSlices() {
     this.slicedCards = this.sliceIntoChunks(this.expandedCards, this.cardsPerPage);
     this.sheet = this.slicedCards ? this.slicedCards[0] : [];
+    this.saveSettings();
   }
 
   public changePaperType() {
@@ -204,6 +271,40 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
     if (this.selectedPaper.name !== 'Tabletop Simulator') {
       this.autoFit();
     }
+    this.saveSettings();
+  }
+
+  public saveSettings() {
+    if (!this.initializationDone) {
+      return;
+    }
+    this.localStorageService.setExportConfig({
+      exportType: this.exportType,
+      paperType: this.selectedPaper.name,
+      paperConfig: {
+        width: this.paperWidth,
+        height: this.paperHeight,
+        width_custom: this.selectedPaper.name.includes('Custom') ? this.paperWidth : 0, // Store custom dims if custom
+        height_custom: this.selectedPaper.name.includes('Custom') ? this.paperHeight : 0,
+        orientation: this.selectedPaper.orientation,
+        mirrorBacksX: this.mirrorBacksX,
+        mirrorBacksY: this.mirrorBacksY,
+        cardsPerPage: this.cardsPerPage,
+        cardGap: this.cardGap,
+        paperMarginX: this.paperMarginX,
+        paperMarginY: this.paperMarginY,
+        paperDpi: this.paperDpi
+      },
+      lowInk: this.lowInk,
+      excludeCardBacks: this.excludeCardBacks,
+      showCutMarks: this.showCutMarks,
+      cutBleed: this.cutBleed,
+      cutMarkLength: this.cutMarkLength,
+      individualExportPixelRatio: this.individualExportPixelRatio,
+      individualExportUseCardName: this.individualExportUseCardName,
+      scale: this.scale,
+      maxTtsPixels: this.maxTtsPixels
+    });
   }
 
   ngAfterViewChecked(): void {
@@ -222,6 +323,7 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
     if (this.selectedPaper.name !== 'Tabletop Simulator') {
       this.showBack = !this.excludeCardBacks;
     }
+    this.saveSettings();
   }
 
   public autoFit() {
@@ -283,6 +385,7 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
   public calculatePixelRatio() {
     const largestDimension = (this.paperWidth > this.paperHeight ? this.paperWidth : this.paperHeight) * this.paperDpi;
     this.pixelRatio = this.maxTtsPixels > largestDimension ? 1 : this.maxTtsPixels / largestDimension;
+    this.saveSettings();
   }
 
   public showExportSelectionDialog() {
