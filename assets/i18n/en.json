@@ -119,8 +119,9 @@
         "tabletop-simulator": "Tabletop Simulator",
         "paper-width": "Paper Width (inches)",
         "paper-height": "Paper Height (inches)",
-        "paper-margins": "Paper Margins (inches)",
-        "card-margins": "Card Margins (inches)",
+        "paper-margin-x": "Paper Margin X (inches)",
+        "paper-margin-y": "Paper Margin Y (inches)",
+        "card-gaps": "Card Gaps (inches)",
         "cards-per-page": "Cards Per Page",
         "low-ink-mode": "Low Ink Mode",
         "mirror-backs-x": "Mirror Backs X",
@@ -130,10 +131,14 @@
         "scale": "Scale (larger/smaller images)",
         "use-card-name": "Use Card Name",
         "select-cards": "Select Cards",
+        "cut-marks": "Cut Marks",
+        "cut-bleed": "Cut Bleed (inches)",
+        "cut-mark-length": "Cut Mark Length (inches)",
         "card-selection-title": "Card Selection - Changes to cards are temporary",
         "export-information": "Make sure this DPI is the same target DPI for the card templates and always set 'flip on long edge' when printing.",
         "missing-templates-warning": "Some cards do not have both their back and front template selected and will not appear in the export.",
-        "wait-message": "Generating export, please wait..."
+        "wait-message": "Generating export, please wait...",
+        "exclude-card-backs": "Exclude Card Backs"
     },
     "settings": {
         "title": "Application Settings",
