@@ -163,6 +163,7 @@
                 [template]="card.frontCardTemplateId | entity: templatesService | async"></app-card-preview>
             </div>
           </div>
+          @if (!excludeCardBacks) {
           <div class="card-scale-wrapper" [style.width.px]="backCards.initialWidth * scale"
             [style.height.px]="backCards.initialHeight * scale">
             <div class="card-wrapper" [style.transform]="'scale(' + scale + ')'">
@@ -170,6 +171,7 @@
                 [template]="card.backCardTemplateId | entity: templatesService | async"></app-card-preview>
             </div>
           </div>
+          }
           }
         </div>
         }
@@ -182,7 +184,7 @@
       <div class="settings-panel p-fluid">
         <div class="p-field">
           <p-selectButton [options]="exportOptions" [(ngModel)]="exportType" optionLabel="name" optionValue="value"
-            [allowEmpty]="false"></p-selectButton>
+            (onChange)="syncShowBack()" [allowEmpty]="false"></p-selectButton>
         </div>
         @if (exportType === 'sheet-export') {
         <div class="p-field">
@@ -233,7 +235,7 @@
           <div class="checkbox-item">
             <p-checkbox name="excludeCardBacks" class="p-mr-2" [binary]="true" [(ngModel)]="excludeCardBacks"
               (onChange)="changePaperType()" inputId="excludeCardBacks"></p-checkbox>
-            <label for="excludeCardBacks">Exclude Card Backs</label>
+            <label for="excludeCardBacks">{{'export.exclude-card-backs' | translate}}</label>
           </div>
           <div class="checkbox-item">
             <p-checkbox name="mirrorBacksX" class="p-mr-2" [binary]="true" [(ngModel)]="mirrorBacksX"
@@ -292,6 +294,12 @@
           <p-checkbox name="individualExportUseCardName" class="p-mr-2" [binary]="true"
             [(ngModel)]="individualExportUseCardName" inputId="individualExportUseCardName"></p-checkbox>
           <label for="individualExportUseCardName" class="ml-2">Use Card name</label>
+        </div>
+        <div class="p-field p-d-flex p-flex-row">
+          <p-checkbox name="excludeCardBacks" class="p-mr-2" [binary]="true" [(ngModel)]="excludeCardBacks"
+            (onChange)="syncShowBack()" inputId="excludeCardBacksSingular"></p-checkbox>
+          <label for="excludeCardBacksSingular" class="ml-2">{{'export.exclude-card-backs' |
+            translate}}</label>
         </div>
         }
 

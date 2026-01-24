@@ -218,6 +218,12 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
     }
   }
 
+  public syncShowBack() {
+    if (this.selectedPaper.name !== 'Tabletop Simulator') {
+      this.showBack = !this.excludeCardBacks;
+    }
+  }
+
   public autoFit() {
     if (!this.cardSheetCards || this.cardSheetCards.length === 0) {
       return;

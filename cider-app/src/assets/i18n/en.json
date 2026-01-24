@@ -137,7 +137,8 @@
         "card-selection-title": "Card Selection - Changes to cards are temporary",
         "export-information": "Make sure this DPI is the same target DPI for the card templates and always set 'flip on long edge' when printing.",
         "missing-templates-warning": "Some cards do not have both their back and front template selected and will not appear in the export.",
-        "wait-message": "Generating export, please wait..."
+        "wait-message": "Generating export, please wait...",
+        "exclude-card-backs": "Exclude Card Backs"
     },
     "settings": {
         "title": "Application Settings",
