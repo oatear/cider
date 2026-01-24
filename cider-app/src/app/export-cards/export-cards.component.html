@@ -4,7 +4,7 @@
     <p-card styleClass="page-card">
       <div class="card-controls">
         <p-selectButton [options]="zoomOptions" [(ngModel)]="scale" class="p-mr-3" optionLabel="label"
-          optionValue="value" [allowEmpty]="false"></p-selectButton>
+          optionValue="value" (onChange)="saveSettings()" [allowEmpty]="false"></p-selectButton>
         <button pButton pRipple
           [label]="('export.select-cards' | translate) + ' (' + (expandedCards ? expandedCards.length : 0) + ')'"
           icon="pi pi-check-square" class="p-button-text" (click)="showExportSelectionDialog()"></button>
@@ -17,15 +17,63 @@
           <div class="scale-wrapper"
             [style.width.px]="selectedPaper.orientation === 'portrait' ? paperWidth * paperDpi * scale: paperHeight * paperDpi * scale"
             [style.height.px]="selectedPaper.orientation === 'portrait' ? paperHeight * paperDpi * scale: paperWidth * paperDpi * scale">
-            <div class="preview-page"
+            <div #cardSheets class="preview-page"
               [style.width.px]="selectedPaper.orientation === 'portrait' ? paperWidth * paperDpi : paperHeight * paperDpi"
               [style.height.px]="selectedPaper.orientation === 'portrait' ? paperHeight * paperDpi : paperWidth * paperDpi"
-              [style.padding.px]="paperMargins * paperDpi" [style.transform]="'scale(' + scale + ')'">
-              <div #cardSheets class="preview-sheet">
+              [style.padding]="(paperMarginY * paperDpi) + 'px ' + (paperMarginX * paperDpi) + 'px'"
+              [style.transform]="'scale(' + scale + ')'">
+              <div class="preview-sheet" [style.gap.px]="cardGap * paperDpi">
                 @for (card of sheet; track $index) {
-                <div class="card-wrapper" [style.margin.px]="cardMargins * paperDpi">
+                <div class="card-wrapper">
                   <app-card-preview #cardSheetCards [card]="card" [lowInk]="lowInk" [cache]="renderCache"
                     [template]="card.frontCardTemplateId | entity: templatesService | async"></app-card-preview>
+                  @if (showCutMarks) {
+                  <svg class="cut-marks" [style.top.px]="-cutOffset * paperDpi" [style.left.px]="-cutOffset * paperDpi"
+                    [style.width.px]="cardSheetCards.initialWidth + cutOffset * paperDpi * 2"
+                    [style.height.px]="cardSheetCards.initialHeight + cutOffset * paperDpi * 2">
+                    <!-- Top Left -->
+                    <line [attr.x1]="(cutOffset + cutBleed) * paperDpi"
+                      [attr.y1]="(cutOffset - cutMarkLength) * paperDpi" [attr.x2]="(cutOffset + cutBleed) * paperDpi"
+                      [attr.y2]="cutOffset * paperDpi" stroke="black" stroke-width="1" />
+                    <line [attr.x1]="(cutOffset - cutMarkLength) * paperDpi"
+                      [attr.y1]="(cutOffset + cutBleed) * paperDpi" [attr.x2]="cutOffset * paperDpi"
+                      [attr.y2]="(cutOffset + cutBleed) * paperDpi" stroke="black" stroke-width="1" />
+
+                    <!-- Top Right -->
+                    <line [attr.x1]="cardSheetCards.initialWidth + (cutOffset - cutBleed) * paperDpi"
+                      [attr.y1]="(cutOffset - cutMarkLength) * paperDpi"
+                      [attr.x2]="cardSheetCards.initialWidth + (cutOffset - cutBleed) * paperDpi"
+                      [attr.y2]="cutOffset * paperDpi" stroke="black" stroke-width="1" />
+                    <line [attr.x1]="cardSheetCards.initialWidth + cutOffset * paperDpi"
+                      [attr.y1]="(cutOffset + cutBleed) * paperDpi"
+                      [attr.x2]="cardSheetCards.initialWidth + (cutOffset + cutMarkLength) * paperDpi"
+                      [attr.y2]="(cutOffset + cutBleed) * paperDpi" stroke="black" stroke-width="1" />
+
+                    <!-- Bottom Left -->
+                    <line [attr.x1]="(cutOffset + cutBleed) * paperDpi"
+                      [attr.y1]="cardSheetCards.initialHeight + cutOffset * paperDpi"
+                      [attr.x2]="(cutOffset + cutBleed) * paperDpi"
+                      [attr.y2]="cardSheetCards.initialHeight + (cutOffset + cutMarkLength) * paperDpi" stroke="black"
+                      stroke-width="1" />
+                    <line [attr.x1]="(cutOffset - cutMarkLength) * paperDpi"
+                      [attr.y1]="cardSheetCards.initialHeight + (cutOffset - cutBleed) * paperDpi"
+                      [attr.x2]="cutOffset * paperDpi"
+                      [attr.y2]="cardSheetCards.initialHeight + (cutOffset - cutBleed) * paperDpi" stroke="black"
+                      stroke-width="1" />
+
+                    <!-- Bottom Right -->
+                    <line [attr.x1]="cardSheetCards.initialWidth + (cutOffset - cutBleed) * paperDpi"
+                      [attr.y1]="cardSheetCards.initialHeight + cutOffset * paperDpi"
+                      [attr.x2]="cardSheetCards.initialWidth + (cutOffset - cutBleed) * paperDpi"
+                      [attr.y2]="cardSheetCards.initialHeight + (cutOffset + cutMarkLength) * paperDpi" stroke="black"
+                      stroke-width="1" />
+                    <line [attr.x1]="cardSheetCards.initialWidth + cutOffset * paperDpi"
+                      [attr.y1]="cardSheetCards.initialHeight + (cutOffset - cutBleed) * paperDpi"
+                      [attr.x2]="cardSheetCards.initialWidth + (cutOffset + cutMarkLength) * paperDpi"
+                      [attr.y2]="cardSheetCards.initialHeight + (cutOffset - cutBleed) * paperDpi" stroke="black"
+                      stroke-width="1" />
+                  </svg>
+                  }
                 </div>
                 }
               </div>
@@ -36,17 +84,66 @@
           <div class="scale-wrapper"
             [style.width.px]="selectedPaper.orientation === 'portrait' ? paperWidth * paperDpi * scale: paperHeight * paperDpi * scale"
             [style.height.px]="selectedPaper.orientation === 'portrait' ? paperHeight * paperDpi * scale: paperWidth * paperDpi * scale">
-            <div class="preview-page"
+            <div #cardSheets class="preview-page"
               [style.width.px]="selectedPaper.orientation === 'portrait' ? paperWidth * paperDpi : paperHeight * paperDpi"
               [style.height.px]="selectedPaper.orientation === 'portrait' ? paperHeight * paperDpi : paperWidth * paperDpi"
-              [style.padding.px]="paperMargins * paperDpi" [style.transform]="'scale(' + scale + ')'">
-              <div #cardSheets [class]="'preview-sheet ' + (mirrorBacksY ? 'mirror' : 'not-mirror') "
-                [style.transform]="'scale(' + (mirrorBacksX ? -1 : 1) + ', ' + (mirrorBacksY ? -1 : 1) + ')'">
+              [style.padding]="(paperMarginY * paperDpi) + 'px ' + (paperMarginX * paperDpi) + 'px'"
+              [style.transform]="'scale(' + scale + ')'">
+              <div [class]="'preview-sheet ' + (mirrorBacksY ? 'mirror' : 'not-mirror') "
+                [style.transform]="'scale(' + (mirrorBacksX ? -1 : 1) + ', ' + (mirrorBacksY ? -1 : 1) + ')'"
+                [style.gap.px]="cardGap * paperDpi">
                 @for (card of sheet; track $index) {
-                <div class="card-wrapper" [style.margin.px]="cardMargins * paperDpi"
-                  [style.transform]="mirrorBacksY || mirrorBacksX ? 'scaleX(-1) ' : ''">
+                <div class="card-wrapper">
                   <app-card-preview #cardSheetCards [card]="card" [lowInk]="lowInk" [cache]="renderCache"
-                    [template]="card.backCardTemplateId | entity: templatesService | async"></app-card-preview>
+                    [template]="card.backCardTemplateId | entity: templatesService | async"
+                    [style.transform]="mirrorBacksY || mirrorBacksX ? 'scaleX(-1) ' : ''"></app-card-preview>
+                  @if (showCutMarks) {
+                  <svg class="cut-marks" [style.top.px]="-cutOffset * paperDpi" [style.left.px]="-cutOffset * paperDpi"
+                    [style.width.px]="cardSheetCards.initialWidth + cutOffset * paperDpi * 2"
+                    [style.height.px]="cardSheetCards.initialHeight + cutOffset * paperDpi * 2">
+                    <!-- Top Left -->
+                    <line [attr.x1]="(cutOffset + cutBleed) * paperDpi"
+                      [attr.y1]="(cutOffset - cutMarkLength) * paperDpi" [attr.x2]="(cutOffset + cutBleed) * paperDpi"
+                      [attr.y2]="cutOffset * paperDpi" stroke="black" stroke-width="1" />
+                    <line [attr.x1]="(cutOffset - cutMarkLength) * paperDpi"
+                      [attr.y1]="(cutOffset + cutBleed) * paperDpi" [attr.x2]="cutOffset * paperDpi"
+                      [attr.y2]="(cutOffset + cutBleed) * paperDpi" stroke="black" stroke-width="1" />
+
+                    <!-- Top Right -->
+                    <line [attr.x1]="cardSheetCards.initialWidth + (cutOffset - cutBleed) * paperDpi"
+                      [attr.y1]="(cutOffset - cutMarkLength) * paperDpi"
+                      [attr.x2]="cardSheetCards.initialWidth + (cutOffset - cutBleed) * paperDpi"
+                      [attr.y2]="cutOffset * paperDpi" stroke="black" stroke-width="1" />
+                    <line [attr.x1]="cardSheetCards.initialWidth + cutOffset * paperDpi"
+                      [attr.y1]="(cutOffset + cutBleed) * paperDpi"
+                      [attr.x2]="cardSheetCards.initialWidth + (cutOffset + cutMarkLength) * paperDpi"
+                      [attr.y2]="(cutOffset + cutBleed) * paperDpi" stroke="black" stroke-width="1" />
+
+                    <!-- Bottom Left -->
+                    <line [attr.x1]="(cutOffset + cutBleed) * paperDpi"
+                      [attr.y1]="cardSheetCards.initialHeight + cutOffset * paperDpi"
+                      [attr.x2]="(cutOffset + cutBleed) * paperDpi"
+                      [attr.y2]="cardSheetCards.initialHeight + (cutOffset + cutMarkLength) * paperDpi" stroke="black"
+                      stroke-width="1" />
+                    <line [attr.x1]="(cutOffset - cutMarkLength) * paperDpi"
+                      [attr.y1]="cardSheetCards.initialHeight + (cutOffset - cutBleed) * paperDpi"
+                      [attr.x2]="cutOffset * paperDpi"
+                      [attr.y2]="cardSheetCards.initialHeight + (cutOffset - cutBleed) * paperDpi" stroke="black"
+                      stroke-width="1" />
+
+                    <!-- Bottom Right -->
+                    <line [attr.x1]="cardSheetCards.initialWidth + (cutOffset - cutBleed) * paperDpi"
+                      [attr.y1]="cardSheetCards.initialHeight + cutOffset * paperDpi"
+                      [attr.x2]="cardSheetCards.initialWidth + (cutOffset - cutBleed) * paperDpi"
+                      [attr.y2]="cardSheetCards.initialHeight + (cutOffset + cutMarkLength) * paperDpi" stroke="black"
+                      stroke-width="1" />
+                    <line [attr.x1]="cardSheetCards.initialWidth + cutOffset * paperDpi"
+                      [attr.y1]="cardSheetCards.initialHeight + (cutOffset - cutBleed) * paperDpi"
+                      [attr.x2]="cardSheetCards.initialWidth + (cutOffset + cutMarkLength) * paperDpi"
+                      [attr.y2]="cardSheetCards.initialHeight + (cutOffset - cutBleed) * paperDpi" stroke="black"
+                      stroke-width="1" />
+                  </svg>
+                  }
                 </div>
                 }
               </div>
@@ -66,6 +163,7 @@
                 [template]="card.frontCardTemplateId | entity: templatesService | async"></app-card-preview>
             </div>
           </div>
+          @if (!excludeCardBacks) {
           <div class="card-scale-wrapper" [style.width.px]="backCards.initialWidth * scale"
             [style.height.px]="backCards.initialHeight * scale">
             <div class="card-wrapper" [style.transform]="'scale(' + scale + ')'">
@@ -73,6 +171,7 @@
                 [template]="card.backCardTemplateId | entity: templatesService | async"></app-card-preview>
             </div>
           </div>
+          }
           }
         </div>
         }
@@ -83,9 +182,11 @@
     <!-- <app-page-header header="Export Settings" subheader="Configure the export parameters"></app-page-header> -->
     <p-card styleClass="page-card">
       <div class="settings-panel p-fluid">
-        <div class="p-field">
+        <div class="p-field p-d-flex p-flex-row p-jc-between p-ai-center">
           <p-selectButton [options]="exportOptions" [(ngModel)]="exportType" optionLabel="name" optionValue="value"
-            [allowEmpty]="false"></p-selectButton>
+            (onChange)="syncShowBack()" [allowEmpty]="false"></p-selectButton>
+          <button pButton pRipple [label]="'controls.export' | translate" icon="pi pi-file" class="p-button"
+            (click)="export()"></button>
         </div>
         @if (exportType === 'sheet-export') {
         <div class="p-field">
@@ -96,56 +197,82 @@
           <div class="p-field p-mr-2">
             <label [for]="paperWidth">{{'export.paper-width' | translate}}</label>
             <input type="number" pInputText [id]="paperWidth" [(ngModel)]="paperWidth" required autofocus
-              [disabled]="!selectedPaper.name.includes('Custom')" />
+              [disabled]="!selectedPaper.name.includes('Custom')" (ngModelChange)="saveSettings()" />
           </div>
           <div class="p-field">
             <label [for]="paperHeight">{{'export.paper-height' | translate}}</label>
             <input type="number" pInputText [id]="paperHeight" [(ngModel)]="paperHeight" required autofocus
-              [disabled]="!selectedPaper.name.includes('Custom')" />
+              [disabled]="!selectedPaper.name.includes('Custom')" (ngModelChange)="saveSettings()" />
           </div>
         </div>
         <div class="p-d-flex p-flex-row">
           <div class="p-field p-mr-2">
-            <label [for]="paperMargins">{{'export.paper-margins' | translate}}</label>
-            <input type="number" pInputText [id]="paperMargins" [(ngModel)]="paperMargins" required autofocus
-              [disabled]="selectedPaper.name.includes('Tabletop Simulator')" />
+            <label [for]="cardsPerPage">{{'export.cards-per-page' | translate}}</label>
+            <input type="number" pInputText [id]="cardsPerPage" [(ngModel)]="cardsPerPage" required autofocus
+              (ngModelChange)="updateSlices()" [disabled]="selectedPaper.name.includes('Tabletop Simulator')" />
           </div>
           <div class="p-field">
-            <label [for]="cardMargins">{{'export.card-margins' | translate}}</label>
-            <input type="number" pInputText [id]="cardMargins" [(ngModel)]="cardMargins" required autofocus
-              [disabled]="selectedPaper.name.includes('Tabletop Simulator')" />
+            <label [for]="cardGap">{{'export.card-gaps' | translate}}</label>
+            <input type="number" pInputText [id]="cardGap" [(ngModel)]="cardGap" required autofocus
+              [disabled]="selectedPaper.name.includes('Tabletop Simulator')" (ngModelChange)="saveSettings()" />
           </div>
         </div>
-        <div class="p-field">
-          <label [for]="cardsPerPage">{{'export.cards-per-page' | translate}}</label>
-          <input type="number" pInputText [id]="cardsPerPage" [(ngModel)]="cardsPerPage" required autofocus
-            (ngModelChange)="updateSlices()" [disabled]="selectedPaper.name.includes('Tabletop Simulator')" />
+        <div class="p-d-flex p-flex-row">
+          <div class="p-field p-mr-2">
+            <label [for]="paperMarginX">{{'export.paper-margin-x' | translate}}</label>
+            <input type="number" pInputText [id]="paperMarginX" [(ngModel)]="paperMarginX" required autofocus
+              [disabled]="selectedPaper.name.includes('Tabletop Simulator')" (ngModelChange)="saveSettings()" />
+          </div>
+          <div class="p-field">
+            <label [for]="paperMarginY">{{'export.paper-margin-y' | translate}}</label>
+            <input type="number" pInputText [id]="paperMarginY" [(ngModel)]="paperMarginY" required autofocus
+              [disabled]="selectedPaper.name.includes('Tabletop Simulator')" (ngModelChange)="saveSettings()" />
+          </div>
         </div>
         <div class="p-field checkbox-group">
           <div class="checkbox-item">
-            <p-checkbox name="lowInk" class="p-mr-2" [binary]="true" [(ngModel)]="lowInk" inputId="lowInk"></p-checkbox>
+            <p-checkbox name="lowInk" class="p-mr-2" [binary]="true" [(ngModel)]="lowInk" inputId="lowInk"
+              (onChange)="saveSettings()"></p-checkbox>
             <label for="lowInk">{{'export.low-ink-mode' | translate}}</label>
           </div>
           <div class="checkbox-item">
             <p-checkbox name="excludeCardBacks" class="p-mr-2" [binary]="true" [(ngModel)]="excludeCardBacks"
               (onChange)="changePaperType()" inputId="excludeCardBacks"></p-checkbox>
-            <label for="excludeCardBacks">Exclude Card Backs</label>
+            <label for="excludeCardBacks">{{'export.exclude-card-backs' | translate}}</label>
           </div>
           <div class="checkbox-item">
             <p-checkbox name="mirrorBacksX" class="p-mr-2" [binary]="true" [(ngModel)]="mirrorBacksX"
-              inpudId="mirrorBacksX"></p-checkbox>
+              inpudId="mirrorBacksX" (onChange)="saveSettings()"></p-checkbox>
             <label for="mirrorBacksX">{{'export.mirror-backs-x' | translate}}</label>
           </div>
           <div class="checkbox-item">
             <p-checkbox name="mirrorBacksY" class="p-mr-2" [binary]="true" [(ngModel)]="mirrorBacksY"
-              inputId="mirrorBacksY"></p-checkbox>
+              inputId="mirrorBacksY" (onChange)="saveSettings()"></p-checkbox>
             <label for="mirrorBacksY">{{'export.mirror-backs-y' | translate}}</label>
+          </div>
+          <div class="checkbox-item">
+            <p-checkbox name="showCutMarks" class="p-mr-2" [binary]="true" [(ngModel)]="showCutMarks"
+              inputId="showCutMarks" (onChange)="saveSettings()"></p-checkbox>
+            <label for="showCutMarks">{{'export.cut-marks' | translate}}</label>
+          </div>
+        </div>
+        <div class="p-d-flex p-flex-row">
+          <div class="p-field p-mr-2">
+            <label [for]="cutBleed">{{'export.cut-bleed' | translate}}</label>
+            <input type="number" pInputText [id]="cutBleed" [(ngModel)]="cutBleed" required autofocus
+              [disabled]="!showCutMarks" (ngModelChange)="saveSettings()" />
+          </div>
+          <div class="p-field">
+            <label [for]="cutMarkLength">{{'export.cut-mark-length' | translate}}</label>
+            <input type="number" pInputText [id]="cutMarkLength" [(ngModel)]="cutMarkLength" required autofocus
+              [disabled]="!showCutMarks" (ngModelChange)="saveSettings()" />
           </div>
         </div>
         <div class="p-d-flex p-flex-row">
           <div class="p-field p-mr-2">
             <label [for]="paperDpi">{{'export.paper-dpi' | translate}}</label>
-            <input type="number" pInputText [id]="paperDpi" [(ngModel)]="paperDpi" required autofocus />
+            <input type="number" pInputText [id]="paperDpi" [(ngModel)]="paperDpi" required autofocus
+              (ngModelChange)="saveSettings()" />
           </div>
           <div class="p-field">
             <label [for]="paperDpi">{{'export.max-tts-pixels' | translate}}</label>
@@ -165,17 +292,23 @@
         <div class="p-field">
           <label [for]="individualExportPixelRatio">Scale (larger/smaller images)</label>
           <input type="number" pInputText [id]="individualExportPixelRatio" [(ngModel)]="individualExportPixelRatio"
-            required autofocus />
+            required autofocus (ngModelChange)="saveSettings()" />
         </div>
         <div class="p-field p-d-flex p-flex-row">
           <p-checkbox name="individualExportUseCardName" class="p-mr-2" [binary]="true"
-            [(ngModel)]="individualExportUseCardName" inputId="individualExportUseCardName"></p-checkbox>
+            [(ngModel)]="individualExportUseCardName" inputId="individualExportUseCardName"
+            (onChange)="saveSettings()"></p-checkbox>
           <label for="individualExportUseCardName" class="ml-2">Use Card name</label>
+        </div>
+        <div class="p-field p-d-flex p-flex-row">
+          <p-checkbox name="excludeCardBacks" class="p-mr-2" [binary]="true" [(ngModel)]="excludeCardBacks"
+            (onChange)="syncShowBack()" inputId="excludeCardBacksSingular"></p-checkbox>
+          <label for="excludeCardBacksSingular" class="ml-2">{{'export.exclude-card-backs' |
+            translate}}</label>
         </div>
         }
 
-        <button pButton pRipple [label]="'controls.export' | translate" icon="pi pi-file" class="p-button p-mr-2"
-          (click)="export()"></button>
+
       </div>
     </p-card>
   </div>

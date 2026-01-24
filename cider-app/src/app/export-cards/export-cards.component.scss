@@ -107,10 +107,29 @@ $preview-individual-scale: 0.08;
             .preview-sheet {
                 width: 100%;
                 height: 100%;
-                overflow: hidden;
+                overflow: visible;
+
+                display: flex;
+                flex-wrap: wrap;
+                align-content: flex-start;
 
                 .card-wrapper {
                     display: inline-block;
+                    position: relative;
+                }
+
+                app-card-preview {
+                    float: left;
+                    margin: 0;
+                    height: fit-content;
+                    position: relative;
+                    z-index: 1;
+                }
+
+                .cut-marks {
+                    position: absolute;
+                    pointer-events: none;
+                    z-index: 0;
                 }
             }
         }
@@ -142,6 +161,12 @@ $preview-individual-scale: 0.08;
     overflow-wrap: normal;
     flex-direction: row;
     align-content: flex-start;
+
+    .cut-marks {
+        position: absolute;
+        pointer-events: none;
+        z-index: 10;
+    }
 
     app-card-preview {
         float: left;

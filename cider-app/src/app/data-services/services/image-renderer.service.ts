@@ -9,6 +9,7 @@ export interface ImageRendererOptions {
     pixelRatio?: number;
     filter?: (node: HTMLElement) => boolean;
     onImageErrorHandler?: (error: any) => void;
+    style?: any;
 }
 
 @Injectable({
@@ -29,7 +30,8 @@ export class ImageRendererService {
             // Passing options through for now, might need adaptation.
             return domToImageMore.toPng(node, {
                 filter: options?.filter,
-                scale: options?.pixelRatio || 1
+                scale: options?.pixelRatio || 1,
+                style: options?.style
             });
         } else {
             // Default to html-to-image
