@@ -74,7 +74,6 @@ export class EntitySpreadsheetComponent implements OnInit, OnDestroy {
 
         await this.setupColumns();
         this.setupRows();
-        console.log('column config', this.columnConfig(), 'data', this.data());
     }
 
     private async setupColumns(): Promise<void> {
