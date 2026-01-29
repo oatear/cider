@@ -70,6 +70,18 @@ export class CardPreviewComponent implements OnInit, AfterViewChecked, OnChanges
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    const cardChange = changes['card'];
+    const templateChange = changes['template'];
+
+    if ((cardChange && !cardChange.isFirstChange()) || (templateChange && !templateChange.isFirstChange())) {
+      this.isLoadedSubject = new AsyncSubject();
+      this.isCacheLoadedSubject = new AsyncSubject();
+      this.initialWidth = 0;
+      this.initialHeight = 0;
+      this.cachedImageUrl = undefined;
+      this.invalidTemplate = false;
+    }
+
     if (this.cache && this.assetUrls) {
       lastValueFrom(this.isLoadedSubject).then(() => {
         this.renderCacheService.getOrSet(this.getHash(),
