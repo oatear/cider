@@ -166,7 +166,7 @@ try {
       stopAccess();
       return false;
     }
-    return fs.promises.mkdir(persistentPath.path).then(() => {
+    return fs.promises.mkdir(persistentPath.path, { recursive: true }).then(() => {
       console.log('directory created', persistentPath.path);
       stopAccess();
       return true;
