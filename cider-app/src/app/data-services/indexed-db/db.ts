@@ -4,7 +4,7 @@ import { Asset } from "../types/asset.type";
 import { CardTemplate } from "../types/card-template.type";
 import { FieldType } from "../types/field-type.type";
 import { Deck } from "../types/deck.type";
-import { exportDB, importDB } from "dexie-export-import";
+import { exportDB, importDB, importInto } from "dexie-export-import";
 import FileUtils from "src/app/shared/utils/file-utils";
 import { ExportProgress } from "dexie-export-import/dist/export";
 import { ImportProgress } from "dexie-export-import/dist/import";
@@ -151,9 +151,10 @@ export class AppDB extends Dexie {
             .then(count => {
                 if (!electronService.isElectron() && count > 0) {
                     console.log('db already populated');
+                    return Promise.resolve();
                 } else {
                     console.log('populate from file');
-                    this.populateFromFile().then(() => {
+                    return this.populateFromFile().then(() => {
                         // cause asset urls to update
                         this.loadSubject.next(null);
                     });
@@ -212,14 +213,31 @@ export class AppDB extends Dexie {
     }
 
     async populateFromFile() {
+        // This is a destructive operation, but it's only called when the DB is effectively empty
+        // or we fully intend to reset to the sample state.
+
+        // 1. Fetch the sample file
         const blob = await firstValueFrom(this.httpClient.get(AppDB.SAMPLE_DB_FILE, { responseType: 'blob' }));
         const file = new File([blob], 'database.json', { type: 'application/json', lastModified: Date.now() });
-        return importDB(file, {
-            //noTransaction: true
-        }).then((db) => {
-            this.initializeData();
-            return db;
+
+        // 2. Import into the CURRENT existing database logic
+        // We do NOT close or delete the DB. We just clear existing tables and import data.
+        // options:
+        // - clearTablesBeforeImport: true -> effectively a reset
+        // - acceptVersionDiff: true -> ignores that the file might be v2 and the DB is v10
+        // - overwriteValues: true -> ensures import wins
+        await importInto(this, file, {
+            clearTablesBeforeImport: true,
+            acceptVersionDiff: true,
+            overwriteValues: true
         });
+
+        // 3. Notify that the database has been populated (refreshes UI/Sidebar)
+        // We use a generic event so listeners know something changed.
+        // We also wait a tick to ensure listeners are ready if this is part of initial load.
+        this.changeSubject.next({ tableName: 'all', type: 'reset', key: null });
+
+        return this;
     }
 
     /**

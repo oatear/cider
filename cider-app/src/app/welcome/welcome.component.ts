@@ -15,11 +15,11 @@ import { DocumentsService } from '../data-services/services/documents.service';
 import { PersistentPath } from '../data-services/types/persistent-path.type';
 
 @Component({
-    selector: 'app-welcome',
-    templateUrl: './welcome.component.html',
-    styleUrls: ['./welcome.component.scss'],
-    providers: [ConfirmationService],
-    standalone: false
+  selector: 'app-welcome',
+  templateUrl: './welcome.component.html',
+  styleUrls: ['./welcome.component.scss'],
+  providers: [ConfirmationService],
+  standalone: false
 })
 export class WelcomeComponent implements OnInit {
   public displayLoading: boolean = false;
@@ -31,7 +31,7 @@ export class WelcomeComponent implements OnInit {
   projectHomeUrl$: Observable<PersistentPath | undefined>;
   projectUnsaved$: Observable<boolean>;
 
-  recentProjectUrls: { persistentPath: PersistentPath; name: string; hue: number; hue2: number; hover: boolean}[] = [];
+  recentProjectUrls: { persistentPath: PersistentPath; name: string; hue: number; hue2: number; hover: boolean }[] = [];
 
   constructor(private localStorageService: LocalStorageService,
     private confirmationService: ConfirmationService,
@@ -44,9 +44,9 @@ export class WelcomeComponent implements OnInit {
     private documentsService: DocumentsService,
     private router: Router,
     private db: AppDB) {
-      this.isElectron = electronService.isElectron();
-      this.projectHomeUrl$ = electronService.getProjectHomeUrl();
-      this.projectUnsaved$ = electronService.getProjectUnsaved();
+    this.isElectron = electronService.isElectron();
+    this.projectHomeUrl$ = electronService.getProjectHomeUrl();
+    this.projectUnsaved$ = electronService.getProjectUnsaved();
   }
 
   ngOnInit(): void {
@@ -66,21 +66,21 @@ export class WelcomeComponent implements OnInit {
   }
 
   private urlToProjectInfo(persistentPath: PersistentPath) {
-      let name = StringUtils.lastDirectoryFromUrl(persistentPath.path);
-      let hue = this.calculateHue(name);
-      let hue2diff = 120;
-      return {
-        persistentPath: persistentPath,
-        name: name,
-        hue: hue,
-        hue2: (hue + hue2diff) % 360,
-        hover: false
-      }
+    let name = StringUtils.lastDirectoryFromUrl(persistentPath.path);
+    let hue = this.calculateHue(name);
+    let hue2diff = 120;
+    return {
+      persistentPath: persistentPath,
+      name: name,
+      hue: hue,
+      hue2: (hue + hue2diff) % 360,
+      hover: false
+    }
   }
 
   public async newProject(keepEmpty: boolean) {
-    let [projectHomeUrl, projectUnsaved] = await Promise.all([firstValueFrom(this.projectHomeUrl$), 
-      firstValueFrom(this.projectUnsaved$)]);
+    let [projectHomeUrl, projectUnsaved] = await Promise.all([firstValueFrom(this.projectHomeUrl$),
+    firstValueFrom(this.projectUnsaved$)]);
     if (!projectHomeUrl && !projectUnsaved) {
       this.newProjectProcedure(keepEmpty);
       return;
@@ -104,8 +104,8 @@ export class WelcomeComponent implements OnInit {
   }
 
   public async openProject(url: PersistentPath) {
-    let [projectHomeUrl, projectUnsaved] = await Promise.all([firstValueFrom(this.projectHomeUrl$), 
-      firstValueFrom(this.projectUnsaved$)]);
+    let [projectHomeUrl, projectUnsaved] = await Promise.all([firstValueFrom(this.projectHomeUrl$),
+    firstValueFrom(this.projectUnsaved$)]);
     if (!projectHomeUrl && !projectUnsaved) {
       this.openProjectProcedure(url);
     }
@@ -127,15 +127,15 @@ export class WelcomeComponent implements OnInit {
     this.loadingInfo = 'Reading project data...';
     this.displayLoading = true;
     this.electronService.openProject(url, this.db, this.assetsService, this.decksService,
-      this.cardTemplatesService, this.cardAttributesService, this.cardsService, 
+      this.cardTemplatesService, this.cardAttributesService, this.cardsService,
       this.documentsService).then(() => {
-      this.assetsService.updateAssetUrls();
-      this.electronService.setProjectUnsaved(false);
-      this.electronService.setProjectOpen(true);
-      this.decksService.selectDeck(undefined);
-      this.router.navigateByUrl(`/project`);
-      this.displayLoading = false;
-    });
+        this.assetsService.updateAssetUrls();
+        this.electronService.setProjectUnsaved(false);
+        this.electronService.setProjectOpen(true);
+        this.decksService.selectDeck(undefined);
+        this.router.navigateByUrl(`/project`);
+        this.displayLoading = false;
+      });
   }
 
   calculateHue(text: string) {
@@ -144,7 +144,7 @@ export class WelcomeComponent implements OnInit {
     }
     const cleanText = text.toLowerCase().replace(/[^a-z]*/g, '');
     let sum = 0;
-    for (var i=0; i < cleanText.length; i++) {
+    for (var i = 0; i < cleanText.length; i++) {
       sum += (cleanText.charCodeAt(i) - 97) * 255 / 25;
     }
     //return (sum / cleanText.length) & 0xFF;
