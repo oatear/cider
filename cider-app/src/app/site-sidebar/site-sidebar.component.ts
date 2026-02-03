@@ -93,6 +93,10 @@ export class SiteSidebarComponent implements OnInit {
   }
 
   async updateFiles() {
+    if (!this.db.isOpen()) {
+      console.warn('Database is closed, skipping sidebar update');
+      return;
+    }
     if (this.updatingFiles) {
       console.warn('Files are already being updated. Skipping this update.');
       return;

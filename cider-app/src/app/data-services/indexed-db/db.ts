@@ -39,6 +39,7 @@ export class AppDB extends Dexie {
     private httpClient;
     private changeSubject: Subject<any>;
     private loadSubject: Subject<null>;
+    private isPopulating: boolean = false;
 
     constructor(httpClient: HttpClient,
         electronService: ElectronService,
@@ -177,7 +178,9 @@ export class AppDB extends Dexie {
 
         // Add hooks for granular dirty tracking
         const trackChange = (tableName: string, type: string, key: any) => {
-            this.changeSubject.next({ tableName, type, key });
+            if (!this.isPopulating) {
+                this.changeSubject.next({ tableName, type, key });
+            }
         };
 
         // We need to wait for tables to be initialized or just access them via this.table()
@@ -212,30 +215,37 @@ export class AppDB extends Dexie {
 
     }
 
-    async populateFromFile() {
+    async populateFromFile(emitChange: boolean = true) {
         // This is a destructive operation, but it's only called when the DB is effectively empty
         // or we fully intend to reset to the sample state.
+        this.isPopulating = true;
 
-        // 1. Fetch the sample file
-        const blob = await firstValueFrom(this.httpClient.get(AppDB.SAMPLE_DB_FILE, { responseType: 'blob' }));
-        const file = new File([blob], 'database.json', { type: 'application/json', lastModified: Date.now() });
+        try {
+            // 1. Fetch the sample file
+            const blob = await firstValueFrom(this.httpClient.get(AppDB.SAMPLE_DB_FILE, { responseType: 'blob' }));
+            const file = new File([blob], 'database.json', { type: 'application/json', lastModified: Date.now() });
 
-        // 2. Import into the CURRENT existing database logic
-        // We do NOT close or delete the DB. We just clear existing tables and import data.
-        // options:
-        // - clearTablesBeforeImport: true -> effectively a reset
-        // - acceptVersionDiff: true -> ignores that the file might be v2 and the DB is v10
-        // - overwriteValues: true -> ensures import wins
-        await importInto(this, file, {
-            clearTablesBeforeImport: true,
-            acceptVersionDiff: true,
-            overwriteValues: true
-        });
+            // 2. Import into the CURRENT existing database logic
+            // We do NOT close or delete the DB. We just clear existing tables and import data.
+            // options:
+            // - clearTablesBeforeImport: true -> effectively a reset
+            // - acceptVersionDiff: true -> ignores that the file might be v2 and the DB is v10
+            // - overwriteValues: true -> ensures import wins
+            await importInto(this, file, {
+                clearTablesBeforeImport: true,
+                acceptVersionDiff: true,
+                overwriteValues: true
+            });
 
-        // 3. Notify that the database has been populated (refreshes UI/Sidebar)
-        // We use a generic event so listeners know something changed.
-        // We also wait a tick to ensure listeners are ready if this is part of initial load.
-        this.changeSubject.next({ tableName: 'all', type: 'reset', key: null });
+            // 3. Notify that the database has been populated (refreshes UI/Sidebar)
+            // We use a generic event so listeners know something changed.
+            // We also wait a tick to ensure listeners are ready if this is part of initial load.
+            if (emitChange) {
+                this.changeSubject.next({ tableName: 'all', type: 'reset', key: null });
+            }
+        } finally {
+            this.isPopulating = false;
+        }
 
         return this;
     }
@@ -282,11 +292,13 @@ export class AppDB extends Dexie {
     public async resetDatabase(keepEmpty?: boolean) {
         this.close();
         await this.delete();
+        await this.open();
         if (!keepEmpty) {
-            const tempDb = await this.populateFromFile();
-            tempDb.close();
+            await this.populateFromFile(false);
+            // Don't close here! populateFromFile leaves the DB open (via importInto), 
+            // and we want it to stay open for initializeData.
         }
-        await this.open().then(() => this.initializeData());
+        await this.initializeData();
         this.changeSubject.next(null);
         return true;
     }
