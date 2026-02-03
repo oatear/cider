@@ -124,6 +124,12 @@ rm -R MyIcon.iconset
  - Launch app
  - Stop streaming logs
 
+# Update Longtable
+1. Uninstall the existing library version
+    `npm uninstall oatear-longtable`
+2. Install the new library version from the libs directory
+    `npm install ./libs/oatear-longtable-0.1.6.tgz`
+
 # Release new App Store version
 
 ## Build for App Store (cmd)
