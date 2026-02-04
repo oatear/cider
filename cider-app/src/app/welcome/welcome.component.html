@@ -1,36 +1,37 @@
-<app-page-header [header]="'welcome.title' | translate"
-    [subheader]="isElectron ? ('welcome.subtitle-electron' | translate)
+<app-page-header [header]="'welcome.title' | translate" [subheader]="isElectron ? ('welcome.subtitle-electron' | translate)
                     : ('welcome.subtitle' | translate)"></app-page-header>
 <p-card styleClass="artwork-card"></p-card>
 @if (isElectron) {
-  <p-card styleClass="projects-card">
-    <p-button label="+ Blank Project"
-    (click)="newProject(true)"></p-button>
-    <p-button label="Sample Card Game"
-    (click)="newProject(false)"></p-button>
-    @for (projectUrl of recentProjectUrls; track projectUrl) {
-      <p-button styleClass="project-button"
-        [label]="projectUrl.name"
-        (mouseover)="projectUrl.hover = true"
-        (mouseout)="projectUrl.hover = false"
-        (click)="openProject(projectUrl.persistentPath)"
-        [style]="{
+<p-card styleClass="projects-card">
+  <p-button label="+ Blank Project" (click)="newProject(true)"></p-button>
+  <p-button label="Sample Card Game" (click)="newProject(false)"></p-button>
+  @for (projectUrl of recentProjectUrls; track projectUrl) {
+  <p-button styleClass="project-button" (mouseover)="projectUrl.hover = true" (mouseout)="projectUrl.hover = false"
+    (click)="openProject(projectUrl.persistentPath)" [style]="{
             'background': projectUrl.hover 
             ? 'linear-gradient(45deg, hsl(' + projectUrl.hue + ' 50% 50%), 
-                hsl(' + projectUrl.hue2 + ' 50% 35%)) 0% 0% / 250% 250%'
+                hsl(' + projectUrl.hue2 + ' 50% 55%)) 0% 0% / 250% 250%'
             : 'linear-gradient(45deg, hsl(' + projectUrl.hue + ' 50% 45%), 
-                hsl(' + projectUrl.hue2 + ' 50% 30%)) 0% 0% / 250% 250%'
-        }"></p-button>
-    }
-  </p-card>
+                hsl(' + projectUrl.hue2 + ' 50% 50%)) 0% 0% / 250% 250%'
+        }">
+    <span class="project-label">{{ projectUrl.name }}</span>
+    <div class="bubbles-container">
+      @for (bubble of projectUrl.bubbles; track bubble) {
+      <span class="bubble" [style.left]="bubble.left" [style.width]="bubble.size" [style.height]="bubble.size"
+        [style.animationDuration]="bubble.duration" [style.animationDelay]="bubble.delay"></span>
+      }
+    </div>
+  </p-button>
+  }
+</p-card>
 }
 <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
-<p-dialog [header]="loadingHeader" [(visible)]="displayLoading" [style]="{width: '450px'}" [modal]="true" >
+<p-dialog [header]="loadingHeader" [(visible)]="displayLoading" [style]="{width: '450px'}" [modal]="true">
   <div class="p-field">
     Please wait for the process to complete.
   </div>
   <p-progressbar [value]="loadingPercent" [showValue]="false"
-  [mode]="loadingIndeterminate ? 'indeterminate' : 'determinate'"></p-progressbar>
+    [mode]="loadingIndeterminate ? 'indeterminate' : 'determinate'"></p-progressbar>
   <div class="p-field p-mt-2">
     {{loadingInfo}}
   </div>

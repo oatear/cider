@@ -31,7 +31,19 @@ export class WelcomeComponent implements OnInit {
   projectHomeUrl$: Observable<PersistentPath | undefined>;
   projectUnsaved$: Observable<boolean>;
 
-  recentProjectUrls: { persistentPath: PersistentPath; name: string; hue: number; hue2: number; hover: boolean }[] = [];
+  recentProjectUrls: {
+    persistentPath: PersistentPath;
+    name: string;
+    hue: number;
+    hue2: number;
+    hover: boolean,
+    bubbles: {
+      left: string;
+      size: string;
+      duration: string;
+      delay: string;
+    }[]
+  }[] = [];
 
   constructor(private localStorageService: LocalStorageService,
     private confirmationService: ConfirmationService,
@@ -62,7 +74,7 @@ export class WelcomeComponent implements OnInit {
     //   'usr/epic-quest-of-heroes',
     //   'usr/ancient-ruins-exploration',
     // ];
-    // this.recentProjectUrls = urls.map(url => this.urlToProjectInfo(url));
+    // this.recentProjectUrls = urls.map(url => this.urlToProjectInfo({ path: url, bookmark: undefined }));
   }
 
   private urlToProjectInfo(persistentPath: PersistentPath) {
@@ -74,7 +86,13 @@ export class WelcomeComponent implements OnInit {
       name: name,
       hue: hue,
       hue2: (hue + hue2diff) % 360,
-      hover: false
+      hover: false,
+      bubbles: Array.from({ length: 10 }, () => ({
+        left: Math.floor(Math.random() * 90) + '%',
+        size: (3 + Math.floor(Math.random() * 5)) + 'px',
+        duration: (3 + Math.floor(Math.random() * 4)) + 's',
+        delay: (Math.floor(Math.random() * 20) / 10) + 's'
+      }))
     }
   }
 

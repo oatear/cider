@@ -15,6 +15,8 @@
         // margin-right: 21px;
         color: #e4e4e6;
         background: #343e4d;
+        // background: var(--cider-surface-border);
+        // color: var(--cider-text-color);
         border-radius: 10px;
         border-width: 0;
 
@@ -23,6 +25,8 @@
         }
 
         &.project-button {
+            position: relative; // Ensure absolute children are relative to this button
+            overflow: hidden; // Ensure bubbles don't spill out
             animation: gradient 5s ease infinite;
 
             &::after,
@@ -47,6 +51,68 @@
                 border-radius: 40%;
                 background: rgba(20, 20, 20, 0.4);
                 animation: liquid 10s linear infinite;
+            }
+
+            .project-label {
+                position: relative;
+                z-index: 10;
+            }
+
+            .bubbles-container {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+                pointer-events: none;
+                border-radius: 10px; // Match button radius
+                // z-index: 5; // Removed to let it sit between ::before and ::after naturally
+                // Button background is on main element. 
+                // ::before/::after are pseudo elements. 
+                // If ::before/after z-index is auto (0), then bubbles (z-index 5) will be ON TOP of liquid?
+                // The liquid pseudo elements are at z-index auto in same stacking context.
+                // If they appear after content in DOM (pseudo elements are children), they might sit on top if z-index is same.
+                // But specifically:
+                // Stacking order:
+                // 1. Background/Borders of root element
+                // 2. Negative z-index children
+                // 3. Block level non-positioned children
+                // 4. Floats
+                // 5. Inline non-positioned children
+                // 6. z-index: auto or 0 positioned children (including pseudo elements if positioned)
+                // 7. Positive z-index children
+
+                // If bubbles are z-index: 5, they will be ABOVE z-index: auto pseudo elements.
+                // Depending on the desired effect:
+                // If "liquid" is the pseudo-elements, bubbles should be inside/below them?
+                // But the pseudo elements rotate and cover existing background.
+                // If bubbles are *under* the pseudo elements, they might be obscured by the semi-transparent dark liquid.
+                // This gives a "deep" look.
+                // If they are on top, they look like they are on the surface or in front of the turbulence.
+                // I think z-index 0 or 1 might be safer to be under the text (10).
+                // Let's try z-index: 0 for bubbles container.
+                // And since it's positioned absolute, it competes with pseudo elements (also positioned absolute).
+                // If both are z-index 0/auto, DOM order matters.
+                // Pseudo elements usually come *before* or *after* content. `::before` is before, `::after` is after.
+                // So order: `::before` -> content -> `::after`.
+                // So bubbles will be above `::before` but below `::after`?
+                // This puts them "sandwiched" which creates a nice depth effect naturally!
+            }
+
+            .bubble {
+                position: absolute;
+                bottom: -20px;
+                background: rgba(255, 255, 255, 0.4); // Increased opacity for visibility
+                border-radius: 50%;
+                z-index: 1; // Try to force it above background layers slightly
+                z-index: 1; // Try to force it above background layers slightly
+                pointer-events: none;
+                animation-name: rise;
+                animation-timing-function: ease-in;
+                animation-iteration-count: infinite;
+
+
             }
 
             &:hover::after,
@@ -78,6 +144,29 @@
 
     100% {
         transform: translate(-50%, -75%) rotate(360deg);
+    }
+}
+
+@keyframes rise {
+    0% {
+        bottom: -10px;
+        transform: translateX(0) scale(1);
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 1;
+        transform: translateX(-5px) scale(1);
+    }
+
+    75% {
+        transform: translateX(-8px) scale(1);
+    }
+
+    100% {
+        bottom: 110%;
+        transform: translateX(-10px) scale(0);
+        opacity: 0;
     }
 }
 
