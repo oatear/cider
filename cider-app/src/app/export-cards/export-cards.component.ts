@@ -482,8 +482,19 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
           this.loadingInfo = 'Generating sheet ' + sheetIndex + ' '
             + (showFront ? 'front' : 'back') + ' image...';
           const cardSheet = this.cardSheets.first;
+          const sheetWidth = this.selectedPaper.orientation === 'portrait' ? this.paperWidth * this.paperDpi : this.paperHeight * this.paperDpi;
+          const sheetHeight = this.selectedPaper.orientation === 'portrait' ? this.paperHeight * this.paperDpi : this.paperWidth * this.paperDpi;
           const imgUri = await limit(() => this.imageRendererService.toPng((<any>cardSheet).nativeElement,
-            { pixelRatio: this.pixelRatio }));
+            { 
+              pixelRatio: this.pixelRatio,
+              width: sheetWidth,
+              height: sheetHeight,
+              style: {
+                backgroundColor: 'white',
+                transform: 'scale(1)',
+                transformOrigin: 'top left'
+              }
+            }));
           const imgName = 'sheet-' + (showFront ? 'front-' : 'back-')
             + sheetIndex + '.png';
           const sheetImage = this.dataUrlToFile(imgUri, imgName);
