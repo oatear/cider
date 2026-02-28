@@ -2,10 +2,11 @@ import { Component, OnDestroy, OnInit, signal, WritableSignal } from '@angular/c
 import { CardsService } from '../data-services/services/cards.service';
 import { CardAttributesService } from '../data-services/services/card-attributes.service';
 import { ThemeService } from '../data-services/theme/theme.service';
+import { DecksService } from '../data-services/services/decks.service';
 import { SpreadsheetComponent, Cell, ColumnConfig, SpreadsheetTheme, longLight, longDark, cosmicDark } from 'oatear-longtable';
 import { Card } from '../data-services/types/card.type';
 import { CardAttribute } from '../data-services/types/card-attribute.type';
-import { Subscription, Subject, debounceTime } from 'rxjs';
+import { Subscription, Subject, debounceTime, firstValueFrom } from 'rxjs';
 import StringUtils from '../shared/utils/string-utils';
 import { FieldType } from '../data-services/types/field-type.type';
 import { ProgressBarModule } from 'primeng/progressbar';
@@ -39,7 +40,8 @@ export class EntitySpreadsheetComponent implements OnInit, OnDestroy {
     constructor(
         private cardsService: CardsService,
         private attributesService: CardAttributesService,
-        private themeService: ThemeService
+        private themeService: ThemeService,
+        private decksService: DecksService
     ) {
         this.subscriptions.add(
             this.dataChangeSubject.pipe(debounceTime(1000)).subscribe(data => this.processDataChange(data))
@@ -71,6 +73,14 @@ export class EntitySpreadsheetComponent implements OnInit, OnDestroy {
             this.cards.push({ name: 'New Card', count: 1 } as Card);
         }
         this.attributes = attributes;
+
+        if (this.attributes.length === 0) {
+            const selectedDeck = await firstValueFrom(this.decksService.getSelectedDeck());
+            if (selectedDeck) {
+                await this.attributesService.createSystemAttributes(selectedDeck.id);
+                this.attributes = await this.attributesService.getAll();
+            }
+        }
 
         await this.setupColumns();
         this.setupRows();
