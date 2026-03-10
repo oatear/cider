@@ -2,6 +2,14 @@
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 13.2.2.
 
+## Table of Contents
+
+- [Useful Commands](#useful-commands)
+- [Updating Dependencies](#updating-dependencies)
+- [Other](#other)
+- [Update Longtable](#update-longtable)
+- [Release new App Store version](#release-new-app-store-version)
+
 # Useful Commands
 
 ## Local server
@@ -96,18 +104,6 @@ MyIcon.iconset/icon_512x512.png \
 MyIcon.iconset/icon_512x512@2x.png favicon.ico
 rm -R MyIcon.iconset
 ```
-
-## List available code signing certs
-`security find-identity -p codesigning -v`
-`security find-identity -v`
-
-## How to update the Mac App Store provision profile
-1. Download a new provisioningprofile on the Apple Developer site
-2. Encode the downloaded profile 
-    `base64 -i cider.provisioningprofile > base64-profile`
-3. Upload to GitHub Settings > Secrets and variables > Actions
- - Name: MAS_PROVISIONING_PROFILE
- - Secret: base64 from above
 
 ## Start App from Terminal for Troubleshooting Logs
  `open -a Cider.app`
