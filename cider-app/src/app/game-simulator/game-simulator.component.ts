@@ -328,8 +328,25 @@ export class GameSimulatorComponent {
     const deckIds = stack.cards.map((card) => card.card.deckId)
       .filter((value, index, array) => array.indexOf(value) === index);
     const optionAttributes = await Promise.all(deckIds.map((deckId) => this.cardsService.getFieldsUnfiltered({ deckId: deckId })))
-      .then((fieldArrays) => fieldArrays.flatMap((fieldArray) => fieldArray)
-        .filter((field) => field.type == FieldType.dropdown && field.field !== 'frontCardTemplateId' && field.field !== 'backCardTemplateId'));
+      .then((fieldArrays) => {
+        const allFields = fieldArrays.flatMap((fieldArray) => fieldArray);
+        const uniqueFields: EntityField<Card>[] = [];
+        const seenFields = new Set<string>();
+        for (const field of allFields) {
+          if (field.field === 'id' || field.field === 'deckId' ||
+            field.field === 'frontCardTemplateId' || field.field === 'backCardTemplateId') {
+            continue;
+          }
+          if (field.type !== FieldType.dropdown && field.type !== FieldType.text && field.type !== FieldType.numeric && field.type !== FieldType.dropdownOptions) {
+            continue;
+          }
+          if (!seenFields.has(field.field as string)) {
+            seenFields.add(field.field as string);
+            uniqueFields.push(field);
+          }
+        }
+        return uniqueFields;
+      });
 
     this.contextMenuItems = [
       {
@@ -415,7 +432,7 @@ export class GameSimulatorComponent {
         disabled: !stack.deletable
       },
     ];
-    cm.show(event);
+    setTimeout(() => cm.show(event));
   }
 
   public flipComponent(component: GameComponent) {
@@ -465,7 +482,7 @@ export class GameSimulatorComponent {
         command: () => this.discardCard(this.field.cards, card)
       }
     ];
-    cm.show(event);
+    setTimeout(() => cm.show(event));
   }
 
   public onComponentContextMenu(event: MouseEvent, cm: ContextMenu,
@@ -494,7 +511,7 @@ export class GameSimulatorComponent {
     this.contextMenuItems.forEach(item => {
       item.state = component;
     })
-    cm.show(event);
+    setTimeout(() => cm.show(event));
   }
 
   public onFieldContextMenu(event: MouseEvent, cm: ContextMenu) {
@@ -656,7 +673,7 @@ export class GameSimulatorComponent {
         command: () => this.gameStateService.updateGameState(),
       },
     ];
-    cm.show(event);
+    setTimeout(() => cm.show(event));
   }
 
   public createStack(cards: GameCard[], card: GameCard) {
@@ -701,17 +718,22 @@ export class GameSimulatorComponent {
     if (stack.cards.length < 2) {
       return;
     }
-    const newStacks = attribute.options?.map((option) => ({
-      uniqueId: StringUtils.generateRandomString(),
-      name: stack.name + ' ' + option.value,
-      cards: stack.cards.filter((card) => card.card[attribute.field] == option.value),
-      faceUp: false,
-      pos: {
-        x: stack.pos.x + (Math.random() * 100 - 50),
-        y: stack.pos.y + (Math.random() * 100 - 50)
-      },
-      deletable: true,
-    } as CardStack)).filter((cardStack) => cardStack.cards.length > 0);
+    const uniqueValues = Array.from(new Set(stack.cards.map(card => card.card[attribute.field])));
+
+    const newStacks = uniqueValues.map((value) => {
+      const displayValue = (value === undefined || value === null || (typeof value === 'string' && value.trim() === '')) ? 'None' : String(value);
+      return {
+        uniqueId: StringUtils.generateRandomString(),
+        name: stack.name + ' ' + displayValue,
+        cards: stack.cards.filter((card) => card.card[attribute.field] === value),
+        faceUp: false,
+        pos: {
+          x: stack.pos.x + (Math.random() * 100 - 50),
+          y: stack.pos.y + (Math.random() * 100 - 50)
+        },
+        deletable: true,
+      } as CardStack;
+    }).filter((cardStack) => cardStack.cards.length > 0);
 
     // remove cards taken out of the main stack, and remove stack if empty and deletable
     stack.cards = stack.cards.filter((card) => !newStacks?.some((newStack) => newStack.cards.includes(card)));
