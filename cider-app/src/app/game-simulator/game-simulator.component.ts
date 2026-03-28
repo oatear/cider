@@ -324,7 +324,9 @@ export class GameSimulatorComponent {
   }
 
   public async onStackContextMenu(event: MouseEvent, cm: ContextMenu, stack: CardStack) {
+    cm.hide();
     event.preventDefault();
+    event.stopPropagation();
     const deckIds = stack.cards.map((card) => card.card.deckId)
       .filter((value, index, array) => array.indexOf(value) === index);
     const optionAttributes = await Promise.all(deckIds.map((deckId) => this.cardsService.getFieldsUnfiltered({ deckId: deckId })))
@@ -432,7 +434,9 @@ export class GameSimulatorComponent {
         disabled: !stack.deletable
       },
     ];
-    setTimeout(() => cm.show(event));
+    const x = event.pageX;
+    const y = event.pageY;
+    setTimeout(() => cm.show({ pageX: x, pageY: y } as MouseEvent));
   }
 
   public flipComponent(component: GameComponent) {
@@ -449,7 +453,9 @@ export class GameSimulatorComponent {
   }
 
   public onCardContextMenu(event: MouseEvent, cm: ContextMenu, card: GameCard) {
+    cm.hide();
     event.preventDefault();
+    event.stopPropagation();
     this.contextMenuItems = [
       {
         label: this.translate.instant('simulator.flip-card'),
@@ -482,12 +488,16 @@ export class GameSimulatorComponent {
         command: () => this.discardCard(this.field.cards, card)
       }
     ];
-    setTimeout(() => cm.show(event));
+    const x = event.pageX;
+    const y = event.pageY;
+    setTimeout(() => cm.show({ pageX: x, pageY: y } as MouseEvent));
   }
 
   public onComponentContextMenu(event: MouseEvent, cm: ContextMenu,
     component: GameComponent) {
+    cm.hide();
     event.preventDefault();
+    event.stopPropagation();
     this.contextMenuItems = [
       ...component.contextMenu,
       {
@@ -511,10 +521,13 @@ export class GameSimulatorComponent {
     this.contextMenuItems.forEach(item => {
       item.state = component;
     })
-    setTimeout(() => cm.show(event));
+    const x = event.pageX;
+    const y = event.pageY;
+    setTimeout(() => cm.show({ pageX: x, pageY: y } as MouseEvent));
   }
 
   public onFieldContextMenu(event: MouseEvent, cm: ContextMenu) {
+    cm.hide();
     event.preventDefault();
     this.contextMenuItems = [
       {
@@ -673,7 +686,9 @@ export class GameSimulatorComponent {
         command: () => this.gameStateService.updateGameState(),
       },
     ];
-    setTimeout(() => cm.show(event));
+    const x = event.pageX;
+    const y = event.pageY;
+    setTimeout(() => cm.show({ pageX: x, pageY: y } as MouseEvent));
   }
 
   public createStack(cards: GameCard[], card: GameCard) {
