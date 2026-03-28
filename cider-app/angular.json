@@ -42,7 +42,9 @@
               "src/styles.scss",
               "node_modules/oatear-longtable/longtable-styles.css"
             ],
-            "scripts": [],
+            "scripts": [
+              "node_modules/mermaid/dist/mermaid.min.js"
+            ],
             "browser": "src/main.ts"
           },
           "configurations": {
@@ -112,7 +114,9 @@
               "src/styles.scss",
               "node_modules/oatear-longtable/longtable-styles.css"
             ],
-            "scripts": []
+            "scripts": [
+              "node_modules/mermaid/dist/mermaid.min.js"
+            ]
           }
         }
       }

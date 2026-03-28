@@ -4,7 +4,7 @@
   <ng-template pTemplate>
     <p-card styleClass="preview-card markdown-body">
       @if (textDocument.mime === 'text/markdown') {
-        <markdown [data]="textDocument.content"></markdown>
+        <markdown [data]="textDocument.content" [mermaid]="true" [mermaidOptions]="mermaidOptions"></markdown>
       } @else if (textDocument.mime === 'text/css') {
         <h2>{{textDocument.name}}</h2>
         Set global styles or import fonts for use in card templates.
