@@ -15,15 +15,15 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v5
         with:
           node-version: ${{ matrix.node-version }}
 
       - name: Cache node modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
@@ -44,7 +44,7 @@ jobs:
 
       - name: Archive build
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: deploy_dist
           path: cider-app/dist/cider
@@ -54,10 +54,10 @@ jobs:
     needs: build
     steps:
         - name: Checkout
-          uses: actions/checkout@v1
+          uses: actions/checkout@v6
 
         - name: Download build
-          uses: actions/download-artifact@v4
+          uses: actions/download-artifact@v6
           with:
             name: deploy_dist
 
