@@ -41,7 +41,7 @@
             }
         }
 
-        .code-editor {}
+        // .code-editor {}
     }
 }
 
@@ -81,5 +81,9 @@
         padding: 0.2em 0.4em;
         border-radius: 3px;
         font-size: 85%;
+    }
+
+    ::ng-deep .mermaid svg[aria-roledescription="xychart"] g.main rect.background {
+        fill: none !important;
     }
 }

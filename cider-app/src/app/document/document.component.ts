@@ -16,6 +16,9 @@ export class DocumentComponent implements OnInit, OnDestroy {
     theme: 'vs-dark-extended', language: 'markdown',
     automaticLayout: true, minimap: { enabled: false }
   };
+  mermaidOptions: any = {
+    theme: 'dark'
+  };
   textDocument: Document = {
     name: "",
     mime: "text/markdown",
@@ -52,7 +55,11 @@ export class DocumentComponent implements OnInit, OnDestroy {
     this.documentChanges = new Subject();
 
     // Set initial theme based on current theme
-    this.editorOptions.theme = this.themeService.isDarkMode() ? 'vs-dark-extended' : 'vs';
+    const isDark = this.themeService.isDarkMode();
+    this.editorOptions.theme = isDark ? 'vs-dark-extended' : 'vs';
+    this.mermaidOptions = {
+      theme: isDark ? 'dark' : 'default',
+    };
   }
 
   protected editorInitialized(editor: any) {
@@ -83,8 +90,12 @@ export class DocumentComponent implements OnInit, OnDestroy {
 
     // Subscribe to theme changes for Monaco editor
     this.themeSubscription = this.themeService.currentTheme$.subscribe(theme => {
-      const monacoTheme = theme.colorScheme === 'dark' ? 'vs-dark-extended' : 'vs';
+      const isDark = theme.colorScheme === 'dark';
+      const monacoTheme = isDark ? 'vs-dark-extended' : 'vs';
       this.editorOptions = { ...this.editorOptions, theme: monacoTheme };
+      this.mermaidOptions = {
+        theme: isDark ? 'dark' : 'default',
+      };
       if (this.monaco && this.editor) {
         this.monaco.editor.setTheme(monacoTheme);
       }
