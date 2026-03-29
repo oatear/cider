@@ -202,6 +202,24 @@ export class GameSimulatorComponent {
     }
   }
 
+  public onDrawClick(event: MouseEvent, stack: CardStack) {
+    event.stopPropagation();
+    // Left click only (button 0)
+    if (event.button === 0) {
+      const faceUp = !event.shiftKey;
+      this.drawCard(stack, faceUp);
+    }
+  }
+
+  public onDrawAuxClick(event: MouseEvent, stack: CardStack) {
+    // Middle click only (button 1)
+    if (event.button === 1) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.drawCard(stack, false);
+    }
+  }
+
   public drawSpecificCardFromStack(stack: CardStack, cardToDraw: GameCard) {
     const cardIndex = stack.cards.findIndex(c => c.uniqueId === cardToDraw.uniqueId);
 

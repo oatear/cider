@@ -40,7 +40,7 @@
         <span class="placeholder-text">{{ stack.name }}</span>
       </div>
       }
-      <div class="draw-action" (click)="drawCard(stack); $event.stopPropagation()"
+      <div class="draw-action" (click)="onDrawClick($event, stack)" (auxclick)="onDrawAuxClick($event, stack)"
         (mousedown)="$event.stopPropagation()">
         @if (stack.cards.length > 0) {
         <i class="pi pi-arrow-down"></i>
