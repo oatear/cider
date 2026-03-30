@@ -899,3 +899,35 @@ $die-shadow: $shadow-3d;
         color: var(--p-highlight-color, #495057);
     }
 }
+
+.shortcuts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 10px 0;
+
+    .shortcut-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid var(--p-surface-200);
+
+        &:last-child {
+            border-bottom: none;
+        }
+
+        .shortcut-key {
+            font-weight: 500;
+            color: var(--p-primary-color);
+            background: var(--p-surface-100);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: var(--p-font-family);
+        }
+
+        .shortcut-label {
+            color: var(--p-text-color);
+        }
+    }
+}

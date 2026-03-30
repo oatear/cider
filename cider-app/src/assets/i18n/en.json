@@ -174,6 +174,18 @@
         "roll-die": "Roll Die",
         "zoom": "Zoom",
         "reset-game": "Reset Game",
-        "update-game-state": "Update Game"
+        "update-game-state": "Update Game",
+        "shortcuts": "Shortcuts",
+        "shortcuts-title": "Key + Mouse Shortcuts",
+        "shortcuts-draw-faceup": "Left Click (Draw Icon)",
+        "shortcuts-draw-facedown": "Shift + Left Click / Middle Click (Draw Icon)",
+        "shortcuts-magnify": "Middle Click + Hold (Card)",
+        "shortcuts-context-menu": "Right Click (Field / Card / Stack)",
+        "shortcuts-move": "Drag & Drop",
+        "shortcuts-draw-faceup-label": "Draw Faceup",
+        "shortcuts-draw-facedown-label": "Draw Facedown",
+        "shortcuts-magnify-label": "Magnify Card",
+        "shortcuts-context-menu-label": "Context Menu",
+        "shortcuts-move-label": "Move Item"
     }
 }

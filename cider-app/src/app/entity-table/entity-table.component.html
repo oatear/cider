@@ -2,7 +2,7 @@
 <p-table #dt [columns]="columns" [value]="records" responsiveLayout="scroll" [selectionMode]="selectionMode"
   [(selection)]="selection" (selectionChange)="selectionChange.emit($event)" [dataKey]="idField || ''"
   (onLazyLoad)="loadData($event)" [lazy]="lazy" [scrollable]="true" [totalRecords]="total" [loading]="loading"
-  styleClass="p-datatable-sm">
+  styleClass="p-datatable-sm" [contextMenu]="cm" (onRowContextMenuSelect)="onContextMenu($event)">
   <ng-template pTemplate="caption">
     <div class="p-d-flex">
       <button pButton pRipple [label]="'controls.clear' | translate" icon="pi pi-filter-slash" class="p-button p-mr-2"
@@ -270,4 +270,35 @@
     <button pButton pRipple [label]="'controls.cancel' | translate" icon="pi pi-times" class="p-button-text"
       (click)="closeStatsDialog()"></button>
   </ng-template>
+</p-dialog>
+
+<p-contextmenu #cm [model]="contextMenuItems" appendTo="body" />
+
+<p-dialog [header]="'simulator.shortcuts-title' | translate" [(visible)]="shortcutsVisible" [modal]="true"
+  [draggable]="false" [resizable]="false" [style]="{ width: '40rem' }">
+  <div class="shortcuts-list">
+    <div class="shortcut-item">
+      <span class="shortcut-key">{{ 'simulator.shortcuts-draw-faceup' | translate }}</span>
+      <span class="shortcut-label">{{ 'simulator.shortcuts-draw-faceup-label' | translate }}</span>
+    </div>
+    <div class="shortcut-item">
+      <span class="shortcut-key">{{ 'simulator.shortcuts-draw-facedown' | translate }}</span>
+      <span class="shortcut-label">{{ 'simulator.shortcuts-draw-facedown-label' | translate }}</span>
+    </div>
+    <div class="shortcut-item">
+      <span class="shortcut-key">{{ 'simulator.shortcuts-magnify' | translate }}</span>
+      <span class="shortcut-label">{{ 'simulator.shortcuts-magnify-label' | translate }}</span>
+    </div>
+    <div class="shortcut-item">
+      <span class="shortcut-key">{{ 'simulator.shortcuts-context-menu' | translate }}</span>
+      <span class="shortcut-label">{{ 'simulator.shortcuts-context-menu-label' | translate }}</span>
+    </div>
+    <div class="shortcut-item">
+      <span class="shortcut-key">{{ 'simulator.shortcuts-move' | translate }}</span>
+      <span class="shortcut-label">{{ 'simulator.shortcuts-move-label' | translate }}</span>
+    </div>
+  </div>
+  <div class="dialog-footer">
+    <p-button [label]="'controls.close' | translate" (onClick)="shortcutsVisible = false" />
+  </div>
 </p-dialog>

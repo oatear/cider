@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { ConfirmationService, LazyLoadEvent, MessageService } from 'primeng/api';
+import { ConfirmationService, LazyLoadEvent, MenuItem, MessageService } from 'primeng/api';
 import { Table, TableLazyLoadEvent } from 'primeng/table';
 import { EntityField } from '../data-services/types/entity-field.type';
 import { EntityService } from '../data-services/types/entity-service.type';
@@ -48,6 +48,8 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
   statsTopX: number = 20;
   importFile: File | undefined = undefined;
   saveSubject: Subject<Entity> = new Subject();
+  contextMenuItems: MenuItem[] = [];
+  shortcutsVisible: boolean = false;
   optionsCache: Map<EntityService<any, string | number>, any[]>;
 
   constructor(private messageService: MessageService, 
@@ -241,5 +243,19 @@ export class EntityTableComponent<Entity, Identifier extends string | number> im
         });
       }
     });
+  }
+
+  public showShortcuts() {
+    this.shortcutsVisible = true;
+  }
+
+  public onContextMenu(event: any) {
+    this.contextMenuItems = [
+      {
+        label: this.translate.instant('simulator.shortcuts'),
+        icon: 'pi pi-question-circle',
+        command: () => this.showShortcuts()
+      }
+    ];
   }
 }

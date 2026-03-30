@@ -50,6 +50,7 @@ export class GameSimulatorComponent {
 
   renameDialogVisible: boolean = false;
   renameStackName: string = '';
+  shortcutsVisible: boolean = false;
   stackToRename: CardStack | undefined;
 
   saveStackName() {
@@ -63,6 +64,10 @@ export class GameSimulatorComponent {
     this.renameDialogVisible = false;
     this.stackToRename = undefined;
     this.renameStackName = '';
+  }
+
+  showShortcuts() {
+    this.shortcutsVisible = true;
   }
 
   drawSpecificCardDialogVisible: boolean = false;
@@ -703,6 +708,14 @@ export class GameSimulatorComponent {
         icon: 'pi pi-sync',
         command: () => this.gameStateService.updateGameState(),
       },
+      {
+        separator: true
+      },
+      {
+        label: this.translate.instant('simulator.shortcuts'),
+        icon: 'pi pi-question-circle',
+        command: () => this.showShortcuts(),
+      },
     ];
     const x = event.pageX;
     const y = event.pageY;
@@ -720,8 +733,9 @@ export class GameSimulatorComponent {
       uniqueId: StringUtils.generateRandomString(),
       name: 'stack-' + StringUtils.generateRandomString(3),
       cards: newCards,
-      faceUp: true,
+      faceUp: card.faceUp,
       pos: { x: card.pos.x, y: card.pos.y },
+      rotation: card.rotation,
       deletable: true,
     });
   }

@@ -29,6 +29,7 @@
     border-radius: 0px;
     border: 0;
     background: none !important;
+    z-index: 3000;
 
     .p-menubar-root-list {
         -webkit-app-region: no-drag;
@@ -41,13 +42,14 @@
     .p-submenu-list {
         background: var(--cider-overlay-background, #343e4d);
         border: none;
+        z-index: 3000;
     }
 
     .p-menuitem {
         user-select: none;
         -webkit-user-select: none;
         -webkit-app-region: no-drag;
-        z-index: 3;
+        z-index: 3000;
     }
 
     .p-menubar-root-list>.p-menuitem>.p-menuitem-link {
