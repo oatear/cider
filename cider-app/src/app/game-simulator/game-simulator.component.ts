@@ -43,7 +43,6 @@ export class GameSimulatorComponent {
   zoomMagnifiedLevel: number = 0.40;
   contextMenuItems: MenuItem[] = [];
   hoveredItem: Positionable | undefined;
-  topZIndex: number = 100;
   draggingCard: boolean = false;
   draggingStack: boolean = false;
   draggingComponent: boolean = false;
@@ -190,6 +189,7 @@ export class GameSimulatorComponent {
         drawnCard.rotation = stack.rotation || 0;
         // drawnCard.drawing = true; // Moved down to prevent animating from 0,0
 
+        this.gameStateService.bringToFront(drawnCard);
         this.field.cards.push(drawnCard);
 
         requestAnimationFrame(() => {
@@ -263,6 +263,7 @@ export class GameSimulatorComponent {
       drawnCard.pos = { x: startX, y: startY };
       // drawnCard.drawing = true; // Moved to prevent animating from 0,0
 
+      this.gameStateService.bringToFront(drawnCard);
       // Add the card to the field
       this.field.cards.push(drawnCard);
 
@@ -283,6 +284,7 @@ export class GameSimulatorComponent {
     const index = cards.indexOf(card);
     if (index > -1) {
       cards.splice(index, 1);
+      this.gameStateService.bringToFront(card);
       this.field.cards.push(card);
     }
   }
@@ -526,14 +528,18 @@ export class GameSimulatorComponent {
       {
         label: this.translate.instant('simulator.duplicate'),
         icon: 'pi pi-clone',
-        command: () => this.components.push({
-          ...component,
-          uniqueId: 'coin-' + StringUtils.generateRandomString(),
-          pos: {
-            x: component.pos.x + 10 + (Math.random() * 10 - 5),
-            y: component.pos.y + 10 + (Math.random() * 10 - 5)
-          },
-        }),
+        command: () => {
+          const newComp = {
+            ...component,
+            uniqueId: (component.type === 'coin' ? 'coin-' : (component.type === 'cube' ? 'cube-' : 'd6-')) + StringUtils.generateRandomString(),
+            pos: {
+              x: component.pos.x + 10 + (Math.random() * 10 - 5),
+              y: component.pos.y + 10 + (Math.random() * 10 - 5)
+            },
+          };
+          this.gameStateService.bringToFront(newComp);
+          this.components.push(newComp);
+        },
       },
       {
         label: this.translate.instant('simulator.delete'),
@@ -577,14 +583,16 @@ export class GameSimulatorComponent {
                 command: (event: any) => {
                   const componentState: GameComponent | undefined =
                     event.item?.state as GameComponent;
-                  componentState.rolling = true;
-                  setTimeout(() => {
-                    // Also use flipComponent if desired, but rolling is distinct.
-                    // Let's keep rolling as is for random, but if we want 3D flip for strict flip:
-                    // Random flip implies "tossing". 
-                    componentState.faceUp = Math.random() < 0.5;
-                    componentState.rolling = false;
-                  }, 600);
+                  if (componentState) {
+                    componentState.rolling = true;
+                    setTimeout(() => {
+                      // Also use flipComponent if desired, but rolling is distinct.
+                      // Let's keep rolling as is for random, but if we want 3D flip for strict flip:
+                      // Random flip implies "tossing". 
+                      componentState.faceUp = Math.random() < 0.5;
+                      componentState.rolling = false;
+                    }, 600);
+                  }
                 }
               },
               {
@@ -599,6 +607,7 @@ export class GameSimulatorComponent {
                 }
               },
             ];
+            this.gameStateService.bringToFront(component);
             this.components.push(component);
           }
         }))
@@ -632,6 +641,7 @@ export class GameSimulatorComponent {
                 },
               ],
             };
+            this.gameStateService.bringToFront(component);
             this.components.push(component);
           }
         }))
@@ -659,18 +669,24 @@ export class GameSimulatorComponent {
                   command: (event: any) => {
                     const componentState: GameComponent | undefined =
                       event.item?.state as GameComponent;
-                    componentState.rolling = true;
-                    setTimeout(() => {
-                      componentState.face = MathUtils.randomInt(1, 6);
-                      componentState.rolling = false;
-                    }, 600);
+                    if (componentState) {
+                      componentState.rolling = true;
+                      setTimeout(() => {
+                        componentState.face = MathUtils.randomInt(1, 6);
+                        componentState.rolling = false;
+                      }, 600);
+                    }
                   }
                 },
               ],
             };
+            this.gameStateService.bringToFront(component);
             this.components.push(component);
           }
         }))
+      },
+      {
+        separator: true
       },
       {
         label: this.translate.instant('simulator.zoom'),
@@ -697,6 +713,9 @@ export class GameSimulatorComponent {
             command: () => { this.zoomLevel = 0.35; this.clampAllItems(); }
           }
         ]
+      },
+      {
+        separator: true
       },
       {
         label: this.translate.instant('simulator.reset-game'),
@@ -729,7 +748,7 @@ export class GameSimulatorComponent {
     }
     cards.splice(index, 1);
     const newCards: GameCard[] = [card];
-    this.stacks.push({
+    const newStack: CardStack = {
       uniqueId: StringUtils.generateRandomString(),
       name: 'stack-' + StringUtils.generateRandomString(3),
       cards: newCards,
@@ -737,7 +756,9 @@ export class GameSimulatorComponent {
       pos: { x: card.pos.x, y: card.pos.y },
       rotation: card.rotation,
       deletable: true,
-    });
+    };
+    this.gameStateService.bringToFront(newStack);
+    this.stacks.push(newStack);
   }
 
   public splitInHalf(stack: CardStack) {
@@ -748,7 +769,7 @@ export class GameSimulatorComponent {
     const cards = stack.cards.splice(
       Math.floor(stack.cards.length / 2) - 1,
       Math.floor(stack.cards.length / 2));
-    this.stacks.push({
+    const newStack: CardStack = {
       uniqueId: StringUtils.generateRandomString(),
       name: stack.name + ' copy',
       cards: cards,
@@ -758,7 +779,9 @@ export class GameSimulatorComponent {
         y: stack.pos.y + 50 + (Math.random() * 20 - 10)
       },
       deletable: true,
-    });
+    };
+    this.gameStateService.bringToFront(newStack);
+    this.stacks.push(newStack);
   }
 
   public splitByAttribute(stack: CardStack, attribute: EntityField<Card>) {
@@ -789,15 +812,14 @@ export class GameSimulatorComponent {
     }
 
     // add new stacks to the game
-    newStacks?.forEach((stack) => this.stacks.push(stack));
-  }
-
-  public bringToFront(item: Positionable) {
-    item.zIndex = ++this.topZIndex;
+    newStacks?.forEach((stack) => {
+      this.gameStateService.bringToFront(stack);
+      this.stacks.push(stack);
+    });
   }
 
   public onDragStarted(event: any, items: Positionable[], item: Positionable) {
-    this.bringToFront(item);
+    this.gameStateService.bringToFront(item);
     // send card to the end of the cards array
     const index = items.indexOf(item);
     if (index > -1) {
@@ -853,6 +875,7 @@ export class GameSimulatorComponent {
         }
 
         const clampedPos = this.clampPosition({ x: newX, y: newY }, width, height);
+        this.gameStateService.bringToFront(sourceStack);
         sourceStack.pos = clampedPos;
 
       } else {
