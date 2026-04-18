@@ -161,6 +161,20 @@ export class GameSimulatorComponent {
     setInterval(() => this.calculateOffScreenIndicators(), 200);
   }
 
+  ngAfterViewInit() {
+    // Only center if it's the first time initializing layout positions
+    if (this.simulatorPan.x === 0 && this.simulatorPan.y === 0 && this.gameBoundary?.nativeElement) {
+      // Small timeout guarantees DOM bounding boxes are rendered
+      setTimeout(() => {
+        const rect = this.gameBoundary.nativeElement.getBoundingClientRect();
+        this.simulatorPan = {
+          x: rect.width / 2,
+          y: rect.height / 2
+        };
+      }, 0);
+    }
+  }
+
   // resetGame is now handled by GameSimulatorStateService
 
 
@@ -883,10 +897,11 @@ export class GameSimulatorComponent {
     let width = GameSimulatorComponent.BASE_CARD_WIDTH;
     let height = GameSimulatorComponent.BASE_CARD_HEIGHT;
 
-    // Components have specific dimensions
-    if ((item as any).type) {
-      width = 125;
-      height = 125;
+    const rootEl = event.source.getRootElement();
+    if (rootEl) {
+      const rect = rootEl.getBoundingClientRect();
+      width = rect.width / this.simulatorZoom;
+      height = rect.height / this.simulatorZoom;
     }
 
     // Use consistent world-space clamping (no manual normalization needed with cdkDragScale)
@@ -941,6 +956,13 @@ export class GameSimulatorComponent {
 
     let width = GameSimulatorComponent.BASE_CARD_WIDTH;
     let height = GameSimulatorComponent.BASE_CARD_HEIGHT;
+
+    const rootEl = event.source.getRootElement();
+    if (rootEl) {
+      const rect = rootEl.getBoundingClientRect();
+      width = rect.width / this.simulatorZoom;
+      height = rect.height / this.simulatorZoom;
+    }
 
     // Use consistent world-space clamping (no manual normalization needed with cdkDragScale)
     card.pos = this.clampPosition({ x: pos.x, y: pos.y }, width, height, 0);
@@ -1078,10 +1100,11 @@ export class GameSimulatorComponent {
     let width = GameSimulatorComponent.BASE_CARD_WIDTH;
     let height = GameSimulatorComponent.BASE_CARD_HEIGHT;
 
-    const dragData = (_dragRef as any).data;
-    if (dragData && dragData.type) {
-      width = 125;
-      height = 125;
+    const rootEl = _dragRef.getRootElement();
+    if (rootEl) {
+      const rect = rootEl.getBoundingClientRect();
+      width = rect.width / this.simulatorZoom;
+      height = rect.height / this.simulatorZoom;
     }
 
     // 4. Clamp the logical coordinates to the virtual table

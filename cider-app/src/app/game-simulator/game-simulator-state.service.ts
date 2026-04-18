@@ -60,8 +60,8 @@ export class GameSimulatorStateService {
             this.shuffleCards(expandedCards);
 
             const dropPos: Position = {
-                x: (deckIndex % 4) * 200,
-                y: Math.floor(deckIndex / 4) * 300
+                x: (deckIndex % 5) * 1000 - 2000,
+                y: Math.floor(deckIndex / 5) * 1300 - 650
             };
 
             stacks.push({
@@ -83,7 +83,7 @@ export class GameSimulatorStateService {
             cards: [],
             uniqueId: StringUtils.generateRandomString(),
             faceUp: true,
-            pos: { x: 800, y: 0 },
+            pos: { x: 3500, y: -650 },
             deletable: false,
         };
         stacks.push(this.discard);
