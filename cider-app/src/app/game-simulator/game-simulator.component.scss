@@ -35,10 +35,6 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
 
         &.game-d6 {
             background-color: $fg;
-
-            .pip {
-                // background-color: $side;
-            }
         }
     }
 }
@@ -79,6 +75,34 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
         // height: 100%;
         overflow: hidden;
         gap: 10px;
+        position: relative; // For indicators
+
+        .simulator-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0; // Content will occupy space via absolute positioned children
+            height: 0;
+            transform-origin: 0 0;
+
+            .virtual-table {
+                position: absolute;
+                box-sizing: border-box; // Ensure border is inside the dimensions
+                background-color: rgba(255, 255, 255, 0.02);
+                background-image:
+                    // Major grid (1000px)
+                    linear-gradient(rgba(255, 255, 255, 0.15) 4px, transparent 4px),
+                    linear-gradient(90deg, rgba(255, 255, 255, 0.15) 4px, transparent 4px),
+                    // Minor grid (200px)
+                    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+                background-size: 1000px 1000px, 1000px 1000px, 200px 200px, 200px 200px;
+                background-position: center; // Align grid lines to the table origin (0,0 is in center of 10k table)
+                border: 12px solid rgba(255, 255, 255, 0.4);
+                pointer-events: none;
+                z-index: -100;
+            }
+        }
     }
 
     .game-bottom {
@@ -113,6 +137,24 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
 
         90% {
             transform: scale(0.95) rotate(2deg);
+        }
+
+        100% {
+            transform: scale(1) rotate(0deg);
+        }
+    }
+
+    @keyframes draw-rotate {
+        0% {
+            transform: scale(1) rotate(0deg);
+        }
+
+        20% {
+            transform: scale(1.1) rotate(-10deg);
+        }
+
+        90% {
+            transform: scale(0.95) rotate(-2deg);
         }
 
         100% {
@@ -226,6 +268,10 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease-out;
             pointer-events: none;
             z-index: 1000 !important;
+
+            app-card-preview {
+                animation: draw-rotate 0.3s forwards ease-out;
+            }
         }
 
         &.flipping {
@@ -301,8 +347,8 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
             align-items: center;
             justify-content: center;
             // width and height are set via style binding in template
-            border: 2px dashed #7d7d7d;
-            border-radius: 8px;
+            border: 14px dashed #7d7d7d;
+            border-radius: 40px;
             background-color: rgba(255, 255, 255, 0.03);
             color: #888;
             font-size: 14px;
@@ -311,17 +357,17 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
 
         @keyframes dropzone-pulse {
             0% {
-                border-color: rgba(60, 171, 108, 0.4);
+                border-color: rgba(60, 171, 108, 1.0);
                 background-color: rgba(60, 171, 108, 0.05);
             }
 
             50% {
-                border-color: rgba(60, 171, 108, 0.7);
-                background-color: rgba(60, 171, 108, 0.15);
+                border-color: rgba(60, 171, 108, 1.0);
+                background-color: rgba(60, 171, 108, 0.25);
             }
 
             100% {
-                border-color: rgba(60, 171, 108, 0.4);
+                border-color: rgba(60, 171, 108, 1.0);
                 background-color: rgba(60, 171, 108, 0.05);
             }
         }
@@ -333,20 +379,20 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
             width: calc(100% + 8px);
             height: calc(100% + 8px);
             padding: 10px;
-            border: 2px dashed rgba(60, 171, 108, 0.4); // Emeraldish
-            border-radius: 10px;
+            border: 14px dashed rgba(60, 171, 108, 0.4);
+            border-radius: 40px;
             background-color: rgba(60, 171, 108, 0.05);
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            pointer-events: all; // Ensure it catches events if needed, though structure suggests it's an overlay
+            pointer-events: all;
             z-index: 100;
             animation: dropzone-pulse 2s infinite ease-in-out;
 
             &:hover {
-                animation: none; // Stop pulsing on hover to show locked state
-                border: 2px solid #3cab6c; // Solid emerald
+                animation: none;
+                border: 14px solid #3cab6c;
                 background-color: rgba(60, 171, 108, 0.25);
-                box-shadow: 0 0 15px rgba(60, 171, 108, 0.4);
-                transform: scale(1.02);
+                box-shadow: 0 0 45px rgba(60, 171, 108, 0.4);
+                transform: scale(1.04);
             }
         }
 
@@ -363,10 +409,6 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
     }
 }
 
-:host ::ng-deep .card-stack.empty {
-    // position: relative;
-}
-
 :host ::ng-deep .card-stack:not(.empty) {
     z-index: 1;
 
@@ -381,14 +423,12 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
             pointer-events: none;
         }
 
-        // Thickness simulation
         .thickness-side {
             position: absolute;
             top: 0;
             width: 10px; // Thickness
             height: 100%;
             background: linear-gradient(to right, #ccc, #e0e0e0, #bbb);
-            // Texture to look like pages
             background-image: repeating-linear-gradient(to right,
                     rgba(0, 0, 0, 0.05) 0px,
                     rgba(0, 0, 0, 0.05) 1px,
@@ -396,7 +436,7 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
                     transparent 2px);
             transform-origin: center;
             opacity: 1;
-            z-index: -1; // Behind the face
+            z-index: -1;
             border-radius: 2px;
 
             &.right {
@@ -417,10 +457,10 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
             backface-visibility: hidden; // Hide back when rotated
 
             ::ng-deep .scale-wrapper {
-                border-radius: 40px; // Scaled radius
+                border-radius: 40px;
 
                 .card-preview {
-                    border-radius: 40px; // Scaled radius
+                    border-radius: 40px;
                     overflow: hidden;
                 }
             }
@@ -428,38 +468,31 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
 
         .card-back-placeholder {
             background-color: #8e8e9f;
-            border-radius: 40px; // Scaled radius to match preview
+            border-radius: 40px;
         }
 
         &::before,
         &::after {
             content: '';
             position: absolute;
-            // Base offset 4px * depth vector
-            top: calc(4px * var(--depth-y, 1));
-            left: calc(4px * var(--depth-x, 1));
+            // Base offset 24px * depth vector (scaled from 4px)
+            top: calc(24px * var(--depth-y, 1));
+            left: calc(24px * var(--depth-x, 1));
             width: 100%;
             height: 100%;
-            border-radius: 10px;
+            border-radius: 40px;
             background: #8e8e9f;
             z-index: -3; // Lower than thickness sides
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.20);
-            transition: top 0.3s, left 0.3s; // Smooth transition during rotation
+            transition: top 0.3s, left 0.3s;
         }
 
         &::before {
-            // Second layer: 8px * depth vector (2 * 4px)
-            top: calc(8px * var(--depth-y, 1));
-            left: calc(8px * var(--depth-x, 1));
+            // Second layer: 48px * depth vector (scaled from 8px)
+            top: calc(48px * var(--depth-y, 1));
+            left: calc(48px * var(--depth-x, 1));
             z-index: -4;
         }
-
-        &::after {
-            // First layer already set by default rule but explicit here for clarity if needed
-            // top: calc(4px * var(--depth-y, 1));
-            // left: calc(4px * var(--depth-x, 1));
-        }
-
     }
 }
 
@@ -470,7 +503,7 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
 
 .cdk-drag-preview {
     box-sizing: border-box;
-    border-radius: 4px;
+    border-radius: 40px;
     box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
         0 8px 10px 1px rgba(0, 0, 0, 0.14),
         0 3px 14px 2px rgba(0, 0, 0, 0.12);
@@ -546,7 +579,7 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
     }
 }
 
-$game-coin-size: 50px;
+$game-coin-size: 250px;
 
 .game-component .game-coin {
     position: relative;
@@ -554,7 +587,7 @@ $game-coin-size: 50px;
     height: $game-coin-size;
     border-radius: 50%;
     background: #ffd92b;
-    border: 4px solid #f1c40f;
+    border: 20px solid #f1c40f;
     color: #f1c40f;
     box-sizing: border-box;
     font-family: Arial, Helvetica, sans-serif;
@@ -565,7 +598,7 @@ $game-coin-size: 50px;
         position: absolute;
         top: 0;
         left: 50%;
-        width: 4px; // Thickness
+        width: 20px; // Thickness
         height: 100%;
         // Use a central plane (septum) technique for cylinder profile illusion
         transform: translateX(-50%) rotateY(90deg);
@@ -587,8 +620,8 @@ $game-coin-size: 50px;
 
     .depth {
         position: absolute;
-        top: 0.5px;
-        left: 0.5px;
+        top: 1px;
+        left: 1px;
         width: $game-coin-size;
         height: $game-coin-size;
         border-radius: 50%;
@@ -604,8 +637,8 @@ $game-coin-size: 50px;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        font-size: 40px;
-        line-height: 50px;
+        font-size: 200px;
+        line-height: 200px;
         pointer-events: none;
     }
 
@@ -614,7 +647,7 @@ $game-coin-size: 50px;
     }
 }
 
-$game-cube-size: 30px;
+$game-cube-size: 150px;
 
 .game-component {
     .game-cube {
@@ -622,16 +655,16 @@ $game-cube-size: 30px;
         width: $game-cube-size;
         height: $game-cube-size;
         background-color: #50c878; // emerald base
-        border: 2px solid #2e8b57;
+        border: 15px solid #2e8b57;
         box-sizing: border-box;
-        box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4),
+        box-shadow: inset 0 2px 2px rgba(255, 255, 255, 0.4),
             $shadow-3d;
         color: #fff;
         font-weight: bold;
-        font-size: 14px;
         text-align: center;
-        line-height: $game-cube-size;
-        border-radius: 4px;
+        line-height: 120px;
+        font-size: 120px;
+        border-radius: 30px;
         font-family: Arial, Helvetica, sans-serif;
         transform-style: preserve-3d;
         backface-visibility: hidden;
@@ -661,14 +694,14 @@ $game-cube-size: 30px;
 
         .depth {
             position: absolute;
-            top: 2px;
-            left: 2px;
+            top: 5px;
+            left: 5px;
             width: $game-cube-size;
             height: $game-cube-size;
             background: #2e8b57;
             z-index: -1;
             transform: translateZ(-1px);
-            border-radius: 4px;
+            border-radius: 30px;
         }
 
         &::after {
@@ -677,8 +710,6 @@ $game-cube-size: 30px;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 30px;
-            line-height: $game-cube-size;
             pointer-events: none;
         }
 
@@ -688,7 +719,7 @@ $game-cube-size: 30px;
     }
 }
 
-$die-size: 40px;
+$die-size: 200px;
 $die-bg: #f9f9f9;
 $die-border: #ccc;
 $die-color: #222;
@@ -701,32 +732,32 @@ $die-shadow: $shadow-3d;
         width: $die-size;
         height: $die-size;
         background-color: $die-bg;
-        border: 2px solid $die-border;
-        border-radius: 8px;
+        border: 10px solid $die-border;
+        border-radius: 30px;
         box-shadow: $die-shadow;
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         grid-template-rows: repeat(3, 1fr);
-        padding: 4px;
+        padding: 10px;
         box-sizing: border-box;
         transform-style: preserve-3d;
 
         // Depth simulation layer
         .depth {
             position: absolute;
-            top: 4px;
-            left: 4px;
+            top: 20px;
+            left: 20px;
             width: $die-size;
             height: $die-size;
-            border-radius: 8px;
+            border-radius: 30px;
             background-color: $die-side-color;
             z-index: -1;
             transform: translateZ(-1px);
         }
 
         .pip {
-            width: 6px;
-            height: 6px;
+            width: 35px;
+            height: 35px;
             background: $die-color;
             border-radius: 50%;
             margin: auto;
@@ -928,6 +959,79 @@ $die-shadow: $shadow-3d;
 
         .shortcut-label {
             color: var(--p-text-color);
+        }
+    }
+
+    .off-screen-indicator {
+        position: absolute;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: rgba(60, 171, 108, 0.8);
+        color: white;
+        padding: 8px;
+        border-radius: 50%;
+        cursor: pointer;
+        z-index: 1000;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        transition: transform 0.2s ease, background 0.2s ease;
+        width: 40px;
+        height: 40px;
+
+        &:hover {
+            transform: scale(1.1);
+            background: rgba(60, 171, 108, 1);
+        }
+
+        i {
+            font-size: 14px;
+        }
+
+        .indicator-count {
+            font-size: 10px;
+            font-weight: bold;
+            margin-top: -2px;
+        }
+
+        &.top {
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+
+            &:hover {
+                transform: translateX(-50%) scale(1.1);
+            }
+        }
+
+        &.bottom {
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+
+            &:hover {
+                transform: translateX(-50%) scale(1.1);
+            }
+        }
+
+        &.left {
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+
+            &:hover {
+                transform: translateY(-50%) scale(1.1);
+            }
+        }
+
+        &.right {
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+
+            &:hover {
+                transform: translateY(-50%) scale(1.1);
+            }
         }
     }
 }

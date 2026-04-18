@@ -6,7 +6,7 @@ import { Card } from '../data-services/types/card.type';
 import { FieldType } from '../data-services/types/field-type.type';
 import { MenuItem } from 'primeng/api';
 import { ContextMenu } from 'primeng/contextmenu';
-import { CdkDragDrop, CdkDragEnd, CdkDragEnter, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, CdkDragEnd, CdkDragEnter, CdkDragStart, DragRef, Point, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import StringUtils from '../shared/utils/string-utils';
 import MathUtils from '../shared/utils/math-utils';
 import { EntityField } from '../data-services/types/entity-field.type';
@@ -27,6 +27,8 @@ export class GameSimulatorComponent {
     'emerald', 'azure', 'lilac', 'ivory', 'charcoal'];
   public static readonly BASE_CARD_WIDTH = 825; // Approximated from visual reference or default - Fallback only
   public static readonly BASE_CARD_HEIGHT = 1125;
+  static readonly TABLE_MIN = -5000;
+  static readonly TABLE_MAX = 5000;
 
   public readonly baseCardWidth = GameSimulatorComponent.BASE_CARD_WIDTH;
   public readonly baseCardHeight = GameSimulatorComponent.BASE_CARD_HEIGHT;
@@ -38,8 +40,49 @@ export class GameSimulatorComponent {
   get components() { return this.gameStateService.components; }
   get discard() { return this.gameStateService.discard; }
 
-  get zoomLevel() { return this.gameStateService.zoomLevel; }
-  set zoomLevel(value: number) { this.gameStateService.zoomLevel = value; }
+  get simulatorPan() { return this.gameStateService.simulatorPan; }
+  set simulatorPan(value: Position) { this.gameStateService.simulatorPan = value; }
+  get simulatorZoom() { return this.gameStateService.simulatorZoom; }
+  set simulatorZoom(value: number) { this.gameStateService.simulatorZoom = value; }
+  get dragScale() { return this.simulatorZoom; }
+
+  get tableStyle() {
+    const size = GameSimulatorComponent.TABLE_MAX - GameSimulatorComponent.TABLE_MIN;
+    return {
+      top: GameSimulatorComponent.TABLE_MIN + 'px',
+      left: GameSimulatorComponent.TABLE_MIN + 'px',
+      width: size + 'px',
+      height: size + 'px'
+    };
+  }
+
+  offScreenIndicators = { top: 0, bottom: 0, left: 0, right: 0 };
+  private isPanning = false;
+  public isShiftPressed = false;
+
+  private _scaledPosMap = new Map<string, Point | any>();
+  private _lastZoomForScaledPos = 1;
+
+  public getScaledPos(item: Positionable): Point {
+    if (this._lastZoomForScaledPos !== this.simulatorZoom) {
+      this._lastZoomForScaledPos = this.simulatorZoom;
+      this._scaledPosMap.clear();
+    }
+
+    let cached = this._scaledPosMap.get((item as any).uniqueId);
+    if (!cached || cached.sourceX !== item.pos.x || cached.sourceY !== item.pos.y) {
+      cached = {
+        x: item.pos.x * this.simulatorZoom,
+        y: item.pos.y * this.simulatorZoom,
+        sourceX: item.pos.x,
+        sourceY: item.pos.y
+      };
+      this._scaledPosMap.set((item as any).uniqueId, cached);
+    }
+    return cached;
+  }
+  private lastPanPos = { x: 0, y: 0 };
+
   zoomMagnifiedLevel: number = 0.40;
   contextMenuItems: MenuItem[] = [];
   hoveredItem: Positionable | undefined;
@@ -114,6 +157,8 @@ export class GameSimulatorComponent {
     if (!this.gameStateService.initialized) {
       this.gameStateService.resetGame();
     }
+    // Periodic check for indicators
+    setInterval(() => this.calculateOffScreenIndicators(), 200);
   }
 
   // resetGame is now handled by GameSimulatorStateService
@@ -160,11 +205,11 @@ export class GameSimulatorComponent {
       if (drawnCard) {
         // change position to deck position + offset
         // Reverted to bottom-right offset
-        let newX = stack.pos.x + 100 + (Math.random() * 20 - 10);
-        let newY = stack.pos.y + 50 + (Math.random() * 20 - 10);
+        let newX = stack.pos.x + 600 + (Math.random() * 200 - 100);
+        let newY = stack.pos.y + 300 + (Math.random() * 200 - 100);
 
-        let width = GameSimulatorComponent.BASE_CARD_WIDTH * this.zoomLevel;
-        let height = GameSimulatorComponent.BASE_CARD_HEIGHT * this.zoomLevel;
+        let width = GameSimulatorComponent.BASE_CARD_WIDTH;
+        let height = GameSimulatorComponent.BASE_CARD_HEIGHT;
 
         const stackEl = document.getElementById(stack.uniqueId);
         let startX = stack.pos.x;
@@ -172,12 +217,8 @@ export class GameSimulatorComponent {
 
         if (stackEl && this.gameBoundary) {
           const rect = stackEl.getBoundingClientRect();
-          width = rect.width;
-          height = rect.height;
-
-          const boundaryRect = this.gameBoundary.nativeElement.getBoundingClientRect();
-          startX = rect.left - boundaryRect.left;
-          startY = rect.top - boundaryRect.top;
+          width = rect.width / this.simulatorZoom;
+          height = rect.height / this.simulatorZoom;
         }
 
         const clampedPos = this.clampPosition({ x: newX, y: newY }, width, height);
@@ -240,21 +281,17 @@ export class GameSimulatorComponent {
       let newX = stack.pos.x + 50 + (Math.random() * 20 - 10);
       let newY = stack.pos.y + 50 + (Math.random() * 20 - 10);
 
-      let width = GameSimulatorComponent.BASE_CARD_WIDTH * this.zoomLevel;
-      let height = GameSimulatorComponent.BASE_CARD_HEIGHT * this.zoomLevel;
+      let width = GameSimulatorComponent.BASE_CARD_WIDTH;
+      let height = GameSimulatorComponent.BASE_CARD_HEIGHT;
 
       const stackEl = document.getElementById(stack.uniqueId);
       let startX = stack.pos.x;
       let startY = stack.pos.y;
 
-      if (stackEl && this.gameBoundary) {
+      if (stackEl) {
         const rect = stackEl.getBoundingClientRect();
-        width = rect.width;
-        height = rect.height;
-
-        const boundaryRect = this.gameBoundary.nativeElement.getBoundingClientRect();
-        startX = rect.left - boundaryRect.left;
-        startY = rect.top - boundaryRect.top;
+        width = rect.width / this.simulatorZoom;
+        height = rect.height / this.simulatorZoom;
       }
 
       const clampedPos = this.clampPosition({ x: newX, y: newY }, width, height);
@@ -296,8 +333,8 @@ export class GameSimulatorComponent {
       card.faceUp = true; // Ensure face up while confirming discard
 
       // Animate to discard pile
-      let width = GameSimulatorComponent.BASE_CARD_WIDTH * this.zoomLevel;
-      let height = GameSimulatorComponent.BASE_CARD_HEIGHT * this.zoomLevel;
+      let width = GameSimulatorComponent.BASE_CARD_WIDTH;
+      let height = GameSimulatorComponent.BASE_CARD_HEIGHT;
       const stackEl = document.getElementById(this.discard.uniqueId);
       if (stackEl) {
         width = stackEl.getBoundingClientRect().width;
@@ -312,7 +349,7 @@ export class GameSimulatorComponent {
       );
 
       // Apply position (CDK Drag will follow this if bound correctly, 
-      // otherwise angular binding on [cdkDragFreeDragPosition] should update it)
+      // otherwise angular binding [cdkDragScale]="simulatorZoom"
       card.pos = targetPos;
 
       // Wait for animation
@@ -693,24 +730,24 @@ export class GameSimulatorComponent {
         icon: 'pi pi-search',
         items: [
           {
-            label: '0.15x',
-            command: () => { this.zoomLevel = 0.15; this.clampAllItems(); }
+            label: 'Tiny',
+            command: () => { this.simulatorZoom = 0.15; this.clampAllItems(); }
           },
           {
-            label: '0.2x',
-            command: () => { this.zoomLevel = 0.20; this.clampAllItems(); }
+            label: 'Small',
+            command: () => { this.simulatorZoom = 0.20; this.clampAllItems(); }
           },
           {
-            label: '0.25x',
-            command: () => { this.zoomLevel = 0.25; this.clampAllItems(); }
+            label: 'Regular',
+            command: () => { this.simulatorZoom = 0.25; this.clampAllItems(); }
           },
           {
-            label: '0.30x',
-            command: () => { this.zoomLevel = 0.30; this.clampAllItems(); }
+            label: 'Large',
+            command: () => { this.simulatorZoom = 0.30; this.clampAllItems(); }
           },
           {
-            label: '0.35x',
-            command: () => { this.zoomLevel = 0.35; this.clampAllItems(); }
+            label: 'Huge',
+            command: () => { this.simulatorZoom = 0.35; this.clampAllItems(); }
           }
         ]
       },
@@ -818,7 +855,7 @@ export class GameSimulatorComponent {
     });
   }
 
-  public onDragStarted(event: any, items: Positionable[], item: Positionable) {
+  public onDragStarted(event: CdkDragStart, items: Positionable[], item: Positionable) {
     this.gameStateService.bringToFront(item);
     // send card to the end of the cards array
     const index = items.indexOf(item);
@@ -834,17 +871,26 @@ export class GameSimulatorComponent {
     }
   }
 
-  public onCardDragStarted(event: any, items: Positionable[], item: Positionable) {
-    this.onDragStarted(event, items, item);
+  public onCardDragStarted(event: CdkDragStart, cards: GameCard[], card: GameCard) {
+    this.gameStateService.bringToFront(card);
     this.draggingCard = true;
   }
 
   onDragEnded(event: CdkDragEnd<any>, items: Positionable[], item: Positionable) {
-    const pos = event.source.getFreeDragPosition();
-    item.pos = {
-      x: pos.x,
-      y: pos.y
-    };
+    const rawPos = event.source.getFreeDragPosition();
+    const pos = { x: rawPos.x / this.simulatorZoom, y: rawPos.y / this.simulatorZoom };
+
+    let width = GameSimulatorComponent.BASE_CARD_WIDTH;
+    let height = GameSimulatorComponent.BASE_CARD_HEIGHT;
+
+    // Components have specific dimensions
+    if ((item as any).type) {
+      width = 125;
+      height = 125;
+    }
+
+    // Use consistent world-space clamping (no manual normalization needed with cdkDragScale)
+    item.pos = this.clampPosition({ x: pos.x, y: pos.y }, width, height, 0);
 
     if (this.draggingStack && this.hoveredItem && this.hoveredItem !== item) {
       const targetStack = this.hoveredItem as CardStack;
@@ -864,14 +910,14 @@ export class GameSimulatorComponent {
         let newY = targetStack.pos.y + 20;
 
         // Get dimensions for clamping
-        let width = GameSimulatorComponent.BASE_CARD_WIDTH * this.zoomLevel;
-        let height = GameSimulatorComponent.BASE_CARD_HEIGHT * this.zoomLevel;
+        let width = GameSimulatorComponent.BASE_CARD_WIDTH;
+        let height = GameSimulatorComponent.BASE_CARD_HEIGHT;
 
         const stackEl = document.getElementById(targetStack.uniqueId);
         if (stackEl) {
           const rect = stackEl.getBoundingClientRect();
-          width = rect.width;
-          height = rect.height;
+          width = rect.width / this.simulatorZoom;
+          height = rect.height / this.simulatorZoom;
         }
 
         const clampedPos = this.clampPosition({ x: newX, y: newY }, width, height);
@@ -890,11 +936,15 @@ export class GameSimulatorComponent {
   }
 
   onCardDragEnded(event: CdkDragEnd<any>, cards: GameCard[], card: GameCard) {
-    const pos = event.source.getFreeDragPosition();
-    card.pos = {
-      x: pos.x,
-      y: pos.y
-    };
+    const rawPos = event.source.getFreeDragPosition();
+    const pos = { x: rawPos.x / this.simulatorZoom, y: rawPos.y / this.simulatorZoom };
+
+    let width = GameSimulatorComponent.BASE_CARD_WIDTH;
+    let height = GameSimulatorComponent.BASE_CARD_HEIGHT;
+
+    // Use consistent world-space clamping (no manual normalization needed with cdkDragScale)
+    card.pos = this.clampPosition({ x: pos.x, y: pos.y }, width, height, 0);
+    console.log(`Drag Ended [Card]: ${card.uniqueId} | Pos:`, card.pos, `| Zoom: ${this.simulatorZoom}`);
     if (this.hoveredItem) {
       const index = cards.indexOf(card);
       cards.splice(index, 1);
@@ -945,8 +995,8 @@ export class GameSimulatorComponent {
   }
 
   private clampAllItems() {
-    const defaultCardWidth = GameSimulatorComponent.BASE_CARD_WIDTH * this.zoomLevel;
-    const defaultCardHeight = GameSimulatorComponent.BASE_CARD_HEIGHT * this.zoomLevel;
+    const defaultCardWidth = GameSimulatorComponent.BASE_CARD_WIDTH;
+    const defaultCardHeight = GameSimulatorComponent.BASE_CARD_HEIGHT;
 
     // Clamp Stacks
     this.stacks.forEach(stack => {
@@ -990,22 +1040,64 @@ export class GameSimulatorComponent {
     });
   }
 
-  private clampPosition(pos: Position, itemWidth: number, itemHeight: number, padding: number = 16): Position {
-    if (!this.gameBoundary) return pos;
+  private clampPosition(pos: Position, itemWidth: number, itemHeight: number, padding: number = 0): Position {
+    // Clamping to a large virtual table instead of the viewport
+    const TABLE_MIN = GameSimulatorComponent.TABLE_MIN;
+    const TABLE_MAX = GameSimulatorComponent.TABLE_MAX;
 
-    const boundaryRect = this.gameBoundary.nativeElement.getBoundingClientRect();
-    // The items uses absolute positioning relative to the container.
-    // So the max X is containerWidth - itemWidth
-    // And max Y is containerHeight - itemHeight
-
-    const maxX = boundaryRect.width - itemWidth - padding;
-    const maxY = boundaryRect.height - itemHeight - padding;
+    const maxX = TABLE_MAX - itemWidth - padding;
+    const maxY = TABLE_MAX - itemHeight - padding;
 
     return {
-      x: Math.max(padding, Math.min(maxX, pos.x)),
-      y: Math.max(padding, Math.min(maxY, pos.y))
+      x: Math.max(TABLE_MIN + padding, Math.min(maxX, pos.x)),
+      y: Math.max(TABLE_MIN + padding, Math.min(maxY, pos.y))
     };
   }
+
+  public handleDragPosition = (proposedPosition: Point, _dragRef: DragRef, dimensions: any, pickupPositionInElement: Point): Point => {
+    // 1. Proposed position is the unscaled screen cursor `point`.
+    // Calculate the screen position of the card's top-left corner
+    const screenTopLeft = {
+      x: proposedPosition.x - (pickupPositionInElement?.x || 0),
+      y: proposedPosition.y - (pickupPositionInElement?.y || 0)
+    };
+
+    // 2. Adjust for Game Boundary offset relative to browser viewport
+    let boundaryLeft = 0;
+    let boundaryTop = 0;
+    if (this.gameBoundary && this.gameBoundary.nativeElement) {
+      const rect = this.gameBoundary.nativeElement.getBoundingClientRect();
+      boundaryLeft = rect.left;
+      boundaryTop = rect.top;
+    }
+
+    // 3. Map screen coordinate to local logical world-space coordinate
+    const logicalX = (screenTopLeft.x - boundaryLeft - this.simulatorPan.x) / this.simulatorZoom;
+    const logicalY = (screenTopLeft.y - boundaryTop - this.simulatorPan.y) / this.simulatorZoom;
+
+    let width = GameSimulatorComponent.BASE_CARD_WIDTH;
+    let height = GameSimulatorComponent.BASE_CARD_HEIGHT;
+
+    const dragData = (_dragRef as any).data;
+    if (dragData && dragData.type) {
+      width = 125;
+      height = 125;
+    }
+
+    // 4. Clamp the logical coordinates to the virtual table
+    const clampedLogical = this.clampPosition({ x: logicalX, y: logicalY }, width, height, 0);
+
+    // 5. Map the clamped logical coordinates BACK to screen space for Angular CDK
+    // Since we provide a constrainPosition callback, CDK uses offset expectations relative to the top-left rather than cursor.
+    const clampedScreenX = (clampedLogical.x * this.simulatorZoom) + this.simulatorPan.x + boundaryLeft;
+    const clampedScreenY = (clampedLogical.y * this.simulatorZoom) + this.simulatorPan.y + boundaryTop;
+
+    return {
+      x: clampedScreenX,
+      y: clampedScreenY
+    };
+  }
+
 
   private calculateMagnifiedPosition(event: MouseEvent, card: GameCard) {
     let width = 300; // Fallback
@@ -1016,8 +1108,8 @@ export class GameSimulatorComponent {
     if (el) {
       const rect = el.getBoundingClientRect();
       // Calculate base dimensions (unscaled)
-      const baseWidth = rect.width / this.zoomLevel;
-      const baseHeight = rect.height / this.zoomLevel;
+      const baseWidth = rect.width;
+      const baseHeight = rect.height;
 
       // Calculate target dimensions
       width = baseWidth * this.zoomMagnifiedLevel;
@@ -1093,5 +1185,123 @@ export class GameSimulatorComponent {
         break;
     }
     return style;
+  }
+
+  public onWheel(event: WheelEvent) {
+    if (event.shiftKey) {
+      event.preventDefault();
+      const zoomSpeed = 0.001;
+      // On Mac, Shift + Scroll often translates to deltaX instead of deltaY
+      const delta = Math.abs(event.deltaY) > Math.abs(event.deltaX) ? event.deltaY : event.deltaX;
+      const zoomDelta = -delta * zoomSpeed;
+      const oldZoom = this.simulatorZoom;
+      const newZoom = Math.max(0.1, Math.min(5, oldZoom + zoomDelta));
+
+      if (oldZoom === newZoom) return;
+
+      // Calculate pan adjustment to zoom at mouse position
+      const rect = this.gameBoundary.nativeElement.getBoundingClientRect();
+      const mouseX = event.clientX - rect.left;
+      const mouseY = event.clientY - rect.top;
+
+      // Formula for zooming at mouse point:
+      // newPan = mouse - (mouse - oldPan) * (newZoom / oldZoom)
+      this.simulatorPan.x = mouseX - (mouseX - this.simulatorPan.x) * (newZoom / oldZoom);
+      this.simulatorPan.y = mouseY - (mouseY - this.simulatorPan.y) * (newZoom / oldZoom);
+      this.simulatorZoom = newZoom;
+
+      this.calculateOffScreenIndicators();
+    }
+  }
+
+  public onSimulatorMouseDown(event: MouseEvent) {
+    // Shift + LMB or MMB
+    if ((event.shiftKey && event.button === 0) || event.button === 1) {
+      this.isPanning = true;
+      this.lastPanPos = { x: event.clientX, y: event.clientY };
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  }
+
+  @HostListener('window:mousemove', ['$event'])
+  onWindowMouseMove(event: MouseEvent) {
+    if (this.isPanning) {
+      const dx = event.clientX - this.lastPanPos.x;
+      const dy = event.clientY - this.lastPanPos.y;
+
+      this.simulatorPan.x += dx;
+      this.simulatorPan.y += dy;
+
+      this.lastPanPos = { x: event.clientX, y: event.clientY };
+      this.calculateOffScreenIndicators();
+    }
+  }
+
+  // Update existing HostListener for window:mouseup
+  @HostListener('window:mouseup', ['$event'])
+  onWindowMouseUpCombined(event: MouseEvent) {
+    // Failsafe reset if the browser dropped a `keyup` event midway
+    if (!event.shiftKey) {
+      this.isShiftPressed = false;
+    }
+    
+    if (event.button == 1) {
+      this.magnifiedCard = undefined;
+    }
+    if (this.isPanning) {
+      this.isPanning = false;
+    }
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  onWindowKeyDown(event: KeyboardEvent) {
+    if (event.key === 'Shift') {
+        this.isShiftPressed = true;
+    }
+  }
+
+  @HostListener('window:keyup', ['$event'])
+  onWindowKeyUp(event: KeyboardEvent) {
+    if (event.key === 'Shift') {
+        this.isShiftPressed = false;
+    }
+  }
+
+  private calculateOffScreenIndicators() {
+    if (!this.gameBoundary) return;
+
+    const boundaryRect = this.gameBoundary.nativeElement.getBoundingClientRect();
+    const indicators = { top: 0, bottom: 0, left: 0, right: 0 };
+
+    const checkItem = (item: Positionable, width: number, height: number) => {
+      // Calculate screen position: 
+      // screenPos = pan + itemPos * zoom
+      const screenX = this.simulatorPan.x + (item.pos.x * this.simulatorZoom);
+      const screenY = this.simulatorPan.y + (item.pos.y * this.simulatorZoom);
+      const screenWidth = width * this.simulatorZoom;
+      const screenHeight = height * this.simulatorZoom;
+
+      if (screenY + screenHeight < 0) indicators.top++;
+      else if (screenY > boundaryRect.height) indicators.bottom++;
+
+      if (screenX + screenWidth < 0) indicators.left++;
+      else if (screenX > boundaryRect.width) indicators.right++;
+    };
+
+    const cardWidth = GameSimulatorComponent.BASE_CARD_WIDTH;
+    const cardHeight = GameSimulatorComponent.BASE_CARD_HEIGHT;
+
+    this.stacks.forEach(s => checkItem(s, cardWidth, cardHeight));
+    this.field.cards.forEach(c => checkItem(c, cardWidth, cardHeight));
+    this.components.forEach(c => checkItem(c, 50, 50));
+
+    this.offScreenIndicators = indicators;
+  }
+
+  public scrollToCenter() {
+    this.simulatorPan = { x: 0, y: 0 };
+    this.simulatorZoom = 1.0;
+    this.calculateOffScreenIndicators();
   }
 }

@@ -14,7 +14,8 @@ export class GameSimulatorStateService {
     public stacks: CardStack[] = [];
     public field: CardZone = { name: 'Field', cards: [] };
     public components: GameComponent[] = [];
-    public zoomLevel: number = 0.20;
+    public simulatorPan: Position = { x: 0, y: 0 };
+    public simulatorZoom: number = 0.20;
     public topZIndex: number = 100;
     public discard: CardStack = {
         name: 'Discard', cards: [], faceUp: true,
