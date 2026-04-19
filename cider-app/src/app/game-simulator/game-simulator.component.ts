@@ -1,4 +1,4 @@
-import { Component, HostListener, ElementRef, ViewChild } from '@angular/core';
+import { Component, HostListener, ElementRef, NgZone, ViewChild, OnDestroy, OnInit } from '@angular/core';
 import { DecksService } from '../data-services/services/decks.service';
 import { CardsService } from '../data-services/services/cards.service';
 import { CardTemplatesService } from '../data-services/services/card-templates.service';
@@ -22,7 +22,7 @@ import { CardStack, CardZone, GameCard, GameComponent, Position, Positionable } 
   styleUrl: './game-simulator.component.scss',
   standalone: false
 })
-export class GameSimulatorComponent {
+export class GameSimulatorComponent implements OnInit, OnDestroy {
   private static readonly COLORS = ['silver', 'gold', 'crimson',
     'emerald', 'azure', 'lilac', 'ivory', 'charcoal'];
   public static readonly BASE_CARD_WIDTH = 825; // Approximated from visual reference or default - Fallback only
@@ -152,25 +152,110 @@ export class GameSimulatorComponent {
     private cardsService: CardsService,
     private translate: TranslateService,
     public cardTemplatesService: CardTemplatesService,
-    public gameStateService: GameSimulatorStateService
+    public gameStateService: GameSimulatorStateService,
+    private ngZone: NgZone
   ) {
     if (!this.gameStateService.initialized) {
       this.gameStateService.resetGame();
     }
-    // Periodic check for indicators
-    setInterval(() => this.calculateOffScreenIndicators(), 200);
+  }
+
+  private mouseMoveListener!: (e: MouseEvent) => void;
+  private mouseUpListener!: (e: MouseEvent) => void;
+
+  ngOnInit() {
+    this.ngZone.runOutsideAngular(() => {
+      this.mouseMoveListener = (event: MouseEvent) => this.onWindowMouseMove(event);
+      this.mouseUpListener = (event: MouseEvent) => this.onWindowMouseUpCombined(event);
+      window.addEventListener('mousemove', this.mouseMoveListener);
+      window.addEventListener('mouseup', this.mouseUpListener);
+    });
+  }
+
+  ngOnDestroy() {
+    window.removeEventListener('mousemove', this.mouseMoveListener);
+    window.removeEventListener('mouseup', this.mouseUpListener);
   }
 
   ngAfterViewInit() {
     // Only center if it's the first time initializing layout positions
     if (this.simulatorPan.x === 0 && this.simulatorPan.y === 0 && this.gameBoundary?.nativeElement) {
       // Small timeout guarantees DOM bounding boxes are rendered
-      setTimeout(() => {
+      setTimeout(async () => {
         const rect = this.gameBoundary.nativeElement.getBoundingClientRect();
         this.simulatorPan = {
           x: rect.width / 2,
           y: rect.height / 2
         };
+
+        // Wait for the async resetGame to finish loading stacks from the DB
+        if (!this.gameStateService.initialized) {
+          await this.gameStateService.resetGame();
+        }
+
+        // Mathematically translate the top-left screen pixel (with a 50px visual padding) into logical board coordinates
+        const startLogicalX = -(rect.width / 2) / this.simulatorZoom + (50 / this.simulatorZoom);
+        const startLogicalY = -(rect.height / 2) / this.simulatorZoom + (50 / this.simulatorZoom);
+
+        const COLS = 5;
+        const COL_SPACING = 1000;
+        const ROW_PADDING = 200; // Extra gap between rows
+
+        if (this.gameStateService.stacks.length > 0) {
+          // Collect non-discard stacks in order
+          const orderedStacks = this.gameStateService.stacks.filter(
+            s => s.uniqueId !== this.gameStateService.discard.uniqueId
+          );
+
+          // First pass: place with default spacing so DOM can render
+          let deckIndex = 0;
+          orderedStacks.forEach(s => {
+            s.pos = {
+              x: startLogicalX + (deckIndex % COLS) * COL_SPACING,
+              y: startLogicalY + Math.floor(deckIndex / COLS) * 1300
+            };
+            deckIndex++;
+          });
+          this.gameStateService.discard.pos = {
+            x: startLogicalX + (deckIndex % COLS) * COL_SPACING,
+            y: startLogicalY + Math.floor(deckIndex / COLS) * 1300
+          };
+
+          // Second pass: after DOM renders, measure actual heights and reflow rows
+          setTimeout(() => {
+            const allStacks = [...orderedStacks, this.gameStateService.discard];
+            const rows: typeof allStacks[] = [];
+            for (let i = 0; i < allStacks.length; i += COLS) {
+              rows.push(allStacks.slice(i, i + COLS));
+            }
+
+            let currentY = startLogicalY;
+            rows.forEach((row) => {
+              // Position each stack in this row at currentY
+              row.forEach((stack, colIndex) => {
+                stack.pos = {
+                  x: startLogicalX + colIndex * COL_SPACING,
+                  y: currentY
+                };
+              });
+
+              // Measure the tallest rendered element in this row
+              let maxHeight = GameSimulatorComponent.BASE_CARD_HEIGHT;
+              row.forEach(stack => {
+                const el = document.getElementById(stack.uniqueId);
+                if (el) {
+                  const renderedHeight = el.getBoundingClientRect().height / this.simulatorZoom;
+                  if (renderedHeight > maxHeight) {
+                    maxHeight = renderedHeight;
+                  }
+                }
+              });
+
+              // Advance Y by the tallest stack in this row plus padding
+              currentY += maxHeight + ROW_PADDING;
+            });
+          }, 100); // Allow DOM to render the initial placement before measuring
+        }
       }, 0);
     }
   }
@@ -584,8 +669,8 @@ export class GameSimulatorComponent {
             ...component,
             uniqueId: (component.type === 'coin' ? 'coin-' : (component.type === 'cube' ? 'cube-' : 'd6-')) + StringUtils.generateRandomString(),
             pos: {
-              x: component.pos.x + 10 + (Math.random() * 10 - 5),
-              y: component.pos.y + 10 + (Math.random() * 10 - 5)
+              x: component.pos.x + 100 + (Math.random() * 100 - 50),
+              y: component.pos.y + 100 + (Math.random() * 100 - 50)
             },
           };
           this.gameStateService.bringToFront(newComp);
@@ -609,6 +694,19 @@ export class GameSimulatorComponent {
   public onFieldContextMenu(event: MouseEvent, cm: ContextMenu) {
     cm.hide();
     event.preventDefault();
+
+    let boundaryLeft = 0;
+    let boundaryTop = 0;
+    if (this.gameBoundary && this.gameBoundary.nativeElement) {
+      const rect = this.gameBoundary.nativeElement.getBoundingClientRect();
+      boundaryLeft = rect.left;
+      boundaryTop = rect.top;
+    }
+
+    // Scale client pointer coordinate natively into simulator virtual 1.0 bounding board logic.
+    const logicalX = (event.clientX - boundaryLeft - this.simulatorPan.x) / this.simulatorZoom;
+    const logicalY = (event.clientY - boundaryTop - this.simulatorPan.y) / this.simulatorZoom;
+
     this.contextMenuItems = [
       {
         label: this.translate.instant('simulator.add-coin'),
@@ -622,8 +720,8 @@ export class GameSimulatorComponent {
               className: 'game-coin color-' + color,
               faceUp: true,
               pos: {
-                x: event.offsetX,
-                y: event.offsetY
+                x: logicalX,
+                y: logicalY
               },
               contextMenu: [],
             };
@@ -675,8 +773,8 @@ export class GameSimulatorComponent {
               className: `game-cube color-${color}`,
               faceUp: true,
               pos: {
-                x: event.offsetX,
-                y: event.offsetY
+                x: logicalX,
+                y: logicalY
               },
               contextMenu: [
                 {
@@ -710,8 +808,8 @@ export class GameSimulatorComponent {
               faceUp: true,
               face: 6,
               pos: {
-                x: event.offsetX,
-                y: event.offsetY
+                x: logicalX,
+                y: logicalY
               },
               contextMenu: [
                 {
@@ -971,6 +1069,9 @@ export class GameSimulatorComponent {
       const index = cards.indexOf(card);
       cards.splice(index, 1);
       (this.hoveredItem as any).cards.push(card);
+
+      // Crucial: Clear hoveredItem to prevent ghost merging on future drops!
+      this.hoveredItem = undefined;
     }
     this.draggingCard = false;
   }
@@ -1247,54 +1348,78 @@ export class GameSimulatorComponent {
     }
   }
 
-  @HostListener('window:mousemove', ['$event'])
   onWindowMouseMove(event: MouseEvent) {
     if (this.isPanning) {
-      const dx = event.clientX - this.lastPanPos.x;
-      const dy = event.clientY - this.lastPanPos.y;
+      this.ngZone.run(() => {
+        const dx = event.clientX - this.lastPanPos.x;
+        const dy = event.clientY - this.lastPanPos.y;
 
-      this.simulatorPan.x += dx;
-      this.simulatorPan.y += dy;
+        this.simulatorPan.x += dx;
+        this.simulatorPan.y += dy;
 
-      this.lastPanPos = { x: event.clientX, y: event.clientY };
-      this.calculateOffScreenIndicators();
+        this.lastPanPos = { x: event.clientX, y: event.clientY };
+        this.calculateOffScreenIndicators();
+      });
     }
   }
 
   // Update existing HostListener for window:mouseup
-  @HostListener('window:mouseup', ['$event'])
   onWindowMouseUpCombined(event: MouseEvent) {
+    let requiresChangeDetection = false;
+
     // Failsafe reset if the browser dropped a `keyup` event midway
-    if (!event.shiftKey) {
+    if (!event.shiftKey && this.isShiftPressed) {
       this.isShiftPressed = false;
+      requiresChangeDetection = true;
     }
-    
-    if (event.button == 1) {
+
+    if (event.button == 1 && this.magnifiedCard) {
       this.magnifiedCard = undefined;
+      requiresChangeDetection = true;
     }
     if (this.isPanning) {
       this.isPanning = false;
+      requiresChangeDetection = true;
+    }
+
+    if (requiresChangeDetection) {
+      this.ngZone.run(() => {
+         // Change detection will fire after this block
+      });
     }
   }
 
   @HostListener('window:keydown', ['$event'])
   onWindowKeyDown(event: KeyboardEvent) {
     if (event.key === 'Shift') {
-        this.isShiftPressed = true;
+      this.isShiftPressed = true;
     }
   }
 
   @HostListener('window:keyup', ['$event'])
   onWindowKeyUp(event: KeyboardEvent) {
     if (event.key === 'Shift') {
-        this.isShiftPressed = false;
+      this.isShiftPressed = false;
     }
+  }
+
+  private boundaryRectCache: { width: number, height: number } | null = null;
+
+  @HostListener('window:resize')
+  onWindowResize() {
+    this.boundaryRectCache = null;
+    this.calculateOffScreenIndicators();
   }
 
   private calculateOffScreenIndicators() {
     if (!this.gameBoundary) return;
 
-    const boundaryRect = this.gameBoundary.nativeElement.getBoundingClientRect();
+    if (!this.boundaryRectCache) {
+      const rect = this.gameBoundary.nativeElement.getBoundingClientRect();
+      this.boundaryRectCache = { width: rect.width, height: rect.height };
+    }
+    const boundaryRect = this.boundaryRectCache;
+
     const indicators = { top: 0, bottom: 0, left: 0, right: 0 };
 
     const checkItem = (item: Positionable, width: number, height: number) => {
@@ -1319,7 +1444,101 @@ export class GameSimulatorComponent {
     this.field.cards.forEach(c => checkItem(c, cardWidth, cardHeight));
     this.components.forEach(c => checkItem(c, 50, 50));
 
-    this.offScreenIndicators = indicators;
+    // Only update (and trigger change detection) when values actually changed
+    const prev = this.offScreenIndicators;
+    if (prev.top !== indicators.top || prev.bottom !== indicators.bottom ||
+      prev.left !== indicators.left || prev.right !== indicators.right) {
+      this.ngZone.run(() => {
+        this.offScreenIndicators = indicators;
+      });
+    }
+  }
+
+  private panAnimationId: number | null = null;
+
+  public panToDirection(direction: 'top' | 'bottom' | 'left' | 'right') {
+    if (!this.gameBoundary) return;
+    const rect = this.gameBoundary.nativeElement.getBoundingClientRect();
+    
+    let minX = Infinity, minY = Infinity;
+    let maxX = -Infinity, maxY = -Infinity;
+    let found = false;
+
+    const cardWidth = GameSimulatorComponent.BASE_CARD_WIDTH;
+    const cardHeight = GameSimulatorComponent.BASE_CARD_HEIGHT;
+
+    const checkItem = (item: Positionable, width: number, height: number, considerZoom: boolean = true) => {
+      // Account for components needing unscaled width but scaled position?
+      // Our logic elsewhere scales position and dimensions.
+      const screenX = this.simulatorPan.x + (item.pos.x * this.simulatorZoom);
+      const screenY = this.simulatorPan.y + (item.pos.y * this.simulatorZoom);
+      const screenWidth = width * this.simulatorZoom;
+      const screenHeight = height * this.simulatorZoom;
+
+      let isTarget = false;
+      if (direction === 'top' && screenY + screenHeight < 0) isTarget = true;
+      else if (direction === 'bottom' && screenY > rect.height) isTarget = true;
+      else if (direction === 'left' && screenX + screenWidth < 0) isTarget = true;
+      else if (direction === 'right' && screenX > rect.width) isTarget = true;
+
+      if (isTarget) {
+        found = true;
+        minX = Math.min(minX, item.pos.x);
+        minY = Math.min(minY, item.pos.y);
+        maxX = Math.max(maxX, item.pos.x + width);
+        maxY = Math.max(maxY, item.pos.y + height);
+      }
+    };
+
+    this.stacks.forEach(s => checkItem(s, cardWidth, cardHeight));
+    this.field.cards.forEach(c => checkItem(c, cardWidth, cardHeight));
+    this.components.forEach(c => checkItem(c, 50, 50));
+
+    if (found) {
+      const centerX = (minX + maxX) / 2;
+      const centerY = (minY + maxY) / 2;
+
+      // We want this local unit center to appear exactly in the middle of our view
+      const targetPanX = (rect.width / 2) - (centerX * this.simulatorZoom);
+      const targetPanY = (rect.height / 2) - (centerY * this.simulatorZoom);
+
+      this.smoothPanTo(targetPanX, targetPanY);
+    } else {
+      this.scrollToCenter();
+    }
+  }
+
+  private smoothPanTo(targetX: number, targetY: number) {
+    if (this.panAnimationId) {
+      cancelAnimationFrame(this.panAnimationId);
+    }
+
+    const startX = this.simulatorPan.x;
+    const startY = this.simulatorPan.y;
+    const duration = 250; // ms
+    const startTime = performance.now();
+
+    const animate = (time: number) => {
+      const elapsed = time - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      // easeOutCubic
+      const easeProgress = 1 - Math.pow(1 - progress, 3);
+      
+      this.ngZone.run(() => {
+        this.simulatorPan.x = startX + (targetX - startX) * easeProgress;
+        this.simulatorPan.y = startY + (targetY - startY) * easeProgress;
+        this.calculateOffScreenIndicators();
+      });
+      
+      if (progress < 1) {
+        this.panAnimationId = requestAnimationFrame(animate);
+      } else {
+        this.panAnimationId = null;
+      }
+    };
+    
+    this.panAnimationId = requestAnimationFrame(animate);
   }
 
   public scrollToCenter() {

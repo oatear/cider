@@ -59,10 +59,18 @@
     background: none;
     border: none;
 
+    &:focus, &:focus-visible, &:focus-within {
+        outline: none !important;
+    }
+
     .p-splitterpanel {
         display: flex;
         flex-grow: 1;
         flex-direction: column;
+        
+        &:focus, &:focus-visible, &:focus-within {
+            outline: none !important;
+        }
     }
 
     app-site-sidebar {

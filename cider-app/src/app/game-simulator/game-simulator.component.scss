@@ -17,7 +17,7 @@ $colors: (
     charcoal: (#3b4a54, #a1b0bc, #27333a) // balanced depth and top face
 );
 
-$shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
+$shadow-3d: 0 20px 30px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
 
 @each $name, $values in $colors {
     $bg: nth($values, 1);
@@ -88,17 +88,24 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
             .virtual-table {
                 position: absolute;
                 box-sizing: border-box; // Ensure border is inside the dimensions
-                background-color: rgba(255, 255, 255, 0.02);
+
+                $major-color: color-mix(in srgb, var(--p-text-color) 15%, transparent);
+                $minor-color: color-mix(in srgb, var(--p-text-color) 5%, transparent);
+
                 background-image:
                     // Major grid (1000px)
-                    linear-gradient(rgba(255, 255, 255, 0.15) 4px, transparent 4px),
-                    linear-gradient(90deg, rgba(255, 255, 255, 0.15) 4px, transparent 4px),
+                    linear-gradient($major-color 6px, transparent 6px),
+                    linear-gradient(90deg, $major-color 6px, transparent 6px),
                     // Minor grid (200px)
-                    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-                    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+                    linear-gradient($minor-color 2px, transparent 2px),
+                    linear-gradient(90deg, $minor-color 2px, transparent 2px);
                 background-size: 1000px 1000px, 1000px 1000px, 200px 200px, 200px 200px;
                 background-position: center; // Align grid lines to the table origin (0,0 is in center of 10k table)
-                border: 12px solid rgba(255, 255, 255, 0.4);
+
+                // Fade out edges of the virtual table
+                mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 1) 40%, rgba(0, 0, 0, 0) 70%);
+                -webkit-mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 1) 40%, rgba(0, 0, 0, 0) 70%);
+
                 pointer-events: none;
                 z-index: -100;
             }
@@ -413,7 +420,7 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
     z-index: 1;
 
     .card-wrapper {
-        border-radius: 10px;
+        border-radius: 40px;
         box-shadow: $shadow-3d;
         transform-style: preserve-3d; // Enable 3D children
         transition: rotate 0.3s ease-in-out;
@@ -437,7 +444,8 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
             transform-origin: center;
             opacity: 1;
             z-index: -1;
-            border-radius: 2px;
+            border-radius: 40px;
+            pointer-events: none;
 
             &.right {
                 right: 0;
@@ -483,7 +491,7 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
             border-radius: 40px;
             background: #8e8e9f;
             z-index: -3; // Lower than thickness sides
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.20);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.20);
             transition: top 0.3s, left 0.3s;
         }
 
@@ -504,9 +512,9 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
 .cdk-drag-preview {
     box-sizing: border-box;
     border-radius: 40px;
-    box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
-        0 8px 10px 1px rgba(0, 0, 0, 0.14),
-        0 3px 14px 2px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 50px 50px -30px rgba(0, 0, 0, 0.2),
+        0 80px 100px 10px rgba(0, 0, 0, 0.14),
+        0 30px 140px 20px rgba(0, 0, 0, 0.12);
     pointer-events: none;
 }
 
@@ -538,13 +546,13 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
         width: 50px;
         height: 50px;
         background: rgb(213, 92, 92);
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); // Default shadow
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1); // Default shadow
         transition: box-shadow 0.3s ease;
     }
 
     // Trigger shadow change when wrapper is hovered
     &:hover .component {
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
     }
 
     &:active .component {
@@ -595,18 +603,18 @@ $game-coin-size: 250px;
     backface-visibility: hidden; // Important for flip
 
     .thickness-side {
-        position: absolute;
-        top: 0;
-        left: 50%;
-        width: 20px; // Thickness
-        height: 100%;
-        // Use a central plane (septum) technique for cylinder profile illusion
-        transform: translateX(-50%) rotateY(90deg);
-        background: inherit; // Gold
-        filter: brightness(0.7);
-        border: inherit;
-        z-index: -1;
-        opacity: 1;
+        // position: absolute;
+        // top: 0;
+        // left: 50%;
+        // width: 20px; // Thickness
+        // height: 100%;
+        // // Use a central plane (septum) technique for cylinder profile illusion
+        // transform: translateX(-50%) rotateY(90deg);
+        // background: inherit; // Gold
+        // filter: brightness(0.7);
+        // border: inherit;
+        // z-index: -1;
+        // opacity: 1;
 
         // Remove specific side positioning since we are using a central septum
         &.right,
@@ -620,8 +628,8 @@ $game-coin-size: 250px;
 
     .depth {
         position: absolute;
-        top: 1px;
-        left: 1px;
+        top: 0px;
+        left: 0px;
         width: $game-coin-size;
         height: $game-coin-size;
         border-radius: 50%;
@@ -919,7 +927,7 @@ $die-shadow: $shadow-3d;
     cursor: pointer;
     transition: background-color 0.2s, color 0.2s;
     border-bottom: none;
-    border-radius: 10px;
+    border-radius: 40px;
 
     &:last-child {
         border-bottom: none;
@@ -942,7 +950,7 @@ $die-shadow: $shadow-3d;
         justify-content: space-between;
         align-items: center;
         padding: 8px 0;
-        border-bottom: 1px solid var(--p-surface-200);
+        // border-bottom: 1px solid var(--p-surface-200);
 
         &:last-child {
             border-bottom: none;
@@ -953,7 +961,7 @@ $die-shadow: $shadow-3d;
             color: var(--p-primary-color);
             background: var(--p-surface-100);
             padding: 4px 8px;
-            border-radius: 4px;
+            border-radius: 10px;
             font-family: var(--p-font-family);
         }
 
@@ -962,76 +970,115 @@ $die-shadow: $shadow-3d;
         }
     }
 
-    .off-screen-indicator {
-        position: absolute;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        background: rgba(60, 171, 108, 0.8);
-        color: white;
-        padding: 8px;
-        border-radius: 50%;
-        cursor: pointer;
-        z-index: 1000;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-        transition: transform 0.2s ease, background 0.2s ease;
-        width: 40px;
-        height: 40px;
+}
+
+/* 
+ * Premium Off-screen Indicators 
+ * Moved to root level to ensure they apply correctly to component elements
+ */
+.off-screen-indicator {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    z-index: 2000;
+    cursor: pointer;
+    user-select: none;
+    pointer-events: auto;
+
+    // Subtle Glassmorphism
+    background: rgba(35, 35, 45, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    // Tighter Border & Shadow
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+
+    color: rgba(255, 255, 255, 0.9);
+    padding: 6px 12px;
+    border-radius: 20px;
+    transition: all 0.2s ease-in-out;
+
+    // Very subtle pulse
+    animation: placeholder-subtle-pulse 3s infinite ease-in-out;
+
+    &:hover {
+        transform: scale(1.05) !important;
+        background: rgba(45, 45, 55, 0.9);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        border-color: rgba(255, 255, 255, 0.3);
+        animation: none;
+    }
+
+    &:active {
+        transform: scale(0.97) !important;
+    }
+
+    i {
+        font-size: 11px;
+        opacity: 0.8;
+    }
+
+    .indicator-count {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.2px;
+    }
+
+    // Positioning
+    &.top {
+        top: 15px;
+        left: 50%;
+        transform: translateX(-50%);
 
         &:hover {
-            transform: scale(1.1);
-            background: rgba(60, 171, 108, 1);
+            transform: translateX(-50%) scale(1.05) !important;
         }
+    }
 
-        i {
-            font-size: 14px;
+    &.bottom {
+        bottom: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+
+        &:hover {
+            transform: translateX(-50%) scale(1.05) !important;
         }
+    }
 
-        .indicator-count {
-            font-size: 10px;
-            font-weight: bold;
-            margin-top: -2px;
+    &.left {
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+
+        &:hover {
+            transform: translateY(-50%) scale(1.05) !important;
         }
+    }
 
-        &.top {
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
+    &.right {
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
 
-            &:hover {
-                transform: translateX(-50%) scale(1.1);
-            }
+        &:hover {
+            transform: translateY(-50%) scale(1.05) !important;
         }
+    }
+}
 
-        &.bottom {
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
+@keyframes placeholder-subtle-pulse {
 
-            &:hover {
-                transform: translateX(-50%) scale(1.1);
-            }
-        }
+    0%,
+    100% {
+        opacity: 0.9;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
 
-        &.left {
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-
-            &:hover {
-                transform: translateY(-50%) scale(1.1);
-            }
-        }
-
-        &.right {
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-
-            &:hover {
-                transform: translateY(-50%) scale(1.1);
-            }
-        }
+    50% {
+        opacity: 1;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
     }
 }
