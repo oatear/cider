@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { CardStack, CardZone, GameCard, GameComponent, Position } from './game-simulator.types';
+import { CardStack, CardZone, GameCard, GameComponent, Position, Positionable } from './game-simulator.types';
 import { DecksService } from '../data-services/services/decks.service';
 import { CardsService } from '../data-services/services/cards.service';
 import { Card } from '../data-services/types/card.type';
@@ -14,7 +14,9 @@ export class GameSimulatorStateService {
     public stacks: CardStack[] = [];
     public field: CardZone = { name: 'Field', cards: [] };
     public components: GameComponent[] = [];
-    public zoomLevel: number = 0.20;
+    public simulatorPan: Position = { x: 0, y: 0 };
+    public simulatorZoom: number = 0.20;
+    public topZIndex: number = 100;
     public discard: CardStack = {
         name: 'Discard', cards: [], faceUp: true,
         uniqueId: 'discard-pile', // Fixed ID for discard? Or random? Component used random. Let's stick to component logic or init.
@@ -58,8 +60,8 @@ export class GameSimulatorStateService {
             this.shuffleCards(expandedCards);
 
             const dropPos: Position = {
-                x: (deckIndex % 4) * 200,
-                y: Math.floor(deckIndex / 4) * 300
+                x: (deckIndex % 5) * 1000 - 2000,
+                y: Math.floor(deckIndex / 5) * 1300 - 650
             };
 
             stacks.push({
@@ -81,7 +83,7 @@ export class GameSimulatorStateService {
             cards: [],
             uniqueId: StringUtils.generateRandomString(),
             faceUp: true,
-            pos: { x: 800, y: 0 },
+            pos: { x: 3500, y: -650 },
             deletable: false,
         };
         stacks.push(this.discard);
@@ -91,6 +93,7 @@ export class GameSimulatorStateService {
         this.field = { name: 'Field', cards: [] };
         this.components = []; // Or keep components on reset? Usually reset clears everything.
 
+        this.topZIndex = 100;
         this._initialized = true;
     }
 
@@ -155,6 +158,8 @@ export class GameSimulatorStateService {
         if (cardsToAdd.length > 0) {
             this.addNewCardsStack(cardsToAdd);
         }
+
+        this.recalculateTopZIndex();
     }
 
     private removeGameCards(cardsToRemove: GameCard[]) {
@@ -195,7 +200,7 @@ export class GameSimulatorStateService {
 
         this.shuffleCards(newGameCards);
 
-        this.stacks.push({
+        const newStack: CardStack = {
             uniqueId: StringUtils.generateRandomString(),
             name: 'New Cards',
             cards: newGameCards,
@@ -203,7 +208,10 @@ export class GameSimulatorStateService {
             pos: { x: 50, y: 50 }, // Top left
             deletable: true,
             rotation: 0
-        });
+        };
+
+        this.bringToFront(newStack);
+        this.stacks.push(newStack);
     }
 
     public shuffleCards(cards: GameCard[]) {
@@ -211,5 +219,26 @@ export class GameSimulatorStateService {
             const j = Math.floor(Math.random() * (i + 1));
             [cards[i], cards[j]] = [cards[j], cards[i]];
         }
+    }
+
+    public bringToFront(item: Positionable) {
+        item.zIndex = ++this.topZIndex;
+    }
+
+    public recalculateTopZIndex() {
+        let maxZ = 100;
+        const scan = (items: Positionable[]) => {
+            items.forEach(item => {
+                if (item.zIndex && item.zIndex > maxZ) {
+                    maxZ = item.zIndex;
+                }
+            });
+        };
+
+        scan(this.stacks);
+        scan(this.field.cards);
+        scan(this.components);
+
+        this.topZIndex = maxZ;
     }
 }

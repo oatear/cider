@@ -5,111 +5,175 @@
   [cdkDropListData]="field.cards"
   (cdkDropListDropped)="onCardDropped($event)"
   cdkDropList> -->
-  <div class="field game-boundary" #gameBoundary (contextmenu)="onFieldContextMenu($event, cm)">
-    <!-- cdkDropList
-    [cdkDropListData]="stack.cards"
-    (cdkDropListDropped)="onCardDropped($event)" -->
-    <!-- Stacks -->
-    @for (stack of stacks; track stack.uniqueId) {
-    @if (stack.cards) {
-    <div class="card-stack game-card" [class.empty]="stack.cards.length === 0" [id]="stack.uniqueId"
-      (contextmenu)="onStackContextMenu($event, cm, stack)" (cdkDragStarted)="onDragStarted($event, stacks, stack)"
-      (cdkDragEnded)="onDragEnded($event, stacks, stack)" [cdkDragFreeDragPosition]="stack.pos"
-      [style.zIndex]="stack.zIndex || 10" cdkDragBoundary=".game-boundary" cdkDrag>
-      <div class="card-wrapper" [class.shuffling]="stack.shuffling" [class.flipping]="stack.flipping"
-        [style.rotate]="(stack.rotation || 0) + 'deg'" [style]="getStackDepthStyle(stack.rotation)">
-        <div class="thickness-side right"></div>
-        <div class="thickness-side left"></div>
-        <div class="thickness-side top"></div>
-        <div class="thickness-side bottom"></div>
-        @if (stack.cards.length > 0 && stack.cards[stack.cards.length - 1].card.backCardTemplateId) {
-        <app-card-preview [cache]="false" [tiltable]="true" [template]="(stack.faceUp ? stack.cards[stack.cards.length - 1].card.frontCardTemplateId 
-                        : stack.cards[stack.cards.length - 1].card.backCardTemplateId)
-                        | entity: cardTemplatesService | async" [card]="stack.cards[stack.cards.length - 1].card"
-          [scale]="zoomLevel"
-          [holographic]="stack.cards[stack.cards.length - 1].holographic && stack.faceUp"></app-card-preview>
-        }
-        @if (stack.cards.length > 0 && !stack.cards[stack.cards.length - 1].card.backCardTemplateId) {
-        <div class="card-back-placeholder" [style.width.px]="baseCardWidth * zoomLevel"
-          [style.height.px]="baseCardHeight * zoomLevel"></div>
-        }
-      </div>
-      @if (stack.cards.length === 0) {
-      <div class="stack-placeholder" [style.width.px]="baseCardWidth * zoomLevel"
-        [style.height.px]="baseCardHeight * zoomLevel">
-        <span class="placeholder-text">{{ stack.name }}</span>
-      </div>
-      }
-      <div class="draw-action" (click)="drawCard(stack); $event.stopPropagation()"
-        (mousedown)="$event.stopPropagation()">
-        @if (stack.cards.length > 0) {
-        <i class="pi pi-arrow-down"></i>
-        } @else {
-        <i class="pi pi-ban"></i>
-        }
-      </div>
+  <div class="field game-boundary" #gameBoundary (contextmenu)="onFieldContextMenu($event, cm)"
+    (wheel)="onWheel($event)" (mousedown)="onSimulatorMouseDown($event)">
 
-      @if (draggingCard || draggingStack) {
-      <div class="dropzone" (mouseover)="onMouseEntered($event, stack)" (mouseout)="onMouseExited($event, stack)"
-        [style.rotate]="(stack.rotation || 0) + 'deg'"></div>
-      }
-      <div class="count" (click)="$event.stopPropagation()" (mousedown)="$event.stopPropagation()"
-        [ngStyle]="getStackCountStyle(stack.rotation)">{{ stack.name }} {{
-        stack.cards.length }}</div>
-    </div>
-    }
-    }
-
-    <!-- (click)="discardCard(field.cards, card)"  -->
-    <!-- (cdkDragDropped)="changePosition($event, card)" -->
-    <!-- (cdkDragEntered)="onDragEntered($event, card)" -->
-    @for (card of field.cards; track card) {
-    @if (card.card.frontCardTemplateId) {
-    <div class="field-card game-card" (contextmenu)="onCardContextMenu($event, cm, card)" [id]="card.uniqueId"
-      (mousedown)="onCardMouseDown($event, card)" (mouseup)="onCardMouseUp($event, card)" [cdkDragData]="card"
-      (cdkDragStarted)="onCardDragStarted($event, field.cards, card)"
-      (cdkDragEnded)="onCardDragEnded($event, field.cards, card)" [cdkDragFreeDragPosition]="card.pos"
-      [style.zIndex]="card.zIndex || 10" [class.discarding]="card.discarding" [class.drawing]="card.drawing"
-      [class.flipping]="card.flipping" cdkDragBoundary=".game-boundary" cdkDrag>
-      <div class="card-wrapper" [style.rotate]="(card.rotation || 0) + 'deg'">
-        <app-card-preview [cache]="false" [tiltable]="true" [template]="(card.faceUp ? card.card.frontCardTemplateId 
-                          : card.card.backCardTemplateId) 
-                          | entity: cardTemplatesService | async" [card]="card.card" [scale]="zoomLevel"
-          [holographic]="card.holographic && card.faceUp"></app-card-preview>
-      </div>
-    </div>
-    }
-    }
-
-    @for (component of components; track component) {
-    <div class="game-component" (contextmenu)="onComponentContextMenu($event, cm, component)" [cdkDragData]="component"
-      [id]="component.uniqueId" (cdkDragStarted)="onDragStarted($event, components, component)"
-      (cdkDragEnded)="onDragEnded($event, components, component)" [cdkDragFreeDragPosition]="component.pos"
-      [style.zIndex]="component.zIndex || 10" cdkDragBoundary=".game-boundary" cdkDrag>
-      <div class="tiltable" [class.flipping]="component.flipping">
-        @if (component.type == 'd6') {
-        <div [class]="'component ' + component.className 
-                        + ' face-' + component.face" [class.rolling]="component.rolling">
-          <div class="pip"></div>
-          <div class="pip"></div>
-          <div class="pip"></div>
-          <div class="pip"></div>
-          <div class="pip"></div>
-          <div class="pip"></div>
-          <div class="pip"></div>
-          <div class="pip"></div>
-          <div class="pip"></div>
-          <div class="depth"></div>
-        </div>
-        } @else {
-        <div [class]="'component ' + component.className" [class.rolling]="component.rolling"
-          [class.back]="!component.faceUp">
+    <div class="simulator-content"
+      [style.transform]="'translate(' + simulatorPan.x + 'px, ' + simulatorPan.y + 'px) scale(' + simulatorZoom + ')'">
+      <div class="virtual-table" [ngStyle]="tableStyle"></div>
+      <!-- Stacks -->
+      @for (stack of stacks; track stack.uniqueId) {
+      @if (stack.cards) {
+      <div class="card-stack game-card" [class.empty]="stack.cards.length === 0" [id]="stack.uniqueId"
+        (contextmenu)="onStackContextMenu($event, cm, stack)" (cdkDragStarted)="onDragStarted($event, stacks, stack)"
+        (cdkDragEnded)="onDragEnded($event, stacks, stack)" [cdkDragFreeDragPosition]="getScaledPos(stack)"
+        [cdkDragScale]="dragScale" [cdkDragConstrainPosition]="handleDragPosition" [cdkDragDisabled]="isShiftPressed"
+        [style.zIndex]="stack.zIndex || 10" cdkDrag>
+        <div class="card-wrapper" [class.shuffling]="stack.shuffling" [class.flipping]="stack.flipping"
+          [style.rotate]="(stack.rotation || 0) + 'deg'" [style]="getStackDepthStyle(stack.rotation)">
           <div class="thickness-side right"></div>
           <div class="thickness-side left"></div>
-          <div class="depth"></div>
+          <div class="thickness-side top"></div>
+          <div class="thickness-side bottom"></div>
+          @if (stack.cards.length > 0 && stack.cards[stack.cards.length - 1].card.backCardTemplateId) {
+          <app-card-preview [cache]="false" [tiltable]="true" [template]="(stack.faceUp ? stack.cards[stack.cards.length - 1].card.frontCardTemplateId 
+                        : stack.cards[stack.cards.length - 1].card.backCardTemplateId)
+                        | entity: cardTemplatesService | async" [card]="stack.cards[stack.cards.length - 1].card"
+            [scale]="1.0"
+            [holographic]="stack.cards[stack.cards.length - 1].holographic && stack.faceUp"></app-card-preview>
+          }
+          @if (stack.cards.length > 0 && !stack.cards[stack.cards.length - 1].card.backCardTemplateId) {
+          <div class="card-back-placeholder" [style.width.px]="baseCardWidth" [style.height.px]="baseCardHeight"></div>
+          }
+        </div>
+        @if (stack.cards.length === 0) {
+        <div class="stack-placeholder" [style.width.px]="baseCardWidth" [style.height.px]="baseCardHeight">
+          <span class="placeholder-text" [style.transform]="'scale(' + (1 / simulatorZoom) + ')'"
+            style="transform-origin: center">{{ stack.name }}</span>
         </div>
         }
+        <div class="draw-action" (click)="onDrawClick($event, stack)" (auxclick)="onDrawAuxClick($event, stack)"
+          (mousedown)="$event.stopPropagation()"
+          [style.transform]="'translate(-50%, -50%) scale(' + (1 / simulatorZoom) + ')'"
+          style="transform-origin: center">
+          @if (stack.cards.length > 0) {
+          <i class="pi pi-arrow-down"></i>
+          } @else {
+          <i class="pi pi-ban"></i>
+          }
+        </div>
+
+        @if (draggingCard || draggingStack) {
+        <div class="dropzone" (mouseover)="onMouseEntered($event, stack)" (mouseout)="onMouseExited($event, stack)"
+          [style.rotate]="(stack.rotation || 0) + 'deg'"></div>
+        }
+        <div class="count" (click)="$event.stopPropagation()" (mousedown)="$event.stopPropagation()"
+          [ngStyle]="getStackCountStyle(stack.rotation)" [style.transform]="'scale(' + (1 / simulatorZoom) + ')'"
+          style="transform-origin: right bottom">
+          {{ stack.name }} {{
+          stack.cards.length }}</div>
       </div>
+      }
+      }
+
+      <!-- (click)="discardCard(field.cards, card)"  -->
+      <!-- (cdkDragDropped)="changePosition($event, card)" -->
+      <!-- (cdkDragEntered)="onDragEntered($event, card)" -->
+      @for (card of field.cards; track card) {
+      @if (card.card.frontCardTemplateId) {
+      <div class="field-card game-card" (contextmenu)="onCardContextMenu($event, cm, card)" [id]="card.uniqueId"
+        (mousedown)="onCardMouseDown($event, card)" (mouseup)="onCardMouseUp($event, card)" [cdkDragData]="card"
+        (cdkDragStarted)="onCardDragStarted($event, field.cards, card)"
+        (cdkDragEnded)="onCardDragEnded($event, field.cards, card)" [cdkDragFreeDragPosition]="getScaledPos(card)"
+        [cdkDragScale]="dragScale" [cdkDragConstrainPosition]="handleDragPosition" [cdkDragDisabled]="isShiftPressed"
+        [style.zIndex]="card.zIndex || 10" [class.discarding]="card.discarding" [class.drawing]="card.drawing"
+        [class.flipping]="card.flipping" cdkDrag>
+        <div class="card-wrapper" [style.rotate]="(card.rotation || 0) + 'deg'">
+          <app-card-preview [cache]="false" [tiltable]="true" [template]="(card.faceUp ? card.card.frontCardTemplateId 
+                          : card.card.backCardTemplateId) 
+                          | entity: cardTemplatesService | async" [card]="card.card" [scale]="1.0"
+            [holographic]="card.holographic && card.faceUp"></app-card-preview>
+        </div>
+      </div>
+      }
+      }
+
+      @for (component of components; track component) {
+      <div class="game-component" (contextmenu)="onComponentContextMenu($event, cm, component)"
+        [cdkDragData]="component" [id]="component.uniqueId"
+        (cdkDragStarted)="onDragStarted($event, components, component)"
+        (cdkDragEnded)="onDragEnded($event, components, component)" [cdkDragFreeDragPosition]="getScaledPos(component)"
+        [cdkDragScale]="dragScale" [cdkDragConstrainPosition]="handleDragPosition" [cdkDragDisabled]="isShiftPressed"
+        [style.zIndex]="component.zIndex || 10" cdkDrag>
+        <div class="tiltable" [class.flipping]="component.flipping">
+          @if (component.type == 'd6') {
+          <div [class]="'component ' + component.className 
+                        + ' face-' + component.face" [class.rolling]="component.rolling">
+            <div class="pip"></div>
+            <div class="pip"></div>
+            <div class="pip"></div>
+            <div class="pip"></div>
+            <div class="pip"></div>
+            <div class="pip"></div>
+            <div class="pip"></div>
+            <div class="pip"></div>
+            <div class="pip"></div>
+            <div class="depth"></div>
+          </div>
+          } @else if (component.type == 'pawn') {
+          <div [class]="'component ' + component.className" [class.rolling]="component.rolling"
+            [class.back]="!component.faceUp">
+            
+            <div class="pawn-face front">
+              <svg class="pawn-svg" viewBox="0 0 200 280">
+                <path d="M 10 270 L 190 270 L 190 190 A 90 90 0 0 0 10 190 Z M 100 10 A 45 45 0 1 1 100 100 A 45 45 0 1 1 100 10 Z" />
+              </svg>
+              <div class="pawn-symbol"></div>
+            </div>
+
+            <div class="pawn-face back">
+              <svg class="pawn-svg" viewBox="0 0 200 280">
+                <path d="M 10 270 L 190 270 L 190 190 A 90 90 0 0 0 10 190 Z M 100 10 A 45 45 0 1 1 100 100 A 45 45 0 1 1 100 10 Z" />
+              </svg>
+              <div class="pawn-symbol"></div>
+            </div>
+
+            <div class="thickness-side right"></div>
+            <div class="thickness-side left"></div>
+            
+            <!-- Depth shadow layer (The back face surface shadow) -->
+            <div class="depth">
+              <svg class="pawn-svg" viewBox="0 0 200 280">
+                <path d="M 10 270 L 190 270 L 190 190 A 90 90 0 0 0 10 190 Z M 100 10 A 45 45 0 1 1 100 100 A 45 45 0 1 1 100 10 Z" />
+              </svg>
+            </div>
+          </div>
+          } @else {
+          <div [class]="'component ' + component.className" [class.rolling]="component.rolling"
+            [class.back]="!component.faceUp">
+            <div class="thickness-side right"></div>
+            <div class="thickness-side left"></div>
+            <div class="depth"></div>
+          </div>
+          }
+        </div>
+      </div>
+      }
+    </div>
+
+    <!-- Off-screen Indicators -->
+    @if (offScreenIndicators.top) {
+    <div class="off-screen-indicator top" (click)="panToDirection('top')">
+      <i class="pi pi-chevron-up"></i>
+      <span class="indicator-count">{{ offScreenIndicators.top }}</span>
+    </div>
+    }
+    @if (offScreenIndicators.bottom) {
+    <div class="off-screen-indicator bottom" (click)="panToDirection('bottom')">
+      <i class="pi pi-chevron-down"></i>
+      <span class="indicator-count">{{ offScreenIndicators.bottom }}</span>
+    </div>
+    }
+    @if (offScreenIndicators.left) {
+    <div class="off-screen-indicator left" (click)="panToDirection('left')">
+      <i class="pi pi-chevron-left"></i>
+      <span class="indicator-count">{{ offScreenIndicators.left }}</span>
+    </div>
+    }
+    @if (offScreenIndicators.right) {
+    <div class="off-screen-indicator right" (click)="panToDirection('right')">
+      <i class="pi pi-chevron-right"></i>
+      <span class="indicator-count">{{ offScreenIndicators.right }}</span>
     </div>
     }
   </div>
@@ -164,4 +228,45 @@
   </div>
 </p-dialog>
 
-<p-contextmenu #cm [model]="contextMenuItems" />
+<p-dialog [header]="'simulator.shortcuts-title' | translate" [(visible)]="shortcutsVisible" [modal]="true"
+  [draggable]="false" [resizable]="false" [style]="{ width: '40rem' }">
+  <div class="shortcuts-list">
+    <div class="shortcut-item">
+      <span class="shortcut-key">Shift + Scroll</span>
+      <span class="shortcut-label">Zoom In / Out</span>
+    </div>
+    <div class="shortcut-item">
+      <span class="shortcut-key">Shift + LMB Drag</span>
+      <span class="shortcut-label">Pan Camera</span>
+    </div>
+    <div class="shortcut-item">
+      <span class="shortcut-key">MMB Drag</span>
+      <span class="shortcut-label">Pan Camera</span>
+    </div>
+    <div class="shortcut-item">
+      <span class="shortcut-key">{{ 'simulator.shortcuts-draw-faceup' | translate }}</span>
+      <span class="shortcut-label">{{ 'simulator.shortcuts-draw-faceup-label' | translate }}</span>
+    </div>
+    <div class="shortcut-item">
+      <span class="shortcut-key">{{ 'simulator.shortcuts-draw-facedown' | translate }}</span>
+      <span class="shortcut-label">{{ 'simulator.shortcuts-draw-facedown-label' | translate }}</span>
+    </div>
+    <div class="shortcut-item">
+      <span class="shortcut-key">{{ 'simulator.shortcuts-magnify' | translate }}</span>
+      <span class="shortcut-label">{{ 'simulator.shortcuts-magnify-label' | translate }}</span>
+    </div>
+    <div class="shortcut-item">
+      <span class="shortcut-key">{{ 'simulator.shortcuts-context-menu' | translate }}</span>
+      <span class="shortcut-label">{{ 'simulator.shortcuts-context-menu-label' | translate }}</span>
+    </div>
+    <div class="shortcut-item">
+      <span class="shortcut-key">{{ 'simulator.shortcuts-move' | translate }}</span>
+      <span class="shortcut-label">{{ 'simulator.shortcuts-move-label' | translate }}</span>
+    </div>
+  </div>
+  <div class="dialog-footer">
+    <p-button [label]="'controls.close' | translate" (onClick)="shortcutsVisible = false" />
+  </div>
+</p-dialog>
+
+<p-contextmenu #cm [model]="contextMenuItems" appendTo="body" />

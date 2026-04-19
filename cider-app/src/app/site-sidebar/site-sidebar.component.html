@@ -11,7 +11,7 @@
         </span>
     </ng-template>
 </p-tree>
-<p-contextmenu #cm [model]="menuItems" />
+<p-contextmenu #cm [model]="menuItems" appendTo="body" />
 <app-entity-dialog [service]="service" [(visible)]="dialogVisible" [entity]="entity" [title]="dialogTitle"
     (onCreate)="onEntityCreated($event)"></app-entity-dialog>
 <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>

@@ -15,6 +15,14 @@ import * as Handlebars from 'handlebars';
 })
 export class CardToHtmlPipe implements PipeTransform {
   
+  private lastTemplateHtml: string = '';
+  private lastTemplateCss: string = '';
+  private lastCardStr: string = '';
+  private lastAssetUrlsStr: string = '';
+  private lastUuid: string | undefined;
+  
+  private lastResult: SafeHtml = '';
+
   constructor(private domSanitizer: DomSanitizer,
     handlebarsPipe: HandlebarsPipe
   ) {
@@ -25,10 +33,32 @@ export class CardToHtmlPipe implements PipeTransform {
     if (!template || !card) {
       return '';
     }
-    return this.safeHtmlAndStyle(card, 
+
+    const templateHtml = template.html;
+    const templateCss = template.css;
+    const cardStr = JSON.stringify(card);
+    const assetUrlsStr = JSON.stringify(assetUrls || {});
+
+    if (this.lastTemplateHtml === templateHtml && 
+        this.lastTemplateCss === templateCss && 
+        this.lastCardStr === cardStr && 
+        this.lastAssetUrlsStr === assetUrlsStr && 
+        this.lastUuid === uuid) {
+      return this.lastResult;
+    }
+
+    this.lastTemplateHtml = templateHtml;
+    this.lastTemplateCss = templateCss;
+    this.lastCardStr = cardStr;
+    this.lastAssetUrlsStr = assetUrlsStr;
+    this.lastUuid = uuid;
+
+    this.lastResult = this.safeHtmlAndStyle(card, 
       this.executeHandlebars(template.html, card, assetUrls), 
       this.executeHandlebars(template.css, card, assetUrls),
       uuid);
+
+    return this.lastResult;
   }
 
   private executeHandlebars(htmlTemplate: string, card: Card, assetUrls?: any): string {

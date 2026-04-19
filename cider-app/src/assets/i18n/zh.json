@@ -156,6 +156,7 @@
         "flip-over": "翻过来",
         "add-cube": "添加立方体",
         "add-die": "添加骰子",
+        "add-pawn": "添加棋子",
         "roll-die": "掷骰子",
         "zoom": "缩放",
         "reset-game": "重置游戏"

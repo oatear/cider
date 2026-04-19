@@ -32,7 +32,7 @@ export interface GameCard extends Positionable {
 
 export interface GameComponent extends Positionable {
     uniqueId: string;
-    type: 'coin' | 'cube' | 'd6';
+    type: 'coin' | 'cube' | 'd6' | 'pawn';
     className: string;
     faceUp: boolean;
     face?: number;

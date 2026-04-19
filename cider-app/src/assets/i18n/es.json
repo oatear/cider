@@ -156,6 +156,7 @@
         "flip-over": "Dar la vuelta",
         "add-cube": "Agregar cubo",
         "add-die": "Agregar dado",
+        "add-pawn": "Agregar peón",
         "roll-die": "Lanzar dado",
         "zoom": "Ampliar",
         "reset-game": "Reiniciar juego"

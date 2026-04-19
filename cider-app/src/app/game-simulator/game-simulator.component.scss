@@ -1,5 +1,6 @@
 // background, foreground, side
 $colors: (
+    copper: (#cd7f32, #e8a87c, #a0522d),
     silver: (#c0c0c0, #e8e8e8, #9a9a9a),
     // slightly brighter top, softened edge
     gold: (#f1c40f, #ffe877, #b88e0a),
@@ -17,7 +18,7 @@ $colors: (
     charcoal: (#3b4a54, #a1b0bc, #27333a) // balanced depth and top face
 );
 
-$shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
+$shadow-3d: 0 20px 30px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
 
 @each $name, $values in $colors {
     $bg: nth($values, 1);
@@ -28,6 +29,16 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
         background-color: $bg;
         border-color: $fg;
         color: $fg;
+        --pawn-face-bg: #{$bg};
+        --pawn-side-bg: #{$side};
+
+        &.game-pawn {
+            background-color: transparent !important;
+
+            .thickness-side {
+                background-color: $side;
+            }
+        }
 
         .depth {
             background: $side;
@@ -35,10 +46,6 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
 
         &.game-d6 {
             background-color: $fg;
-
-            .pip {
-                // background-color: $side;
-            }
         }
     }
 }
@@ -79,6 +86,41 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
         // height: 100%;
         overflow: hidden;
         gap: 10px;
+        position: relative; // For indicators
+
+        .simulator-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0; // Content will occupy space via absolute positioned children
+            height: 0;
+            transform-origin: 0 0;
+
+            .virtual-table {
+                position: absolute;
+                box-sizing: border-box; // Ensure border is inside the dimensions
+
+                $major-color: color-mix(in srgb, var(--p-text-color) 15%, transparent);
+                $minor-color: color-mix(in srgb, var(--p-text-color) 5%, transparent);
+
+                background-image:
+                    // Major grid (1000px)
+                    linear-gradient($major-color 6px, transparent 6px),
+                    linear-gradient(90deg, $major-color 6px, transparent 6px),
+                    // Minor grid (200px)
+                    linear-gradient($minor-color 2px, transparent 2px),
+                    linear-gradient(90deg, $minor-color 2px, transparent 2px);
+                background-size: 1000px 1000px, 1000px 1000px, 200px 200px, 200px 200px;
+                background-position: center; // Align grid lines to the table origin (0,0 is in center of 10k table)
+
+                // Fade out edges of the virtual table
+                mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 1) 40%, rgba(0, 0, 0, 0) 70%);
+                -webkit-mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 1) 40%, rgba(0, 0, 0, 0) 70%);
+
+                pointer-events: none;
+                z-index: -100;
+            }
+        }
     }
 
     .game-bottom {
@@ -113,6 +155,24 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
 
         90% {
             transform: scale(0.95) rotate(2deg);
+        }
+
+        100% {
+            transform: scale(1) rotate(0deg);
+        }
+    }
+
+    @keyframes draw-rotate {
+        0% {
+            transform: scale(1) rotate(0deg);
+        }
+
+        20% {
+            transform: scale(1.1) rotate(-10deg);
+        }
+
+        90% {
+            transform: scale(0.95) rotate(-2deg);
         }
 
         100% {
@@ -226,6 +286,10 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease-out;
             pointer-events: none;
             z-index: 1000 !important;
+
+            app-card-preview {
+                animation: draw-rotate 0.3s forwards ease-out;
+            }
         }
 
         &.flipping {
@@ -301,8 +365,8 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
             align-items: center;
             justify-content: center;
             // width and height are set via style binding in template
-            border: 2px dashed #7d7d7d;
-            border-radius: 8px;
+            border: 14px dashed #7d7d7d;
+            border-radius: 40px;
             background-color: rgba(255, 255, 255, 0.03);
             color: #888;
             font-size: 14px;
@@ -311,17 +375,17 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
 
         @keyframes dropzone-pulse {
             0% {
-                border-color: rgba(60, 171, 108, 0.4);
+                border-color: rgba(60, 171, 108, 1.0);
                 background-color: rgba(60, 171, 108, 0.05);
             }
 
             50% {
-                border-color: rgba(60, 171, 108, 0.7);
-                background-color: rgba(60, 171, 108, 0.15);
+                border-color: rgba(60, 171, 108, 1.0);
+                background-color: rgba(60, 171, 108, 0.25);
             }
 
             100% {
-                border-color: rgba(60, 171, 108, 0.4);
+                border-color: rgba(60, 171, 108, 1.0);
                 background-color: rgba(60, 171, 108, 0.05);
             }
         }
@@ -333,20 +397,20 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
             width: calc(100% + 8px);
             height: calc(100% + 8px);
             padding: 10px;
-            border: 2px dashed rgba(60, 171, 108, 0.4); // Emeraldish
-            border-radius: 10px;
+            border: 14px dashed rgba(60, 171, 108, 0.4);
+            border-radius: 40px;
             background-color: rgba(60, 171, 108, 0.05);
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            pointer-events: all; // Ensure it catches events if needed, though structure suggests it's an overlay
+            pointer-events: all;
             z-index: 100;
             animation: dropzone-pulse 2s infinite ease-in-out;
 
             &:hover {
-                animation: none; // Stop pulsing on hover to show locked state
-                border: 2px solid #3cab6c; // Solid emerald
+                animation: none;
+                border: 14px solid #3cab6c;
                 background-color: rgba(60, 171, 108, 0.25);
-                box-shadow: 0 0 15px rgba(60, 171, 108, 0.4);
-                transform: scale(1.02);
+                box-shadow: 0 0 45px rgba(60, 171, 108, 0.4);
+                transform: scale(1.04);
             }
         }
 
@@ -363,15 +427,11 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
     }
 }
 
-:host ::ng-deep .card-stack.empty {
-    // position: relative;
-}
-
 :host ::ng-deep .card-stack:not(.empty) {
     z-index: 1;
 
     .card-wrapper {
-        border-radius: 10px;
+        border-radius: 40px;
         box-shadow: $shadow-3d;
         transform-style: preserve-3d; // Enable 3D children
         transition: rotate 0.3s ease-in-out;
@@ -381,14 +441,12 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
             pointer-events: none;
         }
 
-        // Thickness simulation
         .thickness-side {
             position: absolute;
             top: 0;
             width: 10px; // Thickness
             height: 100%;
             background: linear-gradient(to right, #ccc, #e0e0e0, #bbb);
-            // Texture to look like pages
             background-image: repeating-linear-gradient(to right,
                     rgba(0, 0, 0, 0.05) 0px,
                     rgba(0, 0, 0, 0.05) 1px,
@@ -396,8 +454,9 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
                     transparent 2px);
             transform-origin: center;
             opacity: 1;
-            z-index: -1; // Behind the face
-            border-radius: 2px;
+            z-index: -1;
+            border-radius: 40px;
+            pointer-events: none;
 
             &.right {
                 right: 0;
@@ -417,10 +476,10 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
             backface-visibility: hidden; // Hide back when rotated
 
             ::ng-deep .scale-wrapper {
-                border-radius: 40px; // Scaled radius
+                border-radius: 40px;
 
                 .card-preview {
-                    border-radius: 40px; // Scaled radius
+                    border-radius: 40px;
                     overflow: hidden;
                 }
             }
@@ -428,38 +487,31 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
 
         .card-back-placeholder {
             background-color: #8e8e9f;
-            border-radius: 40px; // Scaled radius to match preview
+            border-radius: 40px;
         }
 
         &::before,
         &::after {
             content: '';
             position: absolute;
-            // Base offset 4px * depth vector
-            top: calc(4px * var(--depth-y, 1));
-            left: calc(4px * var(--depth-x, 1));
+            // Base offset 24px * depth vector (scaled from 4px)
+            top: calc(24px * var(--depth-y, 1));
+            left: calc(24px * var(--depth-x, 1));
             width: 100%;
             height: 100%;
-            border-radius: 10px;
+            border-radius: 40px;
             background: #8e8e9f;
             z-index: -3; // Lower than thickness sides
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.20);
-            transition: top 0.3s, left 0.3s; // Smooth transition during rotation
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.20);
+            transition: top 0.3s, left 0.3s;
         }
 
         &::before {
-            // Second layer: 8px * depth vector (2 * 4px)
-            top: calc(8px * var(--depth-y, 1));
-            left: calc(8px * var(--depth-x, 1));
+            // Second layer: 48px * depth vector (scaled from 8px)
+            top: calc(48px * var(--depth-y, 1));
+            left: calc(48px * var(--depth-x, 1));
             z-index: -4;
         }
-
-        &::after {
-            // First layer already set by default rule but explicit here for clarity if needed
-            // top: calc(4px * var(--depth-y, 1));
-            // left: calc(4px * var(--depth-x, 1));
-        }
-
     }
 }
 
@@ -470,10 +522,10 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
 
 .cdk-drag-preview {
     box-sizing: border-box;
-    border-radius: 4px;
-    box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
-        0 8px 10px 1px rgba(0, 0, 0, 0.14),
-        0 3px 14px 2px rgba(0, 0, 0, 0.12);
+    border-radius: 40px;
+    box-shadow: 0 50px 50px -30px rgba(0, 0, 0, 0.2),
+        0 80px 100px 10px rgba(0, 0, 0, 0.14),
+        0 30px 140px 20px rgba(0, 0, 0, 0.12);
     pointer-events: none;
 }
 
@@ -505,13 +557,13 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
         width: 50px;
         height: 50px;
         background: rgb(213, 92, 92);
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); // Default shadow
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1); // Default shadow
         transition: box-shadow 0.3s ease;
     }
 
     // Trigger shadow change when wrapper is hovered
     &:hover .component {
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
     }
 
     &:active .component {
@@ -546,7 +598,7 @@ $shadow-3d: 0 10px 20px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
     }
 }
 
-$game-coin-size: 50px;
+$game-coin-size: 250px;
 
 .game-component .game-coin {
     position: relative;
@@ -554,7 +606,7 @@ $game-coin-size: 50px;
     height: $game-coin-size;
     border-radius: 50%;
     background: #ffd92b;
-    border: 4px solid #f1c40f;
+    border: 20px solid #f1c40f;
     color: #f1c40f;
     box-sizing: border-box;
     font-family: Arial, Helvetica, sans-serif;
@@ -562,18 +614,18 @@ $game-coin-size: 50px;
     backface-visibility: hidden; // Important for flip
 
     .thickness-side {
-        position: absolute;
-        top: 0;
-        left: 50%;
-        width: 4px; // Thickness
-        height: 100%;
-        // Use a central plane (septum) technique for cylinder profile illusion
-        transform: translateX(-50%) rotateY(90deg);
-        background: inherit; // Gold
-        filter: brightness(0.7);
-        border: inherit;
-        z-index: -1;
-        opacity: 1;
+        // position: absolute;
+        // top: 0;
+        // left: 50%;
+        // width: 20px; // Thickness
+        // height: 100%;
+        // // Use a central plane (septum) technique for cylinder profile illusion
+        // transform: translateX(-50%) rotateY(90deg);
+        // background: inherit; // Gold
+        // filter: brightness(0.7);
+        // border: inherit;
+        // z-index: -1;
+        // opacity: 1;
 
         // Remove specific side positioning since we are using a central septum
         &.right,
@@ -587,8 +639,8 @@ $game-coin-size: 50px;
 
     .depth {
         position: absolute;
-        top: 0.5px;
-        left: 0.5px;
+        top: 0px;
+        left: 0px;
         width: $game-coin-size;
         height: $game-coin-size;
         border-radius: 50%;
@@ -604,8 +656,8 @@ $game-coin-size: 50px;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        font-size: 40px;
-        line-height: 50px;
+        font-size: 200px;
+        line-height: 200px;
         pointer-events: none;
     }
 
@@ -614,7 +666,7 @@ $game-coin-size: 50px;
     }
 }
 
-$game-cube-size: 30px;
+$game-cube-size: 150px;
 
 .game-component {
     .game-cube {
@@ -622,16 +674,16 @@ $game-cube-size: 30px;
         width: $game-cube-size;
         height: $game-cube-size;
         background-color: #50c878; // emerald base
-        border: 2px solid #2e8b57;
+        border: 15px solid #2e8b57;
         box-sizing: border-box;
-        box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4),
+        box-shadow: inset 0 2px 2px rgba(255, 255, 255, 0.4),
             $shadow-3d;
         color: #fff;
         font-weight: bold;
-        font-size: 14px;
         text-align: center;
-        line-height: $game-cube-size;
-        border-radius: 4px;
+        line-height: 120px;
+        font-size: 120px;
+        border-radius: 30px;
         font-family: Arial, Helvetica, sans-serif;
         transform-style: preserve-3d;
         backface-visibility: hidden;
@@ -661,14 +713,14 @@ $game-cube-size: 30px;
 
         .depth {
             position: absolute;
-            top: 2px;
-            left: 2px;
+            top: 5px;
+            left: 5px;
             width: $game-cube-size;
             height: $game-cube-size;
             background: #2e8b57;
             z-index: -1;
             transform: translateZ(-1px);
-            border-radius: 4px;
+            border-radius: 30px;
         }
 
         &::after {
@@ -677,18 +729,16 @@ $game-cube-size: 30px;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 30px;
-            line-height: $game-cube-size;
             pointer-events: none;
         }
 
         &.back::after {
-            content: '●';
+            content: '•';
         }
     }
 }
 
-$die-size: 40px;
+$die-size: 200px;
 $die-bg: #f9f9f9;
 $die-border: #ccc;
 $die-color: #222;
@@ -701,32 +751,32 @@ $die-shadow: $shadow-3d;
         width: $die-size;
         height: $die-size;
         background-color: $die-bg;
-        border: 2px solid $die-border;
-        border-radius: 8px;
+        border: 10px solid $die-border;
+        border-radius: 30px;
         box-shadow: $die-shadow;
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         grid-template-rows: repeat(3, 1fr);
-        padding: 4px;
+        padding: 10px;
         box-sizing: border-box;
         transform-style: preserve-3d;
 
         // Depth simulation layer
         .depth {
             position: absolute;
-            top: 4px;
-            left: 4px;
+            top: 20px;
+            left: 20px;
             width: $die-size;
             height: $die-size;
-            border-radius: 8px;
+            border-radius: 30px;
             background-color: $die-side-color;
             z-index: -1;
             transform: translateZ(-1px);
         }
 
         .pip {
-            width: 6px;
-            height: 6px;
+            width: 35px;
+            height: 35px;
             background: $die-color;
             border-radius: 50%;
             margin: auto;
@@ -759,6 +809,138 @@ $die-shadow: $shadow-3d;
         }
     }
 }
+
+// ── Pawn ──
+$pawn-token-width: 300px;
+$pawn-token-height: 300px;
+
+.game-component .game-pawn {
+    position: relative;
+    width: $pawn-token-width;
+    height: $pawn-token-height;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+
+    // Reset inherited styles
+    background: none !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+
+    .pawn-face {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        transform-style: preserve-3d;
+        z-index: 2;
+
+        .pawn-svg {
+            width: 100%;
+            height: 100%;
+            fill: var(--pawn-face-bg);
+            stroke: currentColor;
+            stroke-width: 20px;
+            stroke-linejoin: round;
+            stroke-linecap: round;
+        }
+
+        .pawn-symbol {
+            position: absolute;
+            top: 65%; // Centered on the "chest" of the AND-gate body
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 150px;
+            color: currentColor;
+            font-family: Arial, Helvetica, sans-serif;
+            text-align: center;
+        }
+
+        &.front {
+            z-index: 3;
+            transform: translateZ(0);
+
+            .pawn-symbol::after {
+                content: '✶'; // Basic symbol
+            }
+        }
+
+        &.back {
+            z-index: 2;
+            transform: translateZ(0);
+            display: none; // Hidden by default (shown when parent has .back class)
+
+            .pawn-symbol::after {
+                content: '✹'; // Elite symbol (Crown)
+            }
+        }
+    }
+
+    // .thickness-side {
+    //     position: absolute;
+    //     top: 0;
+    //     width: 15px; // Thinner slab for better perspective
+    //     height: 100%;
+    //     background-color: inherit;
+    //     filter: brightness(0.8);
+    //     z-index: -1;
+
+    //     &.right,
+    //     &.left {
+    //         right: auto;
+    //         left: 50%;
+    //         transform-origin: center;
+    //         transform: translateX(-50%) rotateY(90deg);
+    //     }
+
+    //     // Clip the side plane to follow the new non-overlapping silhouette (shifted down 10 units)
+    //     clip-path: polygon(50% 5%, 95% 15%, 95% 35%, 50% 40%, 5% 35%, 5% 15%, // Head Silhouette (shifted)
+    //         5% 68%, 95% 68%, 95% 98%, 5% 98% // Body Silhouette (shifted)
+    //     );
+    // }
+
+    .depth {
+        position: absolute;
+        top: 25px;
+        left: 25px;
+        width: 100%;
+        height: 100%;
+        z-index: -2;
+        transform: translateZ(-14px); // Corrected for 15px thickness
+        pointer-events: none;
+        background: none !important; // Remove the default rectangular background inherited from the color loop
+
+        .pawn-svg {
+            width: 100%;
+            height: 100%;
+            fill: var(--pawn-side-bg); // Full solid back face "depth look"
+            stroke: var(--pawn-side-bg);
+            stroke-width: 20px;
+            opacity: 1;
+            filter: drop-shadow(0 0 15px rgba(0, 0, 0, 0.4)) drop-shadow(0 20px 20px rgba(0, 0, 0, 0.2));
+            stroke-linejoin: round;
+            stroke-linecap: round;
+        }
+    }
+
+    // Flipped state: show back (crown) face, hide front face
+    &.back {
+        .pawn-face.front {
+            display: none;
+        }
+
+        .pawn-face.back {
+            display: block;
+            z-index: 3;
+        }
+    }
+}
+
+// Ensure the face color is correctly mapped in the colors loop
+// I'll need to update the main colors loop to handle this variable if it doesn't already.
+
 
 @keyframes dice-shake-roll {
     0% {
@@ -888,7 +1070,7 @@ $die-shadow: $shadow-3d;
     cursor: pointer;
     transition: background-color 0.2s, color 0.2s;
     border-bottom: none;
-    border-radius: 10px;
+    border-radius: 40px;
 
     &:last-child {
         border-bottom: none;
@@ -897,5 +1079,149 @@ $die-shadow: $shadow-3d;
     &:hover {
         background-color: var(--p-highlight-background, #e9ecef);
         color: var(--p-highlight-color, #495057);
+    }
+}
+
+.shortcuts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 10px 0;
+
+    .shortcut-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        // border-bottom: 1px solid var(--p-surface-200);
+
+        &:last-child {
+            border-bottom: none;
+        }
+
+        .shortcut-key {
+            font-weight: 500;
+            color: var(--p-primary-color);
+            background: var(--p-surface-100);
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-family: var(--p-font-family);
+        }
+
+        .shortcut-label {
+            color: var(--p-text-color);
+        }
+    }
+
+}
+
+/* 
+ * Premium Off-screen Indicators 
+ * Moved to root level to ensure they apply correctly to component elements
+ */
+.off-screen-indicator {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    z-index: 2000;
+    cursor: pointer;
+    user-select: none;
+    pointer-events: auto;
+
+    // Subtle Glassmorphism
+    background: rgba(35, 35, 45, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    // Tighter Border & Shadow
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+
+    color: rgba(255, 255, 255, 0.9);
+    padding: 6px 12px;
+    border-radius: 20px;
+    transition: all 0.2s ease-in-out;
+
+    // Very subtle pulse
+    animation: placeholder-subtle-pulse 3s infinite ease-in-out;
+
+    &:hover {
+        transform: scale(1.05) !important;
+        background: rgba(45, 45, 55, 0.9);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        border-color: rgba(255, 255, 255, 0.3);
+        animation: none;
+    }
+
+    &:active {
+        transform: scale(0.97) !important;
+    }
+
+    i {
+        font-size: 11px;
+        opacity: 0.8;
+    }
+
+    .indicator-count {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.2px;
+    }
+
+    // Positioning
+    &.top {
+        top: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+
+        &:hover {
+            transform: translateX(-50%) scale(1.05) !important;
+        }
+    }
+
+    &.bottom {
+        bottom: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+
+        &:hover {
+            transform: translateX(-50%) scale(1.05) !important;
+        }
+    }
+
+    &.left {
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+
+        &:hover {
+            transform: translateY(-50%) scale(1.05) !important;
+        }
+    }
+
+    &.right {
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+
+        &:hover {
+            transform: translateY(-50%) scale(1.05) !important;
+        }
+    }
+}
+
+@keyframes placeholder-subtle-pulse {
+
+    0%,
+    100% {
+        opacity: 0.9;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    50% {
+        opacity: 1;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
     }
 }
