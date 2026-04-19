@@ -712,7 +712,7 @@ export class GameSimulatorComponent implements OnInit, OnDestroy {
         label: this.translate.instant('simulator.add-coin'),
         icon: 'pi pi-plus',
         items: GameSimulatorComponent.COLORS.map(color => ({
-          label: color,
+          label: StringUtils.kebabToTitleCase(color),
           command: () => {
             const component: GameComponent = {
               uniqueId: 'coin-' + StringUtils.generateRandomString(),
@@ -765,7 +765,7 @@ export class GameSimulatorComponent implements OnInit, OnDestroy {
         label: this.translate.instant('simulator.add-cube'),
         icon: 'pi pi-plus',
         items: GameSimulatorComponent.COLORS.map(color => ({
-          label: color,
+          label: StringUtils.kebabToTitleCase(color),
           command: () => {
             const component: GameComponent = {
               uniqueId: 'cube-' + StringUtils.generateRandomString(),
@@ -799,7 +799,7 @@ export class GameSimulatorComponent implements OnInit, OnDestroy {
         label: this.translate.instant('simulator.add-die') + ' (D6)',
         icon: 'pi pi-plus',
         items: GameSimulatorComponent.COLORS.map(color => ({
-          label: color,
+          label: StringUtils.kebabToTitleCase(color),
           command: () => {
             const component: GameComponent = {
               uniqueId: 'd6-' + StringUtils.generateRandomString(),
@@ -838,7 +838,7 @@ export class GameSimulatorComponent implements OnInit, OnDestroy {
         label: this.translate.instant('simulator.add-pawn'),
         icon: 'pi pi-plus',
         items: GameSimulatorComponent.COLORS.map(color => ({
-          label: color,
+          label: StringUtils.kebabToTitleCase(color),
           command: () => {
             const component: GameComponent = {
               uniqueId: 'pawn-' + StringUtils.generateRandomString(),
