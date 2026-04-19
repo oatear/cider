@@ -156,6 +156,7 @@
         "flip-over": "Retourner",
         "add-cube": "Ajouter un cube",
         "add-die": "Ajouter un dé",
+        "add-pawn": "Ajouter un pion",
         "roll-die": "Lancer le dé",
         "zoom": "Zoomer",
         "reset-game": "Réinitialiser le jeu"

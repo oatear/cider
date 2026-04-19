@@ -110,6 +110,34 @@
             <div class="pip"></div>
             <div class="depth"></div>
           </div>
+          } @else if (component.type == 'pawn') {
+          <div [class]="'component ' + component.className" [class.rolling]="component.rolling"
+            [class.back]="!component.faceUp">
+            
+            <div class="pawn-face front">
+              <svg class="pawn-svg" viewBox="0 0 200 280">
+                <path d="M 10 270 L 190 270 L 190 190 A 90 90 0 0 0 10 190 Z M 100 10 A 45 45 0 1 1 100 100 A 45 45 0 1 1 100 10 Z" />
+              </svg>
+              <div class="pawn-symbol"></div>
+            </div>
+
+            <div class="pawn-face back">
+              <svg class="pawn-svg" viewBox="0 0 200 280">
+                <path d="M 10 270 L 190 270 L 190 190 A 90 90 0 0 0 10 190 Z M 100 10 A 45 45 0 1 1 100 100 A 45 45 0 1 1 100 10 Z" />
+              </svg>
+              <div class="pawn-symbol"></div>
+            </div>
+
+            <div class="thickness-side right"></div>
+            <div class="thickness-side left"></div>
+            
+            <!-- Depth shadow layer (The back face surface shadow) -->
+            <div class="depth">
+              <svg class="pawn-svg" viewBox="0 0 200 280">
+                <path d="M 10 270 L 190 270 L 190 190 A 90 90 0 0 0 10 190 Z M 100 10 A 45 45 0 1 1 100 100 A 45 45 0 1 1 100 10 Z" />
+              </svg>
+            </div>
+          </div>
           } @else {
           <div [class]="'component ' + component.className" [class.rolling]="component.rolling"
             [class.back]="!component.faceUp">

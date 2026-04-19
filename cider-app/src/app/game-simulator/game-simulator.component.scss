@@ -29,6 +29,16 @@ $shadow-3d: 0 20px 30px rgba(0, 0, 0, 0.25), 0 6px 6px rgba(0, 0, 0, 0.1);
         background-color: $bg;
         border-color: $fg;
         color: $fg;
+        --pawn-face-bg: #{$bg};
+        --pawn-side-bg: #{$side};
+
+        &.game-pawn {
+            background-color: transparent !important;
+
+            .thickness-side {
+                background-color: $side;
+            }
+        }
 
         .depth {
             background: $side;
@@ -723,7 +733,7 @@ $game-cube-size: 150px;
         }
 
         &.back::after {
-            content: '●';
+            content: '•';
         }
     }
 }
@@ -799,6 +809,138 @@ $die-shadow: $shadow-3d;
         }
     }
 }
+
+// ── Pawn ──
+$pawn-token-width: 300px;
+$pawn-token-height: 300px;
+
+.game-component .game-pawn {
+    position: relative;
+    width: $pawn-token-width;
+    height: $pawn-token-height;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+
+    // Reset inherited styles
+    background: none !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+
+    .pawn-face {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        transform-style: preserve-3d;
+        z-index: 2;
+
+        .pawn-svg {
+            width: 100%;
+            height: 100%;
+            fill: var(--pawn-face-bg);
+            stroke: currentColor;
+            stroke-width: 20px;
+            stroke-linejoin: round;
+            stroke-linecap: round;
+        }
+
+        .pawn-symbol {
+            position: absolute;
+            top: 65%; // Centered on the "chest" of the AND-gate body
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 150px;
+            color: currentColor;
+            font-family: Arial, Helvetica, sans-serif;
+            text-align: center;
+        }
+
+        &.front {
+            z-index: 3;
+            transform: translateZ(0);
+
+            .pawn-symbol::after {
+                content: '✶'; // Basic symbol
+            }
+        }
+
+        &.back {
+            z-index: 2;
+            transform: translateZ(0);
+            display: none; // Hidden by default (shown when parent has .back class)
+
+            .pawn-symbol::after {
+                content: '✹'; // Elite symbol (Crown)
+            }
+        }
+    }
+
+    // .thickness-side {
+    //     position: absolute;
+    //     top: 0;
+    //     width: 15px; // Thinner slab for better perspective
+    //     height: 100%;
+    //     background-color: inherit;
+    //     filter: brightness(0.8);
+    //     z-index: -1;
+
+    //     &.right,
+    //     &.left {
+    //         right: auto;
+    //         left: 50%;
+    //         transform-origin: center;
+    //         transform: translateX(-50%) rotateY(90deg);
+    //     }
+
+    //     // Clip the side plane to follow the new non-overlapping silhouette (shifted down 10 units)
+    //     clip-path: polygon(50% 5%, 95% 15%, 95% 35%, 50% 40%, 5% 35%, 5% 15%, // Head Silhouette (shifted)
+    //         5% 68%, 95% 68%, 95% 98%, 5% 98% // Body Silhouette (shifted)
+    //     );
+    // }
+
+    .depth {
+        position: absolute;
+        top: 25px;
+        left: 25px;
+        width: 100%;
+        height: 100%;
+        z-index: -2;
+        transform: translateZ(-14px); // Corrected for 15px thickness
+        pointer-events: none;
+        background: none !important; // Remove the default rectangular background inherited from the color loop
+
+        .pawn-svg {
+            width: 100%;
+            height: 100%;
+            fill: var(--pawn-side-bg); // Full solid back face "depth look"
+            stroke: var(--pawn-side-bg);
+            stroke-width: 20px;
+            opacity: 1;
+            filter: drop-shadow(0 0 15px rgba(0, 0, 0, 0.4)) drop-shadow(0 20px 20px rgba(0, 0, 0, 0.2));
+            stroke-linejoin: round;
+            stroke-linecap: round;
+        }
+    }
+
+    // Flipped state: show back (crown) face, hide front face
+    &.back {
+        .pawn-face.front {
+            display: none;
+        }
+
+        .pawn-face.back {
+            display: block;
+            z-index: 3;
+        }
+    }
+}
+
+// Ensure the face color is correctly mapped in the colors loop
+// I'll need to update the main colors loop to handle this variable if it doesn't already.
+
 
 @keyframes dice-shake-roll {
     0% {

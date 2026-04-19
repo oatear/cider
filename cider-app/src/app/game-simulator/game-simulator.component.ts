@@ -667,7 +667,7 @@ export class GameSimulatorComponent implements OnInit, OnDestroy {
         command: () => {
           const newComp = {
             ...component,
-            uniqueId: (component.type === 'coin' ? 'coin-' : (component.type === 'cube' ? 'cube-' : 'd6-')) + StringUtils.generateRandomString(),
+            uniqueId: component.type + '-' + StringUtils.generateRandomString(),
             pos: {
               x: component.pos.x + 100 + (Math.random() * 100 - 50),
               y: component.pos.y + 100 + (Math.random() * 100 - 50)
@@ -824,6 +824,40 @@ export class GameSimulatorComponent implements OnInit, OnDestroy {
                         componentState.face = MathUtils.randomInt(1, 6);
                         componentState.rolling = false;
                       }, 600);
+                    }
+                  }
+                },
+              ],
+            };
+            this.gameStateService.bringToFront(component);
+            this.components.push(component);
+          }
+        }))
+      },
+      {
+        label: this.translate.instant('simulator.add-pawn'),
+        icon: 'pi pi-plus',
+        items: GameSimulatorComponent.COLORS.map(color => ({
+          label: color,
+          command: () => {
+            const component: GameComponent = {
+              uniqueId: 'pawn-' + StringUtils.generateRandomString(),
+              type: 'pawn',
+              className: `game-pawn color-${color}`,
+              faceUp: true,
+              pos: {
+                x: logicalX,
+                y: logicalY
+              },
+              contextMenu: [
+                {
+                  label: this.translate.instant('simulator.flip-over'),
+                  icon: 'pi pi-refresh',
+                  command: (event: any) => {
+                    const componentState: GameComponent | undefined =
+                      event.item?.state as GameComponent;
+                    if (componentState) {
+                      this.flipComponent(componentState);
                     }
                   }
                 },
