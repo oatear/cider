@@ -156,6 +156,7 @@
         "flip-over": "뒤집기",
         "add-cube": "큐브 추가",
         "add-die": "주사위 추가",
+        "add-pawn": "말 추가",
         "roll-die": "주사위 굴리기",
         "zoom": "확대/축소",
         "reset-game": "게임 초기화"

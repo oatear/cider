@@ -156,6 +156,7 @@
         "flip-over": "ひっくり返す",
         "add-cube": "キューブを追加",
         "add-die": "サイコロを追加",
+        "add-pawn": "ポーンを追加",
         "roll-die": "サイコロを振る",
         "zoom": "ズーム",
         "reset-game": "ゲームをリセット"
