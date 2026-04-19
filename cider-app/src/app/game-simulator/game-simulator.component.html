@@ -21,10 +21,10 @@
         [style.zIndex]="stack.zIndex || 10" cdkDrag>
         <div class="card-wrapper" [class.shuffling]="stack.shuffling" [class.flipping]="stack.flipping"
           [style.rotate]="(stack.rotation || 0) + 'deg'" [style]="getStackDepthStyle(stack.rotation)">
-          <!-- <div class="thickness-side right"></div>
+          <div class="thickness-side right"></div>
           <div class="thickness-side left"></div>
           <div class="thickness-side top"></div>
-          <div class="thickness-side bottom"></div> -->
+          <div class="thickness-side bottom"></div>
           @if (stack.cards.length > 0 && stack.cards[stack.cards.length - 1].card.backCardTemplateId) {
           <app-card-preview [cache]="false" [tiltable]="true" [template]="(stack.faceUp ? stack.cards[stack.cards.length - 1].card.frontCardTemplateId 
                         : stack.cards[stack.cards.length - 1].card.backCardTemplateId)
@@ -33,7 +33,7 @@
             [holographic]="stack.cards[stack.cards.length - 1].holographic && stack.faceUp"></app-card-preview>
           }
           @if (stack.cards.length > 0 && !stack.cards[stack.cards.length - 1].card.backCardTemplateId) {
-          <!-- <div class="card-back-placeholder" [style.width.px]="baseCardWidth" [style.height.px]="baseCardHeight"></div> -->
+          <div class="card-back-placeholder" [style.width.px]="baseCardWidth" [style.height.px]="baseCardHeight"></div>
           }
         </div>
         @if (stack.cards.length === 0) {

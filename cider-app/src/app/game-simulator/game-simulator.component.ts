@@ -23,7 +23,7 @@ import { CardStack, CardZone, GameCard, GameComponent, Position, Positionable } 
   standalone: false
 })
 export class GameSimulatorComponent implements OnInit, OnDestroy {
-  private static readonly COLORS = ['silver', 'gold', 'crimson',
+  private static readonly COLORS = ['copper', 'silver', 'gold', 'crimson',
     'emerald', 'azure', 'lilac', 'ivory', 'charcoal'];
   public static readonly BASE_CARD_WIDTH = 825; // Approximated from visual reference or default - Fallback only
   public static readonly BASE_CARD_HEIGHT = 1125;
