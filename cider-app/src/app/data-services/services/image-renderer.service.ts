@@ -10,6 +10,8 @@ export interface ImageRendererOptions {
     filter?: (node: HTMLElement) => boolean;
     onImageErrorHandler?: (error: any) => void;
     style?: any;
+    width?: number;
+    height?: number;
 }
 
 @Injectable({
@@ -31,11 +33,19 @@ export class ImageRendererService {
             return domToImageMore.toPng(node, {
                 filter: options?.filter,
                 scale: options?.pixelRatio || 1,
-                style: options?.style
+                style: options?.style,
+                width: options?.width,
+                height: options?.height
             });
         } else {
             // Default to html-to-image
-            return htmlToImage.toPng(node, options);
+            return htmlToImage.toPng(node, {
+                pixelRatio: options?.pixelRatio,
+                filter: options?.filter,
+                style: options?.style,
+                width: options?.width,
+                height: options?.height
+            });
         }
     }
 }
