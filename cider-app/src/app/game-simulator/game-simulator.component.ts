@@ -1577,7 +1577,6 @@ export class GameSimulatorComponent implements OnInit, OnDestroy {
 
   public scrollToCenter() {
     this.simulatorPan = { x: 0, y: 0 };
-    this.simulatorZoom = 1.0;
     this.calculateOffScreenIndicators();
   }
 }
