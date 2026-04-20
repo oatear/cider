@@ -1144,6 +1144,36 @@ export class GameSimulatorComponent implements OnInit, OnDestroy {
     }
   }
 
+  onComponentMouseDown(event: MouseEvent, component: GameComponent) {
+    if (event.button == 1) {
+      event.stopPropagation();
+    }
+  }
+
+  onComponentAuxClick(event: MouseEvent, component: GameComponent) {
+    if (event.button == 1) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.gameStateService.bringToFront(component);
+
+      if (component.type === 'd6') {
+        component.rolling = true;
+        setTimeout(() => {
+          component.face = MathUtils.randomInt(1, 6);
+          component.rolling = false;
+        }, 600);
+      } else if (component.type === 'coin') {
+        component.rolling = true;
+        setTimeout(() => {
+          component.faceUp = Math.random() < 0.5;
+          component.rolling = false;
+        }, 600);
+      } else if (component.type === 'cube' || component.type === 'pawn') {
+        this.flipComponent(component);
+      }
+    }
+  }
+
   @HostListener('window:mouseup', ['$event'])
   onWindowMouseUp(event: MouseEvent) {
     if (event.button == 1) {
