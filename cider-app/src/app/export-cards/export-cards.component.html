@@ -2,14 +2,26 @@
   <div>
     <!-- <app-page-header header="Export Preview" subheader="Preview of the card printout"></app-page-header> -->
     <p-card styleClass="page-card">
-      <div class="card-controls">
-        <p-selectButton [options]="zoomOptions" [(ngModel)]="scale" class="p-mr-3" optionLabel="label"
-          optionValue="value" (onChange)="saveSettings()" [allowEmpty]="false"></p-selectButton>
-        <button pButton pRipple
-          [label]="('export.select-cards' | translate) + ' (' + (expandedCards ? expandedCards.length : 0) + ')'"
-          icon="pi pi-check-square" class="p-button-text" (click)="showExportSelectionDialog()"></button>
+      <div class="card-controls" style="align-items: center;">
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <p-selectButton [options]="zoomOptions" [(ngModel)]="scale" optionLabel="label"
+            optionValue="value" (onChange)="saveSettings()" [allowEmpty]="false"></p-selectButton>
+        </div>
+        <div>
+          <button pButton pRipple
+            [label]="('export.select-cards' | translate) + ' (' + (expandedCards ? expandedCards.length : 0) + ')'"
+            icon="pi pi-check-square" class="p-button-text p-mr-2" (click)="showExportSelectionDialog()"></button>
+          <button pButton pRipple
+            [icon]="showSettings ? 'pi pi-window-maximize' : 'pi pi-window-minimize'" 
+            class="p-button-text p-button-secondary" (click)="toggleSettings()" pTooltip="Expand/Collapse settings"></button>
+        </div>
       </div>
-      <div class="preview-wrapper">
+      <div #previewContainer class="preview-wrapper" [class.panning]="isPanning"
+           (wheel)="onWheel($event)"
+           (mousedown)="onMouseDown($event, previewContainer)"
+           (mousemove)="onMouseMove($event, previewContainer)"
+           (mouseup)="onMouseUp($event)"
+           (mouseleave)="onMouseLeave($event)">
         @if (exportType === 'sheet-export') {
         <div class="preview-sheets">
           <!-- <ng-container *ngFor="let sheet of slicedCards"> -->
@@ -176,8 +188,12 @@
         </div>
         }
       </div>
+      @if (exportType === 'sheet-export') {
+        <p-paginator styleClass="transparent-paginator" [rows]="1" [totalRecords]="slicedCards.length" [first]="currentPageIndex" (onPageChange)="onPageChange($event)"></p-paginator>
+      }
     </p-card>
   </div>
+  @if (showSettings) {
   <div>
     <!-- <app-page-header header="Export Settings" subheader="Configure the export parameters"></app-page-header> -->
     <p-card styleClass="page-card">
@@ -312,6 +328,7 @@
       </div>
     </p-card>
   </div>
+  }
 </div>
 <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
 <app-export-selection-dialog [(visible)]="exportSelectionDialogVisible" (onApply)="updateSelection($event)"

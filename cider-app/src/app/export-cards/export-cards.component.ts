@@ -88,6 +88,16 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
   public excludeCardBacks: boolean = false;
   public someCardsMissingTemplates: boolean = false;
   renderCache: boolean = false;
+  public currentPageIndex: number = 0;
+  public showSettings: boolean = true;
+  
+  // Pan and Zoom properties
+  public isPanning: boolean = false;
+  private panStartX: number = 0;
+  private panStartY: number = 0;
+  private scrollLeftStart: number = 0;
+  private scrollTopStart: number = 0;
+
   zoomOptions: any[] = [
     { label: 's', value: 0.05 },
     { label: 'm', value: 0.1 },
@@ -234,7 +244,10 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
 
   public updateSlices() {
     this.slicedCards = this.sliceIntoChunks(this.expandedCards, this.cardsPerPage);
-    this.sheet = this.slicedCards ? this.slicedCards[0] : [];
+    if (this.currentPageIndex >= this.slicedCards.length) {
+      this.currentPageIndex = 0;
+    }
+    this.sheet = this.slicedCards ? this.slicedCards[this.currentPageIndex] : [];
     this.saveSettings();
   }
 
@@ -323,6 +336,57 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
     if (this.selectedPaper.name !== 'Tabletop Simulator') {
       this.showBack = !this.excludeCardBacks;
     }
+    this.saveSettings();
+  }
+
+  public toggleSettings() {
+    this.showSettings = !this.showSettings;
+  }
+
+  public onPageChange(event: any) {
+    this.currentPageIndex = event.page;
+    this.sheet = this.slicedCards ? this.slicedCards[this.currentPageIndex] : [];
+  }
+
+  public onMouseDown(event: MouseEvent, container: HTMLElement) {
+    if (event.button !== 0 && event.button !== 1) return; // Only left or middle click
+    if (event.button === 1) event.preventDefault(); // Prevent native middle-click auto-scroll
+    this.isPanning = true;
+    this.panStartX = event.clientX;
+    this.panStartY = event.clientY;
+    this.scrollLeftStart = container.scrollLeft;
+    this.scrollTopStart = container.scrollTop;
+  }
+
+  public onMouseMove(event: MouseEvent, container: HTMLElement) {
+    if (!this.isPanning) return;
+    const dx = event.clientX - this.panStartX;
+    const dy = event.clientY - this.panStartY;
+    container.scrollLeft = this.scrollLeftStart - dx;
+    container.scrollTop = this.scrollTopStart - dy;
+  }
+
+  public onMouseUp(event: MouseEvent) {
+    this.isPanning = false;
+  }
+
+  public onMouseLeave(event: MouseEvent) {
+    this.isPanning = false;
+  }
+
+  public onWheel(event: WheelEvent) {
+    // Prevent default scrolling to handle zoom seamlessly
+    event.preventDefault();
+    
+    // Zoom factor based on wheel delta
+    const zoomFactor = event.deltaY < 0 ? 1.1 : 0.9;
+    
+    let newScale = this.scale * zoomFactor;
+    // Clamp scale between min and max reasonable limits
+    if (newScale < 0.05) newScale = 0.05;
+    if (newScale > 2.0) newScale = 2.0;
+    
+    this.scale = parseFloat(newScale.toFixed(3));
     this.saveSettings();
   }
 
@@ -499,7 +563,7 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
     this.loadingInfo = 'Saving file...';
     FileUtils.saveAs(zippedImages, 'cards.zip');
     this.loadingPercent = 100;
-    this.sheet = this.slicedCards ? this.slicedCards[0] : [];
+    this.sheet = this.slicedCards ? this.slicedCards[this.currentPageIndex] : [];
     this.showFront = true;
     this.showBack = false;
     this.renderCache = false;
@@ -566,6 +630,7 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
     pdfMake.createPdf(docDefinition).getBlob((blob) => {
       FileUtils.saveAs(blob, 'card-sheets.pdf');
       this.loadingPercent = 100;
+      this.sheet = this.slicedCards ? this.slicedCards[this.currentPageIndex] : [];
       this.displayLoading = false
       this.renderCache = false;
     }, {

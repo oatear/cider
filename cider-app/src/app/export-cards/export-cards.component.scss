@@ -16,8 +16,16 @@
     // padding-right: 10px;
     >div {
         flex: 1;
-        flex-basis: 50%;
-        max-width: 50%;
+
+        &:not(:only-child) {
+            flex-basis: 50%;
+            max-width: 50%;
+        }
+
+        &:only-child {
+            flex-basis: 100%;
+            max-width: 100%;
+        }
 
         .p-card {
             height: 100%;
@@ -89,6 +97,12 @@ $preview-individual-scale: 0.08;
 .preview-wrapper {
     flex: 1;
     overflow: scroll;
+    cursor: grab;
+    display: flex;
+
+    &.panning {
+        cursor: grabbing;
+    }
 
     .preview-sheets {
         transform-origin: top left;
@@ -96,7 +110,9 @@ $preview-individual-scale: 0.08;
         flex-wrap: wrap;
         overflow-wrap: normal;
         flex-direction: row;
-        align-content: flex-start;
+        justify-content: center;
+        margin: auto;
+        padding: 20px;
         gap: 10px;
 
         .preview-page {
@@ -140,7 +156,9 @@ $preview-individual-scale: 0.08;
         flex-wrap: wrap;
         overflow-wrap: normal;
         flex-direction: row;
-        align-content: flex-start;
+        justify-content: center;
+        margin: auto;
+        padding: 20px;
         gap: 10px;
 
         .card-wrapper {
@@ -173,4 +191,11 @@ $preview-individual-scale: 0.08;
         margin: 0;
         height: fit-content;
     }
+}
+
+:host ::ng-deep p-paginator.transparent-paginator.p-paginator {
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin-top: 10px;
 }
