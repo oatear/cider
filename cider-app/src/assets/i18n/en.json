@@ -187,6 +187,12 @@
         "shortcuts-draw-facedown-label": "Draw Facedown",
         "shortcuts-magnify-label": "Magnify Card",
         "shortcuts-context-menu-label": "Context Menu",
-        "shortcuts-move-label": "Move Item"
+        "shortcuts-move-label": "Move Item",
+        "shortcuts-roll-die": "Middle Click (Die)",
+        "shortcuts-roll-die-label": "Roll Die",
+        "shortcuts-flip-coin": "Middle Click (Coin)",
+        "shortcuts-flip-coin-label": "Flip Randomly",
+        "shortcuts-flip-pawn": "Middle Click (Pawn / Cube)",
+        "shortcuts-flip-pawn-label": "Flip Over"
     }
 }

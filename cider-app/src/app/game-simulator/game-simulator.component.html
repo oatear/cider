@@ -89,7 +89,9 @@
       }
 
       @for (component of components; track component) {
-      <div class="game-component" (contextmenu)="onComponentContextMenu($event, cm, component)"
+        <div class="game-component" (contextmenu)="onComponentContextMenu($event, cm, component)"
+        (mousedown)="onComponentMouseDown($event, component)"
+        (auxclick)="onComponentAuxClick($event, component)"
         [cdkDragData]="component" [id]="component.uniqueId"
         (cdkDragStarted)="onDragStarted($event, components, component)"
         (cdkDragEnded)="onDragEnded($event, components, component)" [cdkDragFreeDragPosition]="getScaledPos(component)"
@@ -262,6 +264,18 @@
     <div class="shortcut-item">
       <span class="shortcut-key">{{ 'simulator.shortcuts-move' | translate }}</span>
       <span class="shortcut-label">{{ 'simulator.shortcuts-move-label' | translate }}</span>
+    </div>
+    <div class="shortcut-item">
+      <span class="shortcut-key">{{ 'simulator.shortcuts-roll-die' | translate }}</span>
+      <span class="shortcut-label">{{ 'simulator.shortcuts-roll-die-label' | translate }}</span>
+    </div>
+    <div class="shortcut-item">
+      <span class="shortcut-key">{{ 'simulator.shortcuts-flip-coin' | translate }}</span>
+      <span class="shortcut-label">{{ 'simulator.shortcuts-flip-coin-label' | translate }}</span>
+    </div>
+    <div class="shortcut-item">
+      <span class="shortcut-key">{{ 'simulator.shortcuts-flip-pawn' | translate }}</span>
+      <span class="shortcut-label">{{ 'simulator.shortcuts-flip-pawn-label' | translate }}</span>
     </div>
   </div>
   <div class="dialog-footer">

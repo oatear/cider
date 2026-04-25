@@ -178,10 +178,13 @@ export class HandlebarsPipe implements PipeTransform {
 
     /**
      * {{kebabcase 'Clear Orb'}}
+     * {{kebab-case 'Clear Orb'}}
      */
-    Handlebars.registerHelper('kebabcase', function (a) {
-      return ('' + a).trim().replace(/ /g, '-').toLowerCase();
-    });
+    const kebabCase = function (a: any) {
+      return StringUtils.toKebabCase(a);
+    };
+    Handlebars.registerHelper('kebabcase', kebabCase);
+    Handlebars.registerHelper('kebab-case', kebabCase);
 
     /**
      * {{upercase 'Clear Orb'}}
