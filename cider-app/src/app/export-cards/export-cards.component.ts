@@ -64,6 +64,12 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
   public expandedCards: Card[] = [];
   public slicedCards: Card[][] = [];
   public sheet: Card[] = [];
+  
+  public singularCardsPerPage: number = 20;
+  public slicedSingularCards: Card[][] = [];
+  public singularSheet: Card[] = [];
+  public currentSingularPageIndex: number = 0;
+
   public showFront: boolean = true;
   public showBack: boolean = true;
   public showCutMarks: boolean = false;
@@ -248,6 +254,13 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
       this.currentPageIndex = 0;
     }
     this.sheet = this.slicedCards ? this.slicedCards[this.currentPageIndex] : [];
+
+    this.slicedSingularCards = this.sliceIntoChunks(this.cards, this.singularCardsPerPage);
+    if (this.currentSingularPageIndex >= this.slicedSingularCards.length) {
+      this.currentSingularPageIndex = 0;
+    }
+    this.singularSheet = this.slicedSingularCards ? this.slicedSingularCards[this.currentSingularPageIndex] : [];
+
     this.saveSettings();
   }
 
@@ -346,6 +359,11 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
   public onPageChange(event: any) {
     this.currentPageIndex = event.page;
     this.sheet = this.slicedCards ? this.slicedCards[this.currentPageIndex] : [];
+  }
+
+  public onSingularPageChange(event: any) {
+    this.currentSingularPageIndex = event.page;
+    this.singularSheet = this.slicedSingularCards ? this.slicedSingularCards[this.currentSingularPageIndex] : [];
   }
 
   public onMouseDown(event: MouseEvent, container: HTMLElement) {
@@ -644,59 +662,79 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
     this.displayLoading = true;
     this.loadingPercent = 0;
     this.renderCache = true;
-    this.loadingInfo = 'Generating card images...';
     const limit = pLimit(3);
-    const frontCards$ = this.frontCards.map(async cardPreview => {
-      await lastValueFrom(cardPreview.isCacheLoaded()).catch(() => {
-        return Promise.reject('Failed to render card "' + cardPreview.card.name + '" with template "' + cardPreview.template.name + '".');
-      });
-      const imgUri = await limit(() => this.imageRendererService.toPng((<any>cardPreview).element.nativeElement,
-        { pixelRatio: this.individualExportPixelRatio }));
-      const imgIdentifier = this.individualExportUseCardName
-        ? StringUtils.toKebabCase(cardPreview.card?.name)
-        : cardPreview.card?.id;
-      const imgName = 'front-' + imgIdentifier + '.png';
-      return this.dataUrlToFile(imgUri, imgName);
-    });
+    let allExportedFiles: File[] = [];
 
-    let backCards$: Promise<File>[] = [];
-    if (!this.excludeCardBacks) {
-      backCards$ = this.backCards.map(async cardPreview => {
-        await lastValueFrom(cardPreview.isCacheLoaded()).catch(() => {
+    const totalCards = this.cards.length * (this.excludeCardBacks ? 1 : 2);
+
+    try {
+      for (let chunkIndex = 0; chunkIndex < this.slicedSingularCards.length; chunkIndex++) {
+        const chunk = this.slicedSingularCards[chunkIndex];
+        this.singularSheet = chunk;
+        this.loadingInfo = 'Rendering cards chunk ' + (chunkIndex + 1) + '/' + this.slicedSingularCards.length + '...';
+        await GeneralUtils.delay(1000);
+
+        // Wait for fronts to load
+        const promisedFrontCards$ = this.frontCards.map(cardPreview => lastValueFrom(cardPreview.isCacheLoaded()).catch(() => {
           return Promise.reject('Failed to render card "' + cardPreview.card.name + '" with template "' + cardPreview.template.name + '".');
-        });
-        const imgUri = await limit(() => this.imageRendererService.toPng((<any>cardPreview).element.nativeElement,
-          { pixelRatio: this.individualExportPixelRatio }));
-        const imgIdentifier = this.individualExportUseCardName
-          ? StringUtils.toKebabCase(cardPreview.card?.name)
-          : cardPreview.card?.id;
-        const imgName = 'back-' + imgIdentifier + '.png';
-        return this.dataUrlToFile(imgUri, imgName);
-      });
-    }
+        }));
+        await Promise.all(promisedFrontCards$);
 
-    const allCards$ = frontCards$.concat(backCards$);
-    return Promise.all(this.promisesProgress(allCards$, () => this.loadingPercent += 100.0 / (allCards$.length + 1)))
-      .then(promisedImages => {
-        this.loadingInfo = 'Zipping up files...';
-        return this.zipFiles(promisedImages);
-      })
-      .then(blob => {
-        this.loadingInfo = 'Saving file...';
-        return FileUtils.saveAs(blob, 'cards.zip');
-      })
-      .then(() => {
-        this.loadingPercent = 100;
-        this.displayLoading = false
-        this.renderCache = false;
-      })
-      .catch(err => {
-        this.loadingInfo = 'Failed to load card cache.';
-        this.loadingPercent = 0;
-        this.displayLoading = false;
-        this.renderCache = false;
-        return Promise.reject(err);
-      });
+        // Wait for backs to load
+        if (!this.excludeCardBacks) {
+          const promisedBackCards$ = this.backCards.map(cardPreview => lastValueFrom(cardPreview.isCacheLoaded()).catch(() => {
+            return Promise.reject('Failed to render card "' + cardPreview.card.name + '" with template "' + cardPreview.template.name + '".');
+          }));
+          await Promise.all(promisedBackCards$);
+        }
+
+        this.loadingInfo = 'Generating PNGs for chunk ' + (chunkIndex + 1) + '/' + this.slicedSingularCards.length + '...';
+        
+        const frontCards$ = this.frontCards.map(async cardPreview => {
+          const imgUri = await limit(() => this.imageRendererService.toPng((<any>cardPreview).element.nativeElement,
+            { pixelRatio: this.individualExportPixelRatio }));
+          const imgIdentifier = this.individualExportUseCardName
+            ? StringUtils.toKebabCase(cardPreview.card?.name)
+            : cardPreview.card?.id;
+          const imgName = 'front-' + imgIdentifier + '.png';
+          return this.dataUrlToFile(imgUri, imgName);
+        });
+
+        let backCards$: Promise<File>[] = [];
+        if (!this.excludeCardBacks) {
+          backCards$ = this.backCards.map(async cardPreview => {
+            const imgUri = await limit(() => this.imageRendererService.toPng((<any>cardPreview).element.nativeElement,
+              { pixelRatio: this.individualExportPixelRatio }));
+            const imgIdentifier = this.individualExportUseCardName
+              ? StringUtils.toKebabCase(cardPreview.card?.name)
+              : cardPreview.card?.id;
+            const imgName = 'back-' + imgIdentifier + '.png';
+            return this.dataUrlToFile(imgUri, imgName);
+          });
+        }
+
+        const chunkFiles$ = frontCards$.concat(backCards$);
+        const chunkFiles = await Promise.all(this.promisesProgress(chunkFiles$, () => this.loadingPercent += 100.0 / totalCards));
+        allExportedFiles = allExportedFiles.concat(chunkFiles);
+      }
+
+      this.loadingInfo = 'Zipping up files...';
+      const blob = await this.zipFiles(allExportedFiles);
+      this.loadingInfo = 'Saving file...';
+      FileUtils.saveAs(blob, 'cards.zip');
+
+    } catch (err) {
+      this.loadingInfo = 'Failed to load card cache.';
+      this.loadingPercent = 0;
+      this.displayLoading = false;
+      this.renderCache = false;
+      this.displayErrorDialog(typeof err === 'string' ? err : 'An error occurred during export.');
+    } finally {
+      this.loadingPercent = 100;
+      this.displayLoading = false;
+      this.renderCache = false;
+      this.singularSheet = this.slicedSingularCards ? this.slicedSingularCards[this.currentSingularPageIndex] : [];
+    }
   }
 
   /**

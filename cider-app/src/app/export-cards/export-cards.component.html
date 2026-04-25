@@ -167,7 +167,7 @@
         }
         @if (exportType === 'singular-export') {
         <div class="preview-individuals">
-          @for (card of cards; track card; let i = $index) {
+          @for (card of singularSheet; track card; let i = $index) {
           <div class="card-scale-wrapper" [style.width.px]="frontCards.initialWidth * scale"
             [style.height.px]="frontCards.initialHeight * scale">
             <div class="card-wrapper" [style.transform]="'scale(' + scale + ')'">
@@ -190,6 +190,9 @@
       </div>
       @if (exportType === 'sheet-export') {
         <p-paginator styleClass="transparent-paginator" [rows]="1" [totalRecords]="slicedCards.length" [first]="currentPageIndex" (onPageChange)="onPageChange($event)"></p-paginator>
+      }
+      @if (exportType === 'singular-export') {
+        <p-paginator styleClass="transparent-paginator" [rows]="1" [totalRecords]="slicedSingularCards.length" [first]="currentSingularPageIndex" (onPageChange)="onSingularPageChange($event)"></p-paginator>
       }
     </p-card>
   </div>
