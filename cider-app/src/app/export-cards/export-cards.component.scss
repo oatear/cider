@@ -99,6 +99,10 @@ $preview-individual-scale: 0.08;
     overflow: scroll;
     cursor: grab;
     display: flex;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 
     &.panning {
         cursor: grabbing;

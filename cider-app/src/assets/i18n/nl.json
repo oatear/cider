@@ -128,7 +128,11 @@
         "card-selection-title": "Kaartselectie - Wijzigingen aan kaarten zijn tijdelijk",
         "export-information": "Zorg ervoor dat deze DPI gelijk is aan de doel-DPI van de kaartsjablonen en stel altijd 'omdraaien aan lange zijde' in bij het afdrukken.",
         "missing-templates-warning": "Sommige kaarten hebben geen voor- en achterzijde sjabloon geselecteerd en zullen niet verschijnen in de export.",
-        "wait-message": "Export wordt gegenereerd, even geduld..."
+        "wait-message": "Export wordt gegenereerd, even geduld...",
+        "soft-proof": "Soft Proof",
+        "soft-proof-none": "None",
+        "soft-proof-color-laser": "Color Laser",
+        "soft-proof-bw-laser": "B/W Laser"
     },
     "settings": {
         "title": "Applicatie-instellingen",

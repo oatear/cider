@@ -36,6 +36,11 @@
                 "glob": "**/*",
                 "input": "node_modules/monaco-editor",
                 "output": "assets/monaco"
+              },
+              {
+                "glob": "lcms.wasm",
+                "input": "node_modules/@kittl/little-cms/dist",
+                "output": "assets/wasm"
               }
             ],
             "styles": [

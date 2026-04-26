@@ -26,10 +26,25 @@
         <div class="preview-sheets">
           <!-- <ng-container *ngFor="let sheet of slicedCards"> -->
           @if (showFront) {
-          <div class="scale-wrapper"
+          <div class="scale-wrapper" style="position: relative;"
             [style.width.px]="selectedPaper.orientation === 'portrait' ? paperWidth * paperDpi * scale: paperHeight * paperDpi * scale"
             [style.height.px]="selectedPaper.orientation === 'portrait' ? paperHeight * paperDpi * scale: paperWidth * paperDpi * scale">
+            @if (softProofMode !== 'none' && softProofFrontImageUrl) {
+              <img [src]="softProofFrontImageUrl" class="preview-page"
+                [style.width.px]="selectedPaper.orientation === 'portrait' ? paperWidth * paperDpi : paperHeight * paperDpi"
+                [style.height.px]="selectedPaper.orientation === 'portrait' ? paperHeight * paperDpi : paperWidth * paperDpi"
+                [style.transform]="'scale(' + scale + ')'"
+                [style.transformOrigin]="'top left'"
+                style="position: absolute; top: 0; left: 0; z-index: 10; background-color: white;" draggable="false" />
+            }
+            @if (isProcessingSoftProof) {
+              <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.5); z-index: 20; color: white;">
+                <p-progressBar mode="indeterminate" [style]="{'width': '200px'}"></p-progressBar>
+                <div style="margin-left: 10px;">{{'export.soft-proof-processing' | translate}}</div>
+              </div>
+            }
             <div #cardSheets class="preview-page"
+              [style.opacity]="softProofMode !== 'none' && softProofFrontImageUrl ? '0' : '1'"
               [style.width.px]="selectedPaper.orientation === 'portrait' ? paperWidth * paperDpi : paperHeight * paperDpi"
               [style.height.px]="selectedPaper.orientation === 'portrait' ? paperHeight * paperDpi : paperWidth * paperDpi"
               [style.padding]="(paperMarginY * paperDpi) + 'px ' + (paperMarginX * paperDpi) + 'px'"
@@ -93,10 +108,25 @@
           </div>
           }
           @if (showBack) {
-          <div class="scale-wrapper"
+          <div class="scale-wrapper" style="position: relative;"
             [style.width.px]="selectedPaper.orientation === 'portrait' ? paperWidth * paperDpi * scale: paperHeight * paperDpi * scale"
             [style.height.px]="selectedPaper.orientation === 'portrait' ? paperHeight * paperDpi * scale: paperWidth * paperDpi * scale">
+            @if (softProofMode !== 'none' && softProofBackImageUrl) {
+              <img [src]="softProofBackImageUrl" class="preview-page"
+                [style.width.px]="selectedPaper.orientation === 'portrait' ? paperWidth * paperDpi : paperHeight * paperDpi"
+                [style.height.px]="selectedPaper.orientation === 'portrait' ? paperHeight * paperDpi : paperWidth * paperDpi"
+                [style.transform]="'scale(' + scale + ')'"
+                [style.transformOrigin]="'top left'"
+                style="position: absolute; top: 0; left: 0; z-index: 10; background-color: white;" draggable="false" />
+            }
+            @if (isProcessingSoftProof) {
+              <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.5); z-index: 20; color: white;">
+                <p-progressBar mode="indeterminate" [style]="{'width': '200px'}"></p-progressBar>
+                <div style="margin-left: 10px;">{{'export.soft-proof-processing' | translate}}</div>
+              </div>
+            }
             <div #cardSheets class="preview-page"
+              [style.opacity]="softProofMode !== 'none' && softProofBackImageUrl ? '0' : '1'"
               [style.width.px]="selectedPaper.orientation === 'portrait' ? paperWidth * paperDpi : paperHeight * paperDpi"
               [style.height.px]="selectedPaper.orientation === 'portrait' ? paperHeight * paperDpi : paperWidth * paperDpi"
               [style.padding]="(paperMarginY * paperDpi) + 'px ' + (paperMarginX * paperDpi) + 'px'"
@@ -253,6 +283,11 @@
             <p-checkbox name="lowInk" class="p-mr-2" [binary]="true" [(ngModel)]="lowInk" inputId="lowInk"
               (onChange)="saveSettings()"></p-checkbox>
             <label for="lowInk">{{'export.low-ink-mode' | translate}}</label>
+          </div>
+          <div class="checkbox-item">
+            <label for="softProof" class="p-mr-2">{{'export.soft-proof' | translate}}</label>
+            <p-select [options]="softProofOptions" [(ngModel)]="softProofMode" optionLabel="name"
+              optionValue="value" (onChange)="saveSettings()" [style]="{'min-width': '140px'}"></p-select>
           </div>
           <div class="checkbox-item">
             <p-checkbox name="excludeCardBacks" class="p-mr-2" [binary]="true" [(ngModel)]="excludeCardBacks"

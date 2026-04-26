@@ -127,7 +127,11 @@
         "card-selection-title": "Избор на карти - Промените по картите са временни",
         "export-information": "Уверете се, че този DPI е същият като целевия DPI за шаблоните на картите и винаги задавайте 'обръщане по дългия ръб' при печат.",
         "missing-templates-warning": "Някои карти нямат избрани както преден, така и заден шаблон и няма да се появят в експорта.",
-        "wait-message": "Генериране на експорта, моля изчакайте..."
+        "wait-message": "Генериране на експорта, моля изчакайте...",
+        "soft-proof": "Soft Proof",
+        "soft-proof-none": "None",
+        "soft-proof-color-laser": "Color Laser",
+        "soft-proof-bw-laser": "B/W Laser"
     },
     "settings": {
         "title": "Настройки на приложението",

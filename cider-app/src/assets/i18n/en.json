@@ -138,7 +138,12 @@
         "export-information": "Make sure this DPI is the same target DPI for the card templates and always set 'flip on long edge' when printing.",
         "missing-templates-warning": "Some cards do not have both their back and front template selected and will not appear in the export.",
         "wait-message": "Generating export, please wait...",
-        "exclude-card-backs": "Exclude Card Backs"
+        "exclude-card-backs": "Exclude Card Backs",
+        "soft-proof": "Soft Proof",
+        "soft-proof-none": "None",
+        "soft-proof-color-laser": "Color Laser",
+        "soft-proof-bw-laser": "B/W Laser",
+        "soft-proof-processing": "Processing Soft Proof..."
     },
     "settings": {
         "title": "Application Settings",

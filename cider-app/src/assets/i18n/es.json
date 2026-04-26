@@ -128,7 +128,11 @@
         "card-selection-title": "Selección de Cartas - Los cambios son temporales",
         "export-information": "Asegúrate de que este DPI sea el mismo que el de las plantillas de cartas y siempre selecciona 'voltear en borde largo' al imprimir.",
         "missing-templates-warning": "Algunas cartas no tienen seleccionada tanto la plantilla de anverso como la de reverso y no aparecerán en la exportación.",
-        "wait-message": "Generando exportación, por favor espera..."
+        "wait-message": "Generando exportación, por favor espera...",
+        "soft-proof": "Soft Proof",
+        "soft-proof-none": "None",
+        "soft-proof-color-laser": "Color Laser",
+        "soft-proof-bw-laser": "B/W Laser"
     },
     "settings": {
         "title": "Configuración de la Aplicación",

@@ -128,7 +128,11 @@
         "card-selection-title": "カード選択 - 変更は一時的です",
         "export-information": "このDPIがカードテンプレートの目標DPIと同じであることを確認し、印刷時には常に「長辺で反転」を設定してください。",
         "missing-templates-warning": "一部のカードは表面と裏面のテンプレートが両方選択されていないため、エクスポートに表示されません。",
-        "wait-message": "エクスポートを生成中です。しばらくお待ちください..."
+        "wait-message": "エクスポートを生成中です。しばらくお待ちください...",
+        "soft-proof": "Soft Proof",
+        "soft-proof-none": "None",
+        "soft-proof-color-laser": "Color Laser",
+        "soft-proof-bw-laser": "B/W Laser"
     },
     "settings": {
         "title": "アプリケーション設定",

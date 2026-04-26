@@ -128,7 +128,11 @@
         "card-selection-title": "Sélection de cartes - Les changements sont temporaires",
         "export-information": "Assurez-vous que ce DPI correspond à celui des modèles de cartes et réglez toujours 'retourner sur le bord long' lors de l’impression.",
         "missing-templates-warning": "Certaines cartes n’ont pas de modèle recto et verso sélectionné et n’apparaîtront pas dans l’exportation.",
-        "wait-message": "Génération de l’exportation, veuillez patienter..."
+        "wait-message": "Génération de l’exportation, veuillez patienter...",
+        "soft-proof": "Soft Proof",
+        "soft-proof-none": "None",
+        "soft-proof-color-laser": "Color Laser",
+        "soft-proof-bw-laser": "B/W Laser"
     },
     "settings": {
         "title": "Paramètres de l’application",

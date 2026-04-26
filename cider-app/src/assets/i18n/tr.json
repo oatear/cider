@@ -128,7 +128,11 @@
         "card-selection-title": "Kart Seçimi - Kartlardaki değişiklikler geçicidir",
         "export-information": "Bu DPI'nın kart şablonlarının hedef DPI'sı ile aynı olduğundan emin olun ve yazdırırken her zaman 'uzun kenardan çevir' seçeneğini ayarlayın.",
         "missing-templates-warning": "Bazı kartların hem ön hem de arka şablonu seçili değil, bu yüzden dışa aktarımda görünmeyecekler.",
-        "wait-message": "Dışa aktarım oluşturuluyor, lütfen bekleyin..."
+        "wait-message": "Dışa aktarım oluşturuluyor, lütfen bekleyin...",
+        "soft-proof": "Soft Proof",
+        "soft-proof-none": "None",
+        "soft-proof-color-laser": "Color Laser",
+        "soft-proof-bw-laser": "B/W Laser"
     },
     "settings": {
         "title": "Uygulama Ayarları",

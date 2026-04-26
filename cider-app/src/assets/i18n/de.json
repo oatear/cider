@@ -128,7 +128,11 @@
         "card-selection-title": "Kartenauswahl – Änderungen sind temporär",
         "export-information": "Stelle sicher, dass dieser DPI-Wert mit dem der Kartenvorlagen übereinstimmt und wähle beim Drucken immer 'an langer Kante spiegeln'.",
         "missing-templates-warning": "Einige Karten haben weder eine Vorderseiten- noch Rückseitenvorlage ausgewählt und erscheinen nicht im Export.",
-        "wait-message": "Export wird generiert, bitte warten..."
+        "wait-message": "Export wird generiert, bitte warten...",
+        "soft-proof": "Soft Proof",
+        "soft-proof-none": "None",
+        "soft-proof-color-laser": "Color Laser",
+        "soft-proof-bw-laser": "B/W Laser"
     },
     "settings": {
         "title": "App-Einstellungen",

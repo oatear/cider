@@ -13,6 +13,7 @@ import StringUtils from '../shared/utils/string-utils';
 import GeneralUtils from '../shared/utils/general-utils';
 import { ConfirmationService } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
+import { ColorManagementService } from '../data-services/services/color-management.service';
 
 import { LocalStorageService } from '../data-services/local-storage/local-storage.service';
 
@@ -30,6 +31,11 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
   private static readonly EXPORT_OPTIONS: RadioOption[] = [
     { name: 'Card Sheet', value: ExportCardsComponent.SHEET_EXPORT },
     { name: 'Individual Images', value: ExportCardsComponent.SINGULAR_EXPORT }
+  ];
+  private static readonly SOFT_PROOF_OPTIONS: RadioOption[] = [
+    { name: 'None', value: 'none' },
+    { name: 'Color Laser', value: 'color-laser' },
+    { name: 'B/W Laser', value: 'bw-laser' }
   ];
   private static readonly PAPER_OPTIONS: PaperType[] = [
     { name: 'US Letter (Landscape)', width: 8.5, height: 11, orientation: 'landscape', mirrorBacksX: false, mirrorBacksY: true },
@@ -96,6 +102,11 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
   renderCache: boolean = false;
   public currentPageIndex: number = 0;
   public showSettings: boolean = true;
+  public softProofMode: string = 'none';
+  public softProofOptions: RadioOption[] = [];
+  public softProofFrontImageUrl: string | null = null;
+  public softProofBackImageUrl: string | null = null;
+  public isProcessingSoftProof: boolean = false;
   
   // Pan and Zoom properties
   public isPanning: boolean = false;
@@ -116,6 +127,7 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
     private imageRendererService: ImageRendererService,
     private translate: TranslateService,
     private localStorageService: LocalStorageService,
+    private colorManagementService: ColorManagementService,
     private confirmationService: ConfirmationService) {
     cardsService.getAll().then(cards => {
       // check cards for front/back templates being defined
@@ -129,6 +141,7 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
 
     this.exportOptions = ExportCardsComponent.EXPORT_OPTIONS;
     this.paperOptions = ExportCardsComponent.PAPER_OPTIONS;
+    this.softProofOptions = ExportCardsComponent.SOFT_PROOF_OPTIONS;
     this.selectedPaper = this.paperOptions[0];
     this.paperWidth = this.selectedPaper.width;
     this.paperHeight = this.selectedPaper.height;
@@ -183,6 +196,7 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
       if (config.individualExportUseCardName !== undefined) this.individualExportUseCardName = config.individualExportUseCardName;
       if (config.scale !== undefined) this.scale = config.scale;
       if (config.maxTtsPixels !== undefined) this.maxTtsPixels = config.maxTtsPixels;
+      if (config.softProofMode !== undefined) this.softProofMode = config.softProofMode;
 
       // Force update things that depend on these values
       this.changePaperType(); // This resets some values based on paper type
@@ -224,6 +238,9 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
         name: name, width: option.width, height: option.height, orientation: option.orientation,
         mirrorBacksX: option.mirrorBacksX, mirrorBacksY: option.mirrorBacksY
       };
+    });
+    this.softProofOptions = ExportCardsComponent.SOFT_PROOF_OPTIONS.map(option => {
+      return { name: this.translate.instant('export.soft-proof-' + option.value), value: option.value };
     });
     this.selectedPaper = this.paperOptions[0];
     this.changePaperType();
@@ -304,6 +321,14 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
     if (!this.initializationDone) {
       return;
     }
+
+    if (this.softProofMode !== 'none') {
+      this.generateSoftProofPreview();
+    } else {
+      this.softProofFrontImageUrl = null;
+      this.softProofBackImageUrl = null;
+    }
+
     this.localStorageService.setExportConfig({
       exportType: this.exportType,
       paperType: this.selectedPaper.name,
@@ -329,7 +354,8 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
       individualExportPixelRatio: this.individualExportPixelRatio,
       individualExportUseCardName: this.individualExportUseCardName,
       scale: this.scale,
-      maxTtsPixels: this.maxTtsPixels
+      maxTtsPixels: this.maxTtsPixels,
+      softProofMode: this.softProofMode
     });
   }
 
@@ -368,7 +394,7 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
 
   public onMouseDown(event: MouseEvent, container: HTMLElement) {
     if (event.button !== 0 && event.button !== 1) return; // Only left or middle click
-    if (event.button === 1) event.preventDefault(); // Prevent native middle-click auto-scroll
+    event.preventDefault(); // Prevent text selection and native middle-click auto-scroll
     this.isPanning = true;
     this.panStartX = event.clientX;
     this.panStartY = event.clientY;
@@ -565,7 +591,7 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
             + (showFront ? 'front' : 'back') + ' image...';
           const cardSheet = this.cardSheets.first;
           const imgUri = await limit(() => this.imageRendererService.toPng((<any>cardSheet).nativeElement,
-            { pixelRatio: this.pixelRatio }));
+            { pixelRatio: this.pixelRatio, style: { filter: 'none' } }));
           const imgName = 'sheet-' + (showFront ? 'front-' : 'back-')
             + sheetIndex + '.png';
           const sheetImage = this.dataUrlToFile(imgUri, imgName);
@@ -613,7 +639,7 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
         const cardSheets = await Promise.all(this.cardSheets.map(cardSheet => limit(() => {
           return this.imageRendererService.toPng((<any>cardSheet).nativeElement, {
             pixelRatio: 1.0,
-            style: { transform: 'none', margin: '0' },
+            style: { transform: 'none', margin: '0', filter: 'none' },
             onImageErrorHandler: (error) => { console.log('error', error); }
           });
         })));
@@ -802,6 +828,79 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
     return new File([blobArray], fileName, { type: mime });
   }
 
+  private async processSoftProofSheet(cardSheet: any): Promise<string | null> {
+    if (!cardSheet) return null;
+    try {
+      // 1. Render HTML to Data URL at 1.0 pixel ratio to match print size accurately
+      const imgUri = await this.imageRendererService.toPng((<any>cardSheet).nativeElement, { 
+        pixelRatio: 1.0,
+        style: { transform: 'none', margin: '0' }
+      });
+      
+      // 2. Load into HTMLImageElement
+      const img = new Image();
+      img.src = imgUri;
+      await new Promise(resolve => img.onload = resolve);
+
+      // 3. Draw to canvas and get ImageData
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      if (!ctx) throw new Error('Could not get 2d context');
+      
+      ctx.drawImage(img, 0, 0);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+      // 4. Apply ICC Soft Proof via WASM
+      const resultImageData = await this.colorManagementService.applySoftProof(imageData, this.softProofMode);
+      
+      // 5. Draw back to canvas
+      ctx.putImageData(resultImageData, 0, 0);
+      
+      // 6. Set Image URL to display over the live preview
+      return canvas.toDataURL('image/png');
+    } catch (e) {
+      console.error('Failed to generate soft proof preview', e);
+      return null;
+    }
+  }
+
+  private async generateSoftProofPreview() {
+    if (this.softProofMode === 'none') {
+      this.softProofFrontImageUrl = null;
+      this.softProofBackImageUrl = null;
+      this.isProcessingSoftProof = false;
+      return;
+    }
+
+    this.isProcessingSoftProof = true;
+    this.softProofFrontImageUrl = null;
+    this.softProofBackImageUrl = null;
+    
+    // Ensure view updates and DOM is rendered before capturing
+    await GeneralUtils.delay(500);
+
+    const cardSheetsArray = this.cardSheets.toArray();
+    let frontSheet = null;
+    let backSheet = null;
+
+    if (this.showFront && this.showBack) {
+      frontSheet = cardSheetsArray[0];
+      backSheet = cardSheetsArray[1];
+    } else if (this.showFront) {
+      frontSheet = cardSheetsArray[0];
+    } else if (this.showBack) {
+      backSheet = cardSheetsArray[0];
+    }
+
+    try {
+      this.softProofFrontImageUrl = await this.processSoftProofSheet(frontSheet);
+      this.softProofBackImageUrl = await this.processSoftProofSheet(backSheet);
+    } finally {
+      this.isProcessingSoftProof = false;
+    }
+  }
 }
 
 interface RadioOption {

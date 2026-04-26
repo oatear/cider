@@ -29,6 +29,7 @@ export interface ExportConfiguration {
   individualExportUseCardName?: boolean;
   scale?: number;
   maxTtsPixels?: number;
+  softProofMode?: string;
 }
 
 /**

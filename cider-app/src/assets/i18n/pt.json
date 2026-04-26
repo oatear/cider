@@ -128,7 +128,11 @@
         "card-selection-title": "Seleção de Cartas - As alterações nas cartas são temporárias",
         "export-information": "Certifique-se de que este DPI seja o mesmo DPI alvo dos templates das cartas e sempre selecione 'virar na borda longa' ao imprimir.",
         "missing-templates-warning": "Algumas cartas não têm os templates frontal e traseiro selecionados e não aparecerão na exportação.",
-        "wait-message": "Gerando exportação, por favor aguarde..."
+        "wait-message": "Gerando exportação, por favor aguarde...",
+        "soft-proof": "Soft Proof",
+        "soft-proof-none": "None",
+        "soft-proof-color-laser": "Color Laser",
+        "soft-proof-bw-laser": "B/W Laser"
     },
     "settings": {
         "title": "Configurações do Aplicativo",

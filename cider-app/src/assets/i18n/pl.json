@@ -128,7 +128,11 @@
         "card-selection-title": "Wybór Kart - Zmiany w kartach są tymczasowe",
         "export-information": "Upewnij się, że DPI jest takie samo jak docelowe DPI szablonów kart i zawsze ustaw 'flip na długiej krawędzi' podczas drukowania.",
         "missing-templates-warning": "Niektóre karty nie mają wybranego zarówno szablonu przodu, jak i tyłu i nie pojawią się w eksporcie.",
-        "wait-message": "Generowanie eksportu, proszę czekać..."
+        "wait-message": "Generowanie eksportu, proszę czekać...",
+        "soft-proof": "Soft Proof",
+        "soft-proof-none": "None",
+        "soft-proof-color-laser": "Color Laser",
+        "soft-proof-bw-laser": "B/W Laser"
     },
     "settings": {
         "title": "Ustawienia Aplikacji",

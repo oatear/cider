@@ -128,7 +128,11 @@
         "card-selection-title": "Вибір карт - зміни тимчасові",
         "export-information": "Переконайтеся, що DPI збігається з цільовим DPI шаблонів карт і завжди вибирайте 'перевернути по довгій стороні' при друку.",
         "missing-templates-warning": "Деякі карти не мають обраних шаблонів для лицьової та зворотної сторони і не будуть включені до експорту.",
-        "wait-message": "Генерується експорт, будь ласка, зачекайте..."
+        "wait-message": "Генерується експорт, будь ласка, зачекайте...",
+        "soft-proof": "Soft Proof",
+        "soft-proof-none": "None",
+        "soft-proof-color-laser": "Color Laser",
+        "soft-proof-bw-laser": "B/W Laser"
     },
     "settings": {
         "title": "Налаштування програми",
