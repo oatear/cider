@@ -148,6 +148,9 @@ $preview-individual-scale: 0.08;
     margin: 16px 0;
 
     .section-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         font-weight: 600;
         font-size: 0.9rem;
         color: var(--text-color-secondary);

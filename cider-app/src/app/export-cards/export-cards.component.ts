@@ -100,7 +100,7 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
   public softProofMode: string = 'none';
   public softProofOptions: RadioOption[] = [];
   public softProofIntent: number = 0;
-  public simulatePaperColor: boolean = false;
+  public softProofEnabled: boolean = false;
   public softProofFrontImageUrl: string | null = null;
   public softProofBackImageUrl: string | null = null;
   public simulateUnsharpMask: boolean = false;
@@ -211,7 +211,7 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
       }
 
       if (config.softProofIntent !== undefined) this.softProofIntent = config.softProofIntent;
-      if (config.simulatePaperColor !== undefined) this.simulatePaperColor = config.simulatePaperColor;
+      if (config.softProofEnabled !== undefined) this.softProofEnabled = config.softProofEnabled;
       if (config.simulateUnsharpMask !== undefined) this.simulateUnsharpMask = config.simulateUnsharpMask;
 
       // Force update things that depend on these values
@@ -257,13 +257,14 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
     });
 
     const profiles = await this.colorManagementService.getAvailableProfiles();
-    this.softProofOptions = [
-      { name: this.translate.instant('export.soft-proof-none'), value: 'none' },
-      ...profiles.map((p: string) => ({
-        name: p.replace(/([A-Z])/g, ' $1').trim(), // Add space before caps for better readability
-        value: p
-      }))
-    ];
+    this.softProofOptions = profiles.map(p => ({
+      name: p.name,
+      value: p.file
+    }));
+
+    if (!this.softProofMode || this.softProofMode === 'none') {
+      this.softProofMode = this.softProofOptions[0]?.value || 'none';
+    }
 
     this.intentOptions = [
       { name: this.translate.instant('export.intent-perceptual'), value: 0 },
@@ -351,7 +352,7 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
       return;
     }
 
-    if (this.softProofMode !== 'none') {
+    if (this.softProofEnabled && this.softProofMode !== 'none') {
       this.generateSoftProofPreview();
     } else {
       this.softProofFrontImageUrl = null;
@@ -386,7 +387,7 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
       maxTtsPixels: this.maxTtsPixels,
       softProofMode: this.softProofMode,
       softProofIntent: this.softProofIntent,
-      simulatePaperColor: this.simulatePaperColor,
+      softProofEnabled: this.softProofEnabled,
       simulateUnsharpMask: this.simulateUnsharpMask
     });
   }
@@ -417,7 +418,7 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
   public onPageChange(event: any) {
     this.currentPageIndex = event.page;
     this.sheet = this.slicedCards ? this.slicedCards[this.currentPageIndex] : [];
-    if (this.softProofMode !== 'none') {
+    if (this.softProofEnabled && this.softProofMode !== 'none') {
       this.generateSoftProofPreview();
     }
   }
@@ -902,7 +903,6 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
         imageData,
         this.softProofMode,
         this.softProofIntent,
-        this.simulatePaperColor,
         options
       );
 
@@ -918,7 +918,7 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
   }
 
   private async generateSoftProofPreview() {
-    if (this.softProofMode === 'none') {
+    if (!this.softProofEnabled || this.softProofMode === 'none') {
       this.softProofFrontImageUrl = null;
       this.softProofBackImageUrl = null;
       this.isProcessingSoftProof = false;

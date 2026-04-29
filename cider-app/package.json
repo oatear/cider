@@ -11,8 +11,8 @@
   "main": "electron-app/dist/main.js",
   "scripts": {
     "ng": "ng",
-    "start": "node scripts/generate-icc-list.mjs && ng serve",
-    "build": "node scripts/generate-icc-list.mjs && ng build",
+    "start": "ng serve",
+    "build": "ng build",
     "build:gh-pages": "ng build --base-href=/cider/",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",

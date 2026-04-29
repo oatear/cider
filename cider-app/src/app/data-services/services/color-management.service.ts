@@ -3,6 +3,11 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import init, { SoftProofer } from 'cider-press';
 
+export interface IccProfile {
+  file: string;
+  name: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -10,7 +15,7 @@ export class ColorManagementService {
   private profilesLoaded = false;
   private wasmReady = false;
   private wasmInitPromise: Promise<void> | null = null;
-  private availableProfiles: string[] = [];
+  private availableProfiles: IccProfile[] = [];
 
   // Cache SoftProofer instances per profile/intent combination
   private proofers: Map<string, SoftProofer> = new Map();
@@ -25,7 +30,7 @@ export class ColorManagementService {
     if (!this.profilesLoaded) {
       try {
         console.log('ColorManagementService: Fetching profiles from ./assets/icc/profiles.json');
-        this.availableProfiles = await firstValueFrom(this.http.get<string[]>('./assets/icc/profiles.json'));
+        this.availableProfiles = await firstValueFrom(this.http.get<IccProfile[]>('./assets/icc/profiles.json'));
         this.profilesLoaded = true;
         console.log('ColorManagementService: Profiles loaded successfully:', this.availableProfiles);
       } catch (e) {
@@ -54,10 +59,10 @@ export class ColorManagementService {
   /**
    * Returns the list of detected ICC profiles.
    */
-  async getAvailableProfiles(): Promise<string[]> {
+  async getAvailableProfiles(): Promise<IccProfile[]> {
     if (!this.profilesLoaded) {
       try {
-        this.availableProfiles = await firstValueFrom(this.http.get<string[]>('./assets/icc/profiles.json'));
+        this.availableProfiles = await firstValueFrom(this.http.get<IccProfile[]>('./assets/icc/profiles.json'));
         this.profilesLoaded = true;
       } catch (e) {
         console.error('ColorManagementService: Failed to load profiles for dropdown from ./assets/icc/profiles.json', e);
@@ -73,7 +78,6 @@ export class ColorManagementService {
     imageData: ImageData,
     profileName: string,
     intent: number = 1, // 1 = RelativeColorimetric
-    simulatePaper: boolean = false,
     options: any = {}
   ): Promise<ImageData> {
     if (!this.wasmReady) {
@@ -84,7 +88,7 @@ export class ColorManagementService {
       return imageData;
     }
 
-    const prooferKey = `${profileName}_${intent}_${simulatePaper}`;
+    const prooferKey = `${profileName}_${intent}`;
     let proofer = this.proofers.get(prooferKey);
 
     if (!proofer) {
@@ -92,10 +96,10 @@ export class ColorManagementService {
         const profilePath = `./assets/icc/${profileName}.icc`;
         const buffer = await firstValueFrom(this.http.get(profilePath, { responseType: 'arraybuffer' }));
         const profileBytes = new Uint8Array(buffer);
-        
+
         console.log('ColorManagementService: Creating new SoftProofer for', profileName);
-        // Use 16-bit intermediate if simulatePaper is requested for higher precision return path
-        proofer = new SoftProofer(profileBytes, intent, simulatePaper);
+        // Default to high precision (16-bit intermediate) for all soft proofing
+        proofer = new SoftProofer(profileBytes, intent, true);
         this.proofers.set(prooferKey, proofer);
       } catch (e) {
         console.error(`ColorManagementService: Failed to initialize proofer for ${profileName}`, e);

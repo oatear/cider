@@ -31,7 +31,7 @@ export interface ExportConfiguration {
   maxTtsPixels?: number;
   softProofMode?: string;
   softProofIntent?: number;
-  simulatePaperColor?: boolean;
+  softProofEnabled?: boolean;
   simulateUnsharpMask?: boolean;
 }
 

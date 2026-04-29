@@ -29,8 +29,8 @@
           <div class="scale-wrapper" style="position: relative;"
             [style.width.px]="selectedPaper.orientation === 'portrait' ? paperWidth * paperDpi * scale: paperHeight * paperDpi * scale"
             [style.height.px]="selectedPaper.orientation === 'portrait' ? paperHeight * paperDpi * scale: paperWidth * paperDpi * scale">
-            @if (softProofMode !== 'none' && softProofFrontImageUrl) {
-              <img [src]="softProofFrontImageUrl" class="preview-page"
+            @if (softProofEnabled && softProofFrontImageUrl) {
+              <img [src]="softProofFrontImageUrl | safeUrl" class="preview-page"
                 [style.width.px]="selectedPaper.orientation === 'portrait' ? paperWidth * paperDpi : paperHeight * paperDpi"
                 [style.height.px]="selectedPaper.orientation === 'portrait' ? paperHeight * paperDpi : paperWidth * paperDpi"
                 [style.transform]="'scale(' + scale + ')'"
@@ -44,7 +44,7 @@
               </div>
             }
             <div #cardSheets class="preview-page"
-              [style.opacity]="softProofMode !== 'none' && softProofFrontImageUrl ? '0' : '1'"
+              [style.opacity]="softProofEnabled && softProofFrontImageUrl ? '0' : '1'"
               [style.width.px]="selectedPaper.orientation === 'portrait' ? paperWidth * paperDpi : paperHeight * paperDpi"
               [style.height.px]="selectedPaper.orientation === 'portrait' ? paperHeight * paperDpi : paperWidth * paperDpi"
               [style.padding]="(paperMarginY * paperDpi) + 'px ' + (paperMarginX * paperDpi) + 'px'"
@@ -111,8 +111,8 @@
           <div class="scale-wrapper" style="position: relative;"
             [style.width.px]="selectedPaper.orientation === 'portrait' ? paperWidth * paperDpi * scale: paperHeight * paperDpi * scale"
             [style.height.px]="selectedPaper.orientation === 'portrait' ? paperHeight * paperDpi * scale: paperWidth * paperDpi * scale">
-            @if (softProofMode !== 'none' && softProofBackImageUrl) {
-              <img [src]="softProofBackImageUrl" class="preview-page"
+            @if (softProofEnabled && softProofBackImageUrl) {
+              <img [src]="softProofBackImageUrl | safeUrl" class="preview-page"
                 [style.width.px]="selectedPaper.orientation === 'portrait' ? paperWidth * paperDpi : paperHeight * paperDpi"
                 [style.height.px]="selectedPaper.orientation === 'portrait' ? paperHeight * paperDpi : paperWidth * paperDpi"
                 [style.transform]="'scale(' + scale + ')'"
@@ -336,7 +336,12 @@
           </div>
 
           <div class="p-field soft-proofing-section">
-            <div class="section-title">{{'export.soft-proofing-title' | translate}}</div>
+            <div class="section-title">
+              {{'export.soft-proofing-title' | translate}}
+              <p-toggleswitch [(ngModel)]="softProofEnabled" (onChange)="saveSettings()" class="p-ml-auto"></p-toggleswitch>
+            </div>
+            
+            @if (softProofEnabled) {
             <div class="soft-proof-controls">
               <div class="p-field">
                 <label for="softProof">{{'export.soft-proof' | translate}}</label>
@@ -344,27 +349,20 @@
                   optionValue="value" (onChange)="saveSettings()" [style]="{'width': '100%'}"></p-select>
               </div>
 
-              <div class="p-field" [class.disabled]="softProofMode === 'none'">
+              <div class="p-field">
                 <label for="softProofIntent">{{'export.intent' | translate}}</label>
                 <p-select [options]="intentOptions" [(ngModel)]="softProofIntent" optionLabel="name"
-                  optionValue="value" (onChange)="saveSettings()" [style]="{'width': '100%'}"
-                  [disabled]="softProofMode === 'none'"></p-select>
+                  optionValue="value" (onChange)="saveSettings()" [style]="{'width': '100%'}"></p-select>
               </div>
 
-              <div class="checkbox-item" [class.disabled]="softProofMode === 'none'">
-                <p-checkbox name="simulatePaperColor" class="p-mr-2" [binary]="true"
-                  [(ngModel)]="simulatePaperColor" inputId="simulatePaperColor"
-                  (onChange)="saveSettings()" [disabled]="softProofMode === 'none'"></p-checkbox>
-                <label for="simulatePaperColor">{{'export.simulate-paper-color' | translate}}</label>
-              </div>
-
-              <div class="checkbox-item" [class.disabled]="softProofMode === 'none'">
+              <div class="checkbox-item">
                 <p-checkbox name="simulateUnsharpMask" class="p-mr-2" [binary]="true"
                   [(ngModel)]="simulateUnsharpMask" inputId="simulateUnsharpMask"
-                  (onChange)="saveSettings()" [disabled]="softProofMode === 'none'"></p-checkbox>
+                  (onChange)="saveSettings()"></p-checkbox>
                 <label for="simulateUnsharpMask">{{'export.simulate-unsharp-mask' | translate}}</label>
               </div>
             </div>
+            }
           </div>
 
           <div class="p-field">
