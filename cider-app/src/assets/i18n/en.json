@@ -149,7 +149,8 @@
         "intent-perceptual": "Perceptual",
         "intent-relative": "Relative Colorimetric",
         "intent-absolute": "Absolute Colorimetric",
-        "simulate-paper-color": "Simulate Paper Color"
+        "simulate-paper-color": "Simulate Paper Color",
+        "simulate-unsharp-mask": "Simulate Unsharp Mask"
     },
     "settings": {
         "title": "Application Settings",

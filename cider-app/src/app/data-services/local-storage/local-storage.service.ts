@@ -32,6 +32,7 @@ export interface ExportConfiguration {
   softProofMode?: string;
   softProofIntent?: number;
   simulatePaperColor?: boolean;
+  simulateUnsharpMask?: boolean;
 }
 
 /**

@@ -357,6 +357,13 @@
                   (onChange)="saveSettings()" [disabled]="softProofMode === 'none'"></p-checkbox>
                 <label for="simulatePaperColor">{{'export.simulate-paper-color' | translate}}</label>
               </div>
+
+              <div class="checkbox-item" [class.disabled]="softProofMode === 'none'">
+                <p-checkbox name="simulateUnsharpMask" class="p-mr-2" [binary]="true"
+                  [(ngModel)]="simulateUnsharpMask" inputId="simulateUnsharpMask"
+                  (onChange)="saveSettings()" [disabled]="softProofMode === 'none'"></p-checkbox>
+                <label for="simulateUnsharpMask">{{'export.simulate-unsharp-mask' | translate}}</label>
+              </div>
             </div>
           </div>
 

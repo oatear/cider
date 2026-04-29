@@ -65,7 +65,7 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
   public expandedCards: Card[] = [];
   public slicedCards: Card[][] = [];
   public sheet: Card[] = [];
-  
+
   public singularCardsPerPage: number = 20;
   public slicedSingularCards: Card[][] = [];
   public singularSheet: Card[] = [];
@@ -103,14 +103,15 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
   public simulatePaperColor: boolean = false;
   public softProofFrontImageUrl: string | null = null;
   public softProofBackImageUrl: string | null = null;
+  public simulateUnsharpMask: boolean = false;
   public isProcessingSoftProof: boolean = false;
-  
+
   public intentOptions: any[] = [
     { name: 'Perceptual', value: 0 },
     { name: 'Relative Colorimetric', value: 1 },
     { name: 'Absolute Colorimetric', value: 3 }
   ];
-  
+
   // Pan and Zoom properties
   public isPanning: boolean = false;
   private panStartX: number = 0;
@@ -199,7 +200,7 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
       if (config.individualExportUseCardName !== undefined) this.individualExportUseCardName = config.individualExportUseCardName;
       if (config.scale !== undefined) this.scale = config.scale;
       if (config.maxTtsPixels !== undefined) this.maxTtsPixels = config.maxTtsPixels;
-      
+
       if (config.softProofMode !== undefined) {
         // Only set if it's 'none' or exists in our dynamic options
         if (config.softProofMode === 'none' || this.softProofOptions.some(o => o.value === config.softProofMode)) {
@@ -211,6 +212,7 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
 
       if (config.softProofIntent !== undefined) this.softProofIntent = config.softProofIntent;
       if (config.simulatePaperColor !== undefined) this.simulatePaperColor = config.simulatePaperColor;
+      if (config.simulateUnsharpMask !== undefined) this.simulateUnsharpMask = config.simulateUnsharpMask;
 
       // Force update things that depend on these values
       this.changePaperType(); // This resets some values based on paper type
@@ -382,7 +384,10 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
       individualExportUseCardName: this.individualExportUseCardName,
       scale: this.scale,
       maxTtsPixels: this.maxTtsPixels,
-      softProofMode: this.softProofMode
+      softProofMode: this.softProofMode,
+      softProofIntent: this.softProofIntent,
+      simulatePaperColor: this.simulatePaperColor,
+      simulateUnsharpMask: this.simulateUnsharpMask
     });
   }
 
@@ -452,15 +457,15 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
   public onWheel(event: WheelEvent) {
     // Prevent default scrolling to handle zoom seamlessly
     event.preventDefault();
-    
+
     // Zoom factor based on wheel delta
     const zoomFactor = event.deltaY < 0 ? 1.1 : 0.9;
-    
+
     let newScale = this.scale * zoomFactor;
     // Clamp scale between min and max reasonable limits
     if (newScale < 0.05) newScale = 0.05;
     if (newScale > 2.0) newScale = 2.0;
-    
+
     this.scale = parseFloat(newScale.toFixed(3));
     this.saveSettings();
   }
@@ -746,7 +751,7 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
         }
 
         this.loadingInfo = 'Generating PNGs for chunk ' + (chunkIndex + 1) + '/' + this.slicedSingularCards.length + '...';
-        
+
         const frontCards$ = this.frontCards.map(async cardPreview => {
           const imgUri = await limit(() => this.imageRendererService.toPng((<any>cardPreview).element.nativeElement,
             { pixelRatio: this.individualExportPixelRatio }));
@@ -863,11 +868,11 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
     if (!cardSheet) return null;
     try {
       // 1. Render HTML to Data URL at 1.0 pixel ratio to match print size accurately
-      const imgUri = await this.imageRendererService.toPng((<any>cardSheet).nativeElement, { 
+      const imgUri = await this.imageRendererService.toPng((<any>cardSheet).nativeElement, {
         pixelRatio: 1.0,
         style: { transform: 'none', margin: '0' }
       });
-      
+
       // 2. Load into HTMLImageElement
       const img = new Image();
       img.src = imgUri;
@@ -879,21 +884,31 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
       canvas.height = img.height;
       const ctx = canvas.getContext('2d', { willReadFrequently: true });
       if (!ctx) throw new Error('Could not get 2d context');
-      
+
       ctx.drawImage(img, 0, 0);
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
       // 4. Apply ICC Soft Proof via WASM
+      const options = {
+        unsharp_mask: {
+          enabled: this.simulateUnsharpMask,
+          radius: 3.0, // 4.0
+          amount: 0.5, // 1.0
+          threshold: 10.0 // 10.0
+        }
+      };
+
       const processedImageData = await this.colorManagementService.applySoftProof(
-        imageData, 
+        imageData,
         this.softProofMode,
         this.softProofIntent,
-        this.simulatePaperColor
+        this.simulatePaperColor,
+        options
       );
-      
+
       // 5. Draw back to canvas
       ctx.putImageData(processedImageData, 0, 0);
-      
+
       // 6. Set Image URL to display over the live preview
       return canvas.toDataURL('image/png');
     } catch (e) {
@@ -913,7 +928,7 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
     this.isProcessingSoftProof = true;
     this.softProofFrontImageUrl = null;
     this.softProofBackImageUrl = null;
-    
+
     // Ensure view updates and DOM is rendered before capturing
     await GeneralUtils.delay(500);
 

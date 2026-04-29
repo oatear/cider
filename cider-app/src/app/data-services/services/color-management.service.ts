@@ -67,13 +67,14 @@ export class ColorManagementService {
   }
 
   /**
-   * Applies the soft proofing ICC transform to the given ImageData using cider-press.
+   * Applies the soft proofing ICC transform and post-processing to the given ImageData.
    */
   async applySoftProof(
     imageData: ImageData,
     profileName: string,
     intent: number = 1, // 1 = RelativeColorimetric
-    simulatePaper: boolean = false
+    simulatePaper: boolean = false,
+    options: any = {}
   ): Promise<ImageData> {
     if (!this.wasmReady) {
       await this.initialize();
@@ -102,17 +103,17 @@ export class ColorManagementService {
       }
     }
 
-    // Apply soft proofing via cider-press (native proofing transform)
+    // Apply soft proofing via cider-press (native proofing transform + post-processing)
     try {
       const pixels = new Uint8Array(imageData.data);
-      const result = proofer.apply(pixels, imageData.width, imageData.height);
+      const result = proofer.apply(pixels, imageData.width, imageData.height, options);
 
       if (!result || result.length === 0) {
         console.error('ColorManagementService: proofer.apply returned empty result');
         return imageData;
       }
 
-      // Update the ImageData buffer with transformed pixels (alpha preserved natively)
+      // Update the ImageData buffer with transformed pixels
       imageData.data.set(result);
       return imageData;
     } catch (e) {
