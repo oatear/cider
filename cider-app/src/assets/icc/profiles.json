@@ -1,0 +1,70 @@
+[
+  {
+    "file": "CoatedFOGRA27",
+    "name": "Coated FOGRA27"
+  },
+  {
+    "file": "CoatedFOGRA39",
+    "name": "Coated FOGRA39"
+  },
+  {
+    "file": "CoatedGRACoL2006",
+    "name": "Coated GRACoL 2006"
+  },
+  {
+    "file": "Generic CMYK Profile",
+    "name": "Generic CMYK Profile"
+  },
+  {
+    "file": "Generic Gray Profile",
+    "name": "Generic Gray Profile"
+  },
+  {
+    "file": "JapanColor2001Coated",
+    "name": "Japan Color 2001 Coated"
+  },
+  {
+    "file": "JapanColor2001Uncoated",
+    "name": "Japan Color 2001 Uncoated"
+  },
+  {
+    "file": "JapanColor2002Newspaper",
+    "name": "Japan Color 2002 Newspaper"
+  },
+  {
+    "file": "JapanColor2003WebCoated",
+    "name": "Japan Color 2003 Web Coated"
+  },
+  {
+    "file": "JapanWebCoated",
+    "name": "Japan Web Coated"
+  },
+  {
+    "file": "US Coated SWOP v2",
+    "name": "US Coated SWOP v2"
+  },
+  {
+    "file": "USWebCoatedSWOP",
+    "name": "US Web Coated SWOP v2"
+  },
+  {
+    "file": "USWebUncoated",
+    "name": "US Web Uncoated v2"
+  },
+  {
+    "file": "UncoatedFOGRA29",
+    "name": "Uncoated FOGRA29"
+  },
+  {
+    "file": "WebCoatedFOGRA28",
+    "name": "Web Coated FOGRA28"
+  },
+  {
+    "file": "WebCoatedSWOP2006Grade3",
+    "name": "Web Coated SWOP Grade 3 Paper"
+  },
+  {
+    "file": "WebCoatedSWOP2006Grade5",
+    "name": "Web Coated SWOP Grade 5 Paper"
+  }
+]

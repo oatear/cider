@@ -55,6 +55,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { PopoverModule } from 'primeng/popover';
 import { MeterGroupModule } from 'primeng/metergroup';
 import { AutoCompleteModule } from 'primeng/autocomplete';
+import { PaginatorModule } from 'primeng/paginator';
 
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
@@ -195,6 +196,7 @@ import { DropdownOptionEditorComponent } from './shared/components/dropdown-opti
         CdkDrag,
         DragDropModule,
         AutoCompleteModule,
+        PaginatorModule,
         TranslatePipe,
         TranslateDirective
     ],

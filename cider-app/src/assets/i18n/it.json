@@ -128,7 +128,9 @@
         "card-selection-title": "Selezione Carte – Le modifiche alle carte sono temporanee",
         "export-information": "Assicurati che questo DPI corrisponda al DPI target dei template delle carte e seleziona sempre 'flip sul lato lungo' durante la stampa.",
         "missing-templates-warning": "Alcune carte non hanno selezionato sia il template frontale che quello posteriore e non appariranno nell'esportazione.",
-        "wait-message": "Generazione esportazione, attendere prego..."
+        "wait-message": "Generazione esportazione, attendere prego...",
+        "soft-proof": "Soft Proof",
+        "soft-proof-none": "None"
     },
     "settings": {
         "title": "Impostazioni Applicazione",
@@ -138,7 +140,7 @@
         "language-info-electron": "Riavvia l'applicazione per applicare completamente la nuova lingua.",
         "dark-mode": "Modalità Scura"
     },
-        "simulator": {
+    "simulator": {
         "draw-card": "Pesca una carta",
         "draw-card-facedown": "Pesca una carta coperta",
         "draw-specific-card": "Pesca una carta specifica",
