@@ -68,6 +68,52 @@ $preview-individual-scale: 0.08;
 // }
 
 .settings-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    .settings-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        border-bottom: 1px solid var(--surface-d);
+        flex-shrink: 0;
+    }
+
+    .settings-scroll-area {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding-right: 12px;
+        margin-right: -12px;
+
+        /* Match global scrollbar style from styles.scss */
+        &::-webkit-scrollbar {
+            width: 15px;
+            height: 15px;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: var(--cider-scrollbar-thumb-color, var(--p-surface-200));
+            border-radius: 10px;
+            border: 4px solid transparent;
+            background-clip: content-box;
+
+            &:hover {
+                background: var(--cider-scrollbar-thumb-hover-color, var(--p-surface-300));
+                border: 4px solid transparent;
+                background-clip: content-box;
+            }
+        }
+
+        scrollbar-width: thin;
+        scrollbar-color: var(--cider-scrollbar-thumb-color, var(--p-surface-200)) transparent;
+    }
+
     div.p-d-flex div.p-field {
         flex: 1
     }
@@ -92,6 +138,51 @@ $preview-individual-scale: 0.08;
     display: flex;
     justify-content: space-between;
     margin-bottom: 10px;
+}
+
+.soft-proofing-section {
+    background: var(--surface-b);
+    border: 1px solid var(--surface-d);
+    border-radius: 8px;
+    padding: 16px;
+    margin: 16px 0;
+
+    .section-title {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--text-color-secondary);
+        margin-bottom: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .soft-proof-controls {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+
+        .p-field {
+            margin-bottom: 0;
+
+            label {
+                display: block;
+                font-size: 0.8rem;
+                margin-bottom: 4px;
+                color: var(--text-color);
+            }
+        }
+
+        .checkbox-item {
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+        }
+
+        .disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+    }
 }
 
 .preview-wrapper {

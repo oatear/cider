@@ -143,7 +143,13 @@
         "soft-proof-none": "None",
         "soft-proof-color-laser": "Color Laser",
         "soft-proof-bw-laser": "B/W Laser",
-        "soft-proof-processing": "Processing Soft Proof..."
+        "soft-proof-processing": "Processing Soft Proof...",
+        "soft-proofing-title": "Soft Proofing Settings",
+        "intent": "Rendering Intent",
+        "intent-perceptual": "Perceptual",
+        "intent-relative": "Relative Colorimetric",
+        "intent-absolute": "Absolute Colorimetric",
+        "simulate-paper-color": "Simulate Paper Color"
     },
     "settings": {
         "title": "Application Settings",

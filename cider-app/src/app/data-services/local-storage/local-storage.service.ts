@@ -30,6 +30,8 @@ export interface ExportConfiguration {
   scale?: number;
   maxTtsPixels?: number;
   softProofMode?: string;
+  softProofIntent?: number;
+  simulatePaperColor?: boolean;
 }
 
 /**

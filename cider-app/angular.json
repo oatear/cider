@@ -38,8 +38,8 @@
                 "output": "assets/monaco"
               },
               {
-                "glob": "lcms.wasm",
-                "input": "node_modules/@kittl/little-cms/dist",
+                "glob": "cider_press_bg.wasm",
+                "input": "node_modules/cider-press",
                 "output": "assets/wasm"
               }
             ],

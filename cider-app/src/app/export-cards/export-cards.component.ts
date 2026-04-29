@@ -32,11 +32,6 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
     { name: 'Card Sheet', value: ExportCardsComponent.SHEET_EXPORT },
     { name: 'Individual Images', value: ExportCardsComponent.SINGULAR_EXPORT }
   ];
-  private static readonly SOFT_PROOF_OPTIONS: RadioOption[] = [
-    { name: 'None', value: 'none' },
-    { name: 'Color Laser', value: 'color-laser' },
-    { name: 'B/W Laser', value: 'bw-laser' }
-  ];
   private static readonly PAPER_OPTIONS: PaperType[] = [
     { name: 'US Letter (Landscape)', width: 8.5, height: 11, orientation: 'landscape', mirrorBacksX: false, mirrorBacksY: true },
     { name: 'US Letter (Portrait)', width: 8.5, height: 11, orientation: 'portrait', mirrorBacksX: true, mirrorBacksY: false },
@@ -104,9 +99,17 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
   public showSettings: boolean = true;
   public softProofMode: string = 'none';
   public softProofOptions: RadioOption[] = [];
+  public softProofIntent: number = 0;
+  public simulatePaperColor: boolean = false;
   public softProofFrontImageUrl: string | null = null;
   public softProofBackImageUrl: string | null = null;
   public isProcessingSoftProof: boolean = false;
+  
+  public intentOptions: any[] = [
+    { name: 'Perceptual', value: 0 },
+    { name: 'Relative Colorimetric', value: 1 },
+    { name: 'Absolute Colorimetric', value: 3 }
+  ];
   
   // Pan and Zoom properties
   public isPanning: boolean = false;
@@ -141,7 +144,7 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
 
     this.exportOptions = ExportCardsComponent.EXPORT_OPTIONS;
     this.paperOptions = ExportCardsComponent.PAPER_OPTIONS;
-    this.softProofOptions = ExportCardsComponent.SOFT_PROOF_OPTIONS;
+    this.softProofOptions = [{ name: 'None', value: 'none' }];
     this.selectedPaper = this.paperOptions[0];
     this.paperWidth = this.selectedPaper.width;
     this.paperHeight = this.selectedPaper.height;
@@ -151,8 +154,8 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
   }
 
   ngOnInit(): void {
-    this.translate.stream('welcome.title').subscribe(() => {
-      this.updateOptions();
+    this.translate.stream('welcome.title').subscribe(async () => {
+      await this.updateOptions();
       this.loadSettings();
       this.initializationDone = true;
     });
@@ -196,7 +199,18 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
       if (config.individualExportUseCardName !== undefined) this.individualExportUseCardName = config.individualExportUseCardName;
       if (config.scale !== undefined) this.scale = config.scale;
       if (config.maxTtsPixels !== undefined) this.maxTtsPixels = config.maxTtsPixels;
-      if (config.softProofMode !== undefined) this.softProofMode = config.softProofMode;
+      
+      if (config.softProofMode !== undefined) {
+        // Only set if it's 'none' or exists in our dynamic options
+        if (config.softProofMode === 'none' || this.softProofOptions.some(o => o.value === config.softProofMode)) {
+          this.softProofMode = config.softProofMode;
+        } else {
+          this.softProofMode = 'none';
+        }
+      }
+
+      if (config.softProofIntent !== undefined) this.softProofIntent = config.softProofIntent;
+      if (config.simulatePaperColor !== undefined) this.simulatePaperColor = config.simulatePaperColor;
 
       // Force update things that depend on these values
       this.changePaperType(); // This resets some values based on paper type
@@ -219,7 +233,7 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
     }
   }
 
-  public updateOptions() {
+  public async updateOptions() {
     const replacementList: { search: string, key: string }[] = [
       { search: 'Portrait', key: 'export.portrait' },
       { search: 'Landscape', key: 'export.landscape' },
@@ -239,9 +253,22 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
         mirrorBacksX: option.mirrorBacksX, mirrorBacksY: option.mirrorBacksY
       };
     });
-    this.softProofOptions = ExportCardsComponent.SOFT_PROOF_OPTIONS.map(option => {
-      return { name: this.translate.instant('export.soft-proof-' + option.value), value: option.value };
-    });
+
+    const profiles = await this.colorManagementService.getAvailableProfiles();
+    this.softProofOptions = [
+      { name: this.translate.instant('export.soft-proof-none'), value: 'none' },
+      ...profiles.map((p: string) => ({
+        name: p.replace(/([A-Z])/g, ' $1').trim(), // Add space before caps for better readability
+        value: p
+      }))
+    ];
+
+    this.intentOptions = [
+      { name: this.translate.instant('export.intent-perceptual'), value: 0 },
+      { name: this.translate.instant('export.intent-relative'), value: 1 },
+      { name: this.translate.instant('export.intent-absolute'), value: 3 }
+    ];
+
     this.selectedPaper = this.paperOptions[0];
     this.changePaperType();
   }
@@ -853,10 +880,15 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
       // 4. Apply ICC Soft Proof via WASM
-      const resultImageData = await this.colorManagementService.applySoftProof(imageData, this.softProofMode);
+      const processedImageData = await this.colorManagementService.applySoftProof(
+        imageData, 
+        this.softProofMode,
+        this.softProofIntent,
+        this.simulatePaperColor
+      );
       
       // 5. Draw back to canvas
-      ctx.putImageData(resultImageData, 0, 0);
+      ctx.putImageData(processedImageData, 0, 0);
       
       // 6. Set Image URL to display over the live preview
       return canvas.toDataURL('image/png');
