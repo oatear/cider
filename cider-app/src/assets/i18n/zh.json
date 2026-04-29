@@ -130,9 +130,7 @@
         "missing-templates-warning": "某些卡片未同时选择正面和背面模板，因此不会出现在导出中。",
         "wait-message": "正在生成导出，请稍候...",
         "soft-proof": "Soft Proof",
-        "soft-proof-none": "None",
-        "soft-proof-color-laser": "Color Laser",
-        "soft-proof-bw-laser": "B/W Laser"
+        "soft-proof-none": "None"
     },
     "settings": {
         "title": "应用程序设置",
@@ -142,7 +140,7 @@
         "language-info-electron": "重启应用程序以完全应用新的语言。",
         "dark-mode": "深色模式"
     },
-        "simulator": {
+    "simulator": {
         "draw-card": "抽卡",
         "draw-card-facedown": "抽背面卡",
         "draw-specific-card": "抽特定卡",

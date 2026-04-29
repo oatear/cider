@@ -129,9 +129,7 @@
         "missing-templates-warning": "Някои карти нямат избрани както преден, така и заден шаблон и няма да се появят в експорта.",
         "wait-message": "Генериране на експорта, моля изчакайте...",
         "soft-proof": "Soft Proof",
-        "soft-proof-none": "None",
-        "soft-proof-color-laser": "Color Laser",
-        "soft-proof-bw-laser": "B/W Laser"
+        "soft-proof-none": "None"
     },
     "settings": {
         "title": "Настройки на приложението",
@@ -141,7 +139,7 @@
         "language-info-electron": "Рестартирайте приложението, за да приложите напълно новия език.",
         "dark-mode": "Тъмен режим"
     },
-        "simulator": {
+    "simulator": {
         "draw-card": "Изтегли карта",
         "draw-card-facedown": "Изтегли карта с лице надолу",
         "draw-specific-card": "Изтегли конкретна карта",

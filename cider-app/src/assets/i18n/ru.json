@@ -130,9 +130,7 @@
         "missing-templates-warning": "Некоторые карты не имеют выбранных шаблонов для передней и задней стороны и не будут включены в экспорт.",
         "wait-message": "Генерация экспорта, пожалуйста, подождите...",
         "soft-proof": "Soft Proof",
-        "soft-proof-none": "None",
-        "soft-proof-color-laser": "Color Laser",
-        "soft-proof-bw-laser": "B/W Laser"
+        "soft-proof-none": "None"
     },
     "settings": {
         "title": "Настройки приложения",
@@ -142,7 +140,7 @@
         "language-info-electron": "Перезапустите приложение, чтобы полностью применить новый язык.",
         "dark-mode": "Тёмная тема"
     },
-        "simulator": {
+    "simulator": {
         "draw-card": "Взять карту",
         "draw-card-facedown": "Взять карту рубашкой вниз",
         "draw-specific-card": "Взять конкретную карту",

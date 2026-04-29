@@ -130,9 +130,7 @@
         "missing-templates-warning": "Certaines cartes n’ont pas de modèle recto et verso sélectionné et n’apparaîtront pas dans l’exportation.",
         "wait-message": "Génération de l’exportation, veuillez patienter...",
         "soft-proof": "Soft Proof",
-        "soft-proof-none": "None",
-        "soft-proof-color-laser": "Color Laser",
-        "soft-proof-bw-laser": "B/W Laser"
+        "soft-proof-none": "None"
     },
     "settings": {
         "title": "Paramètres de l’application",
@@ -142,7 +140,7 @@
         "language-info-electron": "Redémarrez l’application pour charger complètement la nouvelle langue.",
         "dark-mode": "Mode sombre"
     },
-        "simulator": {
+    "simulator": {
         "draw-card": "Piocher une carte",
         "draw-card-facedown": "Piocher une carte face cachée",
         "draw-specific-card": "Piocher une carte spécifique",

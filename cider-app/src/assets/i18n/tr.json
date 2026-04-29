@@ -130,9 +130,7 @@
         "missing-templates-warning": "Bazı kartların hem ön hem de arka şablonu seçili değil, bu yüzden dışa aktarımda görünmeyecekler.",
         "wait-message": "Dışa aktarım oluşturuluyor, lütfen bekleyin...",
         "soft-proof": "Soft Proof",
-        "soft-proof-none": "None",
-        "soft-proof-color-laser": "Color Laser",
-        "soft-proof-bw-laser": "B/W Laser"
+        "soft-proof-none": "None"
     },
     "settings": {
         "title": "Uygulama Ayarları",
@@ -142,7 +140,7 @@
         "language-info-electron": "Yeni dili tamamen uygulamak için uygulamayı yeniden başlatın.",
         "dark-mode": "Koyu Mod"
     },
-        "simulator": {
+    "simulator": {
         "draw-card": "Kart Çek",
         "draw-card-facedown": "Kapalı Kart Çek",
         "draw-specific-card": "Belirli Kartı Çek",

@@ -130,9 +130,7 @@
         "missing-templates-warning": "Alcune carte non hanno selezionato sia il template frontale che quello posteriore e non appariranno nell'esportazione.",
         "wait-message": "Generazione esportazione, attendere prego...",
         "soft-proof": "Soft Proof",
-        "soft-proof-none": "None",
-        "soft-proof-color-laser": "Color Laser",
-        "soft-proof-bw-laser": "B/W Laser"
+        "soft-proof-none": "None"
     },
     "settings": {
         "title": "Impostazioni Applicazione",
@@ -142,7 +140,7 @@
         "language-info-electron": "Riavvia l'applicazione per applicare completamente la nuova lingua.",
         "dark-mode": "Modalità Scura"
     },
-        "simulator": {
+    "simulator": {
         "draw-card": "Pesca una carta",
         "draw-card-facedown": "Pesca una carta coperta",
         "draw-specific-card": "Pesca una carta specifica",

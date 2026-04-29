@@ -130,9 +130,7 @@
         "missing-templates-warning": "Niektóre karty nie mają wybranego zarówno szablonu przodu, jak i tyłu i nie pojawią się w eksporcie.",
         "wait-message": "Generowanie eksportu, proszę czekać...",
         "soft-proof": "Soft Proof",
-        "soft-proof-none": "None",
-        "soft-proof-color-laser": "Color Laser",
-        "soft-proof-bw-laser": "B/W Laser"
+        "soft-proof-none": "None"
     },
     "settings": {
         "title": "Ustawienia Aplikacji",
@@ -142,7 +140,7 @@
         "language-info-electron": "Uruchom ponownie aplikację, aby w pełni zastosować nowy język.",
         "dark-mode": "Tryb Ciemny"
     },
-        "simulator": {
+    "simulator": {
         "draw-card": "Dobierz kartę",
         "draw-card-facedown": "Dobierz kartę zakrytą",
         "draw-specific-card": "Dobierz określoną kartę",

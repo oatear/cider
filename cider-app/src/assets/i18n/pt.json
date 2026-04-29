@@ -130,9 +130,7 @@
         "missing-templates-warning": "Algumas cartas não têm os templates frontal e traseiro selecionados e não aparecerão na exportação.",
         "wait-message": "Gerando exportação, por favor aguarde...",
         "soft-proof": "Soft Proof",
-        "soft-proof-none": "None",
-        "soft-proof-color-laser": "Color Laser",
-        "soft-proof-bw-laser": "B/W Laser"
+        "soft-proof-none": "None"
     },
     "settings": {
         "title": "Configurações do Aplicativo",
@@ -142,7 +140,7 @@
         "language-info-electron": "Reinicie o aplicativo para aplicar completamente o novo idioma.",
         "dark-mode": "Modo Escuro"
     },
-        "simulator": {
+    "simulator": {
         "draw-card": "Comprar carta",
         "draw-card-facedown": "Comprar carta virada para baixo",
         "draw-specific-card": "Comprar carta específica",

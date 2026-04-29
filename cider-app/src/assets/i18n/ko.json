@@ -130,9 +130,7 @@
         "missing-templates-warning": "일부 카드의 앞면 및 뒷면 템플릿이 선택되지 않아 내보내기에 포함되지 않습니다.",
         "wait-message": "내보내기를 생성 중입니다. 잠시 기다려주세요...",
         "soft-proof": "Soft Proof",
-        "soft-proof-none": "None",
-        "soft-proof-color-laser": "Color Laser",
-        "soft-proof-bw-laser": "B/W Laser"
+        "soft-proof-none": "None"
     },
     "settings": {
         "title": "애플리케이션 설정",
@@ -142,7 +140,7 @@
         "language-info-electron": "새 언어를 완전히 적용하려면 애플리케이션을 다시 시작하세요.",
         "dark-mode": "다크 모드"
     },
-        "simulator": {
+    "simulator": {
         "draw-card": "카드 뽑기",
         "draw-card-facedown": "카드 뒷면으로 뽑기",
         "draw-specific-card": "특정 카드 뽑기",

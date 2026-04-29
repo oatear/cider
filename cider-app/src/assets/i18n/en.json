@@ -141,8 +141,6 @@
         "exclude-card-backs": "Exclude Card Backs",
         "soft-proof": "Soft Proof",
         "soft-proof-none": "None",
-        "soft-proof-color-laser": "Color Laser",
-        "soft-proof-bw-laser": "B/W Laser",
         "soft-proof-processing": "Processing Soft Proof...",
         "soft-proofing-title": "Soft Proofing Settings",
         "intent": "Rendering Intent",
