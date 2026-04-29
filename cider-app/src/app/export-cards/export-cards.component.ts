@@ -103,7 +103,7 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
   public softProofEnabled: boolean = false;
   public softProofFrontImageUrl: string | null = null;
   public softProofBackImageUrl: string | null = null;
-  public simulateUnsharpMask: boolean = false;
+  public simulateUnsharpMask: boolean = true;
   public isProcessingSoftProof: boolean = false;
 
   public intentOptions: any[] = [
@@ -263,7 +263,8 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
     }));
 
     if (!this.softProofMode || this.softProofMode === 'none') {
-      this.softProofMode = this.softProofOptions[0]?.value || 'none';
+      const cmyk = this.softProofOptions.find(o => o.value === 'Generic CMYK Profile');
+      this.softProofMode = cmyk ? cmyk.value : (this.softProofOptions[0]?.value || 'none');
     }
 
     this.intentOptions = [
