@@ -412,11 +412,15 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
   public onPageChange(event: any) {
     this.currentPageIndex = event.page;
     this.sheet = this.slicedCards ? this.slicedCards[this.currentPageIndex] : [];
+    if (this.softProofMode !== 'none') {
+      this.generateSoftProofPreview();
+    }
   }
 
   public onSingularPageChange(event: any) {
     this.currentSingularPageIndex = event.page;
     this.singularSheet = this.slicedSingularCards ? this.slicedSingularCards[this.currentSingularPageIndex] : [];
+    // Soft proofing is currently only supported for sheet export
   }
 
   public onMouseDown(event: MouseEvent, container: HTMLElement) {
