@@ -128,7 +128,9 @@
         "card-selection-title": "卡片选择 - 对卡片的更改是临时的",
         "export-information": "请确保此 DPI 与卡片模板的目标 DPI 相同，并在打印时始终设置“长边翻转”。",
         "missing-templates-warning": "某些卡片未同时选择正面和背面模板，因此不会出现在导出中。",
-        "wait-message": "正在生成导出，请稍候..."
+        "wait-message": "正在生成导出，请稍候...",
+        "soft-proof": "Soft Proof",
+        "soft-proof-none": "None"
     },
     "settings": {
         "title": "应用程序设置",
@@ -138,7 +140,7 @@
         "language-info-electron": "重启应用程序以完全应用新的语言。",
         "dark-mode": "深色模式"
     },
-        "simulator": {
+    "simulator": {
         "draw-card": "抽卡",
         "draw-card-facedown": "抽背面卡",
         "draw-specific-card": "抽特定卡",

@@ -53,13 +53,18 @@ export class CardPreviewComponent implements OnInit, AfterViewChecked, OnChanges
   ngAfterViewChecked(): void {
     if (!this.initialWidth && !this.initialHeight
       && this.element?.nativeElement.offsetWidth
-      && this.element?.nativeElement.offsetWidth
       && this.element?.nativeElement.offsetHeight) {
-      this.initialWidth = this.element?.nativeElement.offsetWidth;
-      this.initialHeight = this.element?.nativeElement.offsetHeight;
-      this.isLoadedSubject.next(true);
-      this.isLoadedSubject.complete();
-      this.changeDetectorRef.detectChanges();
+      
+      // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError in parent
+      setTimeout(() => {
+        if (!this.initialWidth) {
+          this.initialWidth = this.element?.nativeElement.offsetWidth;
+          this.initialHeight = this.element?.nativeElement.offsetHeight;
+          this.isLoadedSubject.next(true);
+          this.isLoadedSubject.complete();
+          this.changeDetectorRef.detectChanges();
+        }
+      });
     }
   }
 

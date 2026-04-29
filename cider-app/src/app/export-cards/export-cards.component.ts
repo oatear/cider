@@ -13,6 +13,7 @@ import StringUtils from '../shared/utils/string-utils';
 import GeneralUtils from '../shared/utils/general-utils';
 import { ConfirmationService } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
+import { ColorManagementService } from '../data-services/services/color-management.service';
 
 import { LocalStorageService } from '../data-services/local-storage/local-storage.service';
 
@@ -64,6 +65,12 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
   public expandedCards: Card[] = [];
   public slicedCards: Card[][] = [];
   public sheet: Card[] = [];
+
+  public singularCardsPerPage: number = 20;
+  public slicedSingularCards: Card[][] = [];
+  public singularSheet: Card[] = [];
+  public currentSingularPageIndex: number = 0;
+
   public showFront: boolean = true;
   public showBack: boolean = true;
   public showCutMarks: boolean = false;
@@ -88,6 +95,30 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
   public excludeCardBacks: boolean = false;
   public someCardsMissingTemplates: boolean = false;
   renderCache: boolean = false;
+  public currentPageIndex: number = 0;
+  public showSettings: boolean = true;
+  public softProofMode: string = 'none';
+  public softProofOptions: RadioOption[] = [];
+  public softProofIntent: number = 0;
+  public softProofEnabled: boolean = false;
+  public softProofFrontImageUrl: string | null = null;
+  public softProofBackImageUrl: string | null = null;
+  public simulateUnsharpMask: boolean = true;
+  public isProcessingSoftProof: boolean = false;
+
+  public intentOptions: any[] = [
+    { name: 'Perceptual', value: 0 },
+    { name: 'Relative Colorimetric', value: 1 },
+    { name: 'Absolute Colorimetric', value: 3 }
+  ];
+
+  // Pan and Zoom properties
+  public isPanning: boolean = false;
+  private panStartX: number = 0;
+  private panStartY: number = 0;
+  private scrollLeftStart: number = 0;
+  private scrollTopStart: number = 0;
+
   zoomOptions: any[] = [
     { label: 's', value: 0.05 },
     { label: 'm', value: 0.1 },
@@ -100,6 +131,7 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
     private imageRendererService: ImageRendererService,
     private translate: TranslateService,
     private localStorageService: LocalStorageService,
+    private colorManagementService: ColorManagementService,
     private confirmationService: ConfirmationService) {
     cardsService.getAll().then(cards => {
       // check cards for front/back templates being defined
@@ -113,6 +145,7 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
 
     this.exportOptions = ExportCardsComponent.EXPORT_OPTIONS;
     this.paperOptions = ExportCardsComponent.PAPER_OPTIONS;
+    this.softProofOptions = [{ name: 'None', value: 'none' }];
     this.selectedPaper = this.paperOptions[0];
     this.paperWidth = this.selectedPaper.width;
     this.paperHeight = this.selectedPaper.height;
@@ -122,8 +155,8 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
   }
 
   ngOnInit(): void {
-    this.translate.stream('welcome.title').subscribe(() => {
-      this.updateOptions();
+    this.translate.stream('welcome.title').subscribe(async () => {
+      await this.updateOptions();
       this.loadSettings();
       this.initializationDone = true;
     });
@@ -168,6 +201,19 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
       if (config.scale !== undefined) this.scale = config.scale;
       if (config.maxTtsPixels !== undefined) this.maxTtsPixels = config.maxTtsPixels;
 
+      if (config.softProofMode !== undefined) {
+        // Only set if it's 'none' or exists in our dynamic options
+        if (config.softProofMode === 'none' || this.softProofOptions.some(o => o.value === config.softProofMode)) {
+          this.softProofMode = config.softProofMode;
+        } else {
+          this.softProofMode = 'none';
+        }
+      }
+
+      if (config.softProofIntent !== undefined) this.softProofIntent = config.softProofIntent;
+      if (config.softProofEnabled !== undefined) this.softProofEnabled = config.softProofEnabled;
+      if (config.simulateUnsharpMask !== undefined) this.simulateUnsharpMask = config.simulateUnsharpMask;
+
       // Force update things that depend on these values
       this.changePaperType(); // This resets some values based on paper type
 
@@ -189,7 +235,7 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
     }
   }
 
-  public updateOptions() {
+  public async updateOptions() {
     const replacementList: { search: string, key: string }[] = [
       { search: 'Portrait', key: 'export.portrait' },
       { search: 'Landscape', key: 'export.landscape' },
@@ -209,6 +255,24 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
         mirrorBacksX: option.mirrorBacksX, mirrorBacksY: option.mirrorBacksY
       };
     });
+
+    const profiles = await this.colorManagementService.getAvailableProfiles();
+    this.softProofOptions = profiles.map(p => ({
+      name: p.name,
+      value: p.file
+    }));
+
+    if (!this.softProofMode || this.softProofMode === 'none') {
+      const cmyk = this.softProofOptions.find(o => o.value === 'Generic CMYK Profile');
+      this.softProofMode = cmyk ? cmyk.value : (this.softProofOptions[0]?.value || 'none');
+    }
+
+    this.intentOptions = [
+      { name: this.translate.instant('export.intent-perceptual'), value: 0 },
+      { name: this.translate.instant('export.intent-relative'), value: 1 },
+      { name: this.translate.instant('export.intent-absolute'), value: 3 }
+    ];
+
     this.selectedPaper = this.paperOptions[0];
     this.changePaperType();
   }
@@ -234,7 +298,17 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
 
   public updateSlices() {
     this.slicedCards = this.sliceIntoChunks(this.expandedCards, this.cardsPerPage);
-    this.sheet = this.slicedCards ? this.slicedCards[0] : [];
+    if (this.currentPageIndex >= this.slicedCards.length) {
+      this.currentPageIndex = 0;
+    }
+    this.sheet = this.slicedCards ? this.slicedCards[this.currentPageIndex] : [];
+
+    this.slicedSingularCards = this.sliceIntoChunks(this.cards, this.singularCardsPerPage);
+    if (this.currentSingularPageIndex >= this.slicedSingularCards.length) {
+      this.currentSingularPageIndex = 0;
+    }
+    this.singularSheet = this.slicedSingularCards ? this.slicedSingularCards[this.currentSingularPageIndex] : [];
+
     this.saveSettings();
   }
 
@@ -278,6 +352,14 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
     if (!this.initializationDone) {
       return;
     }
+
+    if (this.softProofEnabled && this.softProofMode !== 'none') {
+      this.generateSoftProofPreview();
+    } else {
+      this.softProofFrontImageUrl = null;
+      this.softProofBackImageUrl = null;
+    }
+
     this.localStorageService.setExportConfig({
       exportType: this.exportType,
       paperType: this.selectedPaper.name,
@@ -303,7 +385,11 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
       individualExportPixelRatio: this.individualExportPixelRatio,
       individualExportUseCardName: this.individualExportUseCardName,
       scale: this.scale,
-      maxTtsPixels: this.maxTtsPixels
+      maxTtsPixels: this.maxTtsPixels,
+      softProofMode: this.softProofMode,
+      softProofIntent: this.softProofIntent,
+      softProofEnabled: this.softProofEnabled,
+      simulateUnsharpMask: this.simulateUnsharpMask
     });
   }
 
@@ -323,6 +409,66 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
     if (this.selectedPaper.name !== 'Tabletop Simulator') {
       this.showBack = !this.excludeCardBacks;
     }
+    this.saveSettings();
+  }
+
+  public toggleSettings() {
+    this.showSettings = !this.showSettings;
+  }
+
+  public onPageChange(event: any) {
+    this.currentPageIndex = event.page;
+    this.sheet = this.slicedCards ? this.slicedCards[this.currentPageIndex] : [];
+    if (this.softProofEnabled && this.softProofMode !== 'none') {
+      this.generateSoftProofPreview();
+    }
+  }
+
+  public onSingularPageChange(event: any) {
+    this.currentSingularPageIndex = event.page;
+    this.singularSheet = this.slicedSingularCards ? this.slicedSingularCards[this.currentSingularPageIndex] : [];
+    // Soft proofing is currently only supported for sheet export
+  }
+
+  public onMouseDown(event: MouseEvent, container: HTMLElement) {
+    if (event.button !== 0 && event.button !== 1) return; // Only left or middle click
+    event.preventDefault(); // Prevent text selection and native middle-click auto-scroll
+    this.isPanning = true;
+    this.panStartX = event.clientX;
+    this.panStartY = event.clientY;
+    this.scrollLeftStart = container.scrollLeft;
+    this.scrollTopStart = container.scrollTop;
+  }
+
+  public onMouseMove(event: MouseEvent, container: HTMLElement) {
+    if (!this.isPanning) return;
+    const dx = event.clientX - this.panStartX;
+    const dy = event.clientY - this.panStartY;
+    container.scrollLeft = this.scrollLeftStart - dx;
+    container.scrollTop = this.scrollTopStart - dy;
+  }
+
+  public onMouseUp(event: MouseEvent) {
+    this.isPanning = false;
+  }
+
+  public onMouseLeave(event: MouseEvent) {
+    this.isPanning = false;
+  }
+
+  public onWheel(event: WheelEvent) {
+    // Prevent default scrolling to handle zoom seamlessly
+    event.preventDefault();
+
+    // Zoom factor based on wheel delta
+    const zoomFactor = event.deltaY < 0 ? 1.1 : 0.9;
+
+    let newScale = this.scale * zoomFactor;
+    // Clamp scale between min and max reasonable limits
+    if (newScale < 0.05) newScale = 0.05;
+    if (newScale > 2.0) newScale = 2.0;
+
+    this.scale = parseFloat(newScale.toFixed(3));
     this.saveSettings();
   }
 
@@ -483,7 +629,7 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
             + (showFront ? 'front' : 'back') + ' image...';
           const cardSheet = this.cardSheets.first;
           const imgUri = await limit(() => this.imageRendererService.toPng((<any>cardSheet).nativeElement,
-            { pixelRatio: this.pixelRatio }));
+            { pixelRatio: this.pixelRatio, style: { filter: 'none' } }));
           const imgName = 'sheet-' + (showFront ? 'front-' : 'back-')
             + sheetIndex + '.png';
           const sheetImage = this.dataUrlToFile(imgUri, imgName);
@@ -499,7 +645,7 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
     this.loadingInfo = 'Saving file...';
     FileUtils.saveAs(zippedImages, 'cards.zip');
     this.loadingPercent = 100;
-    this.sheet = this.slicedCards ? this.slicedCards[0] : [];
+    this.sheet = this.slicedCards ? this.slicedCards[this.currentPageIndex] : [];
     this.showFront = true;
     this.showBack = false;
     this.renderCache = false;
@@ -531,7 +677,7 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
         const cardSheets = await Promise.all(this.cardSheets.map(cardSheet => limit(() => {
           return this.imageRendererService.toPng((<any>cardSheet).nativeElement, {
             pixelRatio: 1.0,
-            style: { transform: 'none', margin: '0' },
+            style: { transform: 'none', margin: '0', filter: 'none' },
             onImageErrorHandler: (error) => { console.log('error', error); }
           });
         })));
@@ -566,6 +712,7 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
     pdfMake.createPdf(docDefinition).getBlob((blob) => {
       FileUtils.saveAs(blob, 'card-sheets.pdf');
       this.loadingPercent = 100;
+      this.sheet = this.slicedCards ? this.slicedCards[this.currentPageIndex] : [];
       this.displayLoading = false
       this.renderCache = false;
     }, {
@@ -579,59 +726,79 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
     this.displayLoading = true;
     this.loadingPercent = 0;
     this.renderCache = true;
-    this.loadingInfo = 'Generating card images...';
     const limit = pLimit(3);
-    const frontCards$ = this.frontCards.map(async cardPreview => {
-      await lastValueFrom(cardPreview.isCacheLoaded()).catch(() => {
-        return Promise.reject('Failed to render card "' + cardPreview.card.name + '" with template "' + cardPreview.template.name + '".');
-      });
-      const imgUri = await limit(() => this.imageRendererService.toPng((<any>cardPreview).element.nativeElement,
-        { pixelRatio: this.individualExportPixelRatio }));
-      const imgIdentifier = this.individualExportUseCardName
-        ? StringUtils.toKebabCase(cardPreview.card?.name)
-        : cardPreview.card?.id;
-      const imgName = 'front-' + imgIdentifier + '.png';
-      return this.dataUrlToFile(imgUri, imgName);
-    });
+    let allExportedFiles: File[] = [];
 
-    let backCards$: Promise<File>[] = [];
-    if (!this.excludeCardBacks) {
-      backCards$ = this.backCards.map(async cardPreview => {
-        await lastValueFrom(cardPreview.isCacheLoaded()).catch(() => {
+    const totalCards = this.cards.length * (this.excludeCardBacks ? 1 : 2);
+
+    try {
+      for (let chunkIndex = 0; chunkIndex < this.slicedSingularCards.length; chunkIndex++) {
+        const chunk = this.slicedSingularCards[chunkIndex];
+        this.singularSheet = chunk;
+        this.loadingInfo = 'Rendering cards chunk ' + (chunkIndex + 1) + '/' + this.slicedSingularCards.length + '...';
+        await GeneralUtils.delay(1000);
+
+        // Wait for fronts to load
+        const promisedFrontCards$ = this.frontCards.map(cardPreview => lastValueFrom(cardPreview.isCacheLoaded()).catch(() => {
           return Promise.reject('Failed to render card "' + cardPreview.card.name + '" with template "' + cardPreview.template.name + '".');
-        });
-        const imgUri = await limit(() => this.imageRendererService.toPng((<any>cardPreview).element.nativeElement,
-          { pixelRatio: this.individualExportPixelRatio }));
-        const imgIdentifier = this.individualExportUseCardName
-          ? StringUtils.toKebabCase(cardPreview.card?.name)
-          : cardPreview.card?.id;
-        const imgName = 'back-' + imgIdentifier + '.png';
-        return this.dataUrlToFile(imgUri, imgName);
-      });
-    }
+        }));
+        await Promise.all(promisedFrontCards$);
 
-    const allCards$ = frontCards$.concat(backCards$);
-    return Promise.all(this.promisesProgress(allCards$, () => this.loadingPercent += 100.0 / (allCards$.length + 1)))
-      .then(promisedImages => {
-        this.loadingInfo = 'Zipping up files...';
-        return this.zipFiles(promisedImages);
-      })
-      .then(blob => {
-        this.loadingInfo = 'Saving file...';
-        return FileUtils.saveAs(blob, 'cards.zip');
-      })
-      .then(() => {
-        this.loadingPercent = 100;
-        this.displayLoading = false
-        this.renderCache = false;
-      })
-      .catch(err => {
-        this.loadingInfo = 'Failed to load card cache.';
-        this.loadingPercent = 0;
-        this.displayLoading = false;
-        this.renderCache = false;
-        return Promise.reject(err);
-      });
+        // Wait for backs to load
+        if (!this.excludeCardBacks) {
+          const promisedBackCards$ = this.backCards.map(cardPreview => lastValueFrom(cardPreview.isCacheLoaded()).catch(() => {
+            return Promise.reject('Failed to render card "' + cardPreview.card.name + '" with template "' + cardPreview.template.name + '".');
+          }));
+          await Promise.all(promisedBackCards$);
+        }
+
+        this.loadingInfo = 'Generating PNGs for chunk ' + (chunkIndex + 1) + '/' + this.slicedSingularCards.length + '...';
+
+        const frontCards$ = this.frontCards.map(async cardPreview => {
+          const imgUri = await limit(() => this.imageRendererService.toPng((<any>cardPreview).element.nativeElement,
+            { pixelRatio: this.individualExportPixelRatio }));
+          const imgIdentifier = this.individualExportUseCardName
+            ? StringUtils.toKebabCase(cardPreview.card?.name)
+            : cardPreview.card?.id;
+          const imgName = 'front-' + imgIdentifier + '.png';
+          return this.dataUrlToFile(imgUri, imgName);
+        });
+
+        let backCards$: Promise<File>[] = [];
+        if (!this.excludeCardBacks) {
+          backCards$ = this.backCards.map(async cardPreview => {
+            const imgUri = await limit(() => this.imageRendererService.toPng((<any>cardPreview).element.nativeElement,
+              { pixelRatio: this.individualExportPixelRatio }));
+            const imgIdentifier = this.individualExportUseCardName
+              ? StringUtils.toKebabCase(cardPreview.card?.name)
+              : cardPreview.card?.id;
+            const imgName = 'back-' + imgIdentifier + '.png';
+            return this.dataUrlToFile(imgUri, imgName);
+          });
+        }
+
+        const chunkFiles$ = frontCards$.concat(backCards$);
+        const chunkFiles = await Promise.all(this.promisesProgress(chunkFiles$, () => this.loadingPercent += 100.0 / totalCards));
+        allExportedFiles = allExportedFiles.concat(chunkFiles);
+      }
+
+      this.loadingInfo = 'Zipping up files...';
+      const blob = await this.zipFiles(allExportedFiles);
+      this.loadingInfo = 'Saving file...';
+      FileUtils.saveAs(blob, 'cards.zip');
+
+    } catch (err) {
+      this.loadingInfo = 'Failed to load card cache.';
+      this.loadingPercent = 0;
+      this.displayLoading = false;
+      this.renderCache = false;
+      this.displayErrorDialog(typeof err === 'string' ? err : 'An error occurred during export.');
+    } finally {
+      this.loadingPercent = 100;
+      this.displayLoading = false;
+      this.renderCache = false;
+      this.singularSheet = this.slicedSingularCards ? this.slicedSingularCards[this.currentSingularPageIndex] : [];
+    }
   }
 
   /**
@@ -699,6 +866,93 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
     return new File([blobArray], fileName, { type: mime });
   }
 
+  private async processSoftProofSheet(cardSheet: any): Promise<string | null> {
+    if (!cardSheet) return null;
+    try {
+      // 1. Render HTML to Data URL at 1.0 pixel ratio to match print size accurately
+      const imgUri = await this.imageRendererService.toPng((<any>cardSheet).nativeElement, {
+        pixelRatio: 1.0,
+        style: { transform: 'none', margin: '0' }
+      });
+
+      // 2. Load into HTMLImageElement
+      const img = new Image();
+      img.src = imgUri;
+      await new Promise(resolve => img.onload = resolve);
+
+      // 3. Draw to canvas and get ImageData
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      if (!ctx) throw new Error('Could not get 2d context');
+
+      ctx.drawImage(img, 0, 0);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+      // 4. Apply ICC Soft Proof via WASM
+      const options = {
+        unsharp_mask: {
+          enabled: this.simulateUnsharpMask,
+          radius: 3.0, // 4.0
+          amount: 0.5, // 1.0
+          threshold: 10.0 // 10.0
+        }
+      };
+
+      const processedImageData = await this.colorManagementService.applySoftProof(
+        imageData,
+        this.softProofMode,
+        this.softProofIntent,
+        options
+      );
+
+      // 5. Draw back to canvas
+      ctx.putImageData(processedImageData, 0, 0);
+
+      // 6. Set Image URL to display over the live preview
+      return canvas.toDataURL('image/png');
+    } catch (e) {
+      console.error('Failed to generate soft proof preview', e);
+      return null;
+    }
+  }
+
+  private async generateSoftProofPreview() {
+    if (!this.softProofEnabled || this.softProofMode === 'none') {
+      this.softProofFrontImageUrl = null;
+      this.softProofBackImageUrl = null;
+      this.isProcessingSoftProof = false;
+      return;
+    }
+
+    this.isProcessingSoftProof = true;
+    this.softProofFrontImageUrl = null;
+    this.softProofBackImageUrl = null;
+
+    // Ensure view updates and DOM is rendered before capturing
+    await GeneralUtils.delay(500);
+
+    const cardSheetsArray = this.cardSheets.toArray();
+    let frontSheet = null;
+    let backSheet = null;
+
+    if (this.showFront && this.showBack) {
+      frontSheet = cardSheetsArray[0];
+      backSheet = cardSheetsArray[1];
+    } else if (this.showFront) {
+      frontSheet = cardSheetsArray[0];
+    } else if (this.showBack) {
+      backSheet = cardSheetsArray[0];
+    }
+
+    try {
+      this.softProofFrontImageUrl = await this.processSoftProofSheet(frontSheet);
+      this.softProofBackImageUrl = await this.processSoftProofSheet(backSheet);
+    } finally {
+      this.isProcessingSoftProof = false;
+    }
+  }
 }
 
 interface RadioOption {
