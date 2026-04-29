@@ -128,7 +128,9 @@
         "card-selection-title": "Kaartselectie - Wijzigingen aan kaarten zijn tijdelijk",
         "export-information": "Zorg ervoor dat deze DPI gelijk is aan de doel-DPI van de kaartsjablonen en stel altijd 'omdraaien aan lange zijde' in bij het afdrukken.",
         "missing-templates-warning": "Sommige kaarten hebben geen voor- en achterzijde sjabloon geselecteerd en zullen niet verschijnen in de export.",
-        "wait-message": "Export wordt gegenereerd, even geduld..."
+        "wait-message": "Export wordt gegenereerd, even geduld...",
+        "soft-proof": "Soft Proof",
+        "soft-proof-none": "None"
     },
     "settings": {
         "title": "Applicatie-instellingen",
@@ -138,7 +140,7 @@
         "language-info-electron": "Herstart de applicatie om de nieuwe taal volledig toe te passen.",
         "dark-mode": "Donkere Modus"
     },
-        "simulator": {
+    "simulator": {
         "draw-card": "Kaart trekken",
         "draw-card-facedown": "Kaart gesloten trekken",
         "draw-specific-card": "Specifieke kaart trekken",
