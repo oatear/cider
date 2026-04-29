@@ -150,7 +150,8 @@
         "intent-relative": "Relative Colorimetric",
         "intent-absolute": "Absolute Colorimetric",
         "simulate-paper-color": "Simulate Paper Color",
-        "simulate-unsharp-mask": "Simulate Unsharp Mask"
+        "simulate-unsharp-mask": "Simulate Unsharp Mask",
+        "soft-proof-warning": "Soft proofing can cause the sheet preview to render slower. Soft proofing does not affect the final export."
     },
     "settings": {
         "title": "Application Settings",

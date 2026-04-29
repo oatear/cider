@@ -335,6 +335,10 @@
             </div>
           </div>
 
+          <div class="p-field">
+            <p-message severity="info">{{'export.export-information' | translate}}</p-message>
+          </div>
+
           <div class="p-field soft-proofing-section">
             <div class="section-title">
               {{'export.soft-proofing-title' | translate}}
@@ -361,17 +365,18 @@
                   (onChange)="saveSettings()"></p-checkbox>
                 <label for="simulateUnsharpMask">{{'export.simulate-unsharp-mask' | translate}}</label>
               </div>
+
+              <p-message severity="info">{{'export.soft-proof-warning' | translate}}</p-message>
             </div>
             }
           </div>
 
+          @if (someCardsMissingTemplates) {
           <div class="p-field">
-            <p-message severity="info">{{'export.export-information' | translate}}</p-message>
-            @if (someCardsMissingTemplates) {
             <p-message severity="error" class="p-ml-1">{{'export.missing-templates-warning' |
               translate}}</p-message>
-            }
           </div>
+          }
           }
 
           @if (exportType === 'singular-export') {

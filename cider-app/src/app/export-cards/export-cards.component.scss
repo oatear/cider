@@ -159,12 +159,12 @@ $preview-individual-scale: 0.08;
         letter-spacing: 0.5px;
     }
 
-    .soft-proof-controls {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
+        .soft-proof-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
 
-        .p-field {
+            .p-field {
             margin-bottom: 0;
 
             label {
