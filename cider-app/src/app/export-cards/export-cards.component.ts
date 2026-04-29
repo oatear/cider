@@ -317,9 +317,17 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
       this.cardGap = 0;
       this.paperMarginX = 0;
       this.paperMarginY = 0;
-      console.log('selectedPaper', this.selectedPaper);
-      this.paperWidth = this.cardSheetCards.first.initialWidth * 10 / this.paperDpi;
-      this.paperHeight = this.cardSheetCards.first.initialHeight * 7 / this.paperDpi;
+      
+      const firstCard = this.cardSheetCards?.first;
+      if (firstCard && firstCard.initialWidth) {
+        this.paperWidth = firstCard.initialWidth * 10 / this.paperDpi;
+        this.paperHeight = firstCard.initialHeight * 7 / this.paperDpi;
+      } else {
+        // Sensible defaults for standard poker cards (2.5" x 3.5") if not yet rendered
+        this.paperWidth = 25; 
+        this.paperHeight = 24.5;
+      }
+      
       this.mirrorBacksX = this.selectedPaper.mirrorBacksX;
       this.mirrorBacksY = this.selectedPaper.mirrorBacksY;
       this.cardsPerPage = 69;
@@ -398,7 +406,11 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
       const firstCard = this.cardSheetCards.first;
       if (firstCard.initialWidth && firstCard.initialHeight) {
         setTimeout(() => {
-          this.autoFit();
+          if (this.selectedPaper.name === 'Tabletop Simulator') {
+            this.changePaperType();
+          } else {
+            this.autoFit();
+          }
         });
         this.autoFitDone = true;
       }
@@ -629,7 +641,7 @@ export class ExportCardsComponent implements OnInit, AfterViewChecked {
             + (showFront ? 'front' : 'back') + ' image...';
           const cardSheet = this.cardSheets.first;
           const imgUri = await limit(() => this.imageRendererService.toPng((<any>cardSheet).nativeElement,
-            { pixelRatio: this.pixelRatio, style: { filter: 'none' } }));
+            { pixelRatio: this.pixelRatio, style: { transform: 'none', margin: '0', filter: 'none' } }));
           const imgName = 'sheet-' + (showFront ? 'front-' : 'back-')
             + sheetIndex + '.png';
           const sheetImage = this.dataUrlToFile(imgUri, imgName);
