@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import init, { apply_soft_proof } from '../../lib/cider-press/cider_press';
+import init, { SoftProofer } from 'cider-press';
 
 @Injectable({
   providedIn: 'root'
@@ -12,8 +12,8 @@ export class ColorManagementService {
   private wasmInitPromise: Promise<void> | null = null;
   private availableProfiles: string[] = [];
 
-  // Cache loaded ICC profile bytes to avoid re-fetching
-  private loadedProfileBytes: Map<string, Uint8Array> = new Map();
+  // Cache SoftProofer instances per profile/intent combination
+  private proofers: Map<string, SoftProofer> = new Map();
 
   constructor(private http: HttpClient) { }
 
@@ -56,7 +56,6 @@ export class ColorManagementService {
    */
   async getAvailableProfiles(): Promise<string[]> {
     if (!this.profilesLoaded) {
-      // Just try to load profiles, don't necessarily block on WASM here
       try {
         this.availableProfiles = await firstValueFrom(this.http.get<string[]>('./assets/icc/profiles.json'));
         this.profilesLoaded = true;
@@ -69,13 +68,6 @@ export class ColorManagementService {
 
   /**
    * Applies the soft proofing ICC transform to the given ImageData using cider-press.
-   *
-   * Uses the real cmsCreateProofingTransform internally via the Rust/WASM bridge,
-   * with 16-bit intermediate precision to eliminate quantization artifacts.
-   * Black Point Compensation and Absolute Colorimetric simulation intent are
-   * handled natively by the bridge.
-   *
-   * Modifies the imageData array in place and returns it.
    */
   async applySoftProof(
     imageData: ImageData,
@@ -91,47 +83,36 @@ export class ColorManagementService {
       return imageData;
     }
 
-    // 1. Ensure target profile bytes are loaded
-    let profileBytes = this.loadedProfileBytes.get(profileName);
-    if (!profileBytes) {
+    const prooferKey = `${profileName}_${intent}_${simulatePaper}`;
+    let proofer = this.proofers.get(prooferKey);
+
+    if (!proofer) {
       try {
         const profilePath = `./assets/icc/${profileName}.icc`;
         const buffer = await firstValueFrom(this.http.get(profilePath, { responseType: 'arraybuffer' }));
-        profileBytes = new Uint8Array(buffer);
-        this.loadedProfileBytes.set(profileName, profileBytes);
+        const profileBytes = new Uint8Array(buffer);
+        
+        console.log('ColorManagementService: Creating new SoftProofer for', profileName);
+        // Use 16-bit intermediate if simulatePaper is requested for higher precision return path
+        proofer = new SoftProofer(profileBytes, intent, simulatePaper);
+        this.proofers.set(prooferKey, proofer);
       } catch (e) {
-        console.error(`ColorManagementService: Failed to load profile ${profileName}`, e);
+        console.error(`ColorManagementService: Failed to initialize proofer for ${profileName}`, e);
         return imageData;
       }
     }
 
-    // 2. Apply soft proofing via cider-press (native proofing transform)
+    // Apply soft proofing via cider-press (native proofing transform)
     try {
       const pixels = new Uint8Array(imageData.data);
-      console.log('ColorManagementService: Applying soft proof for', profileName, 'Size:', imageData.width, 'x', imageData.height);
-      console.log('ColorManagementService: Source pixels sample:', pixels.slice(0, 16));
-
-      const result = apply_soft_proof(
-        pixels,
-        imageData.width,
-        imageData.height,
-        profileBytes,
-        intent
-      );
+      const result = proofer.apply(pixels, imageData.width, imageData.height);
 
       if (!result || result.length === 0) {
-        console.error('ColorManagementService: apply_soft_proof returned empty result');
+        console.error('ColorManagementService: proofer.apply returned empty result');
         return imageData;
       }
 
-      console.log('ColorManagementService: Result pixels sample:', result.slice(0, 16));
-
-      // 3. Restore alpha channel (LittleCMS often zeroes it out as it's not part of the ICC color space)
-      for (let i = 3; i < result.length; i += 4) {
-        result[i] = pixels[i];
-      }
-
-      // 4. Update the ImageData buffer with transformed pixels
+      // Update the ImageData buffer with transformed pixels (alpha preserved natively)
       imageData.data.set(result);
       return imageData;
     } catch (e) {
