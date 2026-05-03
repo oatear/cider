@@ -161,13 +161,14 @@ try {
    */
   ipcMain.handle('create-directory', async (event, persistentPath) => {
     const stopAccess = requestPathAccess(persistentPath);
-    if (fs.existsSync(persistentPath.path)) {
-      console.log('directory already exists', persistentPath.path);
+    try {
+      await fs.promises.access(persistentPath.path);
       stopAccess();
       return false;
+    } catch {
+      // Directory does not exist, create it
     }
     return fs.promises.mkdir(persistentPath.path, { recursive: true }).then(() => {
-      console.log('directory created', persistentPath.path);
       stopAccess();
       return true;
     });
@@ -181,13 +182,13 @@ try {
    */
   ipcMain.handle('remove-directory', async (event, persistentPath) => {
     const stopAccess = requestPathAccess(persistentPath);
-    if (!fs.existsSync(persistentPath.path)) {
-      console.log('directory does not exists', persistentPath.path);
+    try {
+      await fs.promises.access(persistentPath.path);
+    } catch {
       stopAccess();
       return false;
     }
     return fs.promises.rm(persistentPath.path, { recursive: true, force: true }).then(() => {
-      console.log('directory removed', persistentPath.path);
       stopAccess();
       return true;
     });
@@ -200,13 +201,13 @@ try {
    */
   ipcMain.handle('rename-directory', async (event, oldPersistentPath, newPersistentPath) => {
     const stopAccess = requestPathAccess(oldPersistentPath);
-    if (!fs.existsSync(oldPersistentPath.path)) {
-      console.log('directory does not exists', oldPersistentPath.path);
+    try {
+      await fs.promises.access(oldPersistentPath.path);
+    } catch {
       stopAccess();
       return false;
     }
     return fs.promises.rename(oldPersistentPath.path, newPersistentPath.path).then(() => {
-      console.log('directory renamed', oldPersistentPath.path, 'to', newPersistentPath.path);
       stopAccess();
       return true;
     });
@@ -220,20 +221,19 @@ try {
    */
   ipcMain.handle('list-directory', async (event, persistentPath) => {
     const stopAccess = requestPathAccess(persistentPath);
-    if (!fs.existsSync(persistentPath.path)) {
-      console.log('directory does not exists', persistentPath.path);
+    try {
+      await fs.promises.access(persistentPath.path);
+    } catch {
       stopAccess();
       return [];
     }
-    const files = fs.readdirSync(persistentPath.path, { withFileTypes: true }).map(dirent => {
-      return {
-        name: dirent.name,
-        isDirectory: dirent.isDirectory(),
-        isFile: dirent.isFile()
-      }
-    });
+    const dirents = await fs.promises.readdir(persistentPath.path, { withFileTypes: true });
+    const files = dirents.map(dirent => ({
+      name: dirent.name,
+      isDirectory: dirent.isDirectory(),
+      isFile: dirent.isFile()
+    }));
     stopAccess();
-    console.log('directory listed', files);
     return files;
   });
 
@@ -245,12 +245,13 @@ try {
    */
   ipcMain.handle('read-file', async (event, persistentPath) => {
     const stopAccess = requestPathAccess(persistentPath);
-    if (!fs.existsSync(persistentPath.path)) {
+    try {
+      await fs.promises.access(persistentPath.path);
+    } catch {
       stopAccess();
       return null;
     }
-    const buffer = fs.readFileSync(persistentPath.path);
-    console.log('read file', persistentPath.path);
+    const buffer = await fs.promises.readFile(persistentPath.path);
     stopAccess();
     return buffer;
   });
@@ -264,14 +265,15 @@ try {
    */
   ipcMain.handle('read-text-file', async (event, persistentPath) => {
     const stopAccess = requestPathAccess(persistentPath);
-    if (!fs.existsSync(persistentPath.path)) {
+    try {
+      await fs.promises.access(persistentPath.path);
+    } catch {
       stopAccess();
       return null;
     }
-    const buffer = fs.readFileSync(persistentPath.path, { encoding: 'utf8' });
-    console.log('read file', persistentPath.path);
+    const content = await fs.promises.readFile(persistentPath.path, { encoding: 'utf8' });
     stopAccess();
-    return buffer;
+    return content;
   });
 
   /**
@@ -282,8 +284,7 @@ try {
    */
   ipcMain.handle('write-file', async (event, persistentPath, data) => {
     const stopAccess = requestPathAccess(persistentPath);
-    fs.writeFileSync(persistentPath.path, data);
-    console.log('wrote file', persistentPath.path);
+    await fs.promises.writeFile(persistentPath.path, data);
     stopAccess();
     return true;
   });

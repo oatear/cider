@@ -40,6 +40,10 @@ export class AssetsService extends IndexedDbService<Asset, number> {
     // Handle File Watcher Events
     this.electronService.getFileAdded().subscribe(path => this.handleFileAdded(path));
     this.electronService.getFileRemoved().subscribe(path => this.handleFileRemoved(path));
+
+    // Handle Directory Watcher Events (keeps assetFolders DB table in sync)
+    this.electronService.getDirectoryAdded().subscribe(path => this.handleDirectoryAdded(path));
+    this.electronService.getDirectoryRemoved().subscribe(path => this.handleDirectoryRemoved(path));
   }
 
   private async handleFileAdded(absPath: string) {
@@ -103,6 +107,29 @@ export class AssetsService extends IndexedDbService<Asset, number> {
         await this.delete(existing.id);
         this.updateAssetUrls();
       }
+    }
+  }
+
+  private async handleDirectoryAdded(absPath: string) {
+    if (!this.currentHomeUrl) return;
+    const assetsPath = this.currentHomeUrl.path + '/assets';
+    if (absPath.startsWith(assetsPath)) {
+      const relativePath = absPath.substring(assetsPath.length + 1);
+      if (!relativePath) return;
+      const alreadyExists = await this.db.table(AppDB.ASSET_FOLDERS_TABLE).where('path').equals(relativePath).count();
+      if (alreadyExists === 0) {
+        await this.db.table(AppDB.ASSET_FOLDERS_TABLE).add({ path: relativePath });
+      }
+    }
+  }
+
+  private async handleDirectoryRemoved(absPath: string) {
+    if (!this.currentHomeUrl) return;
+    const assetsPath = this.currentHomeUrl.path + '/assets';
+    if (absPath.startsWith(assetsPath)) {
+      const relativePath = absPath.substring(assetsPath.length + 1);
+      if (!relativePath) return;
+      await this.db.table(AppDB.ASSET_FOLDERS_TABLE).where('path').equals(relativePath).delete();
     }
   }
 
@@ -434,50 +461,27 @@ export class AssetsService extends IndexedDbService<Asset, number> {
    * Recursive function to get all subfolders in the assets directory
    */
   async getFolders(): Promise<string[]> {
-    if (!this.electronService.isElectron()) {
-      // Web mode: get from assetFolders table AND derived from current assets
-      const explicitFolders = await this.db.table(AppDB.ASSET_FOLDERS_TABLE).toArray().then(rows => rows.map(r => r.path));
-      const assets = await this.getAll();
-      const derivedFolders = new Set<string>();
-      assets.forEach(a => {
-        if (a.path) derivedFolders.add(a.path);
+    // Always use the DB-based approach (assetFolders table + derived from assets).
+    // This avoids expensive recursive filesystem scans via IPC in Electron mode.
+    // The assetFolders table is kept in sync during project open and via file watcher events.
+    const explicitFolders = await this.db.table(AppDB.ASSET_FOLDERS_TABLE).toArray().then(rows => rows.map(r => r.path));
+    const assets = await this.getAll();
+    const derivedFolders = new Set<string>();
+    assets.forEach(a => {
+      if (a.path) derivedFolders.add(a.path);
+    });
+    const allFolders = new Set([...explicitFolders, ...derivedFolders]);
+    // Expand parent paths: if "a/b/c" exists, ensure "a/b" and "a" also exist.
+    const expandedFolders = new Set<string>();
+    allFolders.forEach(f => {
+      const parts = f.split('/');
+      let current = '';
+      parts.forEach((p: string, i: number) => {
+        current += (i > 0 ? '/' : '') + p;
+        expandedFolders.add(current);
       });
-      // We might want to support nested derived folders too? 
-      // e.g. if I have "icons/fire", I should have "icons" folder?
-      // Currently sidebar handles flattening? No, sidebar assumes full paths.
-      // Let's ensure we have parent paths for derived folders.
-      const allFolders = new Set([...explicitFolders, ...derivedFolders]);
-      // Maybe expand parents? 
-      // If "a/b/c", ensure "a/b" and "a" exist.
-      const expandedFolders = new Set<string>();
-      allFolders.forEach(f => {
-        const parts = f.split('/');
-        let current = '';
-        parts.forEach((p: string, i: number) => {
-          current += (i > 0 ? '/' : '') + p;
-          expandedFolders.add(current);
-        });
-      });
+    });
 
-      return Array.from(expandedFolders);
-    }
-    if (!this.currentHomeUrl) return [];
-    const assetsDir = this.currentHomeUrl.path + '/assets';
-    const folders: string[] = [];
-
-    const traverse = async (currentPath: string, relativePath: string) => {
-      const entries = await this.electronService.listDirectory({ path: currentPath, bookmark: this.currentHomeUrl?.bookmark });
-      for (const entry of entries) {
-        if (entry.isDirectory) {
-          const newRelative = relativePath ? relativePath + '/' + entry.name : entry.name;
-          folders.push(newRelative);
-          await traverse(currentPath + '/' + entry.name, newRelative);
-
-        }
-      }
-    };
-
-    await traverse(assetsDir, '');
-    return folders;
+    return Array.from(expandedFolders);
   }
 }
