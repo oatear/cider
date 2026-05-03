@@ -81,6 +81,8 @@ export class CardTemplatesComponent implements OnInit {
   templateChanges: Subject<boolean>;
   disableSplitter = false;
   windowResizing$: Subject<boolean>;
+  templateVersion: number = 0;
+
 
   constructor(private domSanitizer: DomSanitizer, 
     public service: CardTemplatesService,
@@ -149,8 +151,10 @@ export class CardTemplatesComponent implements OnInit {
   }
 
   public debounceSave() {
+    this.templateVersion++;
     this.templateChanges.next(true);
   }
+
   
   public save(entity : CardTemplate) {
     const id = (<any>this.selectedTemplate)[this.service?.getIdField()];

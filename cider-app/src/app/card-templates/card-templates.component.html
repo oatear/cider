@@ -21,7 +21,7 @@
             <div class="preview-space">
               @if (selectedCard) {
                 <app-card-preview [card]="selectedCard" [template]="selectedTemplate"
-                [scale]="zoom" [cache]="false" [tiltable]="true"></app-card-preview>
+                [scale]="zoom" [cache]="false" [tiltable]="true" [version]="templateVersion"></app-card-preview>
               }
             </div>
           }

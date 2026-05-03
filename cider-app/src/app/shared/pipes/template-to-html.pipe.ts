@@ -1,74 +1,53 @@
-import { Pipe, PipeTransform, SecurityContext } from '@angular/core';
+import { Pipe, PipeTransform } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { CardTemplate } from 'src/app/data-services/types/card-template.type';
 import { Card } from 'src/app/data-services/types/card.type';
-import { HandlebarsPipe } from './handlebars.pipe';
 import * as Handlebars from 'handlebars';
 
 /**
  * Convert a card template into html
  */
 @Pipe({
-    name: 'cardToHtml',
-    pure: false,
-    standalone: false
+  name: 'cardToHtml',
+  pure: true,
+  standalone: false
 })
 export class CardToHtmlPipe implements PipeTransform {
-  
-  private lastTemplateHtml: string = '';
-  private lastTemplateCss: string = '';
-  private lastCardStr: string = '';
-  private lastAssetUrlsStr: string = '';
-  private lastUuid: string | undefined;
-  
-  private lastResult: SafeHtml = '';
+  private static compiledTemplates = new Map<string, Handlebars.TemplateDelegate>();
+  private static readonly MAX_CACHE_SIZE = 500;
 
-  constructor(private domSanitizer: DomSanitizer,
-    handlebarsPipe: HandlebarsPipe
-  ) {
-    let self = this;
-  }
+  constructor(private domSanitizer: DomSanitizer) { }
 
-  transform(template: CardTemplate, card: Card, assetUrls?: any, uuid?: string): SafeHtml {
+  transform(template: CardTemplate, card: Card, assetUrls?: any, uuid?: string, version?: number): SafeHtml {
+
     if (!template || !card) {
       return '';
     }
 
-    const templateHtml = template.html;
-    const templateCss = template.css;
-    const cardStr = JSON.stringify(card);
-    const assetUrlsStr = JSON.stringify(assetUrls || {});
-
-    if (this.lastTemplateHtml === templateHtml && 
-        this.lastTemplateCss === templateCss && 
-        this.lastCardStr === cardStr && 
-        this.lastAssetUrlsStr === assetUrlsStr && 
-        this.lastUuid === uuid) {
-      return this.lastResult;
-    }
-
-    this.lastTemplateHtml = templateHtml;
-    this.lastTemplateCss = templateCss;
-    this.lastCardStr = cardStr;
-    this.lastAssetUrlsStr = assetUrlsStr;
-    this.lastUuid = uuid;
-
-    this.lastResult = this.safeHtmlAndStyle(card, 
-      this.executeHandlebars(template.html, card, assetUrls), 
+    return this.safeHtmlAndStyle(card,
+      this.executeHandlebars(template.html, card, assetUrls),
       this.executeHandlebars(template.css, card, assetUrls),
       uuid);
-
-    return this.lastResult;
   }
 
   private executeHandlebars(htmlTemplate: string, card: Card, assetUrls?: any): string {
     if (!htmlTemplate) {
       return '';
     }
-    let template = Handlebars.compile(htmlTemplate);
+
+    let template = CardToHtmlPipe.compiledTemplates.get(htmlTemplate);
+    if (!template) {
+      if (CardToHtmlPipe.compiledTemplates.size >= CardToHtmlPipe.MAX_CACHE_SIZE) {
+        CardToHtmlPipe.compiledTemplates.clear();
+      }
+      template = Handlebars.compile(htmlTemplate);
+      CardToHtmlPipe.compiledTemplates.set(htmlTemplate, template);
+    }
+
+
     try {
-      return template({card: card, assets: assetUrls});
-    } catch(error) {
+      return template({ card: card, assets: assetUrls });
+    } catch (error) {
       return '';
     }
   }
@@ -77,14 +56,8 @@ export class CardToHtmlPipe implements PipeTransform {
     if (!html || !css) {
       return '';
     }
-    let cardId = card?.id ? card?.id : 0;
     let sanitizedStyle = css.replace(/([^{}]*\{)/g, `.card-preview.card-${uuid} $1`)
       .replace(/\!important/g, '');
-    let safeStyle = this.domSanitizer.sanitize(SecurityContext.STYLE, sanitizedStyle);
-    // let safeHtml = this.domSanitizer.sanitize(SecurityContext.HTML, html);
-    let safeHtml = html;
-    return this.domSanitizer.bypassSecurityTrustHtml(`${safeHtml}<style>${safeStyle}</style>`);
+    return this.domSanitizer.bypassSecurityTrustHtml(`${html}<style>${sanitizedStyle}</style>`);
   }
-
 }
-

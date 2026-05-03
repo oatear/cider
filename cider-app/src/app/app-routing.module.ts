@@ -19,23 +19,23 @@ import { GameSimulatorComponent } from './game-simulator/game-simulator.componen
 import { TemplateGeneratorComponent } from './template-generator/template-generator.component';
 
 const routes: Routes = [
-  { path: 'decks', component: DecksComponent, canActivate: [ProjectGuard]},
-  { path: 'assets', component: AssetsComponent, canActivate: [ProjectGuard]},
-  { path: 'assets/generator', component: AssetGeneratorComponent, canActivate: [ProjectGuard]},
-  { path: 'assets/:assetId', component: AssetComponent, canActivate: [ProjectGuard]},
-  { path: 'documents', component: DocumentsComponent, canActivate: [ProjectGuard]},
-  { path: 'documents/:documentId', component: DocumentComponent, canActivate: [ProjectGuard]},
-  { path: 'decks/:deckId', component: CardsComponent, canActivate: [ProjectGuard, DeckGuard]},
-  { path: 'decks/:deckId/cards', component: CardsComponent, canActivate: [ProjectGuard, DeckGuard]},
-  { path: 'decks/:deckId/cards/listing', component: CardsComponent, canActivate: [ProjectGuard, DeckGuard]},
-  { path: 'decks/:deckId/cards/thumbnails', component: CardThumbnailsComponent, canActivate: [ProjectGuard, DeckGuard]},
-  { path: 'decks/:deckId/cards/attributes', component: CardAttributesComponent, canActivate: [ProjectGuard, DeckGuard]},
-  { path: 'decks/:deckId/templates/generator', component: TemplateGeneratorComponent, canActivate: [ProjectGuard, DeckGuard]},
-  { path: 'decks/:deckId/templates/:templateId', component: CardTemplatesComponent, canActivate: [ProjectGuard, DeckGuard]},
-  { path: 'decks/:deckId/export-cards', component: ExportCardsComponent, canActivate: [ProjectGuard, DeckGuard]},
-  { path: 'project', component: ProjectComponent, canActivate: [ProjectGuard]},
-  { path: 'simulator', component: GameSimulatorComponent, canActivate: [ProjectGuard]},
-  { path: '**', component: WelcomeComponent}
+  { path: 'decks', component: DecksComponent, canActivate: [ProjectGuard] },
+  { path: 'assets', component: AssetsComponent, canActivate: [ProjectGuard] },
+  { path: 'assets/generator', component: AssetGeneratorComponent, canActivate: [ProjectGuard] },
+  { path: 'assets/:assetId', component: AssetComponent, canActivate: [ProjectGuard] },
+  { path: 'documents', component: DocumentsComponent, canActivate: [ProjectGuard] },
+  { path: 'documents/:documentId', component: DocumentComponent, canActivate: [ProjectGuard] },
+  { path: 'decks/:deckId', component: CardsComponent, canActivate: [ProjectGuard, DeckGuard] },
+  { path: 'decks/:deckId/cards', component: CardsComponent, canActivate: [ProjectGuard, DeckGuard] },
+  { path: 'decks/:deckId/cards/listing', component: CardsComponent, canActivate: [ProjectGuard, DeckGuard] },
+  { path: 'decks/:deckId/cards/thumbnails', component: CardThumbnailsComponent, canActivate: [ProjectGuard, DeckGuard] },
+  { path: 'decks/:deckId/cards/attributes', component: CardAttributesComponent, canActivate: [ProjectGuard, DeckGuard] },
+  { path: 'decks/:deckId/templates/generator', component: TemplateGeneratorComponent, canActivate: [ProjectGuard, DeckGuard] },
+  { path: 'decks/:deckId/templates/:templateId', component: CardTemplatesComponent, canActivate: [ProjectGuard, DeckGuard] },
+  { path: 'decks/:deckId/export-cards', component: ExportCardsComponent, canActivate: [ProjectGuard, DeckGuard] },
+  { path: 'project', component: ProjectComponent, canActivate: [ProjectGuard] },
+  { path: 'simulator', component: GameSimulatorComponent, canActivate: [ProjectGuard] },
+  { path: '**', component: WelcomeComponent }
 ];
 
 @NgModule({
