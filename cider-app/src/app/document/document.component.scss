@@ -65,6 +65,13 @@
         padding-bottom: 0.3em;
     }
 
+    hr {
+        border: none;
+        border-top: 1px solid var(--p-content-border-color);
+        margin: 2rem 0;
+        opacity: 0.3;
+    }
+
     pre {
         background-color: var(--p-content-hover-background);
         padding: 0.5em;

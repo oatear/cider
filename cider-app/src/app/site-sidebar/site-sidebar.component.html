@@ -13,5 +13,5 @@
 </p-tree>
 <p-contextmenu #cm [model]="menuItems" appendTo="body" />
 <app-entity-dialog [service]="service" [(visible)]="dialogVisible" [entity]="entity" [title]="dialogTitle"
-    (onCreate)="onEntityCreated($event)"></app-entity-dialog>
+    (onCreate)="onEntityCreated($event)" (visibleChange)="onDialogVisibleChange($event)"></app-entity-dialog>
 <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>

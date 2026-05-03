@@ -8,6 +8,10 @@ import * as Handlebars from 'handlebars';
   standalone: false
 })
 export class HandlebarsPipe implements PipeTransform {
+  private static compiledTemplates = new Map<string, Handlebars.TemplateDelegate>();
+  private static readonly MAX_CACHE_SIZE = 500;
+
+
 
   constructor(domSanitizer: DomSanitizer) {
     let self = this;
@@ -267,13 +271,24 @@ export class HandlebarsPipe implements PipeTransform {
     if (!handlebars) {
       return '';
     }
-    let template = Handlebars.compile(handlebars);
+    
+    let template = HandlebarsPipe.compiledTemplates.get(handlebars);
+    if (!template) {
+      if (HandlebarsPipe.compiledTemplates.size >= HandlebarsPipe.MAX_CACHE_SIZE) {
+        HandlebarsPipe.compiledTemplates.clear();
+      }
+      template = Handlebars.compile(handlebars);
+      HandlebarsPipe.compiledTemplates.set(handlebars, template);
+    }
+
+
     try {
       return template({ assets: assetUrls });
     } catch (error) {
       return '';
     }
   }
+
 
   private sanitizeCss(css: string): string {
     if (!css) {

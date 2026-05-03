@@ -58,11 +58,6 @@ export class SiteSidebarComponent implements OnInit {
 
   ngOnInit() {
     console.log('init sidebar');
-    // if (!this.electronService.isElectron()) {
-    //   firstValueFrom(this.translate.onLangChange.pipe(timeout(1000))).then(() => {
-    //     this.updateFiles();
-    //   });
-    // }
 
     // update menu on language change
     this.translate.stream('welcome.title').subscribe(() => {
@@ -77,19 +72,26 @@ export class SiteSidebarComponent implements OnInit {
       }
     });
 
-    combineLatest([this.db.onChange(), this.projectStateService.getDirtyEntities()])
-      .pipe(debounceTime(500)).subscribe(() => {
-        const isProjectOpen: boolean = this.electronService.getIsProjectOpen().getValue();
-        if (!this.electronService.isElectron() || isProjectOpen) {
-          console.log('change detected, project is open, sidebar update');
+    // Structural changes (create/delete): full tree rebuild
+    this.db.onChange().pipe(debounceTime(500)).subscribe((change: any) => {
+      const isProjectOpen: boolean = this.electronService.getIsProjectOpen().getValue();
+      if (!this.electronService.isElectron() || isProjectOpen) {
+        if (change && (change.type === 'create' || change.type === 'delete')) {
+          console.log('structural change detected, full sidebar update');
           this.updateFiles().then(() => {
             this.updateDirtyIndicators();
           });
         } else {
-
-          console.log('change detected, project is not open, skipping sidebar update');
+          // Content-only update: just refresh dirty indicators without expensive tree rebuild
+          this.updateDirtyIndicators();
         }
-      });
+      }
+    });
+
+    // Also refresh dirty indicators when dirtyEntities list changes
+    this.projectStateService.getDirtyEntities().pipe(debounceTime(500)).subscribe(() => {
+      this.updateDirtyIndicators();
+    });
   }
 
   async updateFiles() {
@@ -693,6 +695,13 @@ export class SiteSidebarComponent implements OnInit {
     if (this.service === this.decksService) {
       console.log('Deck created, creating system attributes for deck ' + entity.id);
       this.cardAttributesService.createSystemAttributes(entity.id);
+    }
+  }
+
+  public onDialogVisibleChange(visible: boolean) {
+    if (!visible) {
+      // Refresh sidebar when dialog closes (covers renames/updates)
+      this.updateFiles();
     }
   }
 
