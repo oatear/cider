@@ -97,6 +97,7 @@ textarea {
 
             .page-card {
                 height: 100%;
+                overflow: hidden;
 
                 .preview-controls {
                     width: 100%;
@@ -129,12 +130,101 @@ textarea {
                         .preview-space {
                             flex: 1;
                             display: flex;
-                            overflow: hidden;
-                            align-items: center;
-                            justify-content: center;
+                            overflow: auto;
+                            cursor: grab;
+
+                            &.panning {
+                                cursor: grabbing;
+                                user-select: none;
+                            }
+
+                            .zoom-container {
+                                display: flex;
+                                margin: auto;
+                                transform-origin: center center;
+                                transition: transform 0.1s ease-out;
+                            }
+
+                            .grid-container {
+                                display: flex;
+                                position: relative;
+                                padding: 500px;
+                                min-width: fit-content;
+                                min-height: fit-content;
+                                align-items: center;
+                                justify-content: center;
+
+                                .grid-background {
+                                    position: absolute;
+                                    top: 0;
+                                    left: 0;
+                                    right: 0;
+                                    bottom: 0;
+                                    pointer-events: none;
+                                    background-color: var(--p-card-background);
+
+                                    .grid-lines {
+                                        position: absolute;
+                                        top: 0;
+                                        left: 0;
+                                        right: 0;
+                                        bottom: 0;
+                                        background-image:
+                                            linear-gradient(transparent 24px, var(--p-surface-600) 24px, var(--p-surface-600) 26px, transparent 26px),
+                                            linear-gradient(90deg, transparent 24px, var(--p-surface-600) 24px, var(--p-surface-600) 26px, transparent 26px);
+                                        background-size: 50px 50px;
+                                        background-position: center center;
+                                        opacity: 0.3;
+                                        mask-image: radial-gradient(circle, black 30%, transparent 70%);
+                                        -webkit-mask-image: radial-gradient(circle, black 30%, transparent 70%);
+                                    }
+
+                                    .grid-axis-x,
+                                    .grid-axis-y {
+                                        position: absolute;
+                                        background-color: var(--p-surface-500);
+                                        opacity: 0.4;
+                                        pointer-events: none;
+                                    }
+
+                                    .grid-axis-x {
+                                        left: 0;
+                                        right: 0;
+                                        top: 50%;
+                                        height: 3px;
+                                        transform: translateY(-50%);
+                                        mask-image: linear-gradient(90deg, transparent, black 20%, black 80%, transparent);
+                                        -webkit-mask-image: linear-gradient(90deg, transparent, black 20%, black 80%, transparent);
+                                    }
+
+                                    .grid-axis-y {
+                                        top: 0;
+                                        bottom: 0;
+                                        left: 50%;
+                                        width: 3px;
+                                        transform: translateX(-50%);
+                                        mask-image: linear-gradient(0deg, transparent, black 20%, black 80%, transparent);
+                                        -webkit-mask-image: linear-gradient(0deg, transparent, black 20%, black 80%, transparent);
+                                    }
+                                }
+
+                                app-card-preview {
+                                    position: relative;
+                                    z-index: 1;
+                                    margin: 0; // Handled by flex centering of parent
+                                }
+                            }
                         }
                     }
                 }
+            }
+
+            .zoom-level-button {
+                min-width: 65px;
+                font-weight: 600;
+                font-size: 0.9rem;
+                padding-left: 10px;
+                padding-right: 10px;
             }
         }
 

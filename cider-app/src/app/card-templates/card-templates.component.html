@@ -11,18 +11,34 @@
               optionLabel="name" class="card-dropdown"></p-select>
               <p-buttongroup>
                 <button pButton type="button" icon="pi pi-search-minus"
-                (click)="changeZoom(ZOOM_DOWN)"></button>
+                (click)="changeZoom(ZOOM_DOWN)" [pTooltip]="'controls.zoom-out' | translate"></button>
+                <button pButton type="button" class="zoom-level-button"
+                (click)="resetZoomAndPan()" [pTooltip]="'controls.reset-view' | translate">{{(zoom * 100).toFixed(0)}}%</button>
                 <button pButton type="button" icon="pi pi-search-plus"
-                (click)="changeZoom(ZOOM_UP)"></button>
+                (click)="changeZoom(ZOOM_UP)" [pTooltip]="'controls.zoom-in' | translate"></button>
               </p-buttongroup>
             </div>
           }
           @if (!disablePanels) {
-            <div class="preview-space">
-              @if (selectedCard) {
-                <app-card-preview [card]="selectedCard" [template]="selectedTemplate"
-                [scale]="zoom" [cache]="false" [tiltable]="true" [version]="templateVersion"></app-card-preview>
-              }
+            <div #previewSpace class="preview-space" [class.panning]="isPanning"
+              (mousedown)="onMouseDown($event, previewSpace)"
+              (mousemove)="onMouseMove($event, previewSpace)"
+              (mouseup)="onMouseUp($event)"
+              (mouseleave)="onMouseLeave($event)"
+              (wheel)="onWheel($event)">
+              <div class="zoom-container" [style.transform]="'scale(' + zoom + ')'">
+                <div class="grid-container">
+                  <div class="grid-background">
+                    <div class="grid-lines"></div>
+                    <div class="grid-axis-x"></div>
+                    <div class="grid-axis-y"></div>
+                  </div>
+                  @if (selectedCard) {
+                    <app-card-preview [card]="selectedCard" [template]="selectedTemplate"
+                    [scale]="1.0" [cache]="false" [tiltable]="true" [version]="templateVersion"></app-card-preview>
+                  }
+                </div>
+              </div>
             </div>
           }
         </p-card>

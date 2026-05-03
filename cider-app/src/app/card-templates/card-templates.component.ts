@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener, SecurityContext, ViewChild } from '@angular/core';
+import { Component, OnInit, HostListener, SecurityContext, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { CardTemplatesService } from '../data-services/services/card-templates.service';
@@ -56,12 +56,14 @@ const templateHtmlFront =
     providers: [MessageService, ConfirmationService],
     standalone: false
 })
-export class CardTemplatesComponent implements OnInit {
+export class CardTemplatesComponent implements OnInit, AfterViewInit {
+  @ViewChild('previewSpace') previewSpace!: ElementRef;
   static readonly DEFAULT_HTML: string = templateHtmlFront;
   static readonly DEFAULT_CSS: string = templateCssFront;
   // have to be non-static
   readonly ZOOM_UP: number = 1.5;
   readonly ZOOM_DOWN: number = 1/1.5;
+  readonly DEFAULT_ZOOM: number = Math.pow(this.ZOOM_DOWN, 2);
 
   htmlEditorOptions: any = { theme: 'vs-dark-extended', language: 'handlebars', 
     automaticLayout: true, minimap: { enabled: false } };
@@ -75,13 +77,18 @@ export class CardTemplatesComponent implements OnInit {
   dialogVisible: boolean = false;
   infoVisible: boolean = false;
   infoText: string = '';
-  zoom: number = Math.pow(this.ZOOM_DOWN, 2);
+  zoom: number = this.DEFAULT_ZOOM;
   previewPanelWidth = 40;
   disablePanels: boolean = false;
   templateChanges: Subject<boolean>;
   disableSplitter = false;
   windowResizing$: Subject<boolean>;
   templateVersion: number = 0;
+  isPanning: boolean = false;
+  private panStartX: number = 0;
+  private panStartY: number = 0;
+  private scrollLeftStart: number = 0;
+  private scrollTopStart: number = 0;
 
 
   constructor(private domSanitizer: DomSanitizer, 
@@ -131,6 +138,10 @@ export class CardTemplatesComponent implements OnInit {
       .subscribe(() => this.save(this.selectedTemplate));
   }
 
+  ngAfterViewInit(): void {
+    setTimeout(() => this.centerPreview(), 500);
+  }
+
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {
     this.disablePanels = true;
@@ -143,10 +154,66 @@ export class CardTemplatesComponent implements OnInit {
 
   public changeZoom(change: number) {
     this.zoom *= change;
+    this.clampZoom();
+  }
+
+  private clampZoom() {
     if (this.zoom < Math.pow(this.ZOOM_DOWN, 5)) {
       this.zoom = Math.pow(this.ZOOM_DOWN, 5);
     } else if (this.zoom > Math.pow(this.ZOOM_UP, 5)) {
       this.zoom = Math.pow(this.ZOOM_UP, 5);
+    }
+    this.zoom = parseFloat(this.zoom.toFixed(3));
+  }
+
+  public onMouseDown(event: MouseEvent, container: HTMLElement) {
+    if (event.button !== 0 && event.button !== 1) return;
+    event.preventDefault();
+    this.isPanning = true;
+    this.panStartX = event.clientX;
+    this.panStartY = event.clientY;
+    this.scrollLeftStart = container.scrollLeft;
+    this.scrollTopStart = container.scrollTop;
+  }
+
+  public onMouseMove(event: MouseEvent, container: HTMLElement) {
+    if (!this.isPanning) return;
+    const dx = event.clientX - this.panStartX;
+    const dy = event.clientY - this.panStartY;
+    container.scrollLeft = this.scrollLeftStart - dx;
+    container.scrollTop = this.scrollTopStart - dy;
+  }
+
+  public onMouseUp(event: MouseEvent) {
+    this.isPanning = false;
+  }
+
+  public onMouseLeave(event: MouseEvent) {
+    this.isPanning = false;
+  }
+
+  public onWheel(event: WheelEvent) {
+    event.preventDefault();
+    const zoomFactor = event.deltaY < 0 ? 1.1 : 0.9;
+    this.zoom *= zoomFactor;
+    this.clampZoom();
+  }
+
+  public resetZoomAndPan() {
+    this.zoom = this.DEFAULT_ZOOM;
+    this.centerPreview();
+  }
+
+  public centerPreview() {
+    if (this.previewSpace) {
+      const container = this.previewSpace.nativeElement;
+      const scrollHeight = container.scrollHeight;
+      const scrollWidth = container.scrollWidth;
+      const clientHeight = container.clientHeight;
+      const clientWidth = container.clientWidth;
+
+      container.scrollTop = (scrollHeight - clientHeight) / 2;
+      container.scrollLeft = (scrollWidth - clientWidth) / 2;
     }
   }
 
