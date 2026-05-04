@@ -79,24 +79,24 @@
 <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
 <p-dialog header="Information" [style]="{width: '450px'}" [(visible)]="infoVisible">{{infoText}}</p-dialog>
 
-<p-dialog header="Preview Settings" [(visible)]="settingsVisible" [modal]="true" [style]="{width: '400px'}"
+<p-dialog [header]="'template-editor.preview-settings-title' | translate" [(visible)]="settingsVisible" [modal]="true" [style]="{width: '400px'}"
   [draggable]="false" [resizable]="false" styleClass="preview-settings-dialog" (onHide)="saveSettings()">
   <div class="p-fluid">
     <div class="settings-section">
       <div class="p-flex p-align-items-center">
         <p-checkbox [(ngModel)]="previewSettings.tiltEnabled" [binary]="true" inputId="tilt" (ngModelChange)="saveSettings()"></p-checkbox>
-        <label for="tilt" class="p-mb-0 p-ml-2">Enable Dynamic Card Tilt</label>
+        <label for="tilt" class="p-mb-0 p-ml-2">{{ 'template-editor.enable-tilt' | translate }}</label>
       </div>
     </div>
 
     <div class="settings-section">
       <div class="p-flex p-align-items-center p-mb-3">
         <p-checkbox [(ngModel)]="previewSettings.trimLinesEnabled" [binary]="true" inputId="trim" (ngModelChange)="saveSettings()"></p-checkbox>
-        <label for="trim" class="p-mb-0 p-ml-2">Show Trim/Cut Lines</label>
+        <label for="trim" class="p-mb-0 p-ml-2">{{ 'template-editor.show-trim-lines' | translate }}</label>
       </div>
       @if (previewSettings.trimLinesEnabled) {
       <div class="p-field p-mt-4 p-mb-0">
-        <label class="p-text-xs p-mb-2 p-d-block">Offset From Edge</label>
+        <label class="p-text-xs p-mb-2 p-d-block">{{ 'template-editor.offset-from-edge' | translate }}</label>
         <div class="p-inputgroup">
           <p-inputNumber [(ngModel)]="previewSettings.trimOffset" [minFractionDigits]="2" [maxFractionDigits]="3"
             placeholder="Offset" class="p-mr-2" (ngModelChange)="saveSettings()"></p-inputNumber>
@@ -110,11 +110,11 @@
     <div class="settings-section p-mb-0">
       <div class="p-flex p-align-items-center p-mb-3">
         <p-checkbox [(ngModel)]="previewSettings.safeLinesEnabled" [binary]="true" inputId="safe" (ngModelChange)="saveSettings()"></p-checkbox>
-        <label for="safe" class="p-mb-0 p-ml-2">Show Safe Area Lines</label>
+        <label for="safe" class="p-mb-0 p-ml-2">{{ 'template-editor.show-safe-lines' | translate }}</label>
       </div>
       @if (previewSettings.safeLinesEnabled) {
       <div class="p-field p-mt-4 p-mb-0">
-        <label class="p-text-xs p-mb-2 p-d-block">Offset From Edge</label>
+        <label class="p-text-xs p-mb-2 p-d-block">{{ 'template-editor.offset-from-edge' | translate }}</label>
         <div class="p-inputgroup">
           <p-inputNumber [(ngModel)]="previewSettings.safeOffset" [minFractionDigits]="2" [maxFractionDigits]="3"
             placeholder="Offset" class="p-mr-2" (ngModelChange)="saveSettings()"></p-inputNumber>
@@ -126,6 +126,6 @@
     </div>
   </div>
   <ng-template pTemplate="footer">
-    <button pButton icon="pi pi-check" (click)="settingsVisible = false" label="Done" class="p-button-text"></button>
+    <button pButton icon="pi pi-check" (click)="settingsVisible = false" [label]="'controls.done' | translate" class="p-button-text"></button>
   </ng-template>
 </p-dialog>

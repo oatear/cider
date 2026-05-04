@@ -28,7 +28,12 @@
         "backs": "裏面",
         "both": "両方",
         "singles": "単品",
-        "copies": "コピー"
+        "copies": "コピー",
+        "zoom-out": "Zoom Out",
+        "zoom-in": "Zoom In",
+        "reset-view": "Reset View",
+        "preview-settings": "Preview Settings",
+        "done": "Done"
     },
     "fields": {
         "name": "名前",
@@ -162,5 +167,12 @@
         "roll-die": "サイコロを振る",
         "zoom": "ズーム",
         "reset-game": "ゲームをリセット"
+    },
+    "template-editor": {
+        "preview-settings-title": "Preview Settings",
+        "enable-tilt": "Enable Dynamic Card Tilt",
+        "show-trim-lines": "Show Trim/Cut Lines",
+        "show-safe-lines": "Show Safe Area Lines",
+        "offset-from-edge": "Offset From Edge"
     }
 }

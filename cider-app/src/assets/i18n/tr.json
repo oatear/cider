@@ -28,7 +28,12 @@
         "backs": "Arkalar",
         "both": "Her İkisi",
         "singles": "Tekler",
-        "copies": "Kopyalar"
+        "copies": "Kopyalar",
+        "zoom-out": "Zoom Out",
+        "zoom-in": "Zoom In",
+        "reset-view": "Reset View",
+        "preview-settings": "Preview Settings",
+        "done": "Done"
     },
     "fields": {
         "name": "Ad",
@@ -162,5 +167,12 @@
         "roll-die": "Zarı At",
         "zoom": "Yakınlaştır",
         "reset-game": "Oyunu Sıfırla"
+    },
+    "template-editor": {
+        "preview-settings-title": "Preview Settings",
+        "enable-tilt": "Enable Dynamic Card Tilt",
+        "show-trim-lines": "Show Trim/Cut Lines",
+        "show-safe-lines": "Show Safe Area Lines",
+        "offset-from-edge": "Offset From Edge"
     }
 }

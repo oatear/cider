@@ -28,7 +28,12 @@
         "backs": "Обратная сторона",
         "both": "Обе",
         "singles": "Отдельные",
-        "copies": "Копии"
+        "copies": "Копии",
+        "zoom-out": "Отдалить",
+        "zoom-in": "Приблизить",
+        "reset-view": "Сбросить вид",
+        "preview-settings": "Настройки предпросмотра",
+        "done": "Done"
     },
     "fields": {
         "name": "Название",
@@ -162,5 +167,12 @@
         "roll-die": "Бросить кубик",
         "zoom": "Увеличить",
         "reset-game": "Сбросить игру"
+    },
+    "template-editor": {
+        "preview-settings-title": "Preview Settings",
+        "enable-tilt": "Enable Dynamic Card Tilt",
+        "show-trim-lines": "Show Trim/Cut Lines",
+        "show-safe-lines": "Show Safe Area Lines",
+        "offset-from-edge": "Offset From Edge"
     }
 }
