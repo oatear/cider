@@ -163,6 +163,10 @@ export class AppDB extends Dexie {
             }).then(() => {
                 // initialize mandatory data;
                 return this.initializeData();
+            }).then(() => {
+                if (!electronService.isElectron()) {
+                    electronService.setProjectOpen(true);
+                }
             }));
 
         // trigger changeSubject when change emitted to db

@@ -72,11 +72,11 @@ export class SiteSidebarComponent implements OnInit {
       }
     });
 
-    // Structural changes (create/delete): full tree rebuild
+    // Structural changes (create/delete/reset): full tree rebuild
     this.db.onChange().pipe(debounceTime(500)).subscribe((change: any) => {
       const isProjectOpen: boolean = this.electronService.getIsProjectOpen().getValue();
       if (!this.electronService.isElectron() || isProjectOpen) {
-        if (change && (change.type === 'create' || change.type === 'delete')) {
+        if (!change || change.type === 'create' || change.type === 'delete' || change.type === 'reset') {
           console.log('structural change detected, full sidebar update');
           this.updateFiles().then(() => {
             this.updateDirtyIndicators();
