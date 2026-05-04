@@ -94,6 +94,8 @@ export class GameSimulatorComponent implements OnInit, OnDestroy {
   renameStackName: string = '';
   shortcutsVisible: boolean = false;
   stackToRename: CardStack | undefined;
+  isZooming: boolean = false;
+  private zoomTimeout: any;
 
   saveStackName() {
     if (this.stackToRename && this.renameStackName.trim().length > 0) {
@@ -1377,12 +1379,20 @@ export class GameSimulatorComponent implements OnInit, OnDestroy {
 
   public onWheel(event: WheelEvent) {
     event.preventDefault();
-    const zoomSpeed = 0.001;
+
+    this.isZooming = true;
+    clearTimeout(this.zoomTimeout);
+    this.zoomTimeout = setTimeout(() => {
+      this.isZooming = false;
+    }, 150);
+
     // On Mac, Shift + Scroll often translates to deltaX instead of deltaY
     const delta = Math.abs(event.deltaY) > Math.abs(event.deltaX) ? event.deltaY : event.deltaX;
-    const zoomDelta = -delta * zoomSpeed;
+    
+    // Multiplicative zoom factor (0.999^100 is approx 0.9, 0.999^-100 is approx 1.1)
+    const zoomFactor = Math.pow(0.999, delta);
     const oldZoom = this.simulatorZoom;
-    const newZoom = Math.max(0.1, Math.min(5, oldZoom + zoomDelta));
+    const newZoom = Math.max(0.1, Math.min(5, oldZoom * zoomFactor));
 
     if (oldZoom === newZoom) return;
 

@@ -8,7 +8,7 @@
   <div class="field game-boundary" #gameBoundary (contextmenu)="onFieldContextMenu($event, cm)"
     (wheel)="onWheel($event)" (mousedown)="onSimulatorMouseDown($event)">
 
-    <div class="simulator-content"
+    <div class="simulator-content" [class.smooth-transform]="isZooming"
       [style.transform]="'translate(' + simulatorPan.x + 'px, ' + simulatorPan.y + 'px) scale(' + simulatorZoom + ')'">
       <div class="virtual-table" [ngStyle]="tableStyle"></div>
       <!-- Stacks -->
