@@ -1376,30 +1376,28 @@ export class GameSimulatorComponent implements OnInit, OnDestroy {
   }
 
   public onWheel(event: WheelEvent) {
-    if (event.shiftKey) {
-      event.preventDefault();
-      const zoomSpeed = 0.001;
-      // On Mac, Shift + Scroll often translates to deltaX instead of deltaY
-      const delta = Math.abs(event.deltaY) > Math.abs(event.deltaX) ? event.deltaY : event.deltaX;
-      const zoomDelta = -delta * zoomSpeed;
-      const oldZoom = this.simulatorZoom;
-      const newZoom = Math.max(0.1, Math.min(5, oldZoom + zoomDelta));
+    event.preventDefault();
+    const zoomSpeed = 0.001;
+    // On Mac, Shift + Scroll often translates to deltaX instead of deltaY
+    const delta = Math.abs(event.deltaY) > Math.abs(event.deltaX) ? event.deltaY : event.deltaX;
+    const zoomDelta = -delta * zoomSpeed;
+    const oldZoom = this.simulatorZoom;
+    const newZoom = Math.max(0.1, Math.min(5, oldZoom + zoomDelta));
 
-      if (oldZoom === newZoom) return;
+    if (oldZoom === newZoom) return;
 
-      // Calculate pan adjustment to zoom at mouse position
-      const rect = this.gameBoundary.nativeElement.getBoundingClientRect();
-      const mouseX = event.clientX - rect.left;
-      const mouseY = event.clientY - rect.top;
+    // Calculate pan adjustment to zoom at mouse position
+    const rect = this.gameBoundary.nativeElement.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
 
-      // Formula for zooming at mouse point:
-      // newPan = mouse - (mouse - oldPan) * (newZoom / oldZoom)
-      this.simulatorPan.x = mouseX - (mouseX - this.simulatorPan.x) * (newZoom / oldZoom);
-      this.simulatorPan.y = mouseY - (mouseY - this.simulatorPan.y) * (newZoom / oldZoom);
-      this.simulatorZoom = newZoom;
+    // Formula for zooming at mouse point:
+    // newPan = mouse - (mouse - oldPan) * (newZoom / oldZoom)
+    this.simulatorPan.x = mouseX - (mouseX - this.simulatorPan.x) * (newZoom / oldZoom);
+    this.simulatorPan.y = mouseY - (mouseY - this.simulatorPan.y) * (newZoom / oldZoom);
+    this.simulatorZoom = newZoom;
 
-      this.calculateOffScreenIndicators();
-    }
+    this.calculateOffScreenIndicators();
   }
 
   public onSimulatorMouseDown(event: MouseEvent) {
