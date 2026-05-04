@@ -414,7 +414,7 @@ export class SiteSidebarComponent implements OnInit {
       // -----------------------------------------------
       // Fetch assets and build the tree (folders + files)
       // -----------------------------------------------
-      const assets = await this.assetsService.getAll();
+      const assets = await this.assetsService.getAllMetadata();
       const folders = await this.assetsService.getFolders();
 
       const assetsRoot: TreeNode = {
@@ -608,7 +608,8 @@ export class SiteSidebarComponent implements OnInit {
   }
 
   getAssetIcon(asset: Asset): string {
-    const fileType = StringUtils.mimeToTypeCategory(asset.file.type);
+    const rawType = (asset as any).type || asset.file?.type || '';
+    const fileType = StringUtils.mimeToTypeCategory(rawType);
     switch (fileType) {
       case 'image':
         return 'pi pi-image';

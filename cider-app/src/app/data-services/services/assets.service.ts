@@ -251,6 +251,14 @@ export class AssetsService extends IndexedDbService<Asset, number> {
     return super.getAll().then(entities => entities.map(AssetsService.insertFile));
   }
 
+  public getAllMetadata(): Promise<any[]> {
+    return this.db.table(this.tableName).toArray().then(entities => entities.map(e => {
+      const copy = { ...e } as any;
+      delete copy.buffer; // Free memory immediately
+      return copy;
+    }));
+  }
+
   public onChange() {
     return this.db.onChange().pipe(filter((change: any) =>
       change.tableName === AppDB.ASSETS_TABLE || change.tableName === AppDB.ASSET_FOLDERS_TABLE

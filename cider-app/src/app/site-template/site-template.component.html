@@ -12,20 +12,15 @@
       (onResizeStart)="onResizeStart($event)"
       (onResizeEnd)="onResizeEnd($event)">
       <ng-template pTemplate>
-        @if (!disablePanels) {
-          <app-site-sidebar>
-          </app-site-sidebar>
-        }
+        <app-site-sidebar [style.display]="disablePanels ? 'none' : 'flex'"></app-site-sidebar>
         @if (disablePanels) {
           <div class="site-sidebar-placeholder"></div>
         }
       </ng-template>
       <ng-template pTemplate>
-        @if (!disablePanels) {
-          <app-site-content>
-            <ng-content></ng-content>
-          </app-site-content>
-        }
+        <app-site-content [style.display]="disablePanels ? 'none' : 'flex'">
+          <ng-content></ng-content>
+        </app-site-content>
         @if (disablePanels) {
           <div class="site-content-placeholder"></div>
         }
