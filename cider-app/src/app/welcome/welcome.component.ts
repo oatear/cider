@@ -126,6 +126,7 @@ export class WelcomeComponent implements OnInit {
     firstValueFrom(this.projectUnsaved$)]);
     if (!projectHomeUrl && !projectUnsaved) {
       this.openProjectProcedure(url);
+      return;
     }
     this.confirmationService.confirm({
       message: 'Are you sure that you wish to open another project?'

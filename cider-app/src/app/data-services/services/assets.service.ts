@@ -210,6 +210,9 @@ export class AssetsService extends IndexedDbService<Asset, number> {
    * @param entity 
    */
   private static insertArrayBuffer(entity: Asset): Promise<Asset> {
+    if (!entity || !entity.file) {
+      return Promise.resolve(entity);
+    }
     return entity.file.arrayBuffer().then(buffer => {
       (<any>entity).buffer = buffer;
       (<any>entity).type = entity.file.type;
@@ -223,7 +226,7 @@ export class AssetsService extends IndexedDbService<Asset, number> {
    * @param entity 
    */
   private static insertFile(entity: Asset): Asset {
-    if (!(<any>entity).buffer || !(<any>entity).type) {
+    if (!entity || !(<any>entity).buffer || !(<any>entity).type) {
       return entity;
     }
     const blob: Blob = AssetsService.arrayBufferToBlob((<any>entity).buffer, (<any>entity).type);
