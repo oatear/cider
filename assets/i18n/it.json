@@ -28,7 +28,12 @@
         "backs": "Retro",
         "both": "Entrambi",
         "singles": "Singole",
-        "copies": "Copie"
+        "copies": "Copie",
+        "zoom-out": "Rimpicciolisci",
+        "zoom-in": "Ingrandisci",
+        "reset-view": "Reimposta vista",
+        "preview-settings": "Impostazioni anteprima",
+        "done": "Done"
     },
     "fields": {
         "name": "Nome",
@@ -162,5 +167,12 @@
         "roll-die": "Lancia il dado",
         "zoom": "Zoom",
         "reset-game": "Resetta il gioco"
+    },
+    "template-editor": {
+        "preview-settings-title": "Preview Settings",
+        "enable-tilt": "Enable Dynamic Card Tilt",
+        "show-trim-lines": "Show Trim/Cut Lines",
+        "show-safe-lines": "Show Safe Area Lines",
+        "offset-from-edge": "Offset From Edge"
     }
 }

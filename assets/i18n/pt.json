@@ -28,7 +28,12 @@
         "backs": "Versos",
         "both": "Ambos",
         "singles": "Individuais",
-        "copies": "Cópias"
+        "copies": "Cópias",
+        "zoom-out": "Zoom Out",
+        "zoom-in": "Zoom In",
+        "reset-view": "Reset View",
+        "preview-settings": "Preview Settings",
+        "done": "Done"
     },
     "fields": {
         "name": "Nome",
@@ -162,5 +167,12 @@
         "roll-die": "Rolar dado",
         "zoom": "Ampliar",
         "reset-game": "Reiniciar jogo"
+    },
+    "template-editor": {
+        "preview-settings-title": "Preview Settings",
+        "enable-tilt": "Enable Dynamic Card Tilt",
+        "show-trim-lines": "Show Trim/Cut Lines",
+        "show-safe-lines": "Show Safe Area Lines",
+        "offset-from-edge": "Offset From Edge"
     }
 }

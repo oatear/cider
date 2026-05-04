@@ -28,7 +28,12 @@
         "backs": "뒷면",
         "both": "둘 다",
         "singles": "개별",
-        "copies": "복사본"
+        "copies": "복사본",
+        "zoom-out": "Zoom Out",
+        "zoom-in": "Zoom In",
+        "reset-view": "Reset View",
+        "preview-settings": "Preview Settings",
+        "done": "Done"
     },
     "fields": {
         "name": "이름",
@@ -162,5 +167,12 @@
         "roll-die": "주사위 굴리기",
         "zoom": "확대/축소",
         "reset-game": "게임 초기화"
+    },
+    "template-editor": {
+        "preview-settings-title": "Preview Settings",
+        "enable-tilt": "Enable Dynamic Card Tilt",
+        "show-trim-lines": "Show Trim/Cut Lines",
+        "show-safe-lines": "Show Safe Area Lines",
+        "offset-from-edge": "Offset From Edge"
     }
 }

@@ -28,7 +28,12 @@
         "backs": "Rückseiten",
         "both": "Beide",
         "singles": "Einzeln",
-        "copies": "Kopien"
+        "copies": "Kopien",
+        "zoom-out": "Verkleinern",
+        "zoom-in": "Vergrößern",
+        "reset-view": "Ansicht zurücksetzen",
+        "preview-settings": "Vorschau-Einstellungen",
+        "done": "Done"
     },
     "fields": {
         "name": "Name",
@@ -162,5 +167,12 @@
         "roll-die": "Würfel werfen",
         "zoom": "Vergrößern",
         "reset-game": "Spiel zurücksetzen"
+    },
+    "template-editor": {
+        "preview-settings-title": "Preview Settings",
+        "enable-tilt": "Enable Dynamic Card Tilt",
+        "show-trim-lines": "Show Trim/Cut Lines",
+        "show-safe-lines": "Show Safe Area Lines",
+        "offset-from-edge": "Offset From Edge"
     }
 }

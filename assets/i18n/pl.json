@@ -28,7 +28,12 @@
         "backs": "Tyły",
         "both": "Oba",
         "singles": "Pojedyncze",
-        "copies": "Kopie"
+        "copies": "Kopie",
+        "zoom-out": "Zoom Out",
+        "zoom-in": "Zoom In",
+        "reset-view": "Reset View",
+        "preview-settings": "Preview Settings",
+        "done": "Done"
     },
     "fields": {
         "name": "Nazwa",
@@ -162,5 +167,12 @@
         "roll-die": "Rzuć kością",
         "zoom": "Powiększ",
         "reset-game": "Zresetuj grę"
+    },
+    "template-editor": {
+        "preview-settings-title": "Preview Settings",
+        "enable-tilt": "Enable Dynamic Card Tilt",
+        "show-trim-lines": "Show Trim/Cut Lines",
+        "show-safe-lines": "Show Safe Area Lines",
+        "offset-from-edge": "Offset From Edge"
     }
 }
