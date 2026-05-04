@@ -28,7 +28,12 @@
         "backs": "Backs",
         "both": "Both",
         "singles": "Singles",
-        "copies": "Copies"
+        "copies": "Copies",
+        "zoom-out": "Zoom Out",
+        "zoom-in": "Zoom In",
+        "reset-view": "Reset View",
+        "preview-settings": "Preview Settings",
+        "done": "Done"
     },
     "fields": {
         "name": "Name",
@@ -205,5 +210,12 @@
         "shortcuts-flip-coin-label": "Flip Randomly",
         "shortcuts-flip-pawn": "Middle Click (Pawn / Cube)",
         "shortcuts-flip-pawn-label": "Flip Over"
+    },
+    "template-editor": {
+        "preview-settings-title": "Preview Settings",
+        "enable-tilt": "Enable Dynamic Card Tilt",
+        "show-trim-lines": "Show Trim/Cut Lines",
+        "show-safe-lines": "Show Safe Area Lines",
+        "offset-from-edge": "Offset From Edge"
     }
 }

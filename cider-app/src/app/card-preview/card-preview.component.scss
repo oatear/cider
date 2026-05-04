@@ -8,6 +8,22 @@
     transform-origin: 0 0;
     width: fit-content;
     height: fit-content;
+    position: relative;
+}
+
+.guide-line {
+    position: absolute;
+    pointer-events: none;
+    z-index: 15;
+    box-sizing: border-box;
+
+    &.trim-line {
+        border: 3px solid rgba(255, 0, 0, 0.8);
+    }
+
+    &.safe-line {
+        border: 4px dashed rgba(0, 120, 255, 0.8);
+    }
 }
 
 .card-element {

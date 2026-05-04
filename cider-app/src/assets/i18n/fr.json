@@ -28,7 +28,12 @@
         "backs": "Versos",
         "both": "Les deux",
         "singles": "Unitaires",
-        "copies": "Copies"
+        "copies": "Copies",
+        "zoom-out": "Zoom arrière",
+        "zoom-in": "Zoom avant",
+        "reset-view": "Réinitialiser la vue",
+        "preview-settings": "Paramètres d'aperçu",
+        "done": "Done"
     },
     "fields": {
         "name": "Nom",
@@ -162,5 +167,12 @@
         "roll-die": "Lancer le dé",
         "zoom": "Zoomer",
         "reset-game": "Réinitialiser le jeu"
+    },
+    "template-editor": {
+        "preview-settings-title": "Preview Settings",
+        "enable-tilt": "Enable Dynamic Card Tilt",
+        "show-trim-lines": "Show Trim/Cut Lines",
+        "show-safe-lines": "Show Safe Area Lines",
+        "offset-from-edge": "Offset From Edge"
     }
 }

@@ -150,7 +150,10 @@ export class AppDB extends Dexie {
         // populate in a non-traditional way since the 'on populate' will not allow ajax calls
         this.on('ready', () => this.table(AppDB.DECKS_TABLE).count()
             .then(count => {
-                if (!electronService.isElectron() && count > 0) {
+                if (electronService.isElectron()) {
+                    return Promise.resolve();
+                }
+                if (count > 0) {
                     console.log('db already populated');
                     return Promise.resolve();
                 } else {
@@ -163,6 +166,10 @@ export class AppDB extends Dexie {
             }).then(() => {
                 // initialize mandatory data;
                 return this.initializeData();
+            }).then(() => {
+                if (!electronService.isElectron()) {
+                    electronService.setProjectOpen(true);
+                }
             }));
 
         // trigger changeSubject when change emitted to db
@@ -316,16 +323,18 @@ export class AppDB extends Dexie {
      * mandatory entries. This is run on project open.
      */
     public async initializeData(): Promise<void> {
-        // make sure the global-styles css document exists
-        const documentsTable = this.table(AppDB.DOCUMENTS_TABLE);
-        const count = await documentsTable.where('name').equals('global-styles').count();
-        if (count === 0) {
-            await documentsTable.add({
-                name: 'global-styles',
-                mime: 'text/css',
-                content: `/* Global Styles and Font Declarations */\n`
-            });
-        }
+        this.isPopulating = true;
+        try {
+            // make sure the global-styles css document exists
+            const documentsTable = this.table(AppDB.DOCUMENTS_TABLE);
+            const count = await documentsTable.where('name').equals('global-styles').count();
+            if (count === 0) {
+                await documentsTable.add({
+                    name: 'global-styles',
+                    mime: 'text/css',
+                    content: `/* Global Styles and Font Declarations */\n`
+                });
+            }
 
         // Upgrade legacy dropdown options to DropdownOption json structure
         const attributesTable = this.table(AppDB.CARD_ATTRIBUTES_TABLE);
@@ -426,6 +435,9 @@ export class AppDB extends Dexie {
             }
         }
 
+        } finally {
+            this.isPopulating = false;
+        }
         return;
     }
 }

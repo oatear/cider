@@ -27,6 +27,10 @@ export class CardPreviewComponent implements OnInit, AfterViewInit, OnChanges, O
   @Input() tiltable: boolean = false;
   @Input() holographic: boolean | undefined = false;
   @Input() version: number = 0;
+  @Input() showTrimLines: boolean = false;
+  @Input() trimOffsetPx: number = 37.5;
+  @Input() showSafeLines: boolean = false;
+  @Input() safeOffsetPx: number = 75;
 
   initialWidth: number = 0;
   initialHeight: number = 0;

@@ -28,7 +28,12 @@
         "backs": "Achterkanten",
         "both": "Beide",
         "singles": "Enkelvoud",
-        "copies": "Kopieën"
+        "copies": "Kopieën",
+        "zoom-out": "Zoom Out",
+        "zoom-in": "Zoom In",
+        "reset-view": "Reset View",
+        "preview-settings": "Preview Settings",
+        "done": "Done"
     },
     "fields": {
         "name": "Naam",
@@ -162,5 +167,12 @@
         "roll-die": "Dobbelsteen gooien",
         "zoom": "Zoomen",
         "reset-game": "Spel resetten"
+    },
+    "template-editor": {
+        "preview-settings-title": "Preview Settings",
+        "enable-tilt": "Enable Dynamic Card Tilt",
+        "show-trim-lines": "Show Trim/Cut Lines",
+        "show-safe-lines": "Show Safe Area Lines",
+        "offset-from-edge": "Offset From Edge"
     }
 }

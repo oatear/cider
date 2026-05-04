@@ -28,7 +28,12 @@
         "backs": "Reversos",
         "both": "Ambos",
         "singles": "Individuales",
-        "copies": "Copias"
+        "copies": "Copias",
+        "zoom-out": "Alejar",
+        "zoom-in": "Acercar",
+        "reset-view": "Restablecer vista",
+        "preview-settings": "Configuración de vista previa",
+        "done": "Listo"
     },
     "fields": {
         "name": "Nombre",
@@ -162,5 +167,12 @@
         "roll-die": "Lanzar dado",
         "zoom": "Ampliar",
         "reset-game": "Reiniciar juego"
+    },
+    "template-editor": {
+        "preview-settings-title": "Configuración de vista previa",
+        "enable-tilt": "Habilitar inclinación dinámica",
+        "show-trim-lines": "Mostrar líneas de corte",
+        "show-safe-lines": "Mostrar líneas de área segura",
+        "offset-from-edge": "Desplazamiento desde el borde"
     }
 }

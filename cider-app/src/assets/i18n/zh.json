@@ -28,7 +28,12 @@
         "backs": "背面",
         "both": "两者",
         "singles": "单张",
-        "copies": "副本"
+        "copies": "副本",
+        "zoom-out": "Zoom Out",
+        "zoom-in": "Zoom In",
+        "reset-view": "Reset View",
+        "preview-settings": "Preview Settings",
+        "done": "Done"
     },
     "fields": {
         "name": "名称",
@@ -162,5 +167,12 @@
         "roll-die": "掷骰子",
         "zoom": "缩放",
         "reset-game": "重置游戏"
+    },
+    "template-editor": {
+        "preview-settings-title": "Preview Settings",
+        "enable-tilt": "Enable Dynamic Card Tilt",
+        "show-trim-lines": "Show Trim/Cut Lines",
+        "show-safe-lines": "Show Safe Area Lines",
+        "offset-from-edge": "Offset From Edge"
     }
 }
