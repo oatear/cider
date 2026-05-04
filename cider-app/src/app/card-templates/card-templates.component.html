@@ -6,40 +6,41 @@
       <div class="left-panel p-col p-flex p-align-items-center p-justify-content-center">
         <p-card styleClass="page-card">
           @if (!disablePanels) {
-            <div class="preview-controls">
-              <p-select [options]="cards" [(ngModel)]="selectedCard" [filter]="true" filterBy="name"
-              optionLabel="name" class="card-dropdown"></p-select>
-              <p-buttongroup>
-                <button pButton type="button" icon="pi pi-search-minus"
-                (click)="changeZoom(ZOOM_DOWN)" [pTooltip]="'controls.zoom-out' | translate"></button>
-                <button pButton type="button" class="zoom-level-button"
-                (click)="resetZoomAndPan()" [pTooltip]="'controls.reset-view' | translate">{{(zoom * 100).toFixed(0)}}%</button>
-                <button pButton type="button" icon="pi pi-search-plus"
-                (click)="changeZoom(ZOOM_UP)" [pTooltip]="'controls.zoom-in' | translate"></button>
-              </p-buttongroup>
-            </div>
+          <div class="preview-controls">
+            <p-select [options]="cards" [(ngModel)]="selectedCard" [filter]="true" filterBy="name" optionLabel="name"
+              class="card-dropdown"></p-select>
+            <p-buttongroup>
+              <button pButton type="button" icon="pi pi-search-minus" (click)="changeZoom(ZOOM_DOWN)"
+                [pTooltip]="'controls.zoom-out' | translate"></button>
+              <button pButton type="button" class="zoom-level-button" (click)="resetZoomAndPan()"
+                [pTooltip]="'controls.reset-view' | translate">{{(zoom * 100).toFixed(0)}}%</button>
+              <button pButton type="button" icon="pi pi-search-plus" (click)="changeZoom(ZOOM_UP)"
+                [pTooltip]="'controls.zoom-in' | translate"></button>
+            </p-buttongroup>
+            <button pButton type="button" icon="pi pi-cog" class="settings-button p-ml-2"
+              (click)="settingsVisible = true" [pTooltip]="'controls.preview-settings' | translate"></button>
+          </div>
           }
           @if (!disablePanels) {
-            <div #previewSpace class="preview-space" [class.panning]="isPanning"
-              (mousedown)="onMouseDown($event, previewSpace)"
-              (mousemove)="onMouseMove($event, previewSpace)"
-              (mouseup)="onMouseUp($event)"
-              (mouseleave)="onMouseLeave($event)"
-              (wheel)="onWheel($event)">
-              <div class="zoom-container" [style.transform]="'scale(' + zoom + ')'">
-                <div class="grid-container">
-                  <div class="grid-background">
-                    <div class="grid-lines"></div>
-                    <div class="grid-axis-x"></div>
-                    <div class="grid-axis-y"></div>
-                  </div>
-                  @if (selectedCard) {
-                    <app-card-preview [card]="selectedCard" [template]="selectedTemplate"
-                    [scale]="1.0" [cache]="false" [tiltable]="true" [version]="templateVersion"></app-card-preview>
-                  }
+          <div #previewSpace class="preview-space" [class.panning]="isPanning"
+            (mousedown)="onMouseDown($event, previewSpace)" (mousemove)="onMouseMove($event, previewSpace)"
+            (mouseup)="onMouseUp($event)" (mouseleave)="onMouseLeave($event)" (wheel)="onWheel($event)">
+            <div class="zoom-container" [style.transform]="'scale(' + zoom + ')'">
+              <div class="grid-container">
+                <div class="grid-background">
+                  <div class="grid-lines"></div>
+                  <div class="grid-axis-x"></div>
+                  <div class="grid-axis-y"></div>
                 </div>
+                @if (selectedCard) {
+                <app-card-preview [card]="selectedCard" [template]="selectedTemplate" [scale]="1.0" [cache]="false"
+                  [tiltable]="previewSettings.tiltEnabled" [showTrimLines]="previewSettings.trimLinesEnabled"
+                  [trimOffsetPx]="getTrimOffsetPx()" [showSafeLines]="previewSettings.safeLinesEnabled"
+                  [safeOffsetPx]="getSafeOffsetPx()" [version]="templateVersion"></app-card-preview>
+                }
               </div>
             </div>
+          </div>
           }
         </p-card>
       </div>
@@ -52,8 +53,7 @@
             <div class="css-editor-panel p-col p-flex p-align-items-center p-justify-content-center">
               <p-card styleClass="css-editor" header="CSS + Handlebars">
                 @if (selectedTemplate && !disablePanels) {
-                  <ngx-monaco-editor class="code-editor"
-                    [options]="cssEditorOptions" [(ngModel)]="selectedTemplate.css"
+                <ngx-monaco-editor class="code-editor" [options]="cssEditorOptions" [(ngModel)]="selectedTemplate.css"
                   (ngModelChange)="debounceSave()"></ngx-monaco-editor>
                 }
               </p-card>
@@ -63,8 +63,7 @@
             <div class="html-editor-panel p-col p-flex p-align-items-center p-justify-content-center">
               <p-card styleClass="html-editor" header="HTML + Handlebars">
                 @if (selectedTemplate && !disablePanels) {
-                  <ngx-monaco-editor class="code-editor"
-                    [options]="htmlEditorOptions" [(ngModel)]="selectedTemplate.html"
+                <ngx-monaco-editor class="code-editor" [options]="htmlEditorOptions" [(ngModel)]="selectedTemplate.html"
                   (ngModelChange)="debounceSave()"></ngx-monaco-editor>
                 }
               </p-card>
@@ -76,6 +75,57 @@
   </p-splitter>
 </div>
 <app-entity-dialog [service]="service" [(visible)]="dialogVisible" [entity]="editTemplate"
-(onCreate)="updateTemplatesList()"></app-entity-dialog>
+  (onCreate)="updateTemplatesList()"></app-entity-dialog>
 <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
 <p-dialog header="Information" [style]="{width: '450px'}" [(visible)]="infoVisible">{{infoText}}</p-dialog>
+
+<p-dialog header="Preview Settings" [(visible)]="settingsVisible" [modal]="true" [style]="{width: '400px'}"
+  [draggable]="false" [resizable]="false" styleClass="preview-settings-dialog" (onHide)="saveSettings()">
+  <div class="p-fluid">
+    <div class="settings-section">
+      <div class="p-flex p-align-items-center">
+        <p-checkbox [(ngModel)]="previewSettings.tiltEnabled" [binary]="true" inputId="tilt" (ngModelChange)="saveSettings()"></p-checkbox>
+        <label for="tilt" class="p-mb-0 p-ml-2">Enable Dynamic Card Tilt</label>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="p-flex p-align-items-center p-mb-3">
+        <p-checkbox [(ngModel)]="previewSettings.trimLinesEnabled" [binary]="true" inputId="trim" (ngModelChange)="saveSettings()"></p-checkbox>
+        <label for="trim" class="p-mb-0 p-ml-2">Show Trim/Cut Lines</label>
+      </div>
+      @if (previewSettings.trimLinesEnabled) {
+      <div class="p-field p-mt-4 p-mb-0">
+        <label class="p-text-xs p-mb-2 p-d-block">Offset From Edge</label>
+        <div class="p-inputgroup">
+          <p-inputNumber [(ngModel)]="previewSettings.trimOffset" [minFractionDigits]="2" [maxFractionDigits]="3"
+            placeholder="Offset" class="p-mr-2" (ngModelChange)="saveSettings()"></p-inputNumber>
+          <p-select [options]="unitOptions" [(ngModel)]="previewSettings.trimUnit" optionLabel="label"
+            optionValue="value" class="unit-dropdown" [style]="{'min-width': '100px'}" (ngModelChange)="saveSettings()"></p-select>
+        </div>
+      </div>
+      }
+    </div>
+
+    <div class="settings-section p-mb-0">
+      <div class="p-flex p-align-items-center p-mb-3">
+        <p-checkbox [(ngModel)]="previewSettings.safeLinesEnabled" [binary]="true" inputId="safe" (ngModelChange)="saveSettings()"></p-checkbox>
+        <label for="safe" class="p-mb-0 p-ml-2">Show Safe Area Lines</label>
+      </div>
+      @if (previewSettings.safeLinesEnabled) {
+      <div class="p-field p-mt-4 p-mb-0">
+        <label class="p-text-xs p-mb-2 p-d-block">Offset From Edge</label>
+        <div class="p-inputgroup">
+          <p-inputNumber [(ngModel)]="previewSettings.safeOffset" [minFractionDigits]="2" [maxFractionDigits]="3"
+            placeholder="Offset" class="p-mr-2" (ngModelChange)="saveSettings()"></p-inputNumber>
+          <p-select [options]="unitOptions" [(ngModel)]="previewSettings.safeUnit" optionLabel="label"
+            optionValue="value" class="unit-dropdown" [style]="{'min-width': '100px'}" (ngModelChange)="saveSettings()"></p-select>
+        </div>
+      </div>
+      }
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton icon="pi pi-check" (click)="settingsVisible = false" label="Done" class="p-button-text"></button>
+  </ng-template>
+</p-dialog>

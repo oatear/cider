@@ -13,6 +13,14 @@
     @if (holographic) {
     <div class="holo-overlay"></div>
     }
+    @if (showTrimLines) {
+    <div class="guide-line trim-line" [style.top.px]="trimOffsetPx" [style.bottom.px]="trimOffsetPx"
+      [style.left.px]="trimOffsetPx" [style.right.px]="trimOffsetPx"></div>
+    }
+    @if (showSafeLines) {
+    <div class="guide-line safe-line" [style.top.px]="safeOffsetPx" [style.bottom.px]="safeOffsetPx"
+      [style.left.px]="safeOffsetPx" [style.right.px]="safeOffsetPx"></div>
+    }
   </div>
   }
 </div>

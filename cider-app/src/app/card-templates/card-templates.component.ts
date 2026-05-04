@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener, SecurityContext, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, HostListener, SecurityContext, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { CardTemplatesService } from '../data-services/services/card-templates.service';
@@ -7,7 +7,7 @@ import { CardTemplate } from '../data-services/types/card-template.type';
 import { Card } from '../data-services/types/card.type';
 import { Subject, debounceTime } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
-import { LocalStorageService } from '../data-services/local-storage/local-storage.service';
+import { LocalStorageService, PreviewSettings } from '../data-services/local-storage/local-storage.service';
 
 const templateCssFront  = 
 `.card {
@@ -56,7 +56,7 @@ const templateHtmlFront =
     providers: [MessageService, ConfirmationService],
     standalone: false
 })
-export class CardTemplatesComponent implements OnInit, AfterViewInit {
+export class CardTemplatesComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('previewSpace') previewSpace!: ElementRef;
   static readonly DEFAULT_HTML: string = templateHtmlFront;
   static readonly DEFAULT_CSS: string = templateCssFront;
@@ -85,10 +85,27 @@ export class CardTemplatesComponent implements OnInit, AfterViewInit {
   windowResizing$: Subject<boolean>;
   templateVersion: number = 0;
   isPanning: boolean = false;
+  settingsVisible: boolean = false;
+  previewSettings: PreviewSettings = {
+    tiltEnabled: false,
+    trimLinesEnabled: false,
+    trimOffset: 0.125,
+    trimUnit: 'in',
+    safeLinesEnabled: false,
+    safeOffset: 0.25,
+    safeUnit: 'in'
+  };
+  unitOptions = [
+    { label: 'Inches', value: 'in' },
+    { label: 'Pixels', value: 'px' },
+    { label: 'mm', value: 'mm' }
+  ];
+
   private panStartX: number = 0;
   private panStartY: number = 0;
   private scrollLeftStart: number = 0;
   private scrollTopStart: number = 0;
+  private resizeObserver: ResizeObserver | null = null;
 
 
   constructor(private domSanitizer: DomSanitizer, 
@@ -114,6 +131,7 @@ export class CardTemplatesComponent implements OnInit, AfterViewInit {
       this.windowResizing$ = new Subject();
       this.windowResizing$.pipe(debounceTime(200)).subscribe(() => {
         this.disablePanels = false;
+        setTimeout(() => this.centerPreview(), 100);
       });
       if (!this.localStorage.getDarkMode()) {
         this.htmlEditorOptions.theme = 'vs';
@@ -122,6 +140,11 @@ export class CardTemplatesComponent implements OnInit, AfterViewInit {
     }
 
   ngOnInit(): void {
+    const savedSettings = this.localStorage.getPreviewSettings();
+    if (savedSettings) {
+      this.previewSettings = savedSettings;
+    }
+
     this.service.getAll().then(templates => {
       this.templates = templates;
       // if (this.templates.length > 0) {
@@ -138,8 +161,42 @@ export class CardTemplatesComponent implements OnInit, AfterViewInit {
       .subscribe(() => this.save(this.selectedTemplate));
   }
 
+  public saveSettings() {
+    this.localStorage.setPreviewSettings(this.previewSettings);
+  }
+
+  public getTrimOffsetPx(): number {
+    return this.convertToPx(this.previewSettings.trimOffset, this.previewSettings.trimUnit);
+  }
+
+  public getSafeOffsetPx(): number {
+    return this.convertToPx(this.previewSettings.safeOffset, this.previewSettings.safeUnit);
+  }
+
+  private convertToPx(value: number, unit: 'in' | 'px' | 'mm'): number {
+    if (unit === 'px') return value;
+    if (unit === 'in') return value * 300;
+    if (unit === 'mm') return (value / 25.4) * 300;
+    return value;
+  }
+
   ngAfterViewInit(): void {
     setTimeout(() => this.centerPreview(), 500);
+
+    if (this.previewSpace) {
+      this.resizeObserver = new ResizeObserver(() => {
+        if (!this.disablePanels) {
+          this.centerPreview();
+        }
+      });
+      this.resizeObserver.observe(this.previewSpace.nativeElement);
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+    }
   }
 
   @HostListener('window:resize', ['$event'])
@@ -282,6 +339,7 @@ export class CardTemplatesComponent implements OnInit, AfterViewInit {
   public onResizeEnd(event: any) {
     this.disablePanels = false;
     this.previewPanelWidth = event.sizes[0];
+    setTimeout(() => this.centerPreview(), 100);
   }
 
 }

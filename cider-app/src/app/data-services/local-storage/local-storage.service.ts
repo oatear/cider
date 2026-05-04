@@ -35,6 +35,16 @@ export interface ExportConfiguration {
   simulateUnsharpMask?: boolean;
 }
 
+export interface PreviewSettings {
+  tiltEnabled: boolean;
+  trimLinesEnabled: boolean;
+  trimOffset: number;
+  trimUnit: 'in' | 'px' | 'mm';
+  safeLinesEnabled: boolean;
+  safeOffset: number;
+  safeUnit: 'in' | 'px' | 'mm';
+}
+
 /**
  * Local storage is used for storing user preferences
  */
@@ -47,6 +57,7 @@ export class LocalStorageService {
   static readonly DARK_MODE = "dark-mode";
   static readonly RENDERER_TYPE = "renderer-type";
   static readonly EXPORT_CONFIG = "export-config";
+  static readonly PREVIEW_SETTINGS = "preview-settings";
 
   public recentProjectUrls: BehaviorSubject<PersistentPath[]>;
 
@@ -136,6 +147,15 @@ export class LocalStorageService {
 
   public setExportConfig(config: ExportConfiguration) {
     localStorage.setItem(LocalStorageService.EXPORT_CONFIG, JSON.stringify(config));
+  }
+
+  public getPreviewSettings(): PreviewSettings | null {
+    const settings = localStorage.getItem(LocalStorageService.PREVIEW_SETTINGS);
+    return settings ? JSON.parse(settings) : null;
+  }
+
+  public setPreviewSettings(settings: PreviewSettings) {
+    localStorage.setItem(LocalStorageService.PREVIEW_SETTINGS, JSON.stringify(settings));
   }
 
 }

@@ -28,6 +28,28 @@ textarea {
     }
 }
 
+.unit-dropdown {
+    width: 100px;
+}
+
+.settings-section {
+    padding: 14px;
+    border-radius: 8px;
+    border: 1px solid rgba(128, 128, 128, 0.1);
+    background-color: rgba(0, 0, 0, 0.15); // More subtle background
+    margin-bottom: 1rem;
+
+    label {
+        font-weight: 600;
+        color: var(--p-text-color); // Theme-aware color
+        display: inline-block;
+    }
+
+    .p-flex.p-align-items-center {
+        gap: 12px; // Space between checkbox and label
+    }
+}
+
 :host ::ng-deep ngx-monaco-editor {
     height: 100%;
 
@@ -102,16 +124,37 @@ textarea {
                 .preview-controls {
                     width: 100%;
                     display: flex;
+                    align-items: center;
                     margin-bottom: 10px;
+                    height: 50px;
 
                     p-select {
                         flex: 1;
                         margin-right: 10px;
                     }
 
-                    .p-buttonset {
-                        margin: 15px;
-                        margin-left: 0;
+                    .p-buttongroup {
+                        margin: 0;
+
+                        .p-button {
+                            height: 38px;
+                            border-radius: 0;
+
+                            &:first-child {
+                                border-top-left-radius: 6px;
+                                border-bottom-left-radius: 6px;
+                            }
+
+                            &:last-child {
+                                border-top-right-radius: 6px;
+                                border-bottom-right-radius: 6px;
+                            }
+                        }
+                    }
+
+                    .settings-button {
+                        margin-left: 8px;
+                        height: 38px;
                     }
                 }
             }
