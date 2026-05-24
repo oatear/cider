@@ -105,6 +105,18 @@ export default class XlsxUtils {
                             }
                         }
                         (<any>converted)[header.field] = val;
+                    } else if (header.type === FieldType.checkbox) {
+                        const val = (<any>object)[header.header];
+                        if (typeof val === 'boolean') {
+                            (<any>converted)[header.field] = val;
+                        } else if (typeof val === 'string') {
+                            const lower = val.toLowerCase().trim();
+                            (<any>converted)[header.field] = lower === 'true' || lower === '1' || lower === 'yes';
+                        } else if (typeof val === 'number') {
+                            (<any>converted)[header.field] = val !== 0;
+                        } else {
+                            (<any>converted)[header.field] = false;
+                        }
                     } else {
                         (<any>converted)[header.field] = (<any>object)[header.header];
                     }
