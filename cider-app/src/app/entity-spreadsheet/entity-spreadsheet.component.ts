@@ -3,7 +3,7 @@ import { CardsService } from '../data-services/services/cards.service';
 import { CardAttributesService } from '../data-services/services/card-attributes.service';
 import { ThemeService } from '../data-services/theme/theme.service';
 import { DecksService } from '../data-services/services/decks.service';
-import { SpreadsheetComponent, Cell, ColumnConfig, SpreadsheetTheme, longLight, longDark, cosmicDark } from 'oatear-longtable';
+import { SpreadsheetComponent, Cell, ColumnConfig, DropdownOption, SpreadsheetTheme, longLight, longDark, cosmicDark } from 'oatear-longtable';
 import { Card } from '../data-services/types/card.type';
 import { CardAttribute } from '../data-services/types/card-attribute.type';
 import { Subscription, Subject, debounceTime, firstValueFrom } from 'rxjs';
@@ -92,7 +92,7 @@ export class EntitySpreadsheetComponent implements OnInit, OnDestroy {
 
         const configs: ColumnConfig[] = await Promise.all(visibleFields.map(async f => {
             const editor = this.mapEditor(f.type);
-            let options: string[] = f.options ? f.options.map(o => o.value) : [];
+            let options: (string | DropdownOption)[] = f.options ? f.options : [];
 
             if (f.service) {
                 const entities = await f.service.getAll();
@@ -330,7 +330,7 @@ export class EntitySpreadsheetComponent implements OnInit, OnDestroy {
 
                     // 4. Update Options
                     if (config.options && Array.isArray(config.options)) {
-                        const newOptionsStr = config.options;
+                        const newOptionsStr = config.options as any[];
                         let currentOptions: any[] = [];
                         if (Array.isArray(attr.options)) {
                             currentOptions = attr.options;
@@ -340,13 +340,25 @@ export class EntitySpreadsheetComponent implements OnInit, OnDestroy {
                         }
 
                         const currentValues = currentOptions.map(o => o.value);
-                        const valuesChanged = JSON.stringify(currentValues) !== JSON.stringify(newOptionsStr);
+                        // Extract option values since newOptionsStr elements can be strings, standard objects, or nested objects.
+                        const newValues = newOptionsStr.map((val: any) => {
+                            if (typeof val === 'string') return val;
+                            if (val && typeof val.value === 'object' && val.value) return val.value.value;
+                            return val ? val.value : '';
+                        });
+                        const valuesChanged = JSON.stringify(currentValues) !== JSON.stringify(newValues);
 
                         if (!attr.isSystem && valuesChanged) {
-                            const mergedOptions = newOptionsStr.map(val => {
-                                const existing = currentOptions.find(o => o.value === val);
+                            const mergedOptions = newOptionsStr.map((val: any) => {
+                                const valStr = typeof val === 'string' ? val : (val && typeof val.value === 'object' && val.value ? val.value.value : (val ? val.value : ''));
+                                const valColor = (val && typeof val !== 'string' && val.color) ? (typeof val.value === 'object' && val.value ? val.value.color || val.color : val.color) : undefined;
+                                
+                                const existing = currentOptions.find(o => o.value === valStr);
                                 if (existing) return existing;
-                                return { value: val, color: '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0') };
+                                return {
+                                    value: valStr,
+                                    color: valColor || '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0')
+                                };
                             });
                             attr.options = mergedOptions;
                             changed = true;

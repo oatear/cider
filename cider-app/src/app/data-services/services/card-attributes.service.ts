@@ -3,6 +3,7 @@ import { AppDB } from '../indexed-db/db';
 import { DecksChildService } from '../indexed-db/decks-child.service';
 import { CardAttribute } from '../types/card-attribute.type';
 import { FieldType } from '../types/field-type.type';
+import { DropdownOption } from '../types/dropdown-option.type';
 import { DecksService } from './decks.service';
 import StringUtils from 'src/app/shared/utils/string-utils';
 import { ElectronService } from '../electron/electron.service';
@@ -105,33 +106,77 @@ export class CardAttributesService extends DecksChildService<CardAttribute, numb
     return entity.name;
   }
 
+  // Backwards compatibility helper to normalize options and flatten legacy nested formats
+  normalizeDropdownOptions(options: any): DropdownOption[] {
+    if (!options) return [];
+
+    let parsedOptions: any[] = [];
+    if (typeof options === 'string') {
+      const trimmed = options.trim();
+      if (trimmed.startsWith('[')) {
+        try {
+          parsedOptions = JSON.parse(trimmed);
+        } catch (e) {
+          // ignore, treat as pipe separated
+          parsedOptions = trimmed.split('|').map(o => o.trim());
+        }
+      } else {
+        parsedOptions = trimmed.split('|').map(o => o.trim());
+      }
+    } else if (Array.isArray(options)) {
+      parsedOptions = options;
+    } else {
+      return [];
+    }
+
+    return parsedOptions.map(opt => {
+      if (typeof opt === 'string') {
+        return { value: opt, color: StringUtils.generateRandomColor() };
+      }
+      
+      // BACKWARDS COMPATIBILITY: Check for legacy nested format:
+      // { value: { value: '...', color: '...' }, color: '...' }
+      if (opt && typeof opt === 'object' && opt.value && typeof opt.value === 'object') {
+        const innerVal = opt.value.value;
+        const innerColor = opt.value.color || opt.color || StringUtils.generateRandomColor();
+        return {
+          value: typeof innerVal === 'string' ? innerVal : String(innerVal),
+          color: innerColor
+        };
+      }
+
+      // Standard DropdownOption format: { value: '...', color: '...' }
+      if (opt && typeof opt === 'object') {
+        return {
+          value: typeof opt.value === 'string' ? opt.value : String(opt.value || ''),
+          color: opt.color || StringUtils.generateRandomColor()
+        };
+      }
+
+      return { value: String(opt), color: StringUtils.generateRandomColor() };
+    }).filter(opt => opt.value);
+  }
+
   override create(entity: CardAttribute, overrideParent?: boolean | undefined): Promise<CardAttribute> {
     const normalizedType = (entity.type as string)?.toLowerCase().trim();
-    if ((normalizedType === FieldType.dropdown || normalizedType === 'option') && entity.options) {
+    if (normalizedType === FieldType.dropdown || normalizedType === 'option') {
       if ((entity.type as string) !== FieldType.dropdown) {
         entity.type = FieldType.dropdown;
       }
-
-      if (typeof entity.options === 'string') {
-        const strOptions = entity.options as string;
-        try {
-          const parsed = JSON.parse(strOptions);
-          if (Array.isArray(parsed)) {
-            entity.options = parsed;
-            return super.create(entity, overrideParent);
-          }
-        } catch (e) {
-          // ignore error, treat as legacy string
-        }
-
-        const optionsList = strOptions.split('|').map(o => o.trim());
-
-        entity.options = optionsList.map(o => {
-          return { value: o, color: StringUtils.generateRandomColor() };
-        });
-      }
+      entity.options = this.normalizeDropdownOptions(entity.options);
     }
     return super.create(entity, overrideParent);
+  }
+
+  override update(id: number, entity: CardAttribute, overrideParent?: boolean | undefined): Promise<CardAttribute> {
+    const normalizedType = (entity.type as string)?.toLowerCase().trim();
+    if (normalizedType === FieldType.dropdown || normalizedType === 'option') {
+      if ((entity.type as string) !== FieldType.dropdown) {
+        entity.type = FieldType.dropdown;
+      }
+      entity.options = this.normalizeDropdownOptions(entity.options);
+    }
+    return super.update(id, entity, overrideParent);
   }
 
   async createSystemAttributes(deckId: number) {
